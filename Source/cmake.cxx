@@ -302,8 +302,8 @@ CMake::CMake(Role role, cmState::Mode mode, cmState::ProjectKind projectKind)
   , m_pState(cm::make_unique<cmState>(mode, projectKind))
   , m_pMessenger(cm::make_unique<cmMessenger>())
 {
-  this->m_traceFile.close();
-  this->m_currentSnapshot = this->m_pState->CreateBaseSnapshot();
+  m_traceFile.close();
+  m_currentSnapshot = m_pState->CreateBaseSnapshot();
 
 #ifdef __APPLE__
   struct rlimit rlp;
@@ -346,16 +346,16 @@ CMake::CMake(Role role, cmState::Mode mode, cmState::ProjectKind projectKind)
     };
 
     // The "c" extension MUST precede the "C" extension.
-    setupExts(this->m_CLikeSourceFileExtensions,
+    setupExts(m_CLikeSourceFileExtensions,
               { "c", "C", "c++", "cc", "cpp", "cxx", "cu", "mpp", "m", "M",
                 "mm", "ixx", "cppm", "ccm", "cxxm", "c++m" });
-    setupExts(this->m_headerFileExtensions,
+    setupExts(m_headerFileExtensions,
               { "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" });
-    setupExts(this->m_cudaFileExtensions, { "cu" });
-    setupExts(this->m_FortranFileExtensions,
+    setupExts(m_cudaFileExtensions, { "cu" });
+    setupExts(m_FortranFileExtensions,
               { "f", "F", "for", "f77", "f90", "f95", "f03" });
-    setupExts(this->m_HipFileExtensions, { "hip" });
-    setupExts(this->m_ISPCFileExtensions, { "ispc" });
+    setupExts(m_HipFileExtensions, { "hip" });
+    setupExts(m_ISPCFileExtensions, { "ispc" });
   }
 }
 
@@ -446,11 +446,11 @@ std::string CMake::ReportCapabilities() const
 
 void CMake::CleanupCommandsAndMacros()
 {
-  this->m_currentSnapshot = this->m_pState->Reset();
-  this->m_pState->RemoveUserDefinedCommands();
-  this->m_currentSnapshot.SetDefaultDefinitions();
+  m_currentSnapshot = m_pState->Reset();
+  m_pState->RemoveUserDefinedCommands();
+  m_currentSnapshot.SetDefaultDefinitions();
   // FIXME: InstalledFiles probably belongs in the global generator.
-  this->m_installedFiles.clear();
+  m_installedFiles.clear();
 }
 
 #ifndef CMAKE_BOOTSTRAP
@@ -460,23 +460,23 @@ void CMake::SetWarningFromPreset(std::string const& name,
 {
   if (warning) {
     if (*warning) {
-      this->m_diagLevels[name] = std::max(this->m_diagLevels[name], DIAG_WARN);
+      m_diagLevels[name] = std::max(m_diagLevels[name], DIAG_WARN);
     } else {
-      this->m_diagLevels[name] = DIAG_IGNORE;
+      m_diagLevels[name] = DIAG_IGNORE;
     }
   }
   if (error) {
     if (*error) {
-      this->m_diagLevels[name] = DIAG_ERROR;
+      m_diagLevels[name] = DIAG_ERROR;
     } else {
-      this->m_diagLevels[name] = std::min(this->m_diagLevels[name], DIAG_WARN);
+      m_diagLevels[name] = std::min(m_diagLevels[name], DIAG_WARN);
     }
   }
 }
 
 void CMake::ProcessPresetVariables()
 {
-  for (auto const& var : this->m_unprocessedPresetVariables) {
+  for (auto const& var : m_unprocessedPresetVariables) {
     if (!var.second) {
       continue;
     }
@@ -491,7 +491,7 @@ void CMake::ProcessPresetVariables()
 void CMake::PrintPresetVariables()
 {
   bool first = true;
-  for (auto const& var : this->m_unprocessedPresetVariables) {
+  for (auto const& var : m_unprocessedPresetVariables) {
     if (!var.second) {
       continue;
     }
@@ -512,12 +512,12 @@ void CMake::PrintPresetVariables()
   if (!first) {
     std::cout << '\n';
   }
-  this->m_unprocessedPresetVariables.clear();
+  m_unprocessedPresetVariables.clear();
 }
 
 void CMake::ProcessPresetEnvironment()
 {
-  for (auto const& var : this->m_unprocessedPresetEnvironment) {
+  for (auto const& var : m_unprocessedPresetEnvironment) {
     if (var.second) {
       cmSystemTools::PutEnv(cmStrCat(var.first, '=', *var.second));
     }
@@ -527,7 +527,7 @@ void CMake::ProcessPresetEnvironment()
 void CMake::PrintPresetEnvironment()
 {
   bool first = true;
-  for (auto const& var : this->m_unprocessedPresetEnvironment) {
+  for (auto const& var : m_unprocessedPresetEnvironment) {
     if (!var.second) {
       continue;
     }
@@ -540,7 +540,7 @@ void CMake::PrintPresetEnvironment()
   if (!first) {
     std::cout << '\n';
   }
-  this->m_unprocessedPresetEnvironment.clear();
+  m_unprocessedPresetEnvironment.clear();
 }
 #endif
 
@@ -549,7 +549,7 @@ bool CMake::SetCacheArgs(std::vector<std::string> const& args)
 {
   static std::string const kCMAKE_POLICY_VERSION_MINIMUM =
     "CMAKE_POLICY_VERSION_MINIMUM";
-  if (!this->m_pState->GetInitializedCacheValue(kCMAKE_POLICY_VERSION_MINIMUM)) {
+  if (!m_pState->GetInitializedCacheValue(kCMAKE_POLICY_VERSION_MINIMUM)) {
     cm::optional<std::string> policyVersion =
       cmSystemTools::GetEnvVar(kCMAKE_POLICY_VERSION_MINIMUM);
     if (policyVersion && !policyVersion->empty()) {
@@ -557,7 +557,7 @@ bool CMake::SetCacheArgs(std::vector<std::string> const& args)
         kCMAKE_POLICY_VERSION_MINIMUM, *policyVersion,
         "Override policy version for cmake_minimum_required calls.",
         cmStateEnums::STRING);
-      this->m_pState->SetCacheEntryProperty(kCMAKE_POLICY_VERSION_MINIMUM,
+      m_pState->SetCacheEntryProperty(kCMAKE_POLICY_VERSION_MINIMUM,
                                          "ADVANCED", "1");
     }
   }
@@ -762,8 +762,8 @@ void CMake::ProcessCacheArg(std::string const& var, std::string const& value,
   // after we call AddCacheEntry.
   bool haveValue = false;
   std::string cachedValue;
-  if (this->m_warnUnusedCli) {
-    if (cmValue v = this->m_pState->GetInitializedCacheValue(var)) {
+  if (m_warnUnusedCli) {
+    if (cmValue v = m_pState->GetInitializedCacheValue(var)) {
       haveValue = true;
       cachedValue = *v;
     }
@@ -772,9 +772,9 @@ void CMake::ProcessCacheArg(std::string const& var, std::string const& value,
   this->AddCacheEntry(
     var, value, "No help, variable specified on the command line.", type);
 
-  if (this->m_warnUnusedCli) {
+  if (m_warnUnusedCli) {
     if (!haveValue ||
-        cachedValue != *this->m_pState->GetInitializedCacheValue(var)) {
+        cachedValue != *m_pState->GetInitializedCacheValue(var)) {
       this->WatchUnusedCli(var);
     }
   }
@@ -795,7 +795,7 @@ void CMake::ReadListFile(std::vector<std::string> const& args,
 
   // read in the list file to fill the cache
   if (!path.empty()) {
-    this->m_currentSnapshot = this->m_pState->Reset();
+    m_currentSnapshot = m_pState->Reset();
     cmStateSnapshot snapshot = this->GetCurrentSnapshot();
     snapshot.GetDirectory().SetCurrentBinary(this->GetHomeOutputDirectory());
     snapshot.GetDirectory().SetCurrentSource(this->GetHomeDirectory());
@@ -830,7 +830,7 @@ bool CMake::FindPackage(std::vector<std::string> const& args)
   snapshot.SetDefaultDefinitions();
   auto mfu = cm::make_unique<cmMakefile>(this->GetGlobalGenerator(), snapshot);
   cmMakefile* mf = mfu.get();
-  this->m_pGlobalGenerator->AddMakefile(std::move(mfu));
+  m_pGlobalGenerator->AddMakefile(std::move(mfu));
 
   mf->SetArgcArgv(args);
 
@@ -855,8 +855,8 @@ bool CMake::FindPackage(std::vector<std::string> const& args)
     std::string includes = mf->GetSafeDefinition("PACKAGE_INCLUDE_DIRS");
     cmList includeDirs{ includes };
 
-    this->m_pGlobalGenerator->CreateGenerationObjects();
-    auto const& lg = this->m_pGlobalGenerator->LocalGenerators[0];
+    m_pGlobalGenerator->CreateGenerationObjects();
+    auto const& lg = m_pGlobalGenerator->LocalGenerators[0];
     std::string includeFlags =
       lg->GetIncludeFlags(includeDirs, nullptr, language, std::string());
 
@@ -882,9 +882,9 @@ bool CMake::FindPackage(std::vector<std::string> const& args)
     std::string linkPath;
     std::string flags;
     std::string linkFlags;
-    this->m_pGlobalGenerator->CreateGenerationObjects();
+    m_pGlobalGenerator->CreateGenerationObjects();
     cmGeneratorTarget* gtgt =
-      this->m_pGlobalGenerator->FindGeneratorTarget(tgt->GetName());
+      m_pGlobalGenerator->FindGeneratorTarget(tgt->GetName());
     cmLocalGenerator* lg = gtgt->GetLocalGenerator();
     cmLinkLineComputer linkLineComputer(lg,
                                         lg->GetStateSnapshot().GetDirectory());
@@ -913,7 +913,7 @@ void CMake::LoadEnvironmentPresets()
   bool hasEnvironmentGenerator = false;
   if (cmSystemTools::GetEnv("CMAKE_GENERATOR", envGenVar)) {
     hasEnvironmentGenerator = true;
-    this->m_environmentGenerator = envGenVar;
+    m_environmentGenerator = envGenVar;
   }
 
   auto readGeneratorVar = [&](std::string const& name, std::string& key) {
@@ -930,9 +930,9 @@ void CMake::LoadEnvironmentPresets()
     }
   };
 
-  readGeneratorVar("CMAKE_GENERATOR_INSTANCE", this->m_generatorInstance);
-  readGeneratorVar("CMAKE_GENERATOR_PLATFORM", this->m_generatorPlatform);
-  readGeneratorVar("CMAKE_GENERATOR_TOOLSET", this->m_generatorToolset);
+  readGeneratorVar("CMAKE_GENERATOR_INSTANCE", m_generatorInstance);
+  readGeneratorVar("CMAKE_GENERATOR_PLATFORM", m_generatorPlatform);
+  readGeneratorVar("CMAKE_GENERATOR_TOOLSET", m_generatorToolset);
 }
 
 namespace {
@@ -951,7 +951,7 @@ enum class ListPresets
 // Parse the args
 void CMake::SetArgs(std::vector<std::string> const& args)
 {
-  this->m_cmdArgs = args;
+  m_cmdArgs = args;
   bool haveToolset = false;
   bool havePlatform = false;
   bool haveBArg = false;
@@ -1477,13 +1477,13 @@ void CMake::SetArgs(std::vector<std::string> const& args)
   }
 
   // Empty instance, platform and toolset if only a generator is specified
-  if (this->m_pGlobalGenerator) {
-    this->m_generatorInstance = "";
-    if (!this->m_generatorPlatformSet) {
-      this->m_generatorPlatform = "";
+  if (m_pGlobalGenerator) {
+    m_generatorInstance = "";
+    if (!m_generatorPlatformSet) {
+      m_generatorPlatform = "";
     }
-    if (!this->m_generatorToolsetSet) {
-      this->m_generatorToolset = "";
+    if (!m_generatorToolsetSet) {
+      m_generatorToolset = "";
     }
   }
 
@@ -1496,7 +1496,7 @@ void CMake::SetArgs(std::vector<std::string> const& args)
     }
     if (profilingFormat == "google-trace"_s) {
       try {
-        this->m_profilingOutput =
+        m_profilingOutput =
           cm::make_unique<cmMakefileProfilingData>(profilingOutput);
       } catch (std::runtime_error& e) {
         cmSystemTools::Error(
@@ -1519,7 +1519,7 @@ void CMake::SetArgs(std::vector<std::string> const& args)
     !presetName.empty();
 #endif
 
-  if (this->m_currentWorkingMode == CMake::NORMAL_MODE && !haveSourceDir &&
+  if (m_currentWorkingMode == CMake::NORMAL_MODE && !haveSourceDir &&
       !haveBinaryDir && !havePreset) {
     this->IssueMessage(
       MessageType::WARNING,
@@ -1595,27 +1595,27 @@ void CMake::SetArgs(std::vector<std::string> const& args)
       return;
     }
 
-    if (!this->m_pState->IsCacheLoaded() && !haveBArg &&
+    if (!m_pState->IsCacheLoaded() && !haveBArg &&
         !expandedPreset->BinaryDir.empty()) {
       this->SetHomeOutputDirectory(expandedPreset->BinaryDir);
     }
-    if (!this->m_pGlobalGenerator && !expandedPreset->Generator.empty()) {
+    if (!m_pGlobalGenerator && !expandedPreset->Generator.empty()) {
       if (!this->CreateAndSetGlobalGenerator(expandedPreset->Generator)) {
         return;
       }
     }
-    this->m_unprocessedPresetVariables = expandedPreset->CacheVariables;
-    this->m_unprocessedPresetEnvironment = expandedPreset->Environment;
+    m_unprocessedPresetVariables = expandedPreset->CacheVariables;
+    m_unprocessedPresetEnvironment = expandedPreset->Environment;
 
     if (!expandedPreset->InstallDir.empty() &&
-        !this->m_pState->GetInitializedCacheValue("CMAKE_INSTALL_PREFIX")) {
-      this->m_unprocessedPresetVariables["CMAKE_INSTALL_PREFIX"] = {
+        !m_pState->GetInitializedCacheValue("CMAKE_INSTALL_PREFIX")) {
+      m_unprocessedPresetVariables["CMAKE_INSTALL_PREFIX"] = {
         "PATH", expandedPreset->InstallDir
       };
     }
     if (!expandedPreset->ToolchainFile.empty() &&
-        !this->m_pState->GetInitializedCacheValue("CMAKE_TOOLCHAIN_FILE")) {
-      this->m_unprocessedPresetVariables["CMAKE_TOOLCHAIN_FILE"] = {
+        !m_pState->GetInitializedCacheValue("CMAKE_TOOLCHAIN_FILE")) {
+      m_unprocessedPresetVariables["CMAKE_TOOLCHAIN_FILE"] = {
         "FILEPATH", expandedPreset->ToolchainFile
       };
     }
@@ -1623,7 +1623,7 @@ void CMake::SetArgs(std::vector<std::string> const& args)
     if (!expandedPreset->ArchitectureStrategy ||
         expandedPreset->ArchitectureStrategy ==
           cmCMakePresetsGraph::ArchToolsetStrategy::Set) {
-      if (!this->m_generatorPlatformSet &&
+      if (!m_generatorPlatformSet &&
           !expandedPreset->Architecture.empty()) {
         this->SetGeneratorPlatform(expandedPreset->Architecture);
       }
@@ -1631,13 +1631,13 @@ void CMake::SetArgs(std::vector<std::string> const& args)
     if (!expandedPreset->ToolsetStrategy ||
         expandedPreset->ToolsetStrategy ==
           cmCMakePresetsGraph::ArchToolsetStrategy::Set) {
-      if (!this->m_generatorToolsetSet && !expandedPreset->Toolset.empty()) {
+      if (!m_generatorToolsetSet && !expandedPreset->Toolset.empty()) {
         this->SetGeneratorToolset(expandedPreset->Toolset);
       }
     }
 
     if (!expandedPreset->m_graphVizFile.empty()) {
-      if (this->m_graphVizFile.empty()) {
+      if (m_graphVizFile.empty()) {
         this->SetGraphVizFile(
           cmSystemTools::CollapseFullPath(expandedPreset->m_graphVizFile));
       }
@@ -1759,9 +1759,9 @@ CMake::TraceFormat CMake::StringToTraceFormat(std::string const& traceStr)
 
 void CMake::SetTraceFile(std::string const& file)
 {
-  this->m_traceFile.close();
-  this->m_traceFile.open(file.c_str());
-  if (!this->m_traceFile) {
+  m_traceFile.close();
+  m_traceFile.open(file.c_str());
+  if (!m_traceFile) {
     cmSystemTools::Error(cmStrCat("Error opening trace file ", file, ": ",
                                   cmSystemTools::GetLastSystemError()));
     return;
@@ -1813,12 +1813,12 @@ void CMake::PrintTraceFormatVersion()
 
 void CMake::SetTraceRedirect(CMake* other)
 {
-  this->m_trace = other->m_trace;
-  this->m_traceExpand = other->m_traceExpand;
-  this->m_traceFormatVar = other->m_traceFormatVar;
-  this->m_traceOnlyThisSources = other->m_traceOnlyThisSources;
+  m_trace = other->m_trace;
+  m_traceExpand = other->m_traceExpand;
+  m_traceFormatVar = other->m_traceFormatVar;
+  m_traceOnlyThisSources = other->m_traceOnlyThisSources;
 
-  this->m_traceRedirect = other;
+  m_traceRedirect = other;
 }
 
 bool CMake::SetDirectoriesFromFile(std::string const& arg)
@@ -1871,7 +1871,7 @@ bool CMake::SetDirectoriesFromFile(std::string const& arg)
   if (!cachePath.empty()) {
     if (this->LoadCache(cachePath)) {
       cmValue existingValue =
-        this->m_pState->GetCacheEntryValue("CMAKE_HOME_DIRECTORY");
+        m_pState->GetCacheEntryValue("CMAKE_HOME_DIRECTORY");
       if (existingValue) {
         this->SetHomeOutputDirectory(cachePath);
         this->SetHomeDirectory(*existingValue);
@@ -2130,34 +2130,34 @@ void CMake::SetHomeDirectoryViaCommandLine(std::string const& path)
 
 void CMake::SetHomeDirectory(std::string const& dir)
 {
-  this->m_pState->SetSourceDirectory(dir);
-  if (this->m_currentSnapshot.IsValid()) {
-    this->m_currentSnapshot.SetDefinition("CMAKE_SOURCE_DIR", dir);
+  m_pState->SetSourceDirectory(dir);
+  if (m_currentSnapshot.IsValid()) {
+    m_currentSnapshot.SetDefinition("CMAKE_SOURCE_DIR", dir);
   }
 
-  if (this->m_pState->GetProjectKind() == cmState::ProjectKind::Normal) {
-    this->m_pMessenger->SetTopSource(this->GetHomeDirectory());
+  if (m_pState->GetProjectKind() == cmState::ProjectKind::Normal) {
+    m_pMessenger->SetTopSource(this->GetHomeDirectory());
   } else {
-    this->m_pMessenger->SetTopSource(cm::nullopt);
+    m_pMessenger->SetTopSource(cm::nullopt);
   }
 }
 
 std::string const& CMake::GetHomeDirectory() const
 {
-  return this->m_pState->GetSourceDirectory();
+  return m_pState->GetSourceDirectory();
 }
 
 void CMake::SetHomeOutputDirectory(std::string const& dir)
 {
-  this->m_pState->SetBinaryDirectory(dir);
-  if (this->m_currentSnapshot.IsValid()) {
-    this->m_currentSnapshot.SetDefinition("CMAKE_BINARY_DIR", dir);
+  m_pState->SetBinaryDirectory(dir);
+  if (m_currentSnapshot.IsValid()) {
+    m_currentSnapshot.SetDefinition("CMAKE_BINARY_DIR", dir);
   }
 }
 
 std::string const& CMake::GetHomeOutputDirectory() const
 {
-  return this->m_pState->GetBinaryDirectory();
+  return m_pState->GetBinaryDirectory();
 }
 
 std::string CMake::FindCacheFile(std::string const& binaryDir)
@@ -2186,18 +2186,18 @@ void CMake::SetGlobalGenerator(std::unique_ptr<cmGlobalGenerator> gg)
     cmSystemTools::Error("Error SetGlobalGenerator called with null");
     return;
   }
-  if (this->m_pGlobalGenerator) {
+  if (m_pGlobalGenerator) {
     // restore the original environment variables CXX and CC
     std::string env = "CC=";
-    if (!this->m_CCEnvironment.empty()) {
-      env += this->m_CCEnvironment;
+    if (!m_CCEnvironment.empty()) {
+      env += m_CCEnvironment;
       cmSystemTools::PutEnv(env);
     } else {
       cmSystemTools::UnPutEnv(env);
     }
     env = "CXX=";
-    if (!this->m_CXXEnvironment.empty()) {
-      env += this->m_CXXEnvironment;
+    if (!m_CXXEnvironment.empty()) {
+      env += m_CXXEnvironment;
       cmSystemTools::PutEnv(env);
     } else {
       cmSystemTools::UnPutEnv(env);
@@ -2205,18 +2205,18 @@ void CMake::SetGlobalGenerator(std::unique_ptr<cmGlobalGenerator> gg)
   }
 
   // set the new
-  this->m_pGlobalGenerator = std::move(gg);
+  m_pGlobalGenerator = std::move(gg);
 
   // set the global flag for unix style paths on cmSystemTools as soon as
   // the generator is set.  This allows gmake to be used on windows.
-  cmSystemTools::SetForceUnixPaths(this->m_pGlobalGenerator->GetForceUnixPaths());
+  cmSystemTools::SetForceUnixPaths(m_pGlobalGenerator->GetForceUnixPaths());
 
   // Save the environment variables CXX and CC
-  if (!cmSystemTools::GetEnv("CXX", this->m_CXXEnvironment)) {
-    this->m_CXXEnvironment.clear();
+  if (!cmSystemTools::GetEnv("CXX", m_CXXEnvironment)) {
+    m_CXXEnvironment.clear();
   }
-  if (!cmSystemTools::GetEnv("CC", this->m_CCEnvironment)) {
-    this->m_CCEnvironment.clear();
+  if (!cmSystemTools::GetEnv("CC", m_CCEnvironment)) {
+    m_CCEnvironment.clear();
   }
 }
 
@@ -2224,12 +2224,12 @@ int CMake::DoPreConfigureChecks()
 {
   // Make sure the Source directory contains a CMakeLists.txt file.
   std::string srcList =
-    cmStrCat(this->GetHomeDirectory(), "/", this->m_cmakeListName);
+    cmStrCat(this->GetHomeDirectory(), "/", m_cmakeListName);
   if (!cmSystemTools::FileExists(srcList)) {
     std::ostringstream err;
     if (cmSystemTools::FileIsDirectory(this->GetHomeDirectory())) {
       err << "The source directory \"" << this->GetHomeDirectory()
-          << "\" does not appear to contain " << this->m_cmakeListName << ".\n";
+          << "\" does not appear to contain " << m_cmakeListName << ".\n";
     } else if (cmSystemTools::FileExists(this->GetHomeDirectory())) {
       err << "The source directory \"" << this->GetHomeDirectory()
           << "\" is a file, not a directory.\n";
@@ -2244,10 +2244,10 @@ int CMake::DoPreConfigureChecks()
   }
 
   // do a sanity check on some values
-  if (this->m_pState->GetInitializedCacheValue("CMAKE_HOME_DIRECTORY")) {
+  if (m_pState->GetInitializedCacheValue("CMAKE_HOME_DIRECTORY")) {
     std::string cacheStart =
-      cmStrCat(*this->m_pState->GetInitializedCacheValue("CMAKE_HOME_DIRECTORY"),
-               "/", this->m_cmakeListName);
+      cmStrCat(*m_pState->GetInitializedCacheValue("CMAKE_HOME_DIRECTORY"),
+               "/", m_cmakeListName);
     if (!cmSystemTools::SameFile(cacheStart, srcList)) {
       std::string message =
         cmStrCat("The source \"", srcList, "\" does not match the source \"",
@@ -2274,7 +2274,7 @@ int CMake::HandleDeleteCacheVariables(std::string const& var)
 {
   cmList argsSplit{ var, cmList::EmptyElements::Yes };
   // erase the property to avoid infinite recursion
-  this->m_pState->SetGlobalProperty("__CMAKE_DELETE_CACHE_CHANGE_VARS_", "");
+  m_pState->SetGlobalProperty("__CMAKE_DELETE_CACHE_CHANGE_VARS_", "");
   if (this->GetIsInTryCompile()) {
     return 0;
   }
@@ -2296,11 +2296,11 @@ int CMake::HandleDeleteCacheVariables(std::string const& var)
       warning << '\n';
       i -= 1;
     }
-    cmValue existingValue = this->m_pState->GetCacheEntryValue(save.key);
+    cmValue existingValue = m_pState->GetCacheEntryValue(save.key);
     if (existingValue) {
-      save.type = this->m_pState->GetCacheEntryType(save.key);
+      save.type = m_pState->GetCacheEntryType(save.key);
       if (cmValue help =
-            this->m_pState->GetCacheEntryProperty(save.key, "HELPSTRING")) {
+            m_pState->GetCacheEntryProperty(save.key, "HELPSTRING")) {
         save.help = *help;
       }
     } else {
@@ -2334,9 +2334,9 @@ int CMake::Configure()
 
   DiagLevel diagLevel;
 
-  if (this->m_diagLevels.count("deprecated") == 1) {
+  if (m_diagLevels.count("deprecated") == 1) {
 
-    diagLevel = this->m_diagLevels["deprecated"];
+    diagLevel = m_diagLevels["deprecated"];
     if (diagLevel == DIAG_IGNORE) {
       this->SetSuppressDeprecatedWarnings(true);
       this->SetDeprecatedWarningsAsErrors(false);
@@ -2349,20 +2349,20 @@ int CMake::Configure()
     }
   }
 
-  if (this->m_diagLevels.count("dev") == 1) {
+  if (m_diagLevels.count("dev") == 1) {
     bool setDeprecatedVariables = false;
 
     cmValue cachedWarnDeprecated =
-      this->m_pState->GetCacheEntryValue("CMAKE_WARN_DEPRECATED");
+      m_pState->GetCacheEntryValue("CMAKE_WARN_DEPRECATED");
     cmValue cachedErrorDeprecated =
-      this->m_pState->GetCacheEntryValue("CMAKE_ERROR_DEPRECATED");
+      m_pState->GetCacheEntryValue("CMAKE_ERROR_DEPRECATED");
 
     // don't overwrite deprecated warning setting from a previous invocation
     if (!cachedWarnDeprecated && !cachedErrorDeprecated) {
       setDeprecatedVariables = true;
     }
 
-    diagLevel = this->m_diagLevels["dev"];
+    diagLevel = m_diagLevels["dev"];
     if (diagLevel == DIAG_IGNORE) {
       this->SetSuppressDevWarnings(true);
       this->SetDevWarningsAsErrors(false);
@@ -2393,21 +2393,21 @@ int CMake::Configure()
   // Cache variables may have already been set by a previous invocation,
   // so we cannot rely on command line options alone. Always ensure our
   // messenger is in sync with the cache.
-  cmValue value = this->m_pState->GetCacheEntryValue("CMAKE_WARN_DEPRECATED");
-  this->m_pMessenger->SetSuppressDeprecatedWarnings(value && value.IsOff());
+  cmValue value = m_pState->GetCacheEntryValue("CMAKE_WARN_DEPRECATED");
+  m_pMessenger->SetSuppressDeprecatedWarnings(value && value.IsOff());
 
-  value = this->m_pState->GetCacheEntryValue("CMAKE_ERROR_DEPRECATED");
-  this->m_pMessenger->SetDeprecatedWarningsAsErrors(value.IsOn());
+  value = m_pState->GetCacheEntryValue("CMAKE_ERROR_DEPRECATED");
+  m_pMessenger->SetDeprecatedWarningsAsErrors(value.IsOn());
 
-  value = this->m_pState->GetCacheEntryValue("CMAKE_SUPPRESS_DEVELOPER_WARNINGS");
-  this->m_pMessenger->SetSuppressDevWarnings(value.IsOn());
+  value = m_pState->GetCacheEntryValue("CMAKE_SUPPRESS_DEVELOPER_WARNINGS");
+  m_pMessenger->SetSuppressDevWarnings(value.IsOn());
 
-  value = this->m_pState->GetCacheEntryValue("CMAKE_SUPPRESS_DEVELOPER_ERRORS");
-  this->m_pMessenger->SetDevWarningsAsErrors(value && value.IsOff());
+  value = m_pState->GetCacheEntryValue("CMAKE_SUPPRESS_DEVELOPER_ERRORS");
+  m_pMessenger->SetDevWarningsAsErrors(value && value.IsOff());
 
   int ret = this->ActualConfigure();
   cmValue delCacheVars =
-    this->m_pState->GetGlobalProperty("__CMAKE_DELETE_CACHE_CHANGE_VARS_");
+    m_pState->GetGlobalProperty("__CMAKE_DELETE_CACHE_CHANGE_VARS_");
   if (delCacheVars && !delCacheVars->empty()) {
     return this->HandleDeleteCacheVariables(*delCacheVars);
   }
@@ -2423,29 +2423,29 @@ int CMake::ActualConfigure()
                                   "/CMakeFiles/CMakeScratch");
 
   std::string cmlNameCache =
-    this->m_pState->GetInitializedCacheValue("CMAKE_LIST_FILE_NAME");
-  if (!cmlNameCache.empty() && !this->m_cmakeListName.empty() &&
-      cmlNameCache != this->m_cmakeListName) {
+    m_pState->GetInitializedCacheValue("CMAKE_LIST_FILE_NAME");
+  if (!cmlNameCache.empty() && !m_cmakeListName.empty() &&
+      cmlNameCache != m_cmakeListName) {
     std::string message =
-      cmStrCat("CMakeLists filename : \"", this->m_cmakeListName,
+      cmStrCat("CMakeLists filename : \"", m_cmakeListName,
                "\"\nDoes not match the previous: \"", cmlNameCache,
                "\"\nEither remove the CMakeCache.txt file and CMakeFiles "
                "directory or choose a different binary directory.");
     cmSystemTools::Error(message);
     return -2;
   }
-  if (this->m_cmakeListName.empty()) {
-    this->m_cmakeListName =
+  if (m_cmakeListName.empty()) {
+    m_cmakeListName =
       cmlNameCache.empty() ? "CMakeLists.txt" : cmlNameCache;
   }
-  if (this->m_cmakeListName != "CMakeLists.txt") {
+  if (m_cmakeListName != "CMakeLists.txt") {
     this->IssueMessage(
       MessageType::WARNING,
       "This project has been configured with a project file other than "
       "CMakeLists.txt. This feature is intended for temporary use during "
       "development and not for publication of a final product.");
   }
-  this->AddCacheEntry("CMAKE_LIST_FILE_NAME", this->m_cmakeListName,
+  this->AddCacheEntry("CMAKE_LIST_FILE_NAME", m_cmakeListName,
                       "Name of CMakeLists files to read",
                       cmStateEnums::INTERNAL);
 
@@ -2484,36 +2484,36 @@ int CMake::ActualConfigure()
                       "Value Computed by CMake.", cmStateEnums::STATIC);
 
   // no generator specified on the command line
-  if (!this->m_pGlobalGenerator) {
-    cmValue genName = this->m_pState->GetInitializedCacheValue("CMAKE_GENERATOR");
+  if (!m_pGlobalGenerator) {
+    cmValue genName = m_pState->GetInitializedCacheValue("CMAKE_GENERATOR");
     cmValue extraGenName =
-      this->m_pState->GetInitializedCacheValue("CMAKE_EXTRA_GENERATOR");
+      m_pState->GetInitializedCacheValue("CMAKE_EXTRA_GENERATOR");
     if (genName) {
       std::string fullName =
         cmExternalMakefileProjectGenerator::CreateFullGeneratorName(
           *genName, extraGenName ? *extraGenName : "");
-      this->m_pGlobalGenerator = this->CreateGlobalGenerator(fullName);
+      m_pGlobalGenerator = this->CreateGlobalGenerator(fullName);
     }
-    if (this->m_pGlobalGenerator) {
+    if (m_pGlobalGenerator) {
       // set the global flag for unix style paths on cmSystemTools as
       // soon as the generator is set.  This allows gmake to be used
       // on windows.
       cmSystemTools::SetForceUnixPaths(
-        this->m_pGlobalGenerator->GetForceUnixPaths());
+        m_pGlobalGenerator->GetForceUnixPaths());
     } else {
       this->CreateDefaultGlobalGenerator();
     }
-    if (!this->m_pGlobalGenerator) {
+    if (!m_pGlobalGenerator) {
       cmSystemTools::Error("Could not create generator");
       return -1;
     }
   }
 
-  cmValue genName = this->m_pState->GetInitializedCacheValue("CMAKE_GENERATOR");
+  cmValue genName = m_pState->GetInitializedCacheValue("CMAKE_GENERATOR");
   if (genName) {
-    if (!this->m_pGlobalGenerator->MatchesGeneratorName(*genName)) {
+    if (!m_pGlobalGenerator->MatchesGeneratorName(*genName)) {
       std::string message = cmStrCat(
-        "Error: generator : ", this->m_pGlobalGenerator->GetName(), '\n',
+        "Error: generator : ", m_pGlobalGenerator->GetName(), '\n',
         "Does not match the generator used previously: ", *genName, '\n',
         "Either remove the CMakeCache.txt file and CMakeFiles "
         "directory or choose a different binary directory.");
@@ -2522,13 +2522,13 @@ int CMake::ActualConfigure()
     }
   }
   if (!genName) {
-    this->AddCacheEntry("CMAKE_GENERATOR", this->m_pGlobalGenerator->GetName(),
+    this->AddCacheEntry("CMAKE_GENERATOR", m_pGlobalGenerator->GetName(),
                         "Name of generator.", cmStateEnums::INTERNAL);
     this->AddCacheEntry(
-      "CMAKE_EXTRA_GENERATOR", this->m_pGlobalGenerator->GetExtraGeneratorName(),
+      "CMAKE_EXTRA_GENERATOR", m_pGlobalGenerator->GetExtraGeneratorName(),
       "Name of external makefile project generator.", cmStateEnums::INTERNAL);
 
-    if (!this->m_pState->GetInitializedCacheValue("CMAKE_TOOLCHAIN_FILE")) {
+    if (!m_pState->GetInitializedCacheValue("CMAKE_TOOLCHAIN_FILE")) {
       std::string envToolchain;
       if (cmSystemTools::GetEnv("CMAKE_TOOLCHAIN_FILE", envToolchain) &&
           !envToolchain.empty()) {
@@ -2540,10 +2540,10 @@ int CMake::ActualConfigure()
   }
 
   if (cmValue instance =
-        this->m_pState->GetInitializedCacheValue("CMAKE_GENERATOR_INSTANCE")) {
-    if (this->m_generatorInstanceSet && this->m_generatorInstance != *instance) {
+        m_pState->GetInitializedCacheValue("CMAKE_GENERATOR_INSTANCE")) {
+    if (m_generatorInstanceSet && m_generatorInstance != *instance) {
       std::string message = cmStrCat(
-        "Error: generator instance: ", this->m_generatorInstance, '\n',
+        "Error: generator instance: ", m_generatorInstance, '\n',
         "Does not match the instance used previously: ", *instance, '\n',
         "Either remove the CMakeCache.txt file and CMakeFiles "
         "directory or choose a different binary directory.");
@@ -2551,17 +2551,17 @@ int CMake::ActualConfigure()
       return -2;
     }
   } else {
-    this->AddCacheEntry("CMAKE_GENERATOR_INSTANCE", this->m_generatorInstance,
+    this->AddCacheEntry("CMAKE_GENERATOR_INSTANCE", m_generatorInstance,
                         "Generator instance identifier.",
                         cmStateEnums::INTERNAL);
   }
 
   if (cmValue platformName =
-        this->m_pState->GetInitializedCacheValue("CMAKE_GENERATOR_PLATFORM")) {
-    if (this->m_generatorPlatformSet &&
-        this->m_generatorPlatform != *platformName) {
+        m_pState->GetInitializedCacheValue("CMAKE_GENERATOR_PLATFORM")) {
+    if (m_generatorPlatformSet &&
+        m_generatorPlatform != *platformName) {
       std::string message = cmStrCat(
-        "Error: generator platform: ", this->m_generatorPlatform, '\n',
+        "Error: generator platform: ", m_generatorPlatform, '\n',
         "Does not match the platform used previously: ", *platformName, '\n',
         "Either remove the CMakeCache.txt file and CMakeFiles "
         "directory or choose a different binary directory.");
@@ -2569,15 +2569,15 @@ int CMake::ActualConfigure()
       return -2;
     }
   } else {
-    this->AddCacheEntry("CMAKE_GENERATOR_PLATFORM", this->m_generatorPlatform,
+    this->AddCacheEntry("CMAKE_GENERATOR_PLATFORM", m_generatorPlatform,
                         "Name of generator platform.", cmStateEnums::INTERNAL);
   }
 
   if (cmValue tsName =
-        this->m_pState->GetInitializedCacheValue("CMAKE_GENERATOR_TOOLSET")) {
-    if (this->m_generatorToolsetSet && this->m_generatorToolset != *tsName) {
+        m_pState->GetInitializedCacheValue("CMAKE_GENERATOR_TOOLSET")) {
+    if (m_generatorToolsetSet && m_generatorToolset != *tsName) {
       std::string message =
-        cmStrCat("Error: generator toolset: ", this->m_generatorToolset, '\n',
+        cmStrCat("Error: generator toolset: ", m_generatorToolset, '\n',
                  "Does not match the toolset used previously: ", *tsName, '\n',
                  "Either remove the CMakeCache.txt file and CMakeFiles "
                  "directory or choose a different binary directory.");
@@ -2585,11 +2585,11 @@ int CMake::ActualConfigure()
       return -2;
     }
   } else {
-    this->AddCacheEntry("CMAKE_GENERATOR_TOOLSET", this->m_generatorToolset,
+    this->AddCacheEntry("CMAKE_GENERATOR_TOOLSET", m_generatorToolset,
                         "Name of generator toolset.", cmStateEnums::INTERNAL);
   }
 
-  if (!this->m_pState->GetInitializedCacheValue("CMAKE_TEST_LAUNCHER")) {
+  if (!m_pState->GetInitializedCacheValue("CMAKE_TEST_LAUNCHER")) {
     cm::optional<std::string> testLauncher =
       cmSystemTools::GetEnvVar("CMAKE_TEST_LAUNCHER");
     if (testLauncher && !testLauncher->empty()) {
@@ -2599,7 +2599,7 @@ int CMake::ActualConfigure()
     }
   }
 
-  if (!this->m_pState->GetInitializedCacheValue(
+  if (!m_pState->GetInitializedCacheValue(
         "CMAKE_CROSSCOMPILING_EMULATOR")) {
     cm::optional<std::string> emulator =
       cmSystemTools::GetEnvVar("CMAKE_CROSSCOMPILING_EMULATOR");
@@ -2615,37 +2615,37 @@ int CMake::ActualConfigure()
   // InTryCompile. With TryCompile the system info is taken from the parent's
   // info to save time
   if (!this->GetIsInTryCompile()) {
-    this->m_pGlobalGenerator->ClearEnabledLanguages();
+    m_pGlobalGenerator->ClearEnabledLanguages();
   }
 
 #if !defined(CMAKE_BOOTSTRAP)
-  this->m_pFileAPI = cm::make_unique<cmFileAPI>(this);
-  this->m_pFileAPI->ReadQueries();
+  m_pFileAPI = cm::make_unique<cmFileAPI>(this);
+  m_pFileAPI->ReadQueries();
 
   if (!this->GetIsInTryCompile()) {
     this->TruncateOutputLog("CMakeConfigureLog.yaml");
-    this->m_configureLog = cm::make_unique<cmConfigureLog>(
+    m_configureLog = cm::make_unique<cmConfigureLog>(
       cmStrCat(this->GetHomeOutputDirectory(), "/CMakeFiles"_s),
-      this->m_pFileAPI->GetConfigureLogVersions());
+      m_pFileAPI->GetConfigureLogVersions());
   }
 
-  this->m_pInstrumentation =
-    cm::make_unique<cmInstrumentation>(this->m_pState->GetBinaryDirectory());
-  this->m_pInstrumentation->ClearGeneratedQueries();
+  m_pInstrumentation =
+    cm::make_unique<cmInstrumentation>(m_pState->GetBinaryDirectory());
+  m_pInstrumentation->ClearGeneratedQueries();
 #endif
 
   // actually do the configure
   auto startTime = std::chrono::steady_clock::now();
 #if !defined(CMAKE_BOOTSTRAP)
-  if (this->m_pInstrumentation->HasErrors()) {
+  if (m_pInstrumentation->HasErrors()) {
     return 1;
   }
   auto doConfigure = [this]() -> int {
-    this->m_pGlobalGenerator->Configure();
+    m_pGlobalGenerator->Configure();
     return 0;
   };
-  int ret = this->m_pInstrumentation->InstrumentCommand(
-    "configure", this->m_cmdArgs, [doConfigure]() { return doConfigure(); },
+  int ret = m_pInstrumentation->InstrumentCommand(
+    "configure", m_cmdArgs, [doConfigure]() { return doConfigure(); },
     cm::nullopt, cm::nullopt, true);
   if (ret != 0) {
     return ret;
@@ -2670,17 +2670,17 @@ int CMake::ActualConfigure()
   }
 
 #if !defined(CMAKE_BOOTSTRAP)
-  this->m_configureLog.reset();
+  m_configureLog.reset();
 #endif
 
   // Before saving the cache
   // if the project did not define one of the entries below, add them now
   // so users can edit the values in the cache:
 
-  auto const& mf = this->m_pGlobalGenerator->GetMakefiles()[0];
+  auto const& mf = m_pGlobalGenerator->GetMakefiles()[0];
 
   if (mf->IsOn("CTEST_USE_LAUNCHERS") &&
-      !this->m_pState->GetGlobalProperty("RULE_LAUNCH_COMPILE")) {
+      !m_pState->GetGlobalProperty("RULE_LAUNCH_COMPILE")) {
     this->IssueMessage(MessageType::FATAL_ERROR,
                        "CTEST_USE_LAUNCHERS is enabled, but the "
                        "RULE_LAUNCH_COMPILE global property is not defined.\n"
@@ -2689,8 +2689,8 @@ int CMake::ActualConfigure()
   }
   // Setup launchers for instrumentation
 #if !defined(CMAKE_BOOTSTRAP)
-  this->m_pInstrumentation->LoadQueries();
-  if (this->m_pInstrumentation->HasQuery()) {
+  m_pInstrumentation->LoadQueries();
+  if (m_pInstrumentation->HasQuery()) {
     std::string launcher;
     if (mf->IsOn("CTEST_USE_LAUNCHERS")) {
       launcher =
@@ -2702,31 +2702,30 @@ int CMake::ActualConfigure()
     }
     std::string common_args =
       cmStrCat(" --target-name <TARGET_NAME> --build-dir \"",
-               this->m_pState->GetBinaryDirectory(), "\" ");
-    this->m_pState->SetGlobalProperty(
+               m_pState->GetBinaryDirectory(), "\" ");
+    m_pState->SetGlobalProperty(
       "RULE_LAUNCH_COMPILE",
       cmStrCat(
         launcher, "--command-type compile", common_args, "--config <CONFIG> ",
         "--output <OBJECT> --source <SOURCE> --language <LANGUAGE> -- "));
-    this->m_pState->SetGlobalProperty(
+    m_pState->SetGlobalProperty(
       "RULE_LAUNCH_LINK",
       cmStrCat(
         launcher, "--command-type link", common_args,
         "--output <TARGET> --target-type <TARGET_TYPE> --config <CONFIG> ",
         "--language <LANGUAGE> --target-labels \"<TARGET_LABELS>\" -- "));
-    this->m_pState->SetGlobalProperty(
+    m_pState->SetGlobalProperty(
       "RULE_LAUNCH_CUSTOM",
       cmStrCat(launcher, "--command-type custom", common_args,
                "--output \"<OUTPUT>\" --role <ROLE> -- "));
   }
 #endif
 
-  this->m_pState->SaveVerificationScript(this->GetHomeOutputDirectory(),
-                                      this->m_pMessenger.get());
+  m_pState->SaveVerificationScript(GetHomeOutputDirectory(), m_pMessenger.get());
   this->SaveCache(this->GetHomeOutputDirectory());
   if (cmSystemTools::GetErrorOccurredFlag()) {
 #if !defined(CMAKE_BOOTSTRAP)
-    this->m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::FailedConfigure);
+    m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::FailedConfigure);
 #endif
     return -1;
   }
@@ -2735,8 +2734,8 @@ int CMake::ActualConfigure()
 
 std::unique_ptr<cmGlobalGenerator> CMake::m_pEvaluateDefaultGlobalGenerator()
 {
-  if (!this->m_environmentGenerator.empty()) {
-    auto gen = this->CreateGlobalGenerator(this->m_environmentGenerator);
+  if (!m_environmentGenerator.empty()) {
+    auto gen = this->CreateGlobalGenerator(m_environmentGenerator);
     if (!gen) {
       cmSystemTools::Error("CMAKE_GENERATOR was set but the specified "
                            "generator doesn't exist. Using CMake default.");
@@ -2805,7 +2804,7 @@ std::unique_ptr<cmGlobalGenerator> CMake::m_pEvaluateDefaultGlobalGenerator()
 
 void CMake::CreateDefaultGlobalGenerator()
 {
-  auto gen = this->m_pEvaluateDefaultGlobalGenerator();
+  auto gen = m_pEvaluateDefaultGlobalGenerator();
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(CMAKE_BOOT_MINGW)
   // This print could be unified for all platforms
   std::cout << "-- Building for: " << gen->GetName() << '\n';
@@ -2905,19 +2904,19 @@ int CMake::Run(std::vector<std::string> const& args, bool noconfigure)
   }
 
   // If we are given a stamp list file check if it is really out of date.
-  if (!this->m_checkStampList.empty() &&
-      cmakeCheckStampList(this->m_checkStampList)) {
+  if (!m_checkStampList.empty() &&
+      cmakeCheckStampList(m_checkStampList)) {
     return 0;
   }
 
   // If we are given a stamp file check if it is really out of date.
-  if (!this->m_checkStampFile.empty() &&
-      cmakeCheckStampFile(this->m_checkStampFile)) {
+  if (!m_checkStampFile.empty() &&
+      cmakeCheckStampFile(m_checkStampFile)) {
     return 0;
   }
 
   if (this->GetWorkingMode() == NORMAL_MODE) {
-    if (this->m_freshCache) {
+    if (m_freshCache) {
       this->DeleteCache(this->GetHomeOutputDirectory());
     }
     // load the cache
@@ -2927,7 +2926,7 @@ int CMake::Run(std::vector<std::string> const& args, bool noconfigure)
     }
 #ifndef CMAKE_BOOTSTRAP
     // If no SARIF file has been explicitly specified, use the default path
-    if (!this->m_SarifFileOutput) {
+    if (!m_SarifFileOutput) {
       // If no output file is specified, use the default path
       // Enable parent directory creation for the default path
       sarifLogFileWriter.SetPath(
@@ -2937,7 +2936,7 @@ int CMake::Run(std::vector<std::string> const& args, bool noconfigure)
     }
 #endif
   } else {
-    if (this->m_freshCache) {
+    if (m_freshCache) {
       cmSystemTools::Error("--fresh allowed only when configuring a project");
       return -1;
     }
@@ -3005,7 +3004,7 @@ int CMake::Run(std::vector<std::string> const& args, bool noconfigure)
   int ret = this->Configure();
   if (ret) {
 #if defined(CMAKE_HAVE_VS_GENERATORS)
-    if (!this->m_VSSolutionFile.empty() && this->m_pGlobalGenerator) {
+    if (!m_VSSolutionFile.empty() && m_pGlobalGenerator) {
       // CMake is running to regenerate a Visual Studio build tree
       // during a build from the VS IDE.  The build files cannot be
       // regenerated, so we should stop the build.
@@ -3014,9 +3013,9 @@ int CMake::Run(std::vector<std::string> const& args, bool noconfigure)
                              "Attempting to stop IDE build.");
       cmGlobalVisualStudioGenerator& gg =
         cm::static_reference_cast<cmGlobalVisualStudioGenerator>(
-          this->m_pGlobalGenerator);
+          m_pGlobalGenerator);
       gg.CallVisualStudioMacro(cmGlobalVisualStudioGenerator::MacroStop,
-                               this->m_VSSolutionFile);
+                               m_VSSolutionFile);
     }
 #endif
     return ret;
@@ -3035,7 +3034,7 @@ int CMake::Run(std::vector<std::string> const& args, bool noconfigure)
 
 int CMake::Generate()
 {
-  if (!this->m_pGlobalGenerator) {
+  if (!m_pGlobalGenerator) {
     return -1;
   }
 
@@ -3043,17 +3042,17 @@ int CMake::Generate()
 #if !defined(CMAKE_BOOTSTRAP)
   auto profilingRAII = this->CreateProfilingEntry("project", "generate");
   auto doGenerate = [this]() -> int {
-    if (!this->m_pGlobalGenerator->Compute()) {
-      this->m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::FailedCompute);
+    if (!m_pGlobalGenerator->Compute()) {
+      m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::FailedCompute);
       return -1;
     }
-    this->m_pGlobalGenerator->Generate();
+    m_pGlobalGenerator->Generate();
     return 0;
   };
 
-  this->m_pInstrumentation->LoadQueries();
-  int ret = this->m_pInstrumentation->InstrumentCommand(
-    "generate", this->m_cmdArgs, [doGenerate]() { return doGenerate(); });
+  m_pInstrumentation->LoadQueries();
+  int ret = m_pInstrumentation->InstrumentCommand(
+    "generate", m_cmdArgs, [doGenerate]() { return doGenerate(); });
   if (ret != 0) {
     return ret;
   }
@@ -3073,19 +3072,19 @@ int CMake::Generate()
     this->UpdateProgress(msg.str(), -1);
   }
 #if !defined(CMAKE_BOOTSTRAP)
-  this->m_pInstrumentation->CollectTimingData(
+  m_pInstrumentation->CollectTimingData(
     cmInstrumentationQuery::Hook::PostGenerate);
 #endif
-  if (!this->m_graphVizFile.empty()) {
-    std::cout << "Generate graphviz: " << this->m_graphVizFile << '\n';
-    this->GenerateGraphViz(this->m_graphVizFile);
+  if (!m_graphVizFile.empty()) {
+    std::cout << "Generate graphviz: " << m_graphVizFile << '\n';
+    this->GenerateGraphViz(m_graphVizFile);
   }
-  if (this->m_warnUnusedCli) {
+  if (m_warnUnusedCli) {
     this->RunCheckForUnusedVariables();
   }
   if (cmSystemTools::GetErrorOccurredFlag()) {
 #if !defined(CMAKE_BOOTSTRAP)
-    this->m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::FailedGenerate);
+    m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::FailedGenerate);
 #endif
     return -1;
   }
@@ -3095,8 +3094,8 @@ int CMake::Generate()
   this->SaveCache(this->GetHomeOutputDirectory());
 
 #if !defined(CMAKE_BOOTSTRAP)
-  this->m_pGlobalGenerator->WriteInstallJson();
-  this->m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::Success);
+  m_pGlobalGenerator->WriteInstallJson();
+  m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::Success);
 #endif
 
   return 0;
@@ -3105,61 +3104,61 @@ int CMake::Generate()
 void CMake::AddCacheEntry(std::string const& key, cmValue value,
                           cmValue helpString, int type)
 {
-  this->m_pState->AddCacheEntry(key, value, helpString,
+  m_pState->AddCacheEntry(key, value, helpString,
                              static_cast<cmStateEnums::CacheEntryType>(type));
   this->UnwatchUnusedCli(key);
 
   if (key == "CMAKE_WARN_DEPRECATED"_s) {
-    this->m_pMessenger->SetSuppressDeprecatedWarnings(value && value.IsOff());
+    m_pMessenger->SetSuppressDeprecatedWarnings(value && value.IsOff());
   } else if (key == "CMAKE_ERROR_DEPRECATED"_s) {
-    this->m_pMessenger->SetDeprecatedWarningsAsErrors(value.IsOn());
+    m_pMessenger->SetDeprecatedWarningsAsErrors(value.IsOn());
   } else if (key == "CMAKE_SUPPRESS_DEVELOPER_WARNINGS"_s) {
-    this->m_pMessenger->SetSuppressDevWarnings(value.IsOn());
+    m_pMessenger->SetSuppressDevWarnings(value.IsOn());
   } else if (key == "CMAKE_SUPPRESS_DEVELOPER_ERRORS"_s) {
-    this->m_pMessenger->SetDevWarningsAsErrors(value && value.IsOff());
+    m_pMessenger->SetDevWarningsAsErrors(value && value.IsOff());
   }
 }
 
 bool CMake::DoWriteGlobVerifyTarget() const
 {
-  return this->m_pState->DoWriteGlobVerifyTarget();
+  return m_pState->DoWriteGlobVerifyTarget();
 }
 
 std::string const& CMake::GetGlobVerifyScript() const
 {
-  return this->m_pState->GetGlobVerifyScript();
+  return m_pState->GetGlobVerifyScript();
 }
 
 std::string const& CMake::GetGlobVerifyStamp() const
 {
-  return this->m_pState->GetGlobVerifyStamp();
+  return m_pState->GetGlobVerifyStamp();
 }
 
 void CMake::AddGlobCacheEntry(cmGlobCacheEntry const& entry,
                               std::string const& variable,
                               cmListFileBacktrace const& backtrace)
 {
-  this->m_pState->AddGlobCacheEntry(entry, variable, backtrace,
-                                 this->m_pMessenger.get());
+  m_pState->AddGlobCacheEntry(entry, variable, backtrace,
+                                 m_pMessenger.get());
 }
 
 std::vector<cmGlobCacheEntry> CMake::GetGlobCacheEntries() const
 {
-  return this->m_pState->GetGlobCacheEntries();
+  return m_pState->GetGlobCacheEntries();
 }
 
 std::vector<std::string> CMake::GetAllExtensions() const
 {
-  std::vector<std::string> allExt = this->m_CLikeSourceFileExtensions.ordered;
-  allExt.insert(allExt.end(), this->m_headerFileExtensions.ordered.begin(),
-                this->m_headerFileExtensions.ordered.end());
+  std::vector<std::string> allExt = m_CLikeSourceFileExtensions.ordered;
+  allExt.insert(allExt.end(), m_headerFileExtensions.ordered.begin(),
+                m_headerFileExtensions.ordered.end());
   // cuda extensions are also in SourceFileExtensions so we ignore it here
-  allExt.insert(allExt.end(), this->m_FortranFileExtensions.ordered.begin(),
-                this->m_FortranFileExtensions.ordered.end());
-  allExt.insert(allExt.end(), this->m_HipFileExtensions.ordered.begin(),
-                this->m_HipFileExtensions.ordered.end());
-  allExt.insert(allExt.end(), this->m_ISPCFileExtensions.ordered.begin(),
-                this->m_ISPCFileExtensions.ordered.end());
+  allExt.insert(allExt.end(), m_FortranFileExtensions.ordered.begin(),
+                m_FortranFileExtensions.ordered.end());
+  allExt.insert(allExt.end(), m_HipFileExtensions.ordered.begin(),
+                m_HipFileExtensions.ordered.end());
+  allExt.insert(allExt.end(), m_ISPCFileExtensions.ordered.begin(),
+                m_ISPCFileExtensions.ordered.end());
   return allExt;
 }
 
@@ -3181,7 +3180,7 @@ std::string CMake::StripExtension(std::string const& file) const
 
 cmValue CMake::GetCacheDefinition(std::string const& name) const
 {
-  return this->m_pState->GetInitializedCacheValue(name);
+  return m_pState->GetInitializedCacheValue(name);
 }
 
 void CMake::AddScriptingCommands() const
@@ -3272,7 +3271,7 @@ bool CMake::LoadCache(std::string const& path, bool internal,
                       std::set<std::string>& excludes,
                       std::set<std::string>& includes)
 {
-  bool result = this->m_pState->LoadCache(path, internal, excludes, includes);
+  bool result = m_pState->LoadCache(path, internal, excludes, includes);
   static auto const entries = { "CMAKE_CACHE_MAJOR_VERSION",
                                 "CMAKE_CACHE_MINOR_VERSION" };
   for (auto const& entry : entries) {
@@ -3283,7 +3282,7 @@ bool CMake::LoadCache(std::string const& path, bool internal,
 
 bool CMake::SaveCache(std::string const& path)
 {
-  bool result = this->m_pState->SaveCache(path, this->GetMessenger());
+  bool result = m_pState->SaveCache(path, this->GetMessenger());
   static auto const entries = { "CMAKE_CACHE_MAJOR_VERSION",
                                 "CMAKE_CACHE_MINOR_VERSION",
                                 "CMAKE_CACHE_PATCH_VERSION",
@@ -3296,30 +3295,30 @@ bool CMake::SaveCache(std::string const& path)
 
 bool CMake::DeleteCache(std::string const& path)
 {
-  return this->m_pState->DeleteCache(path);
+  return m_pState->DeleteCache(path);
 }
 
 void CMake::SetProgressCallback(ProgressCallbackType f)
 {
-  this->m_progressCallback = std::move(f);
+  m_progressCallback = std::move(f);
 }
 
 void CMake::UpdateProgress(std::string const& msg, float prog)
 {
-  if (this->m_progressCallback && !this->GetIsInTryCompile()) {
-    this->m_progressCallback(msg, prog);
+  if (m_progressCallback && !this->GetIsInTryCompile()) {
+    m_progressCallback(msg, prog);
   }
 }
 
 bool CMake::GetIsInTryCompile() const
 {
-  return this->m_pState->GetProjectKind() == cmState::ProjectKind::TryCompile;
+  return m_pState->GetProjectKind() == cmState::ProjectKind::TryCompile;
 }
 
 void CMake::AppendGlobalGeneratorsDocumentation(
   std::vector<cmDocumentationEntry>& v)
 {
-  auto const defaultGenerator = this->m_pEvaluateDefaultGlobalGenerator();
+  auto const defaultGenerator = m_pEvaluateDefaultGlobalGenerator();
   auto const defaultName = defaultGenerator->GetName();
   auto foundDefaultOne = false;
 
@@ -3382,7 +3381,7 @@ int CMake::CheckBuildSystem()
   // determine whether CMake should rerun.
 
   // If no file is provided for the check, we have to rerun.
-  if (this->m_checkBuildSystemArgument.empty()) {
+  if (m_checkBuildSystemArgument.empty()) {
     if (verbose) {
       cmSystemTools::Stdout("Re-run cmake no build system arguments\n");
     }
@@ -3390,10 +3389,10 @@ int CMake::CheckBuildSystem()
   }
 
   // If the file provided does not exist, we have to rerun.
-  if (!cmSystemTools::FileExists(this->m_checkBuildSystemArgument)) {
+  if (!cmSystemTools::FileExists(m_checkBuildSystemArgument)) {
     if (verbose) {
       std::ostringstream msg;
-      msg << "Re-run cmake missing file: " << this->m_checkBuildSystemArgument
+      msg << "Re-run cmake missing file: " << m_checkBuildSystemArgument
           << '\n';
       cmSystemTools::Stdout(msg.str());
     }
@@ -3409,11 +3408,11 @@ int CMake::CheckBuildSystem()
   cm.GetCurrentSnapshot().SetDefaultDefinitions();
   cmGlobalGenerator gg(&cm);
   cmMakefile mf(&gg, cm.GetCurrentSnapshot());
-  if (!mf.ReadListFile(this->m_checkBuildSystemArgument) ||
+  if (!mf.ReadListFile(m_checkBuildSystemArgument) ||
       cmSystemTools::GetErrorOccurredFlag()) {
     if (verbose) {
       std::ostringstream msg;
-      msg << "Re-run cmake error reading : " << this->m_checkBuildSystemArgument
+      msg << "Re-run cmake error reading : " << m_checkBuildSystemArgument
           << '\n';
       cmSystemTools::Stdout(msg.str());
     }
@@ -3421,7 +3420,7 @@ int CMake::CheckBuildSystem()
     return 1;
   }
 
-  if (this->m_clearBuildSystem) {
+  if (m_clearBuildSystem) {
     // Get the generator used for this build system.
     std::string genName = mf.GetSafeDefinition("CMAKE_DEPENDS_GENERATOR");
     if (!cmNonempty(genName)) {
@@ -3471,7 +3470,7 @@ int CMake::CheckBuildSystem()
   std::string dep_newest = *dep++;
   for (; dep != depends.end(); ++dep) {
     int result = 0;
-    if (this->m_fileTimeCache->Compare(dep_newest, *dep, &result)) {
+    if (m_fileTimeCache->Compare(dep_newest, *dep, &result)) {
       if (result < 0) {
         dep_newest = *dep;
       }
@@ -3489,7 +3488,7 @@ int CMake::CheckBuildSystem()
   std::string out_oldest = *out++;
   for (; out != outputs.end(); ++out) {
     int result = 0;
-    if (this->m_fileTimeCache->Compare(out_oldest, *out, &result)) {
+    if (m_fileTimeCache->Compare(out_oldest, *out, &result)) {
       if (result > 0) {
         out_oldest = *out;
       }
@@ -3505,7 +3504,7 @@ int CMake::CheckBuildSystem()
   // If any output is older than any dependency then rerun.
   {
     int result = 0;
-    if (!this->m_fileTimeCache->Compare(out_oldest, dep_newest, &result) ||
+    if (!m_fileTimeCache->Compare(out_oldest, dep_newest, &result) ||
         result < 0) {
       if (verbose) {
         std::ostringstream msg;
@@ -3528,7 +3527,7 @@ void CMake::TruncateOutputLog(char const* fname)
   if (::stat(fullPath.c_str(), &st)) {
     return;
   }
-  if (!this->m_pState->GetInitializedCacheValue("CMAKE_CACHEFILE_DIR")) {
+  if (!m_pState->GetInitializedCacheValue("CMAKE_CACHEFILE_DIR")) {
     cmSystemTools::RemoveFile(fullPath);
     return;
   }
@@ -3542,7 +3541,7 @@ void CMake::TruncateOutputLog(char const* fname)
 
 void CMake::MarkCliAsUsed(std::string const& variable)
 {
-  this->m_usedCliVariables[variable] = true;
+  m_usedCliVariables[variable] = true;
 }
 
 void CMake::GenerateGraphViz(std::string const& fileName) const
@@ -3564,44 +3563,44 @@ void CMake::GenerateGraphViz(std::string const& fileName) const
 
 void CMake::SetProperty(std::string const& prop, cmValue value)
 {
-  this->m_pState->SetGlobalProperty(prop, value);
+  m_pState->SetGlobalProperty(prop, value);
 }
 
 void CMake::AppendProperty(std::string const& prop, std::string const& value,
                            bool asString)
 {
-  this->m_pState->AppendGlobalProperty(prop, value, asString);
+  m_pState->AppendGlobalProperty(prop, value, asString);
 }
 
 cmValue CMake::GetProperty(std::string const& prop)
 {
-  return this->m_pState->GetGlobalProperty(prop);
+  return m_pState->GetGlobalProperty(prop);
 }
 
 bool CMake::GetPropertyAsBool(std::string const& prop)
 {
-  return this->m_pState->GetGlobalPropertyAsBool(prop);
+  return m_pState->GetGlobalPropertyAsBool(prop);
 }
 
 cmInstalledFile* CMake::GetOrCreateInstalledFile(cmMakefile* mf,
                                                  std::string const& name)
 {
-  auto i = this->m_installedFiles.find(name);
+  auto i = m_installedFiles.find(name);
 
-  if (i != this->m_installedFiles.end()) {
+  if (i != m_installedFiles.end()) {
     cmInstalledFile& file = i->second;
     return &file;
   }
-  cmInstalledFile& file = this->m_installedFiles[name];
+  cmInstalledFile& file = m_installedFiles[name];
   file.SetName(mf, name);
   return &file;
 }
 
 cmInstalledFile const* CMake::GetInstalledFile(std::string const& name) const
 {
-  auto i = this->m_installedFiles.find(name);
+  auto i = m_installedFiles.find(name);
 
-  if (i != this->m_installedFiles.end()) {
+  if (i != m_installedFiles.end()) {
     cmInstalledFile const& file = i->second;
     return &file;
   }
@@ -3721,14 +3720,14 @@ int CMake::GetSystemInformation(std::vector<std::string>& args)
 void CMake::IssueMessage(MessageType t, std::string const& text,
                          cmListFileBacktrace const& backtrace) const
 {
-  this->m_pMessenger->IssueMessage(t, text, backtrace);
+  m_pMessenger->IssueMessage(t, text, backtrace);
 }
 
 std::vector<std::string> CMake::GetDebugConfigs()
 {
   cmList configs;
   if (cmValue config_list =
-        this->m_pState->GetGlobalProperty("DEBUG_CONFIGURATIONS")) {
+        m_pState->GetGlobalProperty("DEBUG_CONFIGURATIONS")) {
     // Expand the specified list and convert to upper-case.
     configs.assign(*config_list);
     configs.transform(cmList::TransformAction::TOUPPER);
@@ -3832,7 +3831,7 @@ int CMake::Build(int jobs, std::string dir, std::vector<std::string> targets,
       dir = expandedConfigurePreset->BinaryDir;
     }
 
-    this->m_unprocessedPresetEnvironment = expandedPreset->Environment;
+    m_unprocessedPresetEnvironment = expandedPreset->Environment;
     this->ProcessPresetEnvironment();
 
     if ((jobs == CMake::DEFAULT_BUILD_PARALLEL_LEVEL ||
@@ -3882,7 +3881,7 @@ int CMake::Build(int jobs, std::string dir, std::vector<std::string> targets,
       << "Error: not a CMake build directory (missing CMakeCache.txt)\n";
     return 1;
   }
-  cmValue cachedGenerator = this->m_pState->GetCacheEntryValue("CMAKE_GENERATOR");
+  cmValue cachedGenerator = m_pState->GetCacheEntryValue("CMAKE_GENERATOR");
   if (!cachedGenerator) {
     std::cerr << "Error: could not find CMAKE_GENERATOR in Cache\n";
     return 1;
@@ -3895,42 +3894,42 @@ int CMake::Build(int jobs, std::string dir, std::vector<std::string> targets,
   }
   this->SetGlobalGenerator(std::move(gen));
   cmValue cachedGeneratorInstance =
-    this->m_pState->GetCacheEntryValue("CMAKE_GENERATOR_INSTANCE");
+    m_pState->GetCacheEntryValue("CMAKE_GENERATOR_INSTANCE");
   if (cachedGeneratorInstance) {
     cmMakefile mf(this->GetGlobalGenerator(), this->GetCurrentSnapshot());
-    if (!this->m_pGlobalGenerator->SetGeneratorInstance(*cachedGeneratorInstance,
+    if (!m_pGlobalGenerator->SetGeneratorInstance(*cachedGeneratorInstance,
                                                      &mf)) {
       return 1;
     }
   }
   cmValue cachedGeneratorPlatform =
-    this->m_pState->GetCacheEntryValue("CMAKE_GENERATOR_PLATFORM");
+    m_pState->GetCacheEntryValue("CMAKE_GENERATOR_PLATFORM");
   if (cachedGeneratorPlatform) {
     cmMakefile mf(this->GetGlobalGenerator(), this->GetCurrentSnapshot());
-    if (!this->m_pGlobalGenerator->SetGeneratorPlatform(*cachedGeneratorPlatform,
+    if (!m_pGlobalGenerator->SetGeneratorPlatform(*cachedGeneratorPlatform,
                                                      &mf)) {
       return 1;
     }
   }
   cmValue cachedGeneratorToolset =
-    this->m_pState->GetCacheEntryValue("CMAKE_GENERATOR_TOOLSET");
+    m_pState->GetCacheEntryValue("CMAKE_GENERATOR_TOOLSET");
   if (cachedGeneratorToolset) {
     cmMakefile mf(this->GetGlobalGenerator(), this->GetCurrentSnapshot());
-    if (!this->m_pGlobalGenerator->SetGeneratorToolset(*cachedGeneratorToolset,
+    if (!m_pGlobalGenerator->SetGeneratorToolset(*cachedGeneratorToolset,
                                                     true, &mf)) {
       return 1;
     }
   }
   std::string projName;
   cmValue cachedProjectName =
-    this->m_pState->GetCacheEntryValue("CMAKE_PROJECT_NAME");
+    m_pState->GetCacheEntryValue("CMAKE_PROJECT_NAME");
   if (!cachedProjectName) {
     std::cerr << "Error: could not find CMAKE_PROJECT_NAME in Cache\n";
     return 1;
   }
   projName = *cachedProjectName;
 
-  if (this->m_pState->GetCacheEntryValue("CMAKE_VERBOSE_MAKEFILE").IsOn()) {
+  if (m_pState->GetCacheEntryValue("CMAKE_VERBOSE_MAKEFILE").IsOn()) {
     verbose = true;
   }
 
@@ -3979,7 +3978,7 @@ int CMake::Build(int jobs, std::string dir, std::vector<std::string> targets,
   }
 #endif
 
-  if (!this->m_pGlobalGenerator->ReadCacheEntriesForBuild(*this->m_pState)) {
+  if (!m_pGlobalGenerator->ReadCacheEntriesForBuild(*m_pState)) {
     return 1;
   }
 
@@ -3992,7 +3991,7 @@ int CMake::Build(int jobs, std::string dir, std::vector<std::string> targets,
     cmInstrumentationQuery::Hook::PreCMakeBuild);
 #endif
 
-  this->m_pGlobalGenerator->PrintBuildCommandAdvice(std::cerr, jobs);
+  m_pGlobalGenerator->PrintBuildCommandAdvice(std::cerr, jobs);
   std::stringstream ostr;
   // `cmGlobalGenerator::Build` logs metadata about what directory and commands
   // are being executed to the `output` parameter. If CMake is verbose, print
@@ -4000,7 +3999,7 @@ int CMake::Build(int jobs, std::string dir, std::vector<std::string> targets,
   std::ostream& verbose_ostr = verbose ? std::cout : ostr;
   auto doBuild = [this, jobs, dir, projName, targets, &verbose_ostr, config,
                   buildOptions, verbose, nativeOptions]() -> int {
-    return this->m_pGlobalGenerator->Build(
+    return m_pGlobalGenerator->Build(
       jobs, "", dir, projName, targets, verbose_ostr, "", config, buildOptions,
       verbose, cmDuration::zero(), cmSystemTools::OUTPUT_PASSTHROUGH,
       nativeOptions);
@@ -4035,13 +4034,13 @@ bool CMake::Open(std::string const& dir, DryRun dryRun)
       << "Error: not a CMake build directory (missing CMakeCache.txt)\n";
     return false;
   }
-  cmValue genName = this->m_pState->GetCacheEntryValue("CMAKE_GENERATOR");
+  cmValue genName = m_pState->GetCacheEntryValue("CMAKE_GENERATOR");
   if (!genName) {
     std::cerr << "Error: could not find CMAKE_GENERATOR in Cache\n";
     return false;
   }
   cmValue extraGenName =
-    this->m_pState->GetInitializedCacheValue("CMAKE_EXTRA_GENERATOR");
+    m_pState->GetInitializedCacheValue("CMAKE_EXTRA_GENERATOR");
   std::string fullName =
     cmExternalMakefileProjectGenerator::CreateFullGeneratorName(
       *genName, extraGenName ? *extraGenName : "");
@@ -4055,7 +4054,7 @@ bool CMake::Open(std::string const& dir, DryRun dryRun)
   }
 
   cmValue cachedProjectName =
-    this->m_pState->GetCacheEntryValue("CMAKE_PROJECT_NAME");
+    m_pState->GetCacheEntryValue("CMAKE_PROJECT_NAME");
   if (!cachedProjectName) {
     std::cerr << "Error: could not find CMAKE_PROJECT_NAME in Cache\n";
     return false;
@@ -4269,9 +4268,9 @@ int CMake::Workflow(std::string const& presetName,
 void CMake::WatchUnusedCli(std::string const& var)
 {
 #ifndef CMAKE_BOOTSTRAP
-  this->m_pVariableWatch->AddWatch(var, cmWarnUnusedCliWarning, this);
-  if (!cm::contains(this->m_usedCliVariables, var)) {
-    this->m_usedCliVariables[var] = false;
+  m_pVariableWatch->AddWatch(var, cmWarnUnusedCliWarning, this);
+  if (!cm::contains(m_usedCliVariables, var)) {
+    m_usedCliVariables[var] = false;
   }
 #endif
 }
@@ -4279,8 +4278,8 @@ void CMake::WatchUnusedCli(std::string const& var)
 void CMake::UnwatchUnusedCli(std::string const& var)
 {
 #ifndef CMAKE_BOOTSTRAP
-  this->m_pVariableWatch->RemoveWatch(var, cmWarnUnusedCliWarning);
-  this->m_usedCliVariables.erase(var);
+  m_pVariableWatch->RemoveWatch(var, cmWarnUnusedCliWarning);
+  m_usedCliVariables.erase(var);
 #endif
 }
 
@@ -4290,7 +4289,7 @@ void CMake::RunCheckForUnusedVariables()
   bool haveUnused = false;
   std::ostringstream msg;
   msg << "Manually-specified variables were not used by the project:";
-  for (auto const& it : this->m_usedCliVariables) {
+  for (auto const& it : m_usedCliVariables) {
     if (!it.second) {
       haveUnused = true;
       msg << "\n  " << it.first;
@@ -4304,7 +4303,7 @@ void CMake::RunCheckForUnusedVariables()
 
 bool CMake::GetSuppressDevWarnings() const
 {
-  return this->m_pMessenger->GetSuppressDevWarnings();
+  return m_pMessenger->GetSuppressDevWarnings();
 }
 
 void CMake::SetSuppressDevWarnings(bool b)
@@ -4328,7 +4327,7 @@ void CMake::SetSuppressDevWarnings(bool b)
 
 bool CMake::GetSuppressDeprecatedWarnings() const
 {
-  return this->m_pMessenger->GetSuppressDeprecatedWarnings();
+  return m_pMessenger->GetSuppressDeprecatedWarnings();
 }
 
 void CMake::SetSuppressDeprecatedWarnings(bool b)
@@ -4352,7 +4351,7 @@ void CMake::SetSuppressDeprecatedWarnings(bool b)
 
 bool CMake::GetDevWarningsAsErrors() const
 {
-  return this->m_pMessenger->GetDevWarningsAsErrors();
+  return m_pMessenger->GetDevWarningsAsErrors();
 }
 
 void CMake::SetDevWarningsAsErrors(bool b)
@@ -4376,7 +4375,7 @@ void CMake::SetDevWarningsAsErrors(bool b)
 
 bool CMake::GetDeprecatedWarningsAsErrors() const
 {
-  return this->m_pMessenger->GetDeprecatedWarningsAsErrors();
+  return m_pMessenger->GetDeprecatedWarningsAsErrors();
 }
 
 void CMake::SetDeprecatedWarningsAsErrors(bool b)
@@ -4400,33 +4399,33 @@ void CMake::SetDeprecatedWarningsAsErrors(bool b)
 
 void CMake::SetDebugFindOutputPkgs(std::string const& args)
 {
-  this->m_debugFindPkgs.emplace(args);
+  m_debugFindPkgs.emplace(args);
 }
 
 void CMake::SetDebugFindOutputVars(std::string const& args)
 {
-  this->m_debugFindVars.emplace(args);
+  m_debugFindVars.emplace(args);
 }
 
 bool CMake::GetDebugFindOutput(std::string const& var) const
 {
-  return this->m_debugFindVars.count(var);
+  return m_debugFindVars.count(var);
 }
 
 bool CMake::GetDebugFindPkgOutput(std::string const& pkg) const
 {
-  return this->m_debugFindPkgs.count(pkg);
+  return m_debugFindPkgs.count(pkg);
 }
 
 void CMake::SetCMakeListName(std::string const& name)
 {
-  this->m_cmakeListName = name;
+  m_cmakeListName = name;
 }
 
 std::string CMake::GetCMakeListFile(std::string const& dir) const
 {
-  std::string listFile = cmStrCat(dir, '/', this->m_cmakeListName);
-  if (this->m_cmakeListName.empty() ||
+  std::string listFile = cmStrCat(dir, '/', m_cmakeListName);
+  if (m_cmakeListName.empty() ||
       !cmSystemTools::FileExists(listFile, true)) {
     return cmStrCat(dir, "/CMakeLists.txt");
   }
@@ -4436,11 +4435,11 @@ std::string CMake::GetCMakeListFile(std::string const& dir) const
 #if !defined(CMAKE_BOOTSTRAP)
 cmMakefileProfilingData& CMake::GetProfilingOutput()
 {
-  return *(this->m_profilingOutput);
+  return *(m_profilingOutput);
 }
 
 bool CMake::IsProfilingEnabled() const
 {
-  return static_cast<bool>(this->m_profilingOutput);
+  return static_cast<bool>(m_profilingOutput);
 }
 #endif

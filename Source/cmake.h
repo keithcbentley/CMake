@@ -214,7 +214,7 @@ public:
   /**
    * Working directory at CMake launch
    */
-  std::string const& GetCMakeWorkingDirectory() const { return this->m_cmakeWorkingDirectory; }
+  std::string const& GetCMakeWorkingDirectory() const { return m_cmakeWorkingDirectory; }
 
   /**
    * Handle a command line invocation of cmake.
@@ -268,9 +268,9 @@ public:
 #endif
 
   //! Return the global generator assigned to this instance of cmake
-  cmGlobalGenerator* GetGlobalGenerator() { return this->m_pGlobalGenerator.get(); }
+  cmGlobalGenerator* GetGlobalGenerator() { return m_pGlobalGenerator.get(); }
   //! Return the global generator assigned to this instance of cmake, const
-  cmGlobalGenerator const* GetGlobalGenerator() const { return this->m_pGlobalGenerator.get(); }
+  cmGlobalGenerator const* GetGlobalGenerator() const { return m_pGlobalGenerator.get(); }
 
   //! Return the full path to where the CMakeCache.txt file should be.
   static std::string FindCacheFile(std::string const& binaryDir);
@@ -284,46 +284,42 @@ public:
   //! Set the name of the selected generator-specific instance.
   void SetGeneratorInstance(std::string const& instance)
   {
-    this->m_generatorInstance = instance;
-    this->m_generatorInstanceSet = true;
+    m_generatorInstance = instance;
+    m_generatorInstanceSet = true;
   }
 
   //! Set the name of the selected generator-specific platform.
   void SetGeneratorPlatform(std::string const& ts)
   {
-    this->m_generatorPlatform = ts;
-    this->m_generatorPlatformSet = true;
+    m_generatorPlatform = ts;
+    m_generatorPlatformSet = true;
   }
 
   //! Set the name of the selected generator-specific toolset.
   void SetGeneratorToolset(std::string const& ts)
   {
-    this->m_generatorToolset = ts;
-    this->m_generatorToolsetSet = true;
+    m_generatorToolset = ts;
+    m_generatorToolsetSet = true;
   }
 
   //! Set the name of the graphviz file.
-  void SetGraphVizFile(std::string const& ts) { this->m_graphVizFile = ts; }
+  void SetGraphVizFile(std::string const& ts) { m_graphVizFile = ts; }
 
   bool IsAKnownSourceExtension(cm::string_view ext) const
   {
-    return this->m_CLikeSourceFileExtensions.Test(ext) || this->m_cudaFileExtensions.Test(ext) ||
-      this->m_FortranFileExtensions.Test(ext) || this->m_HipFileExtensions.Test(ext) ||
-      this->m_ISPCFileExtensions.Test(ext);
+    return m_CLikeSourceFileExtensions.Test(ext) || m_cudaFileExtensions.Test(ext) ||
+      m_FortranFileExtensions.Test(ext) || m_HipFileExtensions.Test(ext) || m_ISPCFileExtensions.Test(ext);
   }
 
-  bool IsACLikeSourceExtension(cm::string_view ext) const { return this->m_CLikeSourceFileExtensions.Test(ext); }
+  bool IsACLikeSourceExtension(cm::string_view ext) const { return m_CLikeSourceFileExtensions.Test(ext); }
 
-  bool IsAKnownExtension(cm::string_view ext) const
-  {
-    return this->IsAKnownSourceExtension(ext) || this->IsAHeaderExtension(ext);
-  }
+  bool IsAKnownExtension(cm::string_view ext) const { return IsAKnownSourceExtension(ext) || IsAHeaderExtension(ext); }
 
   std::vector<std::string> GetAllExtensions() const;
 
-  std::vector<std::string> const& GetHeaderExtensions() const { return this->m_headerFileExtensions.ordered; }
+  std::vector<std::string> const& GetHeaderExtensions() const { return m_headerFileExtensions.ordered; }
 
-  bool IsAHeaderExtension(cm::string_view ext) const { return this->m_headerFileExtensions.Test(ext); }
+  bool IsAHeaderExtension(cm::string_view ext) const { return m_headerFileExtensions.Test(ext); }
 
   // Strips the extension (if present and known) from a filename
   std::string StripExtension(std::string const& file) const;
@@ -414,7 +410,7 @@ public:
 
 #if !defined(CMAKE_BOOTSTRAP)
   //! Get the variable watch object
-  cmVariableWatch* GetVariableWatch() { return this->m_pVariableWatch.get(); }
+  cmVariableWatch* GetVariableWatch() { return m_pVariableWatch.get(); }
 #endif
 
   std::vector<cmDocumentationEntry> GetGeneratorsDocumentation();
@@ -449,7 +445,7 @@ public:
 
   cmInstalledFile const* GetInstalledFile(std::string const& name) const;
 
-  InstalledFilesMap const& GetInstalledFiles() const { return this->m_installedFiles; }
+  InstalledFilesMap const& GetInstalledFiles() const { return m_installedFiles; }
 
   //! Do all the checks before running configure
   int DoPreConfigureChecks();
@@ -458,17 +454,17 @@ public:
     WorkingMode mode,
     CommandFailureAction policy)
   {
-    this->m_currentWorkingMode = mode;
-    this->m_currentCommandFailureAction = policy;
+    m_currentWorkingMode = mode;
+    m_currentCommandFailureAction = policy;
   }
 
-  WorkingMode GetWorkingMode() const { return this->m_currentWorkingMode; }
+  WorkingMode GetWorkingMode() const { return m_currentWorkingMode; }
 
-  CommandFailureAction GetCommandFailureAction() const { return this->m_currentCommandFailureAction; }
+  CommandFailureAction GetCommandFailureAction() const { return m_currentCommandFailureAction; }
 
   //! Debug the try compile stuff by not deleting the files
-  bool GetDebugTryCompile() const { return this->m_debugTryCompile; }
-  void DebugTryCompileOn() { this->m_debugTryCompile = true; }
+  bool GetDebugTryCompile() const { return m_debugTryCompile; }
+  void DebugTryCompileOn() { m_debugTryCompile = true; }
 
   /**
    * Generate CMAKE_ROOT and CMAKE_COMMAND cache entries
@@ -478,83 +474,80 @@ public:
   /**
    * Get the file comparison class
    */
-  cmFileTimeCache* GetFileTimeCache() { return this->m_fileTimeCache.get(); }
+  cmFileTimeCache* GetFileTimeCache() { return m_fileTimeCache.get(); }
 
-  bool WasLogLevelSetViaCLI() const { return this->m_logLevelWasSetViaCLI; }
+  bool WasLogLevelSetViaCLI() const { return m_logLevelWasSetViaCLI; }
 
   //! Get the selected log level for `message()` commands during the cmake run.
-  Message::LogLevel GetLogLevel() const { return this->m_messageLogLevel; }
-  void SetLogLevel(Message::LogLevel level) { this->m_messageLogLevel = level; }
+  Message::LogLevel GetLogLevel() const { return m_messageLogLevel; }
+  void SetLogLevel(Message::LogLevel level) { m_messageLogLevel = level; }
   static Message::LogLevel StringToLogLevel(cm::string_view levelStr);
   static std::string LogLevelToString(Message::LogLevel level);
   static TraceFormat StringToTraceFormat(std::string const& levelStr);
 
-  bool HasCheckInProgress() const { return !this->m_checkInProgressMessages.empty(); }
-  std::size_t GetCheckInProgressSize() const { return this->m_checkInProgressMessages.size(); }
+  bool HasCheckInProgress() const { return !m_checkInProgressMessages.empty(); }
+  std::size_t GetCheckInProgressSize() const { return m_checkInProgressMessages.size(); }
   std::string GetTopCheckInProgressMessage()
   {
-    auto message = this->m_checkInProgressMessages.back();
-    this->m_checkInProgressMessages.pop_back();
+    auto message = m_checkInProgressMessages.back();
+    m_checkInProgressMessages.pop_back();
     return message;
   }
-  void PushCheckInProgressMessage(std::string message)
-  {
-    this->m_checkInProgressMessages.emplace_back(std::move(message));
-  }
-  std::vector<std::string> const& GetCheckInProgressMessages() const { return this->m_checkInProgressMessages; }
+  void PushCheckInProgressMessage(std::string message) { m_checkInProgressMessages.emplace_back(std::move(message)); }
+  std::vector<std::string> const& GetCheckInProgressMessages() const { return m_checkInProgressMessages; }
 
   //! Should `message` command display context.
-  bool GetShowLogContext() const { return this->m_logContext; }
-  void SetShowLogContext(bool b) { this->m_logContext = b; }
+  bool GetShowLogContext() const { return m_logContext; }
+  void SetShowLogContext(bool b) { m_logContext = b; }
 
   //! Do we want debug output during the cmake run.
-  bool GetDebugOutput() const { return this->m_debugOutput; }
-  void SetDebugOutputOn(bool b) { this->m_debugOutput = b; }
+  bool GetDebugOutput() const { return m_debugOutput; }
+  void SetDebugOutputOn(bool b) { m_debugOutput = b; }
 
   //! Do we want debug output from the find commands during the cmake run.
-  bool GetDebugFindOutput() const { return this->m_debugFindOutput; }
+  bool GetDebugFindOutput() const { return m_debugFindOutput; }
   bool GetDebugFindOutput(std::string const& var) const;
   bool GetDebugFindPkgOutput(std::string const& pkg) const;
-  void SetDebugFindOutput(bool b) { this->m_debugFindOutput = b; }
+  void SetDebugFindOutput(bool b) { m_debugFindOutput = b; }
   void SetDebugFindOutputPkgs(std::string const& args);
   void SetDebugFindOutputVars(std::string const& args);
 
   //! Do we want trace output during the cmake run.
-  bool GetTrace() const { return this->m_trace; }
-  void SetTrace(bool b) { this->m_trace = b; }
-  bool GetTraceExpand() const { return this->m_traceExpand; }
-  void SetTraceExpand(bool b) { this->m_traceExpand = b; }
-  TraceFormat GetTraceFormat() const { return this->m_traceFormatVar; }
-  void SetTraceFormat(TraceFormat f) { this->m_traceFormatVar = f; }
-  void AddTraceSource(std::string const& file) { this->m_traceOnlyThisSources.push_back(file); }
-  std::vector<std::string> const& GetTraceSources() const { return this->m_traceOnlyThisSources; }
+  bool GetTrace() const { return m_trace; }
+  void SetTrace(bool b) { m_trace = b; }
+  bool GetTraceExpand() const { return m_traceExpand; }
+  void SetTraceExpand(bool b) { m_traceExpand = b; }
+  TraceFormat GetTraceFormat() const { return m_traceFormatVar; }
+  void SetTraceFormat(TraceFormat f) { m_traceFormatVar = f; }
+  void AddTraceSource(std::string const& file) { m_traceOnlyThisSources.push_back(file); }
+  std::vector<std::string> const& GetTraceSources() const { return m_traceOnlyThisSources; }
   cmGeneratedFileStream& GetTraceFile()
   {
-    if (this->m_traceRedirect) {
-      return this->m_traceRedirect->GetTraceFile();
+    if (m_traceRedirect) {
+      return m_traceRedirect->GetTraceFile();
     }
-    return this->m_traceFile;
+    return m_traceFile;
   }
   void SetTraceFile(std::string const& file);
   void PrintTraceFormatVersion();
 
 #ifndef CMAKE_BOOTSTRAP
-  cmConfigureLog* GetConfigureLog() const { return this->m_configureLog.get(); }
+  cmConfigureLog* GetConfigureLog() const { return m_configureLog.get(); }
 #endif
 
   //! Use trace from another ::cmake instance.
   void SetTraceRedirect(CMake* other);
 
-  bool GetWarnUninitialized() const { return this->m_warnUninitialized; }
-  void SetWarnUninitialized(bool b) { this->m_warnUninitialized = b; }
-  bool GetWarnUnusedCli() const { return this->m_warnUnusedCli; }
-  void SetWarnUnusedCli(bool b) { this->m_warnUnusedCli = b; }
-  bool GetCheckSystemVars() const { return this->m_checkSystemVars; }
-  void SetCheckSystemVars(bool b) { this->m_checkSystemVars = b; }
-  bool GetIgnoreCompileWarningAsError() const { return this->m_ignoreCompileWarningAsError; }
-  void SetIgnoreCompileWarningAsError(bool b) { this->m_ignoreCompileWarningAsError = b; }
-  bool GetIgnoreLinkWarningAsError() const { return this->m_ignoreLinkWarningAsError; }
-  void SetIgnoreLinkWarningAsError(bool b) { this->m_ignoreLinkWarningAsError = b; }
+  bool GetWarnUninitialized() const { return m_warnUninitialized; }
+  void SetWarnUninitialized(bool b) { m_warnUninitialized = b; }
+  bool GetWarnUnusedCli() const { return m_warnUnusedCli; }
+  void SetWarnUnusedCli(bool b) { m_warnUnusedCli = b; }
+  bool GetCheckSystemVars() const { return m_checkSystemVars; }
+  void SetCheckSystemVars(bool b) { m_checkSystemVars = b; }
+  bool GetIgnoreCompileWarningAsError() const { return m_ignoreCompileWarningAsError; }
+  void SetIgnoreCompileWarningAsError(bool b) { m_ignoreCompileWarningAsError = b; }
+  bool GetIgnoreLinkWarningAsError() const { return m_ignoreLinkWarningAsError; }
+  void SetIgnoreLinkWarningAsError(bool b) { m_ignoreLinkWarningAsError = b; }
 
   void MarkCliAsUsed(std::string const& variable);
 
@@ -562,16 +555,16 @@ public:
       debugging configurations.*/
   std::vector<std::string> GetDebugConfigs();
 
-  void SetCMakeEditCommand(std::string const& s) { this->m_cmakeEditCommand = s; }
-  std::string const& GetCMakeEditCommand() const { return this->m_cmakeEditCommand; }
+  void SetCMakeEditCommand(std::string const& s) { m_cmakeEditCommand = s; }
+  std::string const& GetCMakeEditCommand() const { return m_cmakeEditCommand; }
 
-  cmMessenger* GetMessenger() const { return this->m_pMessenger.get(); }
+  cmMessenger* GetMessenger() const { return m_pMessenger.get(); }
 
 #ifndef CMAKE_BOOTSTRAP
   /// Get the SARIF file path if set manually for this run
   cm::optional<std::string> GetSarifFilePath() const
   {
-    return (this->m_SarifFileOutput ? cm::make_optional(this->m_SarifFilePath) : cm::nullopt);
+    return (m_SarifFileOutput ? cm::make_optional(m_SarifFilePath) : cm::nullopt);
   }
 #endif
 
@@ -669,15 +662,15 @@ public:
   void WatchUnusedCli(std::string const& var);
 
 #if !defined(CMAKE_BOOTSTRAP)
-  cmFileAPI* GetFileAPI() const { return this->m_pFileAPI.get(); }
-  cmInstrumentation* GetInstrumentation() const { return this->m_pInstrumentation.get(); }
+  cmFileAPI* GetFileAPI() const { return m_pFileAPI.get(); }
+  cmInstrumentation* GetInstrumentation() const { return m_pInstrumentation.get(); }
 #endif
 
-  cmState* GetState() const { return this->m_pState.get(); }
-  void SetCurrentSnapshot(cmStateSnapshot const& snapshot) { this->m_currentSnapshot = snapshot; }
-  cmStateSnapshot GetCurrentSnapshot() const { return this->m_currentSnapshot; }
+  cmState* GetState() const { return m_pState.get(); }
+  void SetCurrentSnapshot(cmStateSnapshot const& snapshot) { m_currentSnapshot = snapshot; }
+  cmStateSnapshot GetCurrentSnapshot() const { return m_currentSnapshot; }
 
-  bool GetRegenerateDuringBuild() const { return this->m_regenerateDuringBuild; }
+  bool GetRegenerateDuringBuild() const { return m_regenerateDuringBuild; }
 
   void SetCMakeListName(std::string const& name);
   std::string GetCMakeListFile(std::string const& dir) const;
@@ -707,13 +700,13 @@ public:
 #endif
 
 #ifdef CMake_ENABLE_DEBUGGER
-  bool GetDebuggerOn() const { return this->m_debuggerOn; }
-  std::string GetDebuggerPipe() const { return this->m_debuggerPipe; }
-  std::string GetDebuggerDapLogFile() const { return this->m_debuggerDapLogFile; }
-  void SetDebuggerOn(bool b) { this->m_debuggerOn = b; }
+  bool GetDebuggerOn() const { return m_debuggerOn; }
+  std::string GetDebuggerPipe() const { return m_debuggerPipe; }
+  std::string GetDebuggerDapLogFile() const { return m_debuggerDapLogFile; }
+  void SetDebuggerOn(bool b) { m_debuggerOn = b; }
   bool StartDebuggerIfEnabled();
   void StopDebuggerIfNeeded(int exitCode);
-  std::shared_ptr<cmDebugger::cmDebuggerAdapter> GetDebugAdapter() const noexcept { return this->m_debugAdapter; }
+  std::shared_ptr<cmDebugger::cmDebuggerAdapter> GetDebugAdapter() const noexcept { return m_debugAdapter; }
 #endif
 
 protected:
