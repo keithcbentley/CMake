@@ -1,12 +1,13 @@
 ---
-# This configuration requires clang-format version 18 exactly.
+# This configuration requires clang-format version 20ish.
 BasedOnStyle: Mozilla
 AlignOperands: false
 AllowShortFunctionsOnASingleLine: InlineOnly
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
+AlignAfterOpenBracket: AlwaysBreak
 BinPackArguments: true
-BinPackParameters: true
+BinPackParameters: AlwaysOnePerLine
 BraceWrapping:
   AfterClass:      true
   AfterEnum:       true
@@ -14,7 +15,7 @@ BraceWrapping:
   AfterStruct:     true
   AfterUnion:      true
 BreakBeforeBraces: Custom
-ColumnLimit: 79
+ColumnLimit: 120
 IndentPPDirectives: AfterHash
 QualifierAlignment: Right
 SortUsingDeclarations: false

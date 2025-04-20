@@ -52,10 +52,7 @@
 
 namespace {
 #ifndef CMAKE_BOOTSTRAP
-cmDocumentationEntry const cmDocumentationName = {
-  {},
-  "  cmake - Cross-Platform Makefile Generator."
-};
+cmDocumentationEntry const cmDocumentationName = { {}, "  cmake - Cross-Platform Makefile Generator." };
 
 cmDocumentationEntry const cmDocumentationUsage[2] = {
   { {},
@@ -68,10 +65,7 @@ cmDocumentationEntry const cmDocumentationUsage[2] = {
     "directory to re-generate its build system." }
 };
 
-cmDocumentationEntry const cmDocumentationUsageNote = {
-  {},
-  "Run 'cmake --help' for more information."
-};
+cmDocumentationEntry const cmDocumentationUsageNote = { {}, "Run 'cmake --help' for more information." };
 
 cmDocumentationEntry const cmDocumentationOptions[35] = {
   { "--preset <preset>,--preset=<preset>", "Specify a configure preset." },
@@ -80,8 +74,7 @@ cmDocumentationEntry const cmDocumentationOptions[35] = {
   { "-E", "CMake command mode. Run \"cmake -E\" for a summary of commands." },
   { "-L[A][H]", "List non-advanced cached variables." },
   { "-LR[A][H] <regex>", "Show cached variables that match the regex." },
-  { "--fresh",
-    "Configure a fresh build tree, removing any existing cache file." },
+  { "--fresh", "Configure a fresh build tree, removing any existing cache file." },
   { "--build <dir>",
     "Build a CMake-generated project binary tree. Run \"cmake --build\" to "
     "see compatible options and a quick help." },
@@ -96,8 +89,7 @@ cmDocumentationEntry const cmDocumentationOptions[35] = {
     "Generate graphviz of dependencies, see CMakeGraphVizOptions.cmake for "
     "more." },
   { "--system-information [file]", "Dump information about this system." },
-  { "--print-config-dir",
-    "Print CMake config directory for user-wide FileAPI queries." },
+  { "--print-config-dir", "Print CMake config directory for user-wide FileAPI queries." },
   { "--log-level=<ERROR|WARNING|NOTICE|STATUS|VERBOSE|DEBUG|TRACE>",
     "Set the verbosity of messages from CMake files. "
     "--loglevel is also accepted for backward compatibility reasons." },
@@ -107,21 +99,16 @@ cmDocumentationEntry const cmDocumentationOptions[35] = {
     "useful on one try_compile at a time." },
   { "--debug-output", "Put cmake in a debug mode." },
   { "--debug-find", "Put cmake find in a debug mode." },
-  { "--debug-find-pkg=<pkg-name>[,...]",
-    "Limit cmake debug-find to the comma-separated list of packages" },
-  { "--debug-find-var=<var-name>[,...]",
-    "Limit cmake debug-find to the comma-separated list of result variables" },
+  { "--debug-find-pkg=<pkg-name>[,...]", "Limit cmake debug-find to the comma-separated list of packages" },
+  { "--debug-find-var=<var-name>[,...]", "Limit cmake debug-find to the comma-separated list of result variables" },
   { "--trace", "Put cmake in trace mode." },
   { "--trace-expand", "Put cmake in trace mode with variable expansion." },
   { "--trace-format=<human|json-v1>", "Set the output format of the trace." },
-  { "--trace-source=<file>",
-    "Trace only this CMake file/module. Multiple options allowed." },
-  { "--trace-redirect=<file>",
-    "Redirect trace output to a file instead of stderr." },
+  { "--trace-source=<file>", "Trace only this CMake file/module. Multiple options allowed." },
+  { "--trace-redirect=<file>", "Redirect trace output to a file instead of stderr." },
   { "--warn-uninitialized", "Warn about uninitialized values." },
   { "--no-warn-unused-cli", "Don't warn about command line options." },
-  { "--check-system-vars",
-    "Find problems with variable usage in system files." },
+  { "--check-system-vars", "Find problems with variable usage in system files." },
   { "--compile-no-warning-as-error",
     "Ignore COMPILE_WARNING_AS_ERROR property and "
     "CMAKE_COMPILE_WARNING_AS_ERROR variable." },
@@ -138,8 +125,10 @@ cmDocumentationEntry const cmDocumentationOptions[35] = {
 
 #endif
 
-int do_command(int ac, char const* const* av,
-               std::unique_ptr<cmConsoleBuf> consoleBuf)
+int do_command(
+  int ac,
+  char const* const* av,
+  std::unique_ptr<cmConsoleBuf> consoleBuf)
 {
   std::vector<std::string> args;
   args.reserve(ac - 1);
@@ -173,8 +162,10 @@ std::string cmakemainGetStack(cmake* cm)
   return msg;
 }
 
-void cmakemainMessageCallback(std::string const& m,
-                              cmMessageMetadata const& md, cmake* cm)
+void cmakemainMessageCallback(
+  std::string const& m,
+  cmMessageMetadata const& md,
+  cmake* cm)
 {
 #if defined(_WIN32)
   // FIXME: On Windows we replace cerr's streambuf with a custom
@@ -192,7 +183,10 @@ void cmakemainMessageCallback(std::string const& m,
 #endif
 }
 
-void cmakemainProgressCallback(std::string const& m, float prog, cmake* cm)
+void cmakemainProgressCallback(
+  std::string const& m,
+  float prog,
+  cmake* cm)
 {
   cmMakefile* mf = cmakemainGetMakefile(cm);
   std::string dir;
@@ -208,7 +202,9 @@ void cmakemainProgressCallback(std::string const& m, float prog, cmake* cm)
 }
 
 std::function<bool(std::string const& value)> getShowCachedCallback(
-  bool& show_flag, bool* help_flag = nullptr, std::string* filter = nullptr)
+  bool& show_flag,
+  bool* help_flag = nullptr,
+  std::string* filter = nullptr)
 {
   return [=, &show_flag](std::string const& value) -> bool {
     show_flag = true;
@@ -222,11 +218,12 @@ std::function<bool(std::string const& value)> getShowCachedCallback(
   };
 }
 
-int do_cmake(int ac, char const* const* av)
+int do_cmake(
+  int ac,
+  char const* const* av)
 {
   if (cmSystemTools::GetLogicalWorkingDirectory().empty()) {
-    std::cerr << "Current working directory cannot be established."
-              << std::endl;
+    std::cerr << "Current working directory cannot be established." << std::endl;
     return 1;
   }
 
@@ -261,9 +258,7 @@ int do_cmake(int ac, char const* const* av)
   }
 #else
   if (ac == 1) {
-    std::cout
-      << "Bootstrap CMake should not be used outside CMake build process."
-      << std::endl;
+    std::cout << "Bootstrap CMake should not be used outside CMake build process." << std::endl;
     return 0;
   }
 #endif
@@ -279,47 +274,34 @@ int do_cmake(int ac, char const* const* av)
   cmake::WorkingMode workingMode = cmake::NORMAL_MODE;
   std::vector<std::string> parsedArgs;
 
-  using CommandArgument =
-    cmCommandLineArgument<bool(std::string const& value)>;
+  using CommandArgument = cmCommandLineArgument<bool(std::string const& value)>;
   std::vector<CommandArgument> arguments = {
-    CommandArgument{
-      "-i", CommandArgument::Values::Zero,
-      [&wizard_mode](std::string const&) -> bool {
-        /* clang-format off */
+    CommandArgument{ "-i", CommandArgument::Values::Zero,
+                     [&wizard_mode](std::string const&) -> bool {
+                       /* clang-format off */
         std::cerr <<
           "The \"cmake -i\" wizard mode is no longer supported.\n"
           "Use the -D option to set cache values on the command line.\n"
           "Use cmake-gui or ccmake for an interactive dialog.\n";
-        /* clang-format on */
-        wizard_mode = true;
-        return true;
-      } },
-    CommandArgument{ "--system-information", CommandArgument::Values::Zero,
-                     CommandArgument::setToTrue(sysinfo) },
-    CommandArgument{ "-N", CommandArgument::Values::Zero,
-                     CommandArgument::setToTrue(view_only) },
-    CommandArgument{ "-LAH", CommandArgument::Values::Zero,
-                     getShowCachedCallback(list_all_cached, &list_help) },
-    CommandArgument{ "-LA", CommandArgument::Values::Zero,
-                     getShowCachedCallback(list_all_cached) },
-    CommandArgument{ "-LH", CommandArgument::Values::Zero,
-                     getShowCachedCallback(list_cached, &list_help) },
-    CommandArgument{ "-L", CommandArgument::Values::Zero,
-                     getShowCachedCallback(list_cached) },
-    CommandArgument{
-      "-LRAH", CommandArgument::Values::One,
-      getShowCachedCallback(list_all_cached, &list_help, &filter_var_name) },
-    CommandArgument{
-      "-LRA", CommandArgument::Values::One,
-      getShowCachedCallback(list_all_cached, nullptr, &filter_var_name) },
-    CommandArgument{
-      "-LRH", CommandArgument::Values::One,
-      getShowCachedCallback(list_cached, &list_help, &filter_var_name) },
-    CommandArgument{
-      "-LR", CommandArgument::Values::One,
-      getShowCachedCallback(list_cached, nullptr, &filter_var_name) },
-    CommandArgument{ "-P", "No script specified for argument -P",
-                     CommandArgument::Values::One,
+                       /* clang-format on */
+                       wizard_mode = true;
+                       return true;
+                     } },
+    CommandArgument{ "--system-information", CommandArgument::Values::Zero, CommandArgument::setToTrue(sysinfo) },
+    CommandArgument{ "-N", CommandArgument::Values::Zero, CommandArgument::setToTrue(view_only) },
+    CommandArgument{ "-LAH", CommandArgument::Values::Zero, getShowCachedCallback(list_all_cached, &list_help) },
+    CommandArgument{ "-LA", CommandArgument::Values::Zero, getShowCachedCallback(list_all_cached) },
+    CommandArgument{ "-LH", CommandArgument::Values::Zero, getShowCachedCallback(list_cached, &list_help) },
+    CommandArgument{ "-L", CommandArgument::Values::Zero, getShowCachedCallback(list_cached) },
+    CommandArgument{ "-LRAH", CommandArgument::Values::One,
+                     getShowCachedCallback(list_all_cached, &list_help, &filter_var_name) },
+    CommandArgument{ "-LRA", CommandArgument::Values::One,
+                     getShowCachedCallback(list_all_cached, nullptr, &filter_var_name) },
+    CommandArgument{ "-LRH", CommandArgument::Values::One,
+                     getShowCachedCallback(list_cached, &list_help, &filter_var_name) },
+    CommandArgument{ "-LR", CommandArgument::Values::One,
+                     getShowCachedCallback(list_cached, nullptr, &filter_var_name) },
+    CommandArgument{ "-P", "No script specified for argument -P", CommandArgument::Values::One,
                      CommandArgument::RequiresSeparator::No,
                      [&](std::string const& value) -> bool {
                        workingMode = cmake::SCRIPT_MODE;
@@ -381,8 +363,7 @@ int do_cmake(int ac, char const* const* av)
     int ret = cm.GetSystemInformation(parsedArgs);
     return ret;
   }
-  cmake::Role const role =
-    workingMode == cmake::SCRIPT_MODE ? cmake::RoleScript : cmake::RoleProject;
+  cmake::Role const role = workingMode == cmake::SCRIPT_MODE ? cmake::RoleScript : cmake::RoleProject;
   cmState::Mode mode = cmState::Unknown;
   switch (workingMode) {
     case cmake::NORMAL_MODE:
@@ -396,19 +377,14 @@ int do_cmake(int ac, char const* const* av)
       mode = cmState::FindPackage;
       break;
   }
-  auto const failurePolicy = workingMode == cmake::NORMAL_MODE
-    ? cmake::CommandFailureAction::EXIT_CODE
-    : cmake::CommandFailureAction::FATAL_ERROR;
+  auto const failurePolicy = workingMode == cmake::NORMAL_MODE ? cmake::CommandFailureAction::EXIT_CODE
+                                                               : cmake::CommandFailureAction::FATAL_ERROR;
   cmake cm(role, mode);
   cm.SetHomeDirectory("");
   cm.SetHomeOutputDirectory("");
   cmSystemTools::SetMessageCallback(
-    [&cm](std::string const& msg, cmMessageMetadata const& md) {
-      cmakemainMessageCallback(msg, md, &cm);
-    });
-  cm.SetProgressCallback([&cm](std::string const& msg, float prog) {
-    cmakemainProgressCallback(msg, prog, &cm);
-  });
+    [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
+  cm.SetProgressCallback([&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
   cm.SetWorkingMode(workingMode, failurePolicy);
 
   int res = cm.Run(parsedArgs, view_only);
@@ -425,18 +401,15 @@ int do_cmake(int ac, char const* const* av)
       }
 
       cmStateEnums::CacheEntryType t = cm.GetState()->GetCacheEntryType(k);
-      if (t != cmStateEnums::INTERNAL && t != cmStateEnums::STATIC &&
-          t != cmStateEnums::UNINITIALIZED) {
-        cmValue advancedProp =
-          cm.GetState()->GetCacheEntryProperty(k, "ADVANCED");
+      if (t != cmStateEnums::INTERNAL && t != cmStateEnums::STATIC && t != cmStateEnums::UNINITIALIZED) {
+        cmValue advancedProp = cm.GetState()->GetCacheEntryProperty(k, "ADVANCED");
         if (list_all_cached || !advancedProp) {
           if (list_help) {
-            cmValue help =
-              cm.GetState()->GetCacheEntryProperty(k, "HELPSTRING");
+            cmValue help = cm.GetState()->GetCacheEntryProperty(k, "HELPSTRING");
             std::cout << "// " << (help ? *help : "") << std::endl;
           }
-          std::cout << k << ":" << cmState::CacheEntryTypeToString(t) << "="
-                    << cm.GetState()->GetSafeCacheEntryValue(k) << std::endl;
+          std::cout << k << ":" << cmState::CacheEntryTypeToString(t) << "=" << cm.GetState()->GetSafeCacheEntryValue(k)
+                    << std::endl;
           if (list_help) {
             std::cout << std::endl;
           }
@@ -448,8 +421,7 @@ int do_cmake(int ac, char const* const* av)
   // Always return a non-negative value (except exit code from SCRIPT_MODE).
   // Windows tools do not always interpret negative return values as errors.
   if (res != 0) {
-    auto scriptModeExitCode =
-      cm.HasScriptModeExitCode() ? cm.GetScriptModeExitCode() : 0;
+    auto scriptModeExitCode = cm.HasScriptModeExitCode() ? cm.GetScriptModeExitCode() : 0;
     res = scriptModeExitCode ? scriptModeExitCode : 1;
 #ifdef CMake_ENABLE_DEBUGGER
     cm.StopDebuggerIfNeeded(res);
@@ -463,8 +435,9 @@ int do_cmake(int ac, char const* const* av)
 }
 
 #ifndef CMAKE_BOOTSTRAP
-int extract_job_number(std::string const& command,
-                       std::string const& jobString)
+int extract_job_number(
+  std::string const& command,
+  std::string const& jobString)
 {
   int jobs = -1;
   unsigned long numJobs = 0;
@@ -472,21 +445,21 @@ int extract_job_number(std::string const& command,
     jobs = cmake::DEFAULT_BUILD_PARALLEL_LEVEL;
   } else if (cmStrToULong(jobString, &numJobs)) {
     if (numJobs == 0) {
-      std::cerr
-        << "The <jobs> value requires a positive integer argument.\n\n";
+      std::cerr << "The <jobs> value requires a positive integer argument.\n\n";
     } else if (numJobs > INT_MAX) {
       std::cerr << "The <jobs> value is too large.\n\n";
     } else {
       jobs = static_cast<int>(numJobs);
     }
   } else {
-    std::cerr << "'" << command << "' invalid number '" << jobString
-              << "' given.\n\n";
+    std::cerr << "'" << command << "' invalid number '" << jobString << "' given.\n\n";
   }
   return jobs;
 }
 std::function<bool(std::string const&)> extract_job_number_lambda_builder(
-  std::string& dir, int& jobs, std::string const& flag)
+  std::string& dir,
+  int& jobs,
+  std::string const& flag)
 {
   return [&dir, &jobs, flag](std::string const& value) -> bool {
     jobs = extract_job_number(flag, value);
@@ -498,7 +471,9 @@ std::function<bool(std::string const&)> extract_job_number_lambda_builder(
 };
 #endif
 
-int do_build(int ac, char const* const* av)
+int do_build(
+  int ac,
+  char const* const* av)
 {
 #ifdef CMAKE_BOOTSTRAP
   std::cerr << "This cmake does not support --build\n";
@@ -519,8 +494,7 @@ int do_build(int ac, char const* const* av)
   bool listPresets = false;
 
   auto jLambda = extract_job_number_lambda_builder(dir, jobs, "-j");
-  auto parallelLambda =
-    extract_job_number_lambda_builder(dir, jobs, "--parallel");
+  auto parallelLambda = extract_job_number_lambda_builder(dir, jobs, "--parallel");
 
   auto targetLambda = [&](std::string const& value) -> bool {
     if (!value.empty()) {
@@ -558,35 +532,24 @@ int do_build(int ac, char const* const* av)
     return true;
   };
 
-  using CommandArgument =
-    cmCommandLineArgument<bool(std::string const& value)>;
+  using CommandArgument = cmCommandLineArgument<bool(std::string const& value)>;
 
   std::vector<CommandArgument> arguments = {
-    CommandArgument{ "--preset", CommandArgument::Values::One,
-                     CommandArgument::setToValue(presetName) },
-    CommandArgument{ "--list-presets", CommandArgument::Values::Zero,
-                     CommandArgument::setToTrue(listPresets) },
-    CommandArgument{ "-j", CommandArgument::Values::ZeroOrOne,
-                     CommandArgument::RequiresSeparator::No, jLambda },
-    CommandArgument{ "--parallel", CommandArgument::Values::ZeroOrOne,
-                     CommandArgument::RequiresSeparator::No, parallelLambda },
+    CommandArgument{ "--preset", CommandArgument::Values::One, CommandArgument::setToValue(presetName) },
+    CommandArgument{ "--list-presets", CommandArgument::Values::Zero, CommandArgument::setToTrue(listPresets) },
+    CommandArgument{ "-j", CommandArgument::Values::ZeroOrOne, CommandArgument::RequiresSeparator::No, jLambda },
+    CommandArgument{ "--parallel", CommandArgument::Values::ZeroOrOne, CommandArgument::RequiresSeparator::No,
+                     parallelLambda },
     CommandArgument{ "-t", CommandArgument::Values::OneOrMore, targetLambda },
-    CommandArgument{ "--target", CommandArgument::Values::OneOrMore,
-                     targetLambda },
-    CommandArgument{ "--config", CommandArgument::Values::One,
-                     CommandArgument::setToValue(config) },
-    CommandArgument{ "--clean-first", CommandArgument::Values::Zero,
-                     CommandArgument::setToTrue(cleanFirst) },
-    CommandArgument{ "--resolve-package-references",
-                     CommandArgument::Values::One, resolvePackagesLambda },
+    CommandArgument{ "--target", CommandArgument::Values::OneOrMore, targetLambda },
+    CommandArgument{ "--config", CommandArgument::Values::One, CommandArgument::setToValue(config) },
+    CommandArgument{ "--clean-first", CommandArgument::Values::Zero, CommandArgument::setToTrue(cleanFirst) },
+    CommandArgument{ "--resolve-package-references", CommandArgument::Values::One, resolvePackagesLambda },
     CommandArgument{ "-v", CommandArgument::Values::Zero, verboseLambda },
-    CommandArgument{ "--verbose", CommandArgument::Values::Zero,
-                     verboseLambda },
+    CommandArgument{ "--verbose", CommandArgument::Values::Zero, verboseLambda },
     /* legacy option no-op*/
-    CommandArgument{ "--use-stderr", CommandArgument::Values::Zero,
-                     [](std::string const&) -> bool { return true; } },
-    CommandArgument{ "--", CommandArgument::Values::Zero,
-                     CommandArgument::setToTrue(nativeOptionsPassed) },
+    CommandArgument{ "--use-stderr", CommandArgument::Values::Zero, [](std::string const&) -> bool { return true; } },
+    CommandArgument{ "--", CommandArgument::Values::Zero, CommandArgument::setToTrue(nativeOptionsPassed) },
   };
 
   if (ac >= 3) {
@@ -701,24 +664,21 @@ int do_build(int ac, char const* const* av)
 
   cmake cm(cmake::RoleInternal, cmState::Project);
   cmSystemTools::SetMessageCallback(
-    [&cm](std::string const& msg, cmMessageMetadata const& md) {
-      cmakemainMessageCallback(msg, md, &cm);
-    });
-  cm.SetProgressCallback([&cm](std::string const& msg, float prog) {
-    cmakemainProgressCallback(msg, prog, &cm);
-  });
+    [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
+  cm.SetProgressCallback([&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
 
   cmBuildOptions buildOptions(cleanFirst, false, resolveMode);
   std::vector<std::string> cmd;
   cm::append(cmd, av, av + ac);
-  return cm.Build(jobs, dir, std::move(targets), std::move(config),
-                  std::move(nativeOptions), buildOptions, verbose, presetName,
-                  listPresets, cmd);
+  return cm.Build(
+    jobs, dir, std::move(targets), std::move(config), std::move(nativeOptions), buildOptions, verbose, presetName,
+    listPresets, cmd);
 #endif
 }
 
-bool parse_default_directory_permissions(std::string const& permissions,
-                                         std::string& parsedPermissionsVar)
+bool parse_default_directory_permissions(
+  std::string const& permissions,
+  std::string& parsedPermissionsVar)
 {
   std::vector<std::string> parsedPermissions;
   enum Doing
@@ -734,8 +694,7 @@ bool parse_default_directory_permissions(std::string const& permissions,
   Doing doing = DoingNone;
 
   auto uniquePushBack = [&parsedPermissions](std::string const& e) {
-    if (std::find(parsedPermissions.begin(), parsedPermissions.end(), e) ==
-        parsedPermissions.end()) {
+    if (std::find(parsedPermissions.begin(), parsedPermissions.end(), e) == parsedPermissions.end()) {
       parsedPermissions.push_back(e);
     }
   };
@@ -815,8 +774,7 @@ bool parse_default_directory_permissions(std::string const& permissions,
         break;
     }
   }
-  if (doing != DoingOwnerAssignment && doing != DoingGroupAssignment &&
-      doing != DoingWorldAssignment) {
+  if (doing != DoingOwnerAssignment && doing != DoingGroupAssignment && doing != DoingWorldAssignment) {
     return false;
   }
 
@@ -832,7 +790,9 @@ bool parse_default_directory_permissions(std::string const& permissions,
   return true;
 }
 
-int do_install(int ac, char const* const* av)
+int do_install(
+  int ac,
+  char const* const* av)
 {
 #ifdef CMAKE_BOOTSTRAP
   std::cerr << "This cmake does not support --install\n";
@@ -850,35 +810,26 @@ int do_install(int ac, char const* const* av)
   bool verbose = cmSystemTools::HasEnv("VERBOSE");
 
   auto jLambda = extract_job_number_lambda_builder(dir, jobs, "-j");
-  auto parallelLambda =
-    extract_job_number_lambda_builder(dir, jobs, "--parallel");
+  auto parallelLambda = extract_job_number_lambda_builder(dir, jobs, "--parallel");
 
   auto verboseLambda = [&](std::string const&) -> bool {
     verbose = true;
     return true;
   };
 
-  using CommandArgument =
-    cmCommandLineArgument<bool(std::string const& value)>;
+  using CommandArgument = cmCommandLineArgument<bool(std::string const& value)>;
 
   std::vector<CommandArgument> arguments = {
-    CommandArgument{ "--config", CommandArgument::Values::One,
-                     CommandArgument::setToValue(config) },
-    CommandArgument{ "--component", CommandArgument::Values::One,
-                     CommandArgument::setToValue(component) },
-    CommandArgument{
-      "--default-directory-permissions", CommandArgument::Values::One,
-      CommandArgument::setToValue(defaultDirectoryPermissions) },
+    CommandArgument{ "--config", CommandArgument::Values::One, CommandArgument::setToValue(config) },
+    CommandArgument{ "--component", CommandArgument::Values::One, CommandArgument::setToValue(component) },
+    CommandArgument{ "--default-directory-permissions", CommandArgument::Values::One,
+                     CommandArgument::setToValue(defaultDirectoryPermissions) },
     CommandArgument{ "-j", CommandArgument::Values::One, jLambda },
-    CommandArgument{ "--parallel", CommandArgument::Values::One,
-                     parallelLambda },
-    CommandArgument{ "--prefix", CommandArgument::Values::One,
-                     CommandArgument::setToValue(prefix) },
-    CommandArgument{ "--strip", CommandArgument::Values::Zero,
-                     CommandArgument::setToTrue(strip) },
+    CommandArgument{ "--parallel", CommandArgument::Values::One, parallelLambda },
+    CommandArgument{ "--prefix", CommandArgument::Values::One, CommandArgument::setToValue(prefix) },
+    CommandArgument{ "--strip", CommandArgument::Values::Zero, CommandArgument::setToTrue(strip) },
     CommandArgument{ "-v", CommandArgument::Values::Zero, verboseLambda },
-    CommandArgument{ "--verbose", CommandArgument::Values::Zero,
-                     verboseLambda }
+    CommandArgument{ "--verbose", CommandArgument::Values::Zero, verboseLambda }
   };
 
   if (ac >= 3) {
@@ -946,14 +897,11 @@ int do_install(int ac, char const* const* av)
 
   if (!defaultDirectoryPermissions.empty()) {
     std::string parsedPermissionsVar;
-    if (!parse_default_directory_permissions(defaultDirectoryPermissions,
-                                             parsedPermissionsVar)) {
-      std::cerr << "--default-directory-permissions is in incorrect format"
-                << std::endl;
+    if (!parse_default_directory_permissions(defaultDirectoryPermissions, parsedPermissionsVar)) {
+      std::cerr << "--default-directory-permissions is in incorrect format" << std::endl;
       return 1;
     }
-    args.emplace_back("-DCMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS=" +
-                      parsedPermissionsVar);
+    args.emplace_back("-DCMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS=" + parsedPermissionsVar);
   }
 
   args.emplace_back("-P");
@@ -982,17 +930,13 @@ int do_install(int ac, char const* const* av)
       for (auto const& cmd : handler.GetCommands()) {
         cmake cm(cmake::RoleScript, cmState::Script);
         cmSystemTools::SetMessageCallback(
-          [&cm](std::string const& msg, cmMessageMetadata const& md) {
-            cmakemainMessageCallback(msg, md, &cm);
-          });
-        cm.SetProgressCallback([&cm](std::string const& msg, float prog) {
-          cmakemainProgressCallback(msg, prog, &cm);
-        });
+          [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
+        cm.SetProgressCallback(
+          [&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
         cm.SetHomeDirectory("");
         cm.SetHomeOutputDirectory("");
         cm.SetDebugOutputOn(verbose);
-        cm.SetWorkingMode(cmake::SCRIPT_MODE,
-                          cmake::CommandFailureAction::FATAL_ERROR);
+        cm.SetWorkingMode(cmake::SCRIPT_MODE, cmake::CommandFailureAction::FATAL_ERROR);
         ret_ = int(bool(cm.Run(cmd)));
       }
     }
@@ -1001,14 +945,15 @@ int do_install(int ac, char const* const* av)
 
   std::vector<std::string> cmd;
   cm::append(cmd, av, av + ac);
-  ret = instrumentation.InstrumentCommand(
-    "cmakeInstall", cmd, [doInstall]() { return doInstall(); });
+  ret = instrumentation.InstrumentCommand("cmakeInstall", cmd, [doInstall]() { return doInstall(); });
   instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostInstall);
   return ret;
 #endif
 }
 
-int do_workflow(int ac, char const* const* av)
+int do_workflow(
+  int ac,
+  char const* const* av)
 {
 #ifdef CMAKE_BOOTSTRAP
   std::cerr << "This cmake does not support --workflow\n";
@@ -1020,12 +965,10 @@ int do_workflow(int ac, char const* const* av)
   auto listPresets = WorkflowListPresets::No;
   auto fresh = WorkflowFresh::No;
 
-  using CommandArgument =
-    cmCommandLineArgument<bool(std::string const& value)>;
+  using CommandArgument = cmCommandLineArgument<bool(std::string const& value)>;
 
   std::vector<CommandArgument> arguments = {
-    CommandArgument{ "--preset", CommandArgument::Values::One,
-                     CommandArgument::setToValue(presetName) },
+    CommandArgument{ "--preset", CommandArgument::Values::One, CommandArgument::setToValue(presetName) },
     CommandArgument{ "--list-presets", CommandArgument::Values::Zero,
                      [&listPresets](std::string const&) -> bool {
                        listPresets = WorkflowListPresets::Yes;
@@ -1086,18 +1029,16 @@ int do_workflow(int ac, char const* const* av)
 
   cmake cm(cmake::RoleInternal, cmState::Project);
   cmSystemTools::SetMessageCallback(
-    [&cm](std::string const& msg, cmMessageMetadata const& md) {
-      cmakemainMessageCallback(msg, md, &cm);
-    });
-  cm.SetProgressCallback([&cm](std::string const& msg, float prog) {
-    cmakemainProgressCallback(msg, prog, &cm);
-  });
+    [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
+  cm.SetProgressCallback([&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
 
   return cm.Workflow(presetName, listPresets, fresh);
 #endif
 }
 
-int do_open(int ac, char const* const* av)
+int do_open(
+  int ac,
+  char const* const* av)
 {
 #ifdef CMAKE_BOOTSTRAP
   std::cerr << "This cmake does not support --open\n";
@@ -1130,18 +1071,16 @@ int do_open(int ac, char const* const* av)
 
   cmake cm(cmake::RoleInternal, cmState::Unknown);
   cmSystemTools::SetMessageCallback(
-    [&cm](std::string const& msg, cmMessageMetadata const& md) {
-      cmakemainMessageCallback(msg, md, &cm);
-    });
-  cm.SetProgressCallback([&cm](std::string const& msg, float prog) {
-    cmakemainProgressCallback(msg, prog, &cm);
-  });
+    [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
+  cm.SetProgressCallback([&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
   return cm.Open(dir, cmake::DryRun::No) ? 0 : 1;
 #endif
 }
 } // namespace
 
-int main(int ac, char const* const* av)
+int main(
+  int ac,
+  char const* const* av)
 {
   cmSystemTools::EnsureStdPipes();
 
@@ -1149,8 +1088,7 @@ int main(int ac, char const* const* av)
   auto consoleBuf = cm::make_unique<cmConsoleBuf>();
   consoleBuf->SetUTF8Pipes();
 
-  cmsys::Encoding::CommandLineArguments args =
-    cmsys::Encoding::CommandLineArguments::Main(ac, av);
+  cmsys::Encoding::CommandLineArguments args = cmsys::Encoding::CommandLineArguments::Main(ac, av);
   ac = args.argc();
   av = args.argv();
 
@@ -1173,9 +1111,7 @@ int main(int ac, char const* const* av)
       return do_command(ac, av, std::move(consoleBuf));
     }
     if (strcmp(av[1], "--print-config-dir") == 0) {
-      std::cout << cmSystemTools::ConvertToOutputPath(
-                     cmSystemTools::GetCMakeConfigDirectory().value_or(
-                       std::string()))
+      std::cout << cmSystemTools::ConvertToOutputPath(cmSystemTools::GetCMakeConfigDirectory().value_or(std::string()))
                 << std::endl;
       return 0;
     }
