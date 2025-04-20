@@ -2543,7 +2543,7 @@ int CMake::ActualConfigure()
   return 0;
 }
 
-std::unique_ptr<cmGlobalGenerator> CMake::m_pEvaluateDefaultGlobalGenerator()
+std::unique_ptr<cmGlobalGenerator> CMake::EvaluateDefaultGlobalGenerator()
 {
   if (!m_environmentGenerator.empty()) {
     auto gen = CreateGlobalGenerator(m_environmentGenerator);
@@ -2609,7 +2609,7 @@ std::unique_ptr<cmGlobalGenerator> CMake::m_pEvaluateDefaultGlobalGenerator()
 
 void CMake::CreateDefaultGlobalGenerator()
 {
-  auto gen = m_pEvaluateDefaultGlobalGenerator();
+  auto gen = EvaluateDefaultGlobalGenerator();
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(CMAKE_BOOT_MINGW)
   // This print could be unified for all platforms
   std::cout << "-- Building for: " << gen->GetName() << '\n';
@@ -3107,7 +3107,7 @@ bool CMake::GetIsInTryCompile() const
 
 void CMake::AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
 {
-  auto const defaultGenerator = m_pEvaluateDefaultGlobalGenerator();
+  auto const defaultGenerator = EvaluateDefaultGlobalGenerator();
   auto const defaultName = defaultGenerator->GetName();
   auto foundDefaultOne = false;
 

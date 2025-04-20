@@ -85,6 +85,123 @@ struct cmGlobCacheEntry;
 class CMake
 {
 public:
+  using ProgressCallbackType = std::function<void(std::string const&, float)>;
+
+  enum WorkingMode
+  {
+    NORMAL_MODE, ///< Cmake runs to create project files
+    SCRIPT_MODE,
+    HELP_MODE,
+    FIND_PACKAGE_MODE
+  };
+
+  enum class CommandFailureAction
+  {
+    FATAL_ERROR,
+    EXIT_CODE,
+  };
+
+  using TraceFormat = cmTraceEnums::TraceOutputFormat;
+
+  struct FileExtensions
+  {
+    bool Test(cm::string_view ext) const { return (this->unordered.find(ext) != this->unordered.end()); }
+
+    std::vector<std::string> ordered;
+    std::unordered_set<cm::string_view> unordered;
+  };
+
+  using InstalledFilesMap = std::map<std::string, cmInstalledFile>;
+
+private:
+  std::vector<std::string> m_cmdArgs;
+  std::string m_cmakeWorkingDirectory;
+  ProgressCallbackType m_progressCallback;
+  WorkingMode m_currentWorkingMode = NORMAL_MODE;
+  CommandFailureAction m_currentCommandFailureAction = CommandFailureAction::FATAL_ERROR;
+  bool m_debugOutput = false;
+  bool m_debugFindOutput = false;
+  bool m_trace = false;
+  bool m_traceExpand = false;
+  TraceFormat m_traceFormatVar = TraceFormat::Human;
+  cmGeneratedFileStream m_traceFile;
+  CMake* m_traceRedirect = nullptr;
+#ifndef CMAKE_BOOTSTRAP
+  std::unique_ptr<cmConfigureLog> m_configureLog;
+#endif
+  bool m_warnUninitialized = false;
+  bool m_warnUnusedCli = true;
+  bool m_checkSystemVars = false;
+  bool m_ignoreCompileWarningAsError = false;
+  bool m_ignoreLinkWarningAsError = false;
+  std::map<std::string, bool> m_usedCliVariables;
+  std::string m_cmakeEditCommand;
+  std::string m_CXXEnvironment;
+  std::string m_CCEnvironment;
+  std::string m_checkBuildSystemArgument;
+  std::string m_checkStampFile;
+  std::string m_checkStampList;
+  std::string m_VSSolutionFile;
+  std::string m_environmentGenerator;
+  FileExtensions m_CLikeSourceFileExtensions;
+  FileExtensions m_headerFileExtensions;
+  FileExtensions m_cudaFileExtensions;
+  FileExtensions m_ISPCFileExtensions;
+  FileExtensions m_FortranFileExtensions;
+  FileExtensions m_HipFileExtensions;
+  bool m_clearBuildSystem = false;
+  bool m_debugTryCompile = false;
+  bool m_freshCache = false;
+  bool m_regenerateDuringBuild = false;
+  std::string m_cmakeListName;
+  std::unique_ptr<cmFileTimeCache> m_fileTimeCache;
+  std::string m_graphVizFile;
+  InstalledFilesMap m_installedFiles;
+#ifndef CMAKE_BOOTSTRAP
+  std::map<std::string, cm::optional<cmCMakePresetsGraph::CacheVariable>> m_unprocessedPresetVariables;
+  std::map<std::string, cm::optional<std::string>> m_unprocessedPresetEnvironment;
+#endif
+
+#if !defined(CMAKE_BOOTSTRAP)
+  std::unique_ptr<cmVariableWatch> m_pVariableWatch;
+  std::unique_ptr<cmFileAPI> m_pFileAPI;
+  std::unique_ptr<cmInstrumentation> m_pInstrumentation;
+#endif
+
+  std::unique_ptr<cmState> m_pState;
+  cmStateSnapshot m_currentSnapshot;
+  std::unique_ptr<cmMessenger> m_pMessenger;
+
+#ifndef CMAKE_BOOTSTRAP
+  bool m_SarifFileOutput = false;
+  std::string m_SarifFilePath;
+#endif
+
+  std::vector<std::string> m_traceOnlyThisSources;
+
+  std::set<std::string> m_debugFindPkgs;
+  std::set<std::string> m_debugFindVars;
+
+  Message::LogLevel m_messageLogLevel = Message::LogLevel::LOG_STATUS;
+  bool m_logLevelWasSetViaCLI = false;
+  bool m_logContext = false;
+
+  std::vector<std::string> m_checkInProgressMessages;
+
+  std::unique_ptr<cmGlobalGenerator> m_pGlobalGenerator;
+
+#if !defined(CMAKE_BOOTSTRAP)
+  std::unique_ptr<cmMakefileProfilingData> m_profilingOutput;
+#endif
+
+#ifdef CMake_ENABLE_DEBUGGER
+  std::shared_ptr<cmDebugger::cmDebuggerAdapter> m_debugAdapter;
+  bool m_debuggerOn = false;
+  std::string m_debuggerPipe;
+  std::string m_debuggerDapLogFile;
+#endif
+
+public:
   enum Role
   {
     RoleInternal, // no commands
@@ -99,48 +216,6 @@ public:
     DIAG_ERROR
   };
 
-  /** \brief Describes the working modes of cmake */
-  enum WorkingMode
-  {
-    NORMAL_MODE, ///< Cmake runs to create project files
-
-    /** \brief Script mode (started by using -P).
-     *
-     * In script mode there is no generator and no cache. Also,
-     * languages are not enabled, so add_executable and things do
-     * nothing.
-     */
-    SCRIPT_MODE,
-
-    /** \brief Help mode
-     *
-     * Used to print help for things that can only be determined after finding
-     * the source directory, for example, the list of presets.
-     */
-    HELP_MODE,
-
-    /** \brief A pkg-config like mode
-     *
-     * In this mode cmake just searches for a package and prints the results to
-     * stdout. This is similar to SCRIPT_MODE, but commands like add_library()
-     * work too, since they may be used e.g. in exported target files. Started
-     * via --find-package.
-     */
-    FIND_PACKAGE_MODE
-  };
-
-  enum class CommandFailureAction
-  {
-    // When a command fails to execute, treat it as a fatal error.
-    FATAL_ERROR,
-
-    // When a command fails to execute, continue execution, but set the exit
-    // code accordingly.
-    EXIT_CODE,
-  };
-
-  using TraceFormat = cmTraceEnums::TraceOutputFormat;
-
   struct GeneratorInfo
   {
     std::string name;
@@ -153,16 +228,6 @@ public:
     bool isAlias;
   };
 
-  struct FileExtensions
-  {
-    bool Test(cm::string_view ext) const { return (this->unordered.find(ext) != this->unordered.end()); }
-
-    std::vector<std::string> ordered;
-    std::unordered_set<cm::string_view> unordered;
-  };
-
-  using InstalledFilesMap = std::map<std::string, cmInstalledFile>;
-
   static int const NO_BUILD_PARALLEL_LEVEL = -1;
   static int const DEFAULT_BUILD_PARALLEL_LEVEL = 0;
 
@@ -171,7 +236,6 @@ public:
     Role role,
     cmState::Mode mode,
     cmState::ProjectKind projectKind = cmState::ProjectKind::Normal);
-  /// Destructor
   ~CMake();
 
   CMake(CMake const&) = delete;
@@ -199,21 +263,11 @@ public:
    */
   void SetHomeDirectoryViaCommandLine(std::string const& path);
 
-  //@{
-  /**
-   * Set/Get the home directory (or output directory) in the project. The
-   * home directory is the top directory of the project. It is the
-   * path-to-source cmake was run with.
-   */
   void SetHomeDirectory(std::string const& dir);
   std::string const& GetHomeDirectory() const;
   void SetHomeOutputDirectory(std::string const& dir);
   std::string const& GetHomeOutputDirectory() const;
-  //@}
 
-  /**
-   * Working directory at CMake launch
-   */
   std::string const& GetCMakeWorkingDirectory() const { return m_cmakeWorkingDirectory; }
 
   /**
@@ -328,7 +382,6 @@ public:
    * Given a variable name, return its value (as a string).
    */
   cmValue GetCacheDefinition(std::string const&) const;
-  //! Add an entry into the cache
   void AddCacheEntry(
     std::string const& key,
     std::string const& value,
@@ -393,7 +446,6 @@ public:
     std::string const& value,
     cmStateEnums::CacheEntryType type);
 
-  using ProgressCallbackType = std::function<void(std::string const&, float)>;
   /**
    *  Set the function used by GUIs to receive progress updates
    *  Function gets passed: message as a const char*, a progress
@@ -755,86 +807,10 @@ protected:
   void GenerateGraphViz(std::string const& fileName) const;
 
 private:
-  std::vector<std::string> m_cmdArgs;
-  std::string m_cmakeWorkingDirectory;
-  ProgressCallbackType m_progressCallback;
-  WorkingMode m_currentWorkingMode = NORMAL_MODE;
-  CommandFailureAction m_currentCommandFailureAction = CommandFailureAction::FATAL_ERROR;
-  bool m_debugOutput = false;
-  bool m_debugFindOutput = false;
-  bool m_trace = false;
-  bool m_traceExpand = false;
-  TraceFormat m_traceFormatVar = TraceFormat::Human;
-  cmGeneratedFileStream m_traceFile;
-  CMake* m_traceRedirect = nullptr;
-#ifndef CMAKE_BOOTSTRAP
-  std::unique_ptr<cmConfigureLog> m_configureLog;
-#endif
-  bool m_warnUninitialized = false;
-  bool m_warnUnusedCli = true;
-  bool m_checkSystemVars = false;
-  bool m_ignoreCompileWarningAsError = false;
-  bool m_ignoreLinkWarningAsError = false;
-  std::map<std::string, bool> m_usedCliVariables;
-  std::string m_cmakeEditCommand;
-  std::string m_CXXEnvironment;
-  std::string m_CCEnvironment;
-  std::string m_checkBuildSystemArgument;
-  std::string m_checkStampFile;
-  std::string m_checkStampList;
-  std::string m_VSSolutionFile;
-  std::string m_environmentGenerator;
-  FileExtensions m_CLikeSourceFileExtensions;
-  FileExtensions m_headerFileExtensions;
-  FileExtensions m_cudaFileExtensions;
-  FileExtensions m_ISPCFileExtensions;
-  FileExtensions m_FortranFileExtensions;
-  FileExtensions m_HipFileExtensions;
-  bool m_clearBuildSystem = false;
-  bool m_debugTryCompile = false;
-  bool m_freshCache = false;
-  bool m_regenerateDuringBuild = false;
-  std::string m_cmakeListName;
-  std::unique_ptr<cmFileTimeCache> m_fileTimeCache;
-  std::string m_graphVizFile;
-  InstalledFilesMap m_installedFiles;
-#ifndef CMAKE_BOOTSTRAP
-  std::map<std::string, cm::optional<cmCMakePresetsGraph::CacheVariable>> m_unprocessedPresetVariables;
-  std::map<std::string, cm::optional<std::string>> m_unprocessedPresetEnvironment;
-#endif
-
-#if !defined(CMAKE_BOOTSTRAP)
-  std::unique_ptr<cmVariableWatch> m_pVariableWatch;
-  std::unique_ptr<cmFileAPI> m_pFileAPI;
-  std::unique_ptr<cmInstrumentation> m_pInstrumentation;
-#endif
-
-  std::unique_ptr<cmState> m_pState;
-  cmStateSnapshot m_currentSnapshot;
-  std::unique_ptr<cmMessenger> m_pMessenger;
-
-#ifndef CMAKE_BOOTSTRAP
-  bool m_SarifFileOutput = false;
-  std::string m_SarifFilePath;
-#endif
-
-  std::vector<std::string> m_traceOnlyThisSources;
-
-  std::set<std::string> m_debugFindPkgs;
-  std::set<std::string> m_debugFindVars;
-
-  Message::LogLevel m_messageLogLevel = Message::LogLevel::LOG_STATUS;
-  bool m_logLevelWasSetViaCLI = false;
-  bool m_logContext = false;
-
-  std::vector<std::string> m_checkInProgressMessages;
-
-  std::unique_ptr<cmGlobalGenerator> m_pGlobalGenerator;
-
   //! Print a list of valid generators to stderr.
   void PrintGeneratorList();
 
-  std::unique_ptr<cmGlobalGenerator> m_pEvaluateDefaultGlobalGenerator();
+  std::unique_ptr<cmGlobalGenerator> EvaluateDefaultGlobalGenerator();
   void CreateDefaultGlobalGenerator();
 
   void AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry>&);
@@ -850,17 +826,6 @@ private:
     cmCMakePresetsGraph::WorkflowPreset::WorkflowStep const& step);
 
   std::function<int()> BuildWorkflowStep(std::vector<std::string> const& args);
-#endif
-
-#if !defined(CMAKE_BOOTSTRAP)
-  std::unique_ptr<cmMakefileProfilingData> m_profilingOutput;
-#endif
-
-#ifdef CMake_ENABLE_DEBUGGER
-  std::shared_ptr<cmDebugger::cmDebuggerAdapter> m_debugAdapter;
-  bool m_debuggerOn = false;
-  std::string m_debuggerPipe;
-  std::string m_debuggerDapLogFile;
 #endif
 
   cm::optional<int> m_scriptModeExitCode;
