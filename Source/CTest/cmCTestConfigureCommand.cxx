@@ -65,7 +65,7 @@ bool cmCTestConfigureCommand::ExecuteConfigure(ConfigureArguments const& args,
     }
 
     bool const multiConfig = [&]() -> bool {
-      cmake* cm = mf.GetCMakeInstance();
+      CMake* cm = mf.GetCMakeInstance();
       auto gg = cm->CreateGlobalGenerator(cmakeGenerator);
       return gg && gg->IsMultiConfig();
     }();

@@ -2398,7 +2398,7 @@ void cmTarget::AppendBuildInterfaceIncludes()
 
 namespace {
 bool CheckLinkLibraryPattern(UsageRequirementProperty const& usage,
-                             cmake* context)
+                             CMake* context)
 {
   // Look for <LINK_LIBRARY:> and </LINK_LIBRARY:> internal tags
   static cmsys::RegularExpression linkPattern(

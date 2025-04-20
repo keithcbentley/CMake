@@ -43,7 +43,7 @@ static dap::VariablesRequest CreateVariablesRequest(int64_t reference)
 
 struct Dummies
 {
-  std::shared_ptr<cmake> CMake;
+  std::shared_ptr<CMake> CMake;
   std::shared_ptr<cmMakefile> Makefile;
   std::shared_ptr<cmGlobalGenerator> GlobalGenerator;
 };
@@ -55,7 +55,7 @@ static Dummies CreateDummies(
 {
   Dummies dummies;
   dummies.CMake =
-    std::make_shared<cmake>(cmake::RoleProject, cmState::Project);
+    std::make_shared<CMake>(CMake::RoleProject, cmState::Project);
   cmState* state = dummies.CMake->GetState();
   dummies.GlobalGenerator =
     std::make_shared<cmGlobalGenerator>(dummies.CMake.get());
@@ -501,7 +501,7 @@ static bool testCreateFromFileSet()
   auto variablesManager =
     std::make_shared<cmDebugger::cmDebuggerVariablesManager>();
 
-  cmake cm(cmake::RoleScript, cmState::Unknown);
+  CMake cm(CMake::RoleScript, cmState::Unknown);
   cmFileSet fileSet(cm, "Foo", "HEADERS", cmFileSetVisibility::Public);
   BT<std::string> directory;
   directory.Value = "c:/";
@@ -545,7 +545,7 @@ static bool testCreateFromFileSets()
   auto variablesManager =
     std::make_shared<cmDebugger::cmDebuggerVariablesManager>();
 
-  cmake cm(cmake::RoleScript, cmState::Unknown);
+  CMake cm(CMake::RoleScript, cmState::Unknown);
   cmFileSet fileSet(cm, "Foo", "HEADERS", cmFileSetVisibility::Public);
   BT<std::string> directory;
   directory.Value = "c:/";

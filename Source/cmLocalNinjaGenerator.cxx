@@ -246,12 +246,12 @@ cmGeneratedFileStream& cmLocalNinjaGenerator::GetRulesFileStream() const
   return *this->GetGlobalNinjaGenerator()->GetRulesFileStream();
 }
 
-cmake const* cmLocalNinjaGenerator::GetCMakeInstance() const
+CMake const* cmLocalNinjaGenerator::GetCMakeInstance() const
 {
   return this->GetGlobalGenerator()->GetCMakeInstance();
 }
 
-cmake* cmLocalNinjaGenerator::GetCMakeInstance()
+CMake* cmLocalNinjaGenerator::GetCMakeInstance()
 {
   return this->GetGlobalGenerator()->GetCMakeInstance();
 }

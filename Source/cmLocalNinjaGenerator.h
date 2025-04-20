@@ -25,7 +25,7 @@ class cmGlobalNinjaGenerator;
 class cmListFileBacktrace;
 class cmMakefile;
 class cmRulePlaceholderExpander;
-class cmake;
+class CMake;
 
 /**
  * \class cmLocalNinjaGenerator
@@ -55,8 +55,8 @@ public:
   cmGlobalNinjaGenerator const* GetGlobalNinjaGenerator() const;
   cmGlobalNinjaGenerator* GetGlobalNinjaGenerator();
 
-  cmake const* GetCMakeInstance() const;
-  cmake* GetCMakeInstance();
+  CMake const* GetCMakeInstance() const;
+  CMake* GetCMakeInstance();
 
   std::string const& GetWorkingDirectory() const override;
 

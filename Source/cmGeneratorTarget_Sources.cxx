@@ -94,7 +94,7 @@ void addFileSetEntry(cmGeneratorTarget const* headTarget,
       break;
     }
   }
-  cmake* cm = headTarget->GetLocalGenerator()->GetCMakeInstance();
+  CMake* cm = headTarget->GetLocalGenerator()->GetCMakeInstance();
   for (auto& entryCge : fileSet->CompileFileEntries()) {
     auto tpe = cmGeneratorTarget::TargetPropertyEntry::CreateFileSet(
       dirs, contextSensitiveDirs, std::move(entryCge), fileSet);
@@ -180,7 +180,7 @@ bool processSources(cmGeneratorTarget const* tgt,
       std::string e;
       std::string w;
       std::string fullPath = sf->ResolveFullPath(&e, &w);
-      cmake* cm = tgt->GetLocalGenerator()->GetCMakeInstance();
+      CMake* cm = tgt->GetLocalGenerator()->GetCMakeInstance();
       if (!w.empty()) {
         cm->IssueMessage(MessageType::AUTHOR_WARNING, w, entry.Backtrace);
       }

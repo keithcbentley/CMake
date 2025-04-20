@@ -12,7 +12,7 @@
 #include "cmState.h"
 #include "cmake.h"
 
-cmGlobalWatcomWMakeGenerator::cmGlobalWatcomWMakeGenerator(cmake* cm)
+cmGlobalWatcomWMakeGenerator::cmGlobalWatcomWMakeGenerator(CMake* cm)
   : cmGlobalUnixMakefileGenerator3(cm)
 {
   this->FindMakeProgramFile = "CMakeFindWMake.cmake";
@@ -72,13 +72,13 @@ cmGlobalWatcomWMakeGenerator::GenerateBuildCommand(
 {
   return this->cmGlobalUnixMakefileGenerator3::GenerateBuildCommand(
     makeProgram, projectName, projectDir, targetNames, config,
-    cmake::NO_BUILD_PARALLEL_LEVEL, verbose, buildOptions, makeOptions);
+    CMake::NO_BUILD_PARALLEL_LEVEL, verbose, buildOptions, makeOptions);
 }
 
 void cmGlobalWatcomWMakeGenerator::PrintBuildCommandAdvice(std::ostream& os,
                                                            int jobs) const
 {
-  if (jobs != cmake::NO_BUILD_PARALLEL_LEVEL) {
+  if (jobs != CMake::NO_BUILD_PARALLEL_LEVEL) {
     // wmake does not support parallel build level
 
     /* clang-format off */
@@ -89,5 +89,5 @@ void cmGlobalWatcomWMakeGenerator::PrintBuildCommandAdvice(std::ostream& os,
   }
 
   this->cmGlobalUnixMakefileGenerator3::PrintBuildCommandAdvice(
-    os, cmake::NO_BUILD_PARALLEL_LEVEL);
+    os, CMake::NO_BUILD_PARALLEL_LEVEL);
 }

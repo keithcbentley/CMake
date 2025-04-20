@@ -17,7 +17,7 @@ class cmGeneratorTarget;
 class cmLocalGenerator;
 class cmMakefile;
 class cmSourceFile;
-class cmake;
+class CMake;
 struct cmIDEFlagTable;
 
 /** \class cmGlobalVisualStudio10Generator
@@ -185,7 +185,7 @@ public:
   bool IsBuildInParallelSupported() const;
 
 protected:
-  cmGlobalVisualStudio10Generator(cmake* cm, std::string const& name);
+  cmGlobalVisualStudio10Generator(CMake* cm, std::string const& name);
 
   void Generate() override;
   virtual bool InitializeSystem(cmMakefile* mf);

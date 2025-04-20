@@ -354,7 +354,7 @@ cmSarif::LogFileWriter::WriteResult cmSarif::LogFileWriter::TryWrite()
   return WriteResult::SUCCESS;
 }
 
-bool cmSarif::LogFileWriter::ConfigureForCMakeRun(cmake& cm)
+bool cmSarif::LogFileWriter::ConfigureForCMakeRun(CMake& cm)
 {
   // If an explicit SARIF output path has been provided, set and check it
   cm::optional<std::string> sarifFilePath = cm.GetSarifFilePath();
@@ -375,7 +375,7 @@ bool cmSarif::LogFileWriter::ConfigureForCMakeRun(cmake& cm)
     // normal mode, the project variable `CMAKE_EXPORT_SARIF` can also enable
     // SARIF logging.
     return cm.GetSarifFilePath().has_value() ||
-      (cm.GetWorkingMode() == cmake::NORMAL_MODE &&
+      (cm.GetWorkingMode() == CMake::NORMAL_MODE &&
        cm.GetCacheDefinition(cmSarif::PROJECT_SARIF_FILE_VARIABLE).IsOn());
   });
 

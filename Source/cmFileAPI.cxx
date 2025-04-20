@@ -29,7 +29,7 @@
 #include "cmTimestamp.h"
 #include "cmake.h"
 
-cmFileAPI::cmFileAPI(cmake* cm)
+cmFileAPI::cmFileAPI(CMake* cm)
   : CMakeInstance(cm)
 {
   this->APIv1 =

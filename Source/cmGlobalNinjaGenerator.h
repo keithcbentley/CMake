@@ -33,7 +33,7 @@ class cmLocalGenerator;
 class cmMakefile;
 class cmOutputConverter;
 class cmStateDirectory;
-class cmake;
+class CMake;
 struct cmCxxModuleExportInfo;
 
 /**
@@ -169,7 +169,7 @@ public:
   bool IsGCCOnWindows() const { return this->UsingGCCOnWindows; }
   void MarkAsGCCOnWindows() { this->UsingGCCOnWindows = true; }
 
-  cmGlobalNinjaGenerator(cmake* cm);
+  cmGlobalNinjaGenerator(CMake* cm);
 
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()
   {
@@ -662,7 +662,7 @@ public:
   /// The default file extension to use for per-config Ninja files.
   static char const* NINJA_FILE_EXTENSION;
 
-  cmGlobalNinjaMultiGenerator(cmake* cm);
+  cmGlobalNinjaMultiGenerator(CMake* cm);
   bool IsMultiConfig() const override { return true; }
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()
   {

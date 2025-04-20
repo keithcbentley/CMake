@@ -91,7 +91,7 @@ void cmCTestCoverageHandler::EndCoverageLogFile(cmGeneratedFileStream& ostr,
 
 void cmCTestCoverageHandler::StartCoverageLogXML(cmXMLWriter& xml)
 {
-  this->CTest->StartXML(xml, this->CMake, this->AppendXML);
+  this->CTest->StartXML(xml, this->m_pcmake, this->AppendXML);
   xml.StartElement("CoverageLog");
   xml.Element("StartDateTime", this->CTest->CurrentTime());
   xml.Element("StartTime", std::chrono::system_clock::now());
@@ -322,7 +322,7 @@ int cmCTestCoverageHandler::ProcessHandler()
   covSumFile.setf(std::ios::fixed, std::ios::floatfield);
   covSumFile.precision(2);
 
-  this->CTest->StartXML(covSumXML, this->CMake, this->AppendXML);
+  this->CTest->StartXML(covSumXML, this->m_pcmake, this->AppendXML);
   // Produce output xml files
 
   covSumXML.StartElement("Coverage");
@@ -1899,7 +1899,7 @@ int cmCTestCoverageHandler::RunBullseyeSourceSummary(
                "Cannot open coverage summary file." << std::endl);
     return 0;
   }
-  this->CTest->StartXML(xml, this->CMake, this->AppendXML);
+  this->CTest->StartXML(xml, this->m_pcmake, this->AppendXML);
   auto elapsed_time_start = std::chrono::steady_clock::now();
   std::string coverage_start_time = this->CTest->CurrentTime();
   xml.StartElement("Coverage");

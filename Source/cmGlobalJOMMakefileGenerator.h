@@ -12,7 +12,7 @@
 #include "cmValue.h"
 
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalJOMMakefileGenerator
  * \brief Write a JOM makefiles.
@@ -22,7 +22,7 @@ class cmake;
 class cmGlobalJOMMakefileGenerator : public cmGlobalUnixMakefileGenerator3
 {
 public:
-  cmGlobalJOMMakefileGenerator(cmake* cm);
+  cmGlobalJOMMakefileGenerator(CMake* cm);
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()
   {
     return std::unique_ptr<cmGlobalGeneratorFactory>(

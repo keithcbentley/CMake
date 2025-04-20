@@ -23,7 +23,7 @@
 #include "cmSystemTools.h"
 #include "cmake.h"
 
-cmGeneratorExpression::cmGeneratorExpression(cmake& cmakeInstance,
+cmGeneratorExpression::cmGeneratorExpression(CMake& cmakeInstance,
                                              cmListFileBacktrace backtrace)
   : CMakeInstance(cmakeInstance)
   , Backtrace(std::move(backtrace))
@@ -106,7 +106,7 @@ std::string const& cmCompiledGeneratorExpression::Evaluate(
 }
 
 cmCompiledGeneratorExpression::cmCompiledGeneratorExpression(
-  cmake& cmakeInstance, cmListFileBacktrace backtrace, std::string input)
+  CMake& cmakeInstance, cmListFileBacktrace backtrace, std::string input)
   : Backtrace(std::move(backtrace))
   , Input(std::move(input))
 {

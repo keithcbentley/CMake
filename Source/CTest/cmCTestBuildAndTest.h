@@ -9,7 +9,7 @@
 
 #include "cmDuration.h"
 
-class cmake;
+class CMake;
 class cmCTest;
 
 /** \class cmCTestBuildAndTest
@@ -29,7 +29,7 @@ public:
 private:
   cmCTest* CTest;
 
-  bool RunCMake(cmake* cm);
+  bool RunCMake(CMake* cm);
   bool RunTest(std::vector<std::string> const& args, int* retVal,
                cmDuration timeout);
 

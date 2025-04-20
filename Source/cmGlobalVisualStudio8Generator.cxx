@@ -39,7 +39,7 @@
 struct cmIDEFlagTable;
 
 cmGlobalVisualStudio8Generator::cmGlobalVisualStudio8Generator(
-  cmake* cm, std::string const& name)
+  CMake* cm, std::string const& name)
   : cmGlobalVisualStudio71Generator(cm)
 {
   this->ProjectConfigurationSectionName = "ProjectConfigurationPlatforms";
@@ -287,7 +287,7 @@ bool cmGlobalVisualStudio8Generator::AddCheckTarget()
     bool stdPipesUTF8 = true;
 
     // Add a custom prebuild target to run the VerifyGlobs script.
-    cmake* cm = this->GetCMakeInstance();
+    CMake* cm = this->GetCMakeInstance();
     if (cm->DoWriteGlobVerifyTarget()) {
       cmCustomCommandLines verifyCommandLines = cmMakeSingleCommandLine(
         { cmSystemTools::GetCMakeCommand(), "-P", cm->GetGlobVerifyScript() });

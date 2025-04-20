@@ -53,7 +53,7 @@ static void ConvertToWindowsSlashes(std::string& s)
 }
 
 cmGlobalVisualStudio10Generator::cmGlobalVisualStudio10Generator(
-  cmake* cm, std::string const& name)
+  CMake* cm, std::string const& name)
   : cmGlobalVisualStudio8Generator(cm, name)
 {
   this->DefaultCudaFlagTableName = "v10";
@@ -1214,8 +1214,8 @@ cmGlobalVisualStudio10Generator::GenerateBuildCommand(
     makeCommand.Add(
       cmStrCat("/p:VisualStudioVersion=", this->GetIDEVersion()));
 
-    if (jobs != cmake::NO_BUILD_PARALLEL_LEVEL) {
-      if (jobs == cmake::DEFAULT_BUILD_PARALLEL_LEVEL) {
+    if (jobs != CMake::NO_BUILD_PARALLEL_LEVEL) {
+      if (jobs == CMake::DEFAULT_BUILD_PARALLEL_LEVEL) {
         makeCommand.Add("/m");
       } else {
         makeCommand.Add(cmStrCat("/m:", jobs));

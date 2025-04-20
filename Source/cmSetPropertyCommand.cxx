@@ -563,7 +563,7 @@ bool HandleGlobalMode(cmExecutionStatus& status,
   }
 
   // Set or append the property.
-  cmake* cm = status.GetMakefile().GetCMakeInstance();
+  CMake* cm = status.GetMakefile().GetCMakeInstance();
   if (appendMode) {
     cm->AppendProperty(propertyName, propertyValue, appendAsString);
   } else {
@@ -814,7 +814,7 @@ bool HandleCacheMode(cmExecutionStatus& status,
 
   for (std::string const& name : names) {
     // Get the source file.
-    cmake* cm = status.GetMakefile().GetCMakeInstance();
+    CMake* cm = status.GetMakefile().GetCMakeInstance();
     cmValue existingValue = cm->GetState()->GetCacheEntryValue(name);
     if (existingValue) {
       if (!HandleCacheEntry(name, status.GetMakefile(), propertyName,
@@ -857,7 +857,7 @@ bool HandleInstallMode(cmExecutionStatus& status,
                        std::string const& propertyValue, bool appendAsString,
                        bool appendMode, bool remove)
 {
-  cmake* cm = status.GetMakefile().GetCMakeInstance();
+  CMake* cm = status.GetMakefile().GetCMakeInstance();
 
   for (std::string const& name : names) {
     if (cmInstalledFile* file =

@@ -4279,7 +4279,7 @@ std::string cmLocalGenerator::GetSourceFileLanguage(cmSourceFile const& source)
   return source.GetLanguage();
 }
 
-cmake* cmLocalGenerator::GetCMakeInstance() const
+CMake* cmLocalGenerator::GetCMakeInstance() const
 {
   return this->GlobalGenerator->GetCMakeInstance();
 }

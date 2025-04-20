@@ -12,7 +12,7 @@
 #include "cmState.h"
 #include "cmake.h"
 
-cmGlobalJOMMakefileGenerator::cmGlobalJOMMakefileGenerator(cmake* cm)
+cmGlobalJOMMakefileGenerator::cmGlobalJOMMakefileGenerator(CMake* cm)
   : cmGlobalUnixMakefileGenerator3(cm)
 {
   this->FindMakeProgramFile = "CMakeJOMFindMake.cmake";
@@ -76,8 +76,8 @@ cmGlobalJOMMakefileGenerator::GenerateBuildCommand(
   // JOM does parallel builds by default, the -j is only needed if a specific
   // number is given
   // see https://github.com/qt-labs/jom/blob/v1.1.2/src/jomlib/options.cpp
-  if (jobs == cmake::DEFAULT_BUILD_PARALLEL_LEVEL) {
-    jobs = cmake::NO_BUILD_PARALLEL_LEVEL;
+  if (jobs == CMake::DEFAULT_BUILD_PARALLEL_LEVEL) {
+    jobs = CMake::NO_BUILD_PARALLEL_LEVEL;
   }
 
   return cmGlobalUnixMakefileGenerator3::GenerateBuildCommand(

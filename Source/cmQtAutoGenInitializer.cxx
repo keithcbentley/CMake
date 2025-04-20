@@ -903,7 +903,7 @@ bool cmQtAutoGenInitializer::InitRcc()
 
 bool cmQtAutoGenInitializer::InitScanFiles()
 {
-  cmake const* cm = this->Makefile->GetCMakeInstance();
+  CMake const* cm = this->Makefile->GetCMakeInstance();
   auto const& kw = this->GlobalInitializer->kw();
 
   auto makeMUFile = [this, &kw](cmSourceFile* sf, std::string const& fullPath,

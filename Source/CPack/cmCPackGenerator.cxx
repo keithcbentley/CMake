@@ -731,7 +731,7 @@ int cmCPackGenerator::InstallCMakeProject(
                   "-   Install component: " << component << std::endl);
   }
 
-  cmake cm(cmake::RoleScript, cmState::CPack);
+  CMake cm(CMake::RoleScript, cmState::CPack);
   cm.SetHomeDirectory("");
   cm.SetHomeOutputDirectory("");
   cm.GetCurrentSnapshot().SetDefaultDefinitions();
@@ -1473,7 +1473,7 @@ int cmCPackGenerator::CleanTemporaryDirectory()
 cmInstalledFile const* cmCPackGenerator::GetInstalledFile(
   std::string const& name) const
 {
-  cmake const* cm = this->MakefileMap->GetCMakeInstance();
+  CMake const* cm = this->MakefileMap->GetCMakeInstance();
   return cm->GetInstalledFile(name);
 }
 

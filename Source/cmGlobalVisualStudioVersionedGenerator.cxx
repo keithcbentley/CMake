@@ -205,7 +205,7 @@ class cmGlobalVisualStudioVersionedGenerator::Factory15
 {
 public:
   std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(
-    std::string const& name, cmake* cm) const override
+    std::string const& name, CMake* cm) const override
   {
     std::string genName;
     char const* p = cmVS15GenName(name, genName);
@@ -293,7 +293,7 @@ class cmGlobalVisualStudioVersionedGenerator::Factory16
 {
 public:
   std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(
-    std::string const& name, cmake* cm) const override
+    std::string const& name, CMake* cm) const override
   {
     std::string genName;
     char const* p = cmVS16GenName(name, genName);
@@ -353,7 +353,7 @@ class cmGlobalVisualStudioVersionedGenerator::Factory17
 {
 public:
   std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(
-    std::string const& name, cmake* cm) const override
+    std::string const& name, CMake* cm) const override
   {
     std::string genName;
     char const* p = cmVS17GenName(name, genName);
@@ -409,7 +409,7 @@ cmGlobalVisualStudioVersionedGenerator::NewFactory17()
 }
 
 cmGlobalVisualStudioVersionedGenerator::cmGlobalVisualStudioVersionedGenerator(
-  VSVersion version, cmake* cm, std::string const& name)
+  VSVersion version, CMake* cm, std::string const& name)
   : cmGlobalVisualStudio14Generator(cm, name)
   , vsSetupAPIHelper(VSVersionToMajor(version))
 {

@@ -1246,7 +1246,7 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
   // actually do the try compile now that everything is setup
   int res = this->Makefile->TryCompile(
     sourceDirectory, this->BinaryDirectory, projectName, targetName,
-    this->SrcFileSignature, cmake::NO_BUILD_PARALLEL_LEVEL,
+    this->SrcFileSignature, CMake::NO_BUILD_PARALLEL_LEVEL,
     &arguments.CMakeFlags, output);
   if (erroroc) {
     cmSystemTools::SetErrorOccurred();

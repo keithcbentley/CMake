@@ -101,7 +101,7 @@ transitively on all the static libraries it links.
 cmComputeTargetDepends::cmComputeTargetDepends(cmGlobalGenerator* gg)
 {
   this->GlobalGenerator = gg;
-  cmake* cm = this->GlobalGenerator->GetCMakeInstance();
+  CMake* cm = this->GlobalGenerator->GetCMakeInstance();
   this->DebugMode =
     cm->GetState()->GetGlobalPropertyAsBool("GLOBAL_DEPENDS_DEBUG_MODE");
   this->NoCycles =

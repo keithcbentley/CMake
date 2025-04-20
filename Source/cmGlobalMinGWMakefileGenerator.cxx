@@ -7,7 +7,7 @@
 #include "cmSystemTools.h"
 #include "cmake.h"
 
-cmGlobalMinGWMakefileGenerator::cmGlobalMinGWMakefileGenerator(cmake* cm)
+cmGlobalMinGWMakefileGenerator::cmGlobalMinGWMakefileGenerator(CMake* cm)
   : cmGlobalUnixMakefileGenerator3(cm)
 {
   this->FindMakeProgramFile = "CMakeMinGWFindMake.cmake";

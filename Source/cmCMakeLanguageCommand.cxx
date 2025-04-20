@@ -322,7 +322,7 @@ bool cmCMakeLanguageCommandGET_MESSAGE_LOG_LEVEL(
   }
 
   Message::LogLevel logLevel = makefile.GetCurrentLogLevel();
-  std::string outputValue = cmake::LogLevelToString(logLevel);
+  std::string outputValue = CMake::LogLevelToString(logLevel);
 
   std::string const& outputVariable = expandedArgs[1];
   makefile.AddDefinition(outputVariable, outputValue);
@@ -398,7 +398,7 @@ bool cmCMakeLanguageCommand(std::vector<cmListFileArgument> const& args,
 
     auto workingMode =
       status.GetMakefile().GetCMakeInstance()->GetWorkingMode();
-    if (workingMode != cmake::SCRIPT_MODE) {
+    if (workingMode != CMake::SCRIPT_MODE) {
       return FatalError(status, "EXIT can be used only in SCRIPT mode");
     }
 
@@ -410,7 +410,7 @@ bool cmCMakeLanguageCommand(std::vector<cmListFileArgument> const& args,
                                  expArgs[expArg], '\"'));
     }
 
-    if (workingMode == cmake::SCRIPT_MODE) {
+    if (workingMode == CMake::SCRIPT_MODE) {
       status.SetExitCode(static_cast<int>(retCode));
     }
     return true;

@@ -62,7 +62,7 @@ class cmState;
 class cmTest;
 class cmTestGenerator;
 class cmVariableWatch;
-class cmake;
+class CMake;
 
 /** A type-safe wrapper for a string representing a directory id.  */
 class cmDirectoryId
@@ -779,7 +779,7 @@ public:
   /**
    * Get the instance
    */
-  cmake* GetCMakeInstance() const;
+  CMake* GetCMakeInstance() const;
   cmMessenger* GetMessenger() const;
   cmGlobalGenerator* GetGlobalGenerator() const;
 

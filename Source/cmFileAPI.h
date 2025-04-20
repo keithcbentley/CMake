@@ -14,12 +14,12 @@
 #include <cm3p/json/value.h>
 #include <cm3p/json/writer.h>
 
-class cmake;
+class CMake;
 
 class cmFileAPI
 {
 public:
-  cmFileAPI(cmake* cm);
+  cmFileAPI(CMake* cm);
 
   /** Read fileapi queries from disk.  */
   void ReadQueries();
@@ -40,7 +40,7 @@ public:
   void WriteReplies(IndexFor indexFor);
 
   /** Get the "cmake" instance with which this was constructed.  */
-  cmake* GetCMakeInstance() const { return this->CMakeInstance; }
+  CMake* GetCMakeInstance() const { return this->CMakeInstance; }
 
   /** Convert a JSON object or array into an object with a single
       "jsonFile" member specifying a file named with the given prefix
@@ -65,7 +65,7 @@ public:
                        unsigned minorVersion);
 
 private:
-  cmake* CMakeInstance;
+  CMake* CMakeInstance;
 
   /** The api/v1 directory location.  */
   std::string APIv1;

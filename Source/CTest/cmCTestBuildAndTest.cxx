@@ -32,7 +32,7 @@ cmCTestBuildAndTest::cmCTestBuildAndTest(cmCTest* ctest)
 {
 }
 
-bool cmCTestBuildAndTest::RunCMake(cmake* cm)
+bool cmCTestBuildAndTest::RunCMake(CMake* cm)
 {
   std::vector<std::string> args;
   args.push_back(cmSystemTools::GetCMakeCommand());
@@ -129,10 +129,10 @@ bool cmCTestBuildAndTest::RunTest(std::vector<std::string> const& argv,
 
 class cmCTestBuildAndTestCaptureRAII
 {
-  cmake& CM;
+  CMake& CM;
 
 public:
-  cmCTestBuildAndTestCaptureRAII(cmake& cm)
+  cmCTestBuildAndTestCaptureRAII(CMake& cm)
     : CM(cm)
   {
     cmSystemTools::SetMessageCallback(
@@ -176,7 +176,7 @@ int cmCTestBuildAndTest::Run()
     return 1;
   }
 
-  cmake cm(cmake::RoleProject, cmState::Project);
+  CMake cm(CMake::RoleProject, cmState::Project);
   cm.SetHomeDirectory("");
   cm.SetHomeOutputDirectory("");
   cmCTestBuildAndTestCaptureRAII captureRAII(cm);
@@ -258,7 +258,7 @@ int cmCTestBuildAndTest::Run()
     cmBuildOptions buildOptions(!this->BuildNoClean, false,
                                 PackageResolveMode::Disable);
     int retVal = cm.GetGlobalGenerator()->Build(
-      cmake::NO_BUILD_PARALLEL_LEVEL, this->SourceDir, this->BinaryDir,
+      CMake::NO_BUILD_PARALLEL_LEVEL, this->SourceDir, this->BinaryDir,
       this->BuildProject, { tar }, std::cout, this->BuildMakeProgram, config,
       buildOptions, false, remainingTime, cmSystemTools::OUTPUT_PASSTHROUGH);
     // if the build failed then return

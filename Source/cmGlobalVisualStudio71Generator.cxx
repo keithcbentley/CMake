@@ -15,9 +15,9 @@
 #include "cmStringAlgorithms.h"
 #include "cmSystemTools.h"
 
-class cmake;
+class CMake;
 
-cmGlobalVisualStudio71Generator::cmGlobalVisualStudio71Generator(cmake* cm)
+cmGlobalVisualStudio71Generator::cmGlobalVisualStudio71Generator(CMake* cm)
   : cmGlobalVisualStudio7Generator(cm)
 {
   this->ProjectConfigurationSectionName = "ProjectConfiguration";

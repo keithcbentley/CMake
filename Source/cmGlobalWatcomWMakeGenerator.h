@@ -14,7 +14,7 @@
 #include "cmGlobalUnixMakefileGenerator3.h"
 
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalWatcomWMakeGenerator
  * \brief Write a NMake makefiles.
@@ -24,7 +24,7 @@ class cmake;
 class cmGlobalWatcomWMakeGenerator : public cmGlobalUnixMakefileGenerator3
 {
 public:
-  cmGlobalWatcomWMakeGenerator(cmake* cm);
+  cmGlobalWatcomWMakeGenerator(CMake* cm);
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()
   {
     return std::unique_ptr<cmGlobalGeneratorFactory>(

@@ -14,7 +14,7 @@
 #include "cmTransformDepfile.h"
 
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalVisualStudio11Generator  */
 class cmGlobalVisualStudio11Generator : public cmGlobalVisualStudio10Generator
@@ -31,7 +31,7 @@ public:
   }
 
 protected:
-  cmGlobalVisualStudio11Generator(cmake* cm, std::string const& name);
+  cmGlobalVisualStudio11Generator(CMake* cm, std::string const& name);
 
   bool InitializeWindowsPhone(cmMakefile* mf) override;
   bool InitializeWindowsStore(cmMakefile* mf) override;

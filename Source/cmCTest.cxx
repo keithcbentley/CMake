@@ -1036,7 +1036,7 @@ std::string cmCTest::SafeBuildIdField(std::string const& value)
   return safevalue;
 }
 
-void cmCTest::StartXML(cmXMLWriter& xml, cmake* cm, bool append)
+void cmCTest::StartXML(cmXMLWriter& xml, CMake* cm, bool append)
 {
   if (this->Impl->CurrentTag.empty()) {
     cmCTestLog(this, ERROR_MESSAGE,
@@ -1101,7 +1101,7 @@ void cmCTest::StartXML(cmXMLWriter& xml, cmake* cm, bool append)
   this->AddSiteProperties(xml, cm);
 }
 
-void cmCTest::AddSiteProperties(cmXMLWriter& xml, cmake* cm)
+void cmCTest::AddSiteProperties(cmXMLWriter& xml, CMake* cm)
 {
   // This code should go when cdash is changed to use labels only
   cmValue subproject = cm->GetState()->GetGlobalProperty("SubProject");
@@ -1160,7 +1160,7 @@ void cmCTest::EndXML(cmXMLWriter& xml)
   xml.EndDocument();
 }
 
-int cmCTest::GenerateCTestNotesOutput(cmXMLWriter& xml, cmake* cm,
+int cmCTest::GenerateCTestNotesOutput(cmXMLWriter& xml, CMake* cm,
                                       std::vector<std::string> const& files)
 {
   std::string buildname =
@@ -1211,7 +1211,7 @@ int cmCTest::GenerateCTestNotesOutput(cmXMLWriter& xml, cmake* cm,
   return 1;
 }
 
-int cmCTest::GenerateNotesFile(cmake* cm,
+int cmCTest::GenerateNotesFile(CMake* cm,
                                std::vector<std::string> const& files)
 {
   cmGeneratedFileStream ofs;
@@ -1224,7 +1224,7 @@ int cmCTest::GenerateNotesFile(cmake* cm,
   return 0;
 }
 
-int cmCTest::GenerateNotesFile(cmake* cm, std::string const& cfiles)
+int cmCTest::GenerateNotesFile(CMake* cm, std::string const& cfiles)
 {
   if (cfiles.empty()) {
     return 1;
@@ -1539,7 +1539,7 @@ bool cmCTest::AddVariableDefinition(std::string const& arg)
   std::string value;
   cmStateEnums::CacheEntryType type = cmStateEnums::UNINITIALIZED;
 
-  if (cmake::ParseCacheEntry(arg, name, value, type)) {
+  if (CMake::ParseCacheEntry(arg, name, value, type)) {
     this->Impl->Definitions[name] = value;
     return true;
   }
@@ -2707,7 +2707,7 @@ int cmCTest::ExecuteTests(std::vector<std::string> const& args)
   cmCTestTestHandler handler(this);
 
   {
-    cmake cm(cmake::RoleScript, cmState::CTest);
+    CMake cm(CMake::RoleScript, cmState::CTest);
     cm.SetHomeDirectory("");
     cm.SetHomeOutputDirectory("");
     cm.GetCurrentSnapshot().SetDefaultDefinitions();

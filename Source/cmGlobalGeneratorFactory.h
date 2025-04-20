@@ -14,7 +14,7 @@
 
 #include <cm/memory>
 
-class cmake;
+class CMake;
 
 /** \class cmGlobalGeneratorFactory
  * \brief Responable for creating cmGlobalGenerator instances
@@ -28,7 +28,7 @@ public:
 
   /** Create a GlobalGenerator */
   virtual std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(
-    std::string const& n, cmake* cm) const = 0;
+    std::string const& n, CMake* cm) const = 0;
 
   /** Get the documentation entry for this factory */
   virtual cmDocumentationEntry GetDocumentation() const = 0;
@@ -55,7 +55,7 @@ class cmGlobalGeneratorSimpleFactory : public cmGlobalGeneratorFactory
 public:
   /** Create a GlobalGenerator */
   std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(
-    std::string const& name, cmake* cm) const override
+    std::string const& name, CMake* cm) const override
   {
     if (name != T::GetActualName()) {
       return std::unique_ptr<cmGlobalGenerator>();

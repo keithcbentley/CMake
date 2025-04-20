@@ -14,7 +14,7 @@
 
 #include <cm3p/json/value.h>
 
-class cmake;
+class CMake;
 class cmListFileBacktrace;
 enum class MessageType;
 
@@ -237,7 +237,7 @@ public:
   ///
   /// This does not configure a default path, so one must be set once it is
   /// known that we're in normal mode if none was explicitly provided.
-  bool ConfigureForCMakeRun(cmake& cm);
+  bool ConfigureForCMakeRun(CMake& cm);
 
   ~LogFileWriter();
 

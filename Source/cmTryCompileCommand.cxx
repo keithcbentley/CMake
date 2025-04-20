@@ -45,7 +45,7 @@ bool cmTryCompileCommand(std::vector<std::string> const& args,
     return false;
   }
 
-  if (mf.GetCMakeInstance()->GetWorkingMode() == cmake::FIND_PACKAGE_MODE) {
+  if (mf.GetCMakeInstance()->GetWorkingMode() == CMake::FIND_PACKAGE_MODE) {
     mf.IssueMessage(
       MessageType::FATAL_ERROR,
       "The try_compile() command is not supported in --find-package mode.");

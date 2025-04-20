@@ -13,7 +13,7 @@
 
 class cmGlobalGeneratorFactory;
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalVisualStudio14Generator  */
 class cmGlobalVisualStudio14Generator : public cmGlobalVisualStudio12Generator
@@ -29,7 +29,7 @@ public:
   }
 
 protected:
-  cmGlobalVisualStudio14Generator(cmake* cm, std::string const& name);
+  cmGlobalVisualStudio14Generator(CMake* cm, std::string const& name);
 
   bool InitializeWindowsStore(cmMakefile* mf) override;
   bool InitializeAndroid(cmMakefile* mf) override;

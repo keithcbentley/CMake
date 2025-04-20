@@ -91,7 +91,7 @@ bool cmIncludeGuardCommand(std::vector<std::string> const& args,
       mf->SetProperty(includeGuardVar, "TRUE");
       break;
     case GLOBAL:
-      cmake* const cm = mf->GetCMakeInstance();
+      CMake* const cm = mf->GetCMakeInstance();
       if (cm->GetProperty(includeGuardVar)) {
         status.SetReturnInvoked();
         return true;

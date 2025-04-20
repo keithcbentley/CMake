@@ -40,7 +40,7 @@ class cmGlobalVisualStudio14Generator::Factory
 {
 public:
   std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(
-    std::string const& name, cmake* cm) const override
+    std::string const& name, CMake* cm) const override
   {
     std::string genName;
     char const* p = cmVS14GenName(name, genName);
@@ -90,7 +90,7 @@ cmGlobalVisualStudio14Generator::NewFactory()
 }
 
 cmGlobalVisualStudio14Generator::cmGlobalVisualStudio14Generator(
-  cmake* cm, std::string const& name)
+  CMake* cm, std::string const& name)
   : cmGlobalVisualStudio12Generator(cm, name)
 {
   std::string vc14Express;

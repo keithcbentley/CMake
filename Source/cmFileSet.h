@@ -17,7 +17,7 @@ struct cmGeneratorExpressionDAGChecker;
 class cmGeneratorTarget;
 class cmLocalGenerator;
 class cmMakefile;
-class cmake;
+class CMake;
 
 enum class cmFileSetVisibility
 {
@@ -36,7 +36,7 @@ bool cmFileSetTypeCanBeIncluded(std::string const& type);
 class cmFileSet
 {
 public:
-  cmFileSet(cmake& cmakeInstance, std::string name, std::string type,
+  cmFileSet(CMake& cmakeInstance, std::string name, std::string type,
             cmFileSetVisibility visibility);
 
   std::string const& GetName() const { return this->Name; }
@@ -82,7 +82,7 @@ public:
   static bool IsValidName(std::string const& name);
 
 private:
-  cmake& CMakeInstance;
+  CMake& CMakeInstance;
   std::string Name;
   std::string Type;
   cmFileSetVisibility Visibility;

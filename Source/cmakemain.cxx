@@ -137,7 +137,7 @@ int do_command(
   return cmcmd::ExecuteCMakeCommand(args, std::move(consoleBuf));
 }
 
-cmMakefile* cmakemainGetMakefile(cmake* cm)
+cmMakefile* cmakemainGetMakefile(CMake* cm)
 {
   if (cm && cm->GetDebugOutput()) {
     cmGlobalGenerator* gg = cm->GetGlobalGenerator();
@@ -148,7 +148,7 @@ cmMakefile* cmakemainGetMakefile(cmake* cm)
   return nullptr;
 }
 
-std::string cmakemainGetStack(cmake* cm)
+std::string cmakemainGetStack(CMake* cm)
 {
   std::string msg;
   cmMakefile* mf = cmakemainGetMakefile(cm);
@@ -165,7 +165,7 @@ std::string cmakemainGetStack(cmake* cm)
 void cmakemainMessageCallback(
   std::string const& m,
   cmMessageMetadata const& md,
-  cmake* cm)
+  CMake* cm)
 {
 #if defined(_WIN32)
   // FIXME: On Windows we replace cerr's streambuf with a custom
@@ -186,7 +186,7 @@ void cmakemainMessageCallback(
 void cmakemainProgressCallback(
   std::string const& m,
   float prog,
-  cmake* cm)
+  CMake* cm)
 {
   cmMakefile* mf = cmakemainGetMakefile(cm);
   std::string dir;
@@ -232,7 +232,7 @@ int do_cmake(
   doc.addCMakeStandardDocSections();
   if (doc.CheckOptions(ac, av, "--")) {
     // Construct and print requested documentation.
-    cmake hcm(cmake::RoleInternal, cmState::Help);
+    CMake hcm(CMake::RoleInternal, cmState::Help);
     hcm.SetHomeDirectory("");
     hcm.SetHomeOutputDirectory("");
     hcm.AddCMakePaths();
@@ -252,7 +252,7 @@ int do_cmake(
     }
     doc.AppendSection("Generators", generators);
     doc.PrependSection("Options", cmDocumentationOptions);
-    doc.PrependSection("Options", cmake::CMAKE_STANDARD_OPTIONS_TABLE);
+    doc.PrependSection("Options", CMake::CMAKE_STANDARD_OPTIONS_TABLE);
 
     return !doc.PrintRequestedDocumentation(std::cout);
   }
@@ -271,7 +271,7 @@ int do_cmake(
   // (Regex) Filter on the cached variable(s) to print.
   std::string filter_var_name;
   bool view_only = false;
-  cmake::WorkingMode workingMode = cmake::NORMAL_MODE;
+  CMake::WorkingMode workingMode = CMake::NORMAL_MODE;
   std::vector<std::string> parsedArgs;
 
   using CommandArgument = cmCommandLineArgument<bool(std::string const& value)>;
@@ -304,20 +304,20 @@ int do_cmake(
     CommandArgument{ "-P", "No script specified for argument -P", CommandArgument::Values::One,
                      CommandArgument::RequiresSeparator::No,
                      [&](std::string const& value) -> bool {
-                       workingMode = cmake::SCRIPT_MODE;
+                       workingMode = CMake::SCRIPT_MODE;
                        parsedArgs.emplace_back("-P");
                        parsedArgs.push_back(value);
                        return true;
                      } },
     CommandArgument{ "--find-package", CommandArgument::Values::Zero,
                      [&](std::string const&) -> bool {
-                       workingMode = cmake::FIND_PACKAGE_MODE;
+                       workingMode = CMake::FIND_PACKAGE_MODE;
                        parsedArgs.emplace_back("--find-package");
                        return true;
                      } },
     CommandArgument{ "--list-presets", CommandArgument::Values::ZeroOrOne,
                      [&](std::string const& value) -> bool {
-                       workingMode = cmake::HELP_MODE;
+                       workingMode = CMake::HELP_MODE;
                        parsedArgs.emplace_back("--list-presets");
                        parsedArgs.emplace_back(value);
                        return true;
@@ -334,7 +334,7 @@ int do_cmake(
 
     // Only in script mode do we stop parsing instead
     // of preferring the last mode flag provided
-    if (arg == "--" && workingMode == cmake::SCRIPT_MODE) {
+    if (arg == "--" && workingMode == CMake::SCRIPT_MODE) {
       parsedArgs = inputArgs;
       break;
     }
@@ -357,29 +357,29 @@ int do_cmake(
   }
 
   if (sysinfo) {
-    cmake cm(cmake::RoleProject, cmState::Project);
+    CMake cm(CMake::RoleProject, cmState::Project);
     cm.SetHomeDirectory("");
     cm.SetHomeOutputDirectory("");
     int ret = cm.GetSystemInformation(parsedArgs);
     return ret;
   }
-  cmake::Role const role = workingMode == cmake::SCRIPT_MODE ? cmake::RoleScript : cmake::RoleProject;
+  CMake::Role const role = workingMode == CMake::SCRIPT_MODE ? CMake::RoleScript : CMake::RoleProject;
   cmState::Mode mode = cmState::Unknown;
   switch (workingMode) {
-    case cmake::NORMAL_MODE:
-    case cmake::HELP_MODE:
+    case CMake::NORMAL_MODE:
+    case CMake::HELP_MODE:
       mode = cmState::Project;
       break;
-    case cmake::SCRIPT_MODE:
+    case CMake::SCRIPT_MODE:
       mode = cmState::Script;
       break;
-    case cmake::FIND_PACKAGE_MODE:
+    case CMake::FIND_PACKAGE_MODE:
       mode = cmState::FindPackage;
       break;
   }
-  auto const failurePolicy = workingMode == cmake::NORMAL_MODE ? cmake::CommandFailureAction::EXIT_CODE
-                                                               : cmake::CommandFailureAction::FATAL_ERROR;
-  cmake cm(role, mode);
+  auto const failurePolicy = workingMode == CMake::NORMAL_MODE ? CMake::CommandFailureAction::EXIT_CODE
+                                                               : CMake::CommandFailureAction::FATAL_ERROR;
+  CMake cm(role, mode);
   cm.SetHomeDirectory("");
   cm.SetHomeOutputDirectory("");
   cmSystemTools::SetMessageCallback(
@@ -442,7 +442,7 @@ int extract_job_number(
   int jobs = -1;
   unsigned long numJobs = 0;
   if (jobString.empty()) {
-    jobs = cmake::DEFAULT_BUILD_PARALLEL_LEVEL;
+    jobs = CMake::DEFAULT_BUILD_PARALLEL_LEVEL;
   } else if (cmStrToULong(jobString, &numJobs)) {
     if (numJobs == 0) {
       std::cerr << "The <jobs> value requires a positive integer argument.\n\n";
@@ -479,7 +479,7 @@ int do_build(
   std::cerr << "This cmake does not support --build\n";
   return -1;
 #else
-  int jobs = cmake::NO_BUILD_PARALLEL_LEVEL;
+  int jobs = CMake::NO_BUILD_PARALLEL_LEVEL;
   std::vector<std::string> targets;
   std::string config;
   std::string dir;
@@ -597,11 +597,11 @@ int do_build(
     dir.clear();
   }
 
-  if (jobs == cmake::NO_BUILD_PARALLEL_LEVEL) {
+  if (jobs == CMake::NO_BUILD_PARALLEL_LEVEL) {
     std::string parallel;
     if (cmSystemTools::GetEnv("CMAKE_BUILD_PARALLEL_LEVEL", parallel)) {
       if (parallel.empty()) {
-        jobs = cmake::DEFAULT_BUILD_PARALLEL_LEVEL;
+        jobs = CMake::DEFAULT_BUILD_PARALLEL_LEVEL;
       } else {
         unsigned long numJobs = 0;
         if (cmStrToULong(parallel, &numJobs)) {
@@ -662,7 +662,7 @@ int do_build(
     return 1;
   }
 
-  cmake cm(cmake::RoleInternal, cmState::Project);
+  CMake cm(CMake::RoleInternal, cmState::Project);
   cmSystemTools::SetMessageCallback(
     [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
   cm.SetProgressCallback([&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
@@ -928,7 +928,7 @@ int do_install(
       ret_ = handler.Install(jobs, instrumentation);
     } else {
       for (auto const& cmd : handler.GetCommands()) {
-        cmake cm(cmake::RoleScript, cmState::Script);
+        CMake cm(CMake::RoleScript, cmState::Script);
         cmSystemTools::SetMessageCallback(
           [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
         cm.SetProgressCallback(
@@ -936,7 +936,7 @@ int do_install(
         cm.SetHomeDirectory("");
         cm.SetHomeOutputDirectory("");
         cm.SetDebugOutputOn(verbose);
-        cm.SetWorkingMode(cmake::SCRIPT_MODE, cmake::CommandFailureAction::FATAL_ERROR);
+        cm.SetWorkingMode(CMake::SCRIPT_MODE, CMake::CommandFailureAction::FATAL_ERROR);
         ret_ = int(bool(cm.Run(cmd)));
       }
     }
@@ -959,8 +959,8 @@ int do_workflow(
   std::cerr << "This cmake does not support --workflow\n";
   return -1;
 #else
-  using WorkflowListPresets = cmake::WorkflowListPresets;
-  using WorkflowFresh = cmake::WorkflowFresh;
+  using WorkflowListPresets = CMake::WorkflowListPresets;
+  using WorkflowFresh = CMake::WorkflowFresh;
   std::string presetName;
   auto listPresets = WorkflowListPresets::No;
   auto fresh = WorkflowFresh::No;
@@ -1027,7 +1027,7 @@ int do_workflow(
     return 1;
   }
 
-  cmake cm(cmake::RoleInternal, cmState::Project);
+  CMake cm(CMake::RoleInternal, cmState::Project);
   cmSystemTools::SetMessageCallback(
     [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
   cm.SetProgressCallback([&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
@@ -1069,11 +1069,11 @@ int do_open(
     return 1;
   }
 
-  cmake cm(cmake::RoleInternal, cmState::Unknown);
+  CMake cm(CMake::RoleInternal, cmState::Unknown);
   cmSystemTools::SetMessageCallback(
     [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
   cm.SetProgressCallback([&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
-  return cm.Open(dir, cmake::DryRun::No) ? 0 : 1;
+  return cm.Open(dir, CMake::DryRun::No) ? 0 : 1;
 #endif
 }
 } // namespace

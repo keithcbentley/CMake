@@ -13,7 +13,7 @@
 
 class cmGeneratorTarget;
 class cmLocalGenerator;
-class cmake;
+class CMake;
 template <typename T>
 class BT;
 
@@ -25,7 +25,7 @@ class BT;
 class cmGlobalVisualStudio71Generator : public cmGlobalVisualStudio7Generator
 {
 public:
-  cmGlobalVisualStudio71Generator(cmake* cm);
+  cmGlobalVisualStudio71Generator(CMake* cm);
 
 protected:
   void WriteSLNFile(std::ostream& fout, cmLocalGenerator* root,

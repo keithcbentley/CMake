@@ -12,7 +12,7 @@
 
 class cmLocalGenerator;
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalBorlandMakefileGenerator
  * \brief Write a Borland makefiles.
@@ -22,7 +22,7 @@ class cmake;
 class cmGlobalBorlandMakefileGenerator : public cmGlobalUnixMakefileGenerator3
 {
 public:
-  cmGlobalBorlandMakefileGenerator(cmake* cm);
+  cmGlobalBorlandMakefileGenerator(CMake* cm);
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()
   {
     return std::unique_ptr<cmGlobalGeneratorFactory>(

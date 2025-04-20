@@ -1089,7 +1089,7 @@ int cmcmd::ExecuteCMakeCommand(
         std::cerr << "-E capabilities accepts no additional arguments\n";
         return 1;
       }
-      cmake cm(cmake::RoleInternal, cmState::Unknown);
+      CMake cm(CMake::RoleInternal, cmState::Unknown);
       std::cout << cm.ReportCapabilities();
       return 0;
     }
@@ -1317,7 +1317,7 @@ int cmcmd::ExecuteCMakeCommand(
 
       // Create a cmake object instance to process dependencies.
       // All we need is the `set` command.
-      cmake cm(cmake::RoleScript, cmState::Unknown);
+      CMake cm(CMake::RoleScript, cmState::Unknown);
       std::string gen;
       std::string homeDir;
       std::string startDir;
@@ -1646,7 +1646,7 @@ int cmcmd::ExecuteCMakeCommand(
       }
       // Create a cmake object instance to process dependencies.
       // All we need is the `set` command.
-      cmake cm(cmake::RoleScript, cmState::Unknown);
+      CMake cm(CMake::RoleScript, cmState::Unknown);
       std::string homeDir;
       std::string startDir;
       std::string homeOutDir;

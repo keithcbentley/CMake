@@ -19,7 +19,7 @@
 #include "cmDuration.h"
 #include "cmProcessOutput.h"
 
-class cmake;
+class CMake;
 class cmGeneratedFileStream;
 class cmInstrumentation;
 class cmMakefile;
@@ -232,7 +232,7 @@ public:
   static std::string SafeBuildIdField(std::string const& value);
 
   /** Start CTest XML output file */
-  void StartXML(cmXMLWriter& xml, cmake* cm, bool append);
+  void StartXML(cmXMLWriter& xml, CMake* cm, bool append);
 
   /** End CTest XML output file */
   void EndXML(cmXMLWriter& xml);
@@ -308,7 +308,7 @@ public:
   void AddCTestConfigurationOverwrite(std::string const& encstr);
 
   /** Create XML file that contains all the notes specified */
-  int GenerateNotesFile(cmake* cm, std::vector<std::string> const& files);
+  int GenerateNotesFile(CMake* cm, std::vector<std::string> const& files);
 
   /** Create XML file to indicate that build is complete */
   int GenerateDoneFile();
@@ -393,7 +393,7 @@ public:
   bool ConvertInstrumentationJSONFileToXML(std::string const& fpath,
                                            cmXMLWriter& xml);
 
-  void AddSiteProperties(cmXMLWriter& xml, cmake* cm);
+  void AddSiteProperties(cmXMLWriter& xml, CMake* cm);
 
   bool GetInteractiveDebugMode() const;
 
@@ -439,7 +439,7 @@ public:
   bool GetUseVerboseInstrumentation() const;
 
 private:
-  int GenerateNotesFile(cmake* cm, std::string const& files);
+  int GenerateNotesFile(CMake* cm, std::string const& files);
 
   void BlockTestErrorDiagnostics();
 
@@ -467,7 +467,7 @@ private:
   static bool ColoredOutputSupportedByConsole();
 
   /** Create note from files. */
-  int GenerateCTestNotesOutput(cmXMLWriter& xml, cmake* cm,
+  int GenerateCTestNotesOutput(cmXMLWriter& xml, CMake* cm,
                                std::vector<std::string> const& files);
 
   /** Check if the argument is the one specified */

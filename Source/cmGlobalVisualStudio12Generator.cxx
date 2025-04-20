@@ -16,7 +16,7 @@
 #include "cmSystemTools.h"
 
 cmGlobalVisualStudio12Generator::cmGlobalVisualStudio12Generator(
-  cmake* cm, std::string const& name)
+  CMake* cm, std::string const& name)
   : cmGlobalVisualStudio11Generator(cm, name)
 {
 }

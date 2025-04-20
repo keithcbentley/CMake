@@ -1393,7 +1393,7 @@ void cmCTestTestHandler::GenerateCTestXML(cmXMLWriter& xml)
   this->CTest->GetInstrumentation().CollectTimingData(
     cmInstrumentationQuery::Hook::PrepareForCDash);
 
-  this->CTest->StartXML(xml, this->CMake, this->AppendXML);
+  this->CTest->StartXML(xml, this->m_pcmake, this->AppendXML);
   this->CTest->GenerateSubprojectsOutput(xml);
   xml.StartElement("Testing");
   xml.Element("StartDateTime", this->StartTest);
@@ -1754,7 +1754,7 @@ bool cmCTestTestHandler::GetListOfTests()
   }
   cmCTestOptionalLog(this->CTest, HANDLER_VERBOSE_OUTPUT,
                      "Constructing a list of tests" << std::endl, this->Quiet);
-  cmake cm(cmake::RoleScript, cmState::CTest);
+  CMake cm(CMake::RoleScript, cmState::CTest);
   cm.SetHomeDirectory("");
   cm.SetHomeOutputDirectory("");
   cm.GetCurrentSnapshot().SetDefaultDefinitions();

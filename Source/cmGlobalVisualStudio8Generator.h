@@ -13,7 +13,7 @@
 
 class cmGeneratorTarget;
 class cmMakefile;
-class cmake;
+class CMake;
 struct cmIDEFlagTable;
 
 /** \class cmGlobalVisualStudio8Generator
@@ -51,7 +51,7 @@ public:
   }
 
 protected:
-  cmGlobalVisualStudio8Generator(cmake* cm, std::string const& name);
+  cmGlobalVisualStudio8Generator(CMake* cm, std::string const& name);
 
   virtual bool ProcessGeneratorPlatformField(std::string const& key,
                                              std::string const& value);

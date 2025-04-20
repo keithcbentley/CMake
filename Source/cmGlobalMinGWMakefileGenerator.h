@@ -10,7 +10,7 @@
 #include "cmGlobalUnixMakefileGenerator3.h"
 
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalMinGWMakefileGenerator
  * \brief Write a NMake makefiles.
@@ -20,7 +20,7 @@ class cmake;
 class cmGlobalMinGWMakefileGenerator : public cmGlobalUnixMakefileGenerator3
 {
 public:
-  cmGlobalMinGWMakefileGenerator(cmake* cm);
+  cmGlobalMinGWMakefileGenerator(CMake* cm);
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()
   {
     return std::unique_ptr<cmGlobalGeneratorFactory>(

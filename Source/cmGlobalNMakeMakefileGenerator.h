@@ -14,7 +14,7 @@
 #include "cmValue.h"
 
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalNMakeMakefileGenerator
  * \brief Write a NMake makefiles.
@@ -24,7 +24,7 @@ class cmake;
 class cmGlobalNMakeMakefileGenerator : public cmGlobalUnixMakefileGenerator3
 {
 public:
-  cmGlobalNMakeMakefileGenerator(cmake* cm);
+  cmGlobalNMakeMakefileGenerator(CMake* cm);
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()
   {
     return std::unique_ptr<cmGlobalGeneratorFactory>(

@@ -22,7 +22,7 @@ class cmGlobalGenerator;
 class cmMakefile;
 class cmOrderDirectories;
 class cmSourceFile;
-class cmake;
+class CMake;
 
 /** \class cmComputeLinkInformation
  * \brief Compute link information for a target in one configuration.
@@ -148,7 +148,7 @@ private:
   cmGeneratorTarget const* const Target;
   cmMakefile* const Makefile;
   cmGlobalGenerator* const GlobalGenerator;
-  cmake* const CMakeInstance;
+  CMake* const CMakeInstance;
 
   // Configuration information.
   std::string const Config;

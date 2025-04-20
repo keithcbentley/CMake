@@ -11,7 +11,7 @@
 
 #include "cmGlobalGenerator.h"
 
-class cmake;
+class CMake;
 class cmGeneratorTarget;
 class cmLocalGenerator;
 
@@ -21,7 +21,7 @@ class cmLocalGenerator;
 class cmGlobalCommonGenerator : public cmGlobalGenerator
 {
 public:
-  cmGlobalCommonGenerator(cmake* cm);
+  cmGlobalCommonGenerator(CMake* cm);
   ~cmGlobalCommonGenerator() override;
 
   struct DirectoryTarget

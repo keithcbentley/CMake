@@ -183,7 +183,7 @@ public:
         e << "  " << li << "\n";
       }
       e << "Set the LINKER_LANGUAGE property for this target.";
-      cmake* cm = this->Target->GetLocalGenerator()->GetCMakeInstance();
+      CMake* cm = this->Target->GetLocalGenerator()->GetCMakeInstance();
       cm->IssueMessage(MessageType::FATAL_ERROR, e.str(),
                        this->Target->GetBacktrace());
     }

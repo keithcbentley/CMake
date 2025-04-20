@@ -82,7 +82,7 @@ struct cmGlobCacheEntry;
  * you must at a minimum redo steps 2 through 7.
  */
 
-class cmake
+class CMake
 {
 public:
   enum Role
@@ -167,15 +167,15 @@ public:
   static int const DEFAULT_BUILD_PARALLEL_LEVEL = 0;
 
   /// Default constructor
-  cmake(
+  CMake(
     Role role,
     cmState::Mode mode,
     cmState::ProjectKind projectKind = cmState::ProjectKind::Normal);
   /// Destructor
-  ~cmake();
+  ~CMake();
 
-  cmake(cmake const&) = delete;
-  cmake& operator=(cmake const&) = delete;
+  CMake(CMake const&) = delete;
+  CMake& operator=(CMake const&) = delete;
 
 #if !defined(CMAKE_BOOTSTRAP)
   Json::Value ReportVersionJson() const;
@@ -542,7 +542,7 @@ public:
 #endif
 
   //! Use trace from another ::cmake instance.
-  void SetTraceRedirect(cmake* other);
+  void SetTraceRedirect(CMake* other);
 
   bool GetWarnUninitialized() const { return this->WarnUninitialized; }
   void SetWarnUninitialized(bool b) { this->WarnUninitialized = b; }
@@ -772,7 +772,7 @@ private:
   bool TraceExpand = false;
   TraceFormat TraceFormatVar = TraceFormat::Human;
   cmGeneratedFileStream TraceFile;
-  cmake* TraceRedirect = nullptr;
+  CMake* TraceRedirect = nullptr;
 #ifndef CMAKE_BOOTSTRAP
   std::unique_ptr<cmConfigureLog> ConfigureLog;
 #endif

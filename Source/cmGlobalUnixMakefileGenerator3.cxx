@@ -28,7 +28,7 @@
 #include "cmValue.h"
 #include "cmake.h"
 
-cmGlobalUnixMakefileGenerator3::cmGlobalUnixMakefileGenerator3(cmake* cm)
+cmGlobalUnixMakefileGenerator3::cmGlobalUnixMakefileGenerator3(CMake* cm)
   : cmGlobalCommonGenerator(cm)
 {
   // This type of makefile always requires unix style paths
@@ -275,7 +275,7 @@ void cmGlobalUnixMakefileGenerator3::WriteMainCMakefile()
     cm::append(lfiles, localGen->GetMakefile()->GetListFiles());
   }
 
-  cmake* cm = this->GetCMakeInstance();
+  CMake* cm = this->GetCMakeInstance();
   if (cm->DoWriteGlobVerifyTarget()) {
     lfiles.push_back(cm->GetGlobVerifyScript());
     lfiles.push_back(cm->GetGlobVerifyStamp());
@@ -552,8 +552,8 @@ cmGlobalUnixMakefileGenerator3::GenerateBuildCommand(
   makeCommand.Add("-f");
   makeCommand.Add("Makefile");
 
-  if (jobs != cmake::NO_BUILD_PARALLEL_LEVEL) {
-    if (jobs == cmake::DEFAULT_BUILD_PARALLEL_LEVEL) {
+  if (jobs != CMake::NO_BUILD_PARALLEL_LEVEL) {
+    if (jobs == CMake::DEFAULT_BUILD_PARALLEL_LEVEL) {
       makeCommand.Add("-j");
     } else {
       makeCommand.Add(cmStrCat("-j", jobs));

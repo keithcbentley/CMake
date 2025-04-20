@@ -139,27 +139,27 @@ int main(int argc, char const* const* argv)
 
   std::map<std::string, std::string> definitions;
 
-  auto const verboseLambda = [&log](std::string const&, cmake*,
+  auto const verboseLambda = [&log](std::string const&, CMake*,
                                     cmMakefile*) -> bool {
     log.SetVerbose(true);
     cmCPack_Log(&log, cmCPackLog::LOG_OUTPUT, "Enable Verbose\n");
     return true;
   };
 
-  auto const debugLambda = [&log](std::string const&, cmake*,
+  auto const debugLambda = [&log](std::string const&, CMake*,
                                   cmMakefile*) -> bool {
     log.SetDebug(true);
     cmCPack_Log(&log, cmCPackLog::LOG_OUTPUT, "Enable Debug\n");
     return true;
   };
 
-  auto const traceLambda = [](std::string const&, cmake* state,
+  auto const traceLambda = [](std::string const&, CMake* state,
                               cmMakefile*) -> bool {
     state->SetTrace(true);
     return true;
   };
 
-  auto const traceExpandLambda = [](std::string const&, cmake* state,
+  auto const traceExpandLambda = [](std::string const&, CMake* state,
                                     cmMakefile*) -> bool {
     state->SetTrace(true);
     state->SetTraceExpand(true);
@@ -167,7 +167,7 @@ int main(int argc, char const* const* argv)
   };
 
   using CommandArgument =
-    cmCommandLineArgument<bool(std::string const&, cmake*, cmMakefile*)>;
+    cmCommandLineArgument<bool(std::string const&, CMake*, cmMakefile*)>;
 
   std::vector<CommandArgument> arguments = {
     CommandArgument{ "--help", CommandArgument::Values::Zero,
@@ -209,7 +209,7 @@ int main(int argc, char const* const* argv)
                      CommandArgument::setToTrue(listPresets) },
     CommandArgument{ "-D", CommandArgument::Values::One,
                      CommandArgument::RequiresSeparator::No,
-                     [&log, &definitions](std::string const& arg, cmake*,
+                     [&log, &definitions](std::string const& arg, CMake*,
                                           cmMakefile*) -> bool {
                        std::string value = arg;
                        size_t pos = value.find_first_of('=');
@@ -229,7 +229,7 @@ int main(int argc, char const* const* argv)
                      } },
   };
 
-  cmake cminst(cmake::RoleScript, cmState::CPack);
+  CMake cminst(CMake::RoleScript, cmState::CPack);
   cminst.SetHomeDirectory("");
   cminst.SetHomeOutputDirectory("");
   cminst.SetProgressCallback(cpackProgressCallback);

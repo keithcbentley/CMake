@@ -25,7 +25,7 @@ class cmGeneratorTarget;
 class cmGlobalGenerator;
 class cmMakefile;
 class cmSourceFile;
-class cmake;
+class CMake;
 
 enum class LinkLibrariesStrategy
 {
@@ -90,7 +90,7 @@ private:
   cmGeneratorTarget const* Target = nullptr;
   cmMakefile* Makefile = nullptr;
   cmGlobalGenerator const* GlobalGenerator = nullptr;
-  cmake* CMakeInstance;
+  CMake* CMakeInstance;
   std::string Config;
   bool DebugMode = false;
   std::string LinkLanguage;

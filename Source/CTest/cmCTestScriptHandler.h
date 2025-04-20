@@ -11,7 +11,7 @@
 class cmCTest;
 class cmGlobalGenerator;
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmCTestScriptHandler
  * \brief A class that handles ctest -S invocations
@@ -47,7 +47,7 @@ public:
   ~cmCTestScriptHandler();
 
   void CreateCMake();
-  cmake* GetCMake() { return this->CMake.get(); }
+  CMake* GetCMake() { return this->m_pcmake.get(); }
   cmMakefile* GetMakefile() { return this->Makefile.get(); }
 
 private:
@@ -64,5 +64,5 @@ private:
   std::unique_ptr<cmMakefile> Makefile;
   cmMakefile* ParentMakefile = nullptr;
   std::unique_ptr<cmGlobalGenerator> GlobalGenerator;
-  std::unique_ptr<cmake> CMake;
+  std::unique_ptr<CMake> m_pcmake;
 };

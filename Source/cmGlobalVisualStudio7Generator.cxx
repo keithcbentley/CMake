@@ -66,7 +66,7 @@ std::string GetSLNFile(cmLocalGenerator* root)
 }
 }
 
-cmGlobalVisualStudio7Generator::cmGlobalVisualStudio7Generator(cmake* cm)
+cmGlobalVisualStudio7Generator::cmGlobalVisualStudio7Generator(CMake* cm)
   : cmGlobalVisualStudioGenerator(cm)
 {
   this->DevEnvCommandInitialized = false;

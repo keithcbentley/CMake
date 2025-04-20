@@ -17,7 +17,7 @@
 class cmGeneratorTarget;
 class cmLocalGenerator;
 class cmMakefile;
-class cmake;
+class CMake;
 
 class cmGlobalGhsMultiGenerator : public cmGlobalGenerator
 {
@@ -25,7 +25,7 @@ public:
   // The default filename extension of GHS MULTI's build files.
   static char const* FILE_EXTENSION;
 
-  cmGlobalGhsMultiGenerator(cmake* cm);
+  cmGlobalGhsMultiGenerator(CMake* cm);
   ~cmGlobalGhsMultiGenerator() override;
 
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()

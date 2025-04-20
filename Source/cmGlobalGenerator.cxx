@@ -105,7 +105,7 @@ bool cmTarget::StrictTargetComparison::operator()(cmTarget const* t1,
   return nameResult < 0;
 }
 
-cmGlobalGenerator::cmGlobalGenerator(cmake* cm)
+cmGlobalGenerator::cmGlobalGenerator(CMake* cm)
   : CMakeInstance(cm)
 {
   // By default the .SYMBOLIC dependency is not needed on symbolic rules.
@@ -2694,7 +2694,7 @@ cmGlobalGenerator::SplitFrameworkPath(std::string const& path,
 }
 
 namespace {
-void IssueReservedTargetNameError(cmake* cm, cmTarget* tgt,
+void IssueReservedTargetNameError(CMake* cm, cmTarget* tgt,
                                   std::string const& targetNameAsWritten,
                                   std::string const& reason)
 {
@@ -3807,7 +3807,7 @@ std::string cmGlobalGenerator::ExpandCFGIntDir(
 
 bool cmGlobalGenerator::GenerateCPackPropertiesFile()
 {
-  cmake::InstalledFilesMap const& installedFiles =
+  CMake::InstalledFilesMap const& installedFiles =
     this->CMakeInstance->GetInstalledFiles();
 
   auto const& lg = this->LocalGenerators[0];

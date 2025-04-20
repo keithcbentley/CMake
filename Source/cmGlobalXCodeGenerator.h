@@ -28,7 +28,7 @@ class cmLocalGenerator;
 class cmMakefile;
 class cmSourceFile;
 class cmSourceGroup;
-class cmake;
+class CMake;
 
 /** \class cmGlobalXCodeGenerator
  * \brief Write a Unix makefiles.
@@ -38,7 +38,7 @@ class cmake;
 class cmGlobalXCodeGenerator : public cmGlobalGenerator
 {
 public:
-  cmGlobalXCodeGenerator(cmake* cm, std::string const& version_string,
+  cmGlobalXCodeGenerator(CMake* cm, std::string const& version_string,
                          unsigned int version_number);
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory();
 

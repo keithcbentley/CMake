@@ -9,7 +9,7 @@
 
 class cmGeneratedFileStream;
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmCTestGenericHandler
  * \brief A superclass of all CTest Handlers
@@ -58,7 +58,7 @@ public:
   void SetTestLoad(unsigned long load) { this->TestLoad = load; }
   unsigned long GetTestLoad() const { return this->TestLoad; }
 
-  void SetCMakeInstance(cmake* cm) { this->CMake = cm; }
+  void SetCMakeInstance(CMake* cm) { this->m_pcmake = cm; }
 
 protected:
   bool StartResultingXML(cmCTest::Part part, char const* name,
@@ -70,7 +70,7 @@ protected:
   unsigned long TestLoad = 0;
   cmSystemTools::OutputOption HandlerVerbose = cmSystemTools::OUTPUT_NONE;
   cmCTest* CTest;
-  cmake* CMake = nullptr;
+  CMake* m_pcmake = nullptr;
 
   int SubmitIndex = 0;
 };

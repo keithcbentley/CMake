@@ -15,7 +15,7 @@
 #include "cmState.h"
 #include "cmake.h"
 
-cmGlobalBorlandMakefileGenerator::cmGlobalBorlandMakefileGenerator(cmake* cm)
+cmGlobalBorlandMakefileGenerator::cmGlobalBorlandMakefileGenerator(CMake* cm)
   : cmGlobalUnixMakefileGenerator3(cm)
 {
   this->EmptyRuleHackDepends = "NUL";
@@ -77,13 +77,13 @@ cmGlobalBorlandMakefileGenerator::GenerateBuildCommand(
 {
   return this->cmGlobalUnixMakefileGenerator3::GenerateBuildCommand(
     makeProgram, projectName, projectDir, targetNames, config,
-    cmake::NO_BUILD_PARALLEL_LEVEL, verbose, buildOptions, makeOptions);
+    CMake::NO_BUILD_PARALLEL_LEVEL, verbose, buildOptions, makeOptions);
 }
 
 void cmGlobalBorlandMakefileGenerator::PrintBuildCommandAdvice(
   std::ostream& os, int jobs) const
 {
-  if (jobs != cmake::NO_BUILD_PARALLEL_LEVEL) {
+  if (jobs != CMake::NO_BUILD_PARALLEL_LEVEL) {
     // Borland's make does not support parallel builds
     // see http://docwiki.embarcadero.com/RADStudio/Tokyo/en/Make
 
@@ -95,5 +95,5 @@ void cmGlobalBorlandMakefileGenerator::PrintBuildCommandAdvice(
   }
 
   this->cmGlobalUnixMakefileGenerator3::PrintBuildCommandAdvice(
-    os, cmake::NO_BUILD_PARALLEL_LEVEL);
+    os, CMake::NO_BUILD_PARALLEL_LEVEL);
 }

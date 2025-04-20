@@ -18,7 +18,7 @@
 #include "cmSystemTools.h"
 #include "cmake.h"
 
-cmGlobalNMakeMakefileGenerator::cmGlobalNMakeMakefileGenerator(cmake* cm)
+cmGlobalNMakeMakefileGenerator::cmGlobalNMakeMakefileGenerator(CMake* cm)
   : cmGlobalUnixMakefileGenerator3(cm)
 {
   this->FindMakeProgramFile = "CMakeNMakeFindMake.cmake";
@@ -118,13 +118,13 @@ cmGlobalNMakeMakefileGenerator::GenerateBuildCommand(
 
   return this->cmGlobalUnixMakefileGenerator3::GenerateBuildCommand(
     makeProgram, projectName, projectDir, targetNames, config,
-    cmake::NO_BUILD_PARALLEL_LEVEL, verbose, buildOptions, nmakeMakeOptions);
+    CMake::NO_BUILD_PARALLEL_LEVEL, verbose, buildOptions, nmakeMakeOptions);
 }
 
 void cmGlobalNMakeMakefileGenerator::PrintBuildCommandAdvice(std::ostream& os,
                                                              int jobs) const
 {
-  if (jobs != cmake::NO_BUILD_PARALLEL_LEVEL) {
+  if (jobs != CMake::NO_BUILD_PARALLEL_LEVEL) {
     // nmake does not support parallel build level
     // see https://msdn.microsoft.com/en-us/library/afyyse50.aspx
     os << "Warning: NMake does not support parallel builds. "
@@ -132,5 +132,5 @@ void cmGlobalNMakeMakefileGenerator::PrintBuildCommandAdvice(std::ostream& os,
   }
 
   this->cmGlobalUnixMakefileGenerator3::PrintBuildCommandAdvice(
-    os, cmake::NO_BUILD_PARALLEL_LEVEL);
+    os, CMake::NO_BUILD_PARALLEL_LEVEL);
 }

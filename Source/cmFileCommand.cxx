@@ -681,11 +681,11 @@ bool HandleGlobImpl(std::vector<std::string> const& args, bool recurse,
     g.RecurseThroughSymlinksOff();
   }
 
-  cmake* cm = status.GetMakefile().GetCMakeInstance();
+  CMake* cm = status.GetMakefile().GetCMakeInstance();
   std::vector<std::string> files;
   bool configureDepends = false;
   bool warnConfigureLate = false;
-  cmake::WorkingMode const workingMode = cm->GetWorkingMode();
+  CMake::WorkingMode const workingMode = cm->GetWorkingMode();
   while (i != args.end()) {
     if (*i == "LIST_DIRECTORIES") {
       ++i; // skip LIST_DIRECTORIES
@@ -736,7 +736,7 @@ bool HandleGlobImpl(std::vector<std::string> const& args, bool recurse,
           "CONFIGURE_DEPENDS flag was given after a glob expression was "
           "already evaluated.");
       }
-      if (workingMode != cmake::NORMAL_MODE) {
+      if (workingMode != CMake::NORMAL_MODE) {
         status.GetMakefile().IssueMessage(
           MessageType::FATAL_ERROR,
           "CONFIGURE_DEPENDS is invalid for script and find package modes.");

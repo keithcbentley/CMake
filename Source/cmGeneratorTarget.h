@@ -25,7 +25,7 @@
 #include "cmStateTypes.h"
 #include "cmValue.h"
 
-class cmake;
+class CMake;
 enum class cmBuildStep;
 class cmCompiledGeneratorExpression;
 class cmComputeLinkInformation;
@@ -1529,7 +1529,7 @@ public:
   virtual ~TargetPropertyEntry() = default;
 
   static std::unique_ptr<TargetPropertyEntry> Create(
-    cmake& cmakeInstance, const BT<std::string>& propertyValue,
+    CMake& cmakeInstance, const BT<std::string>& propertyValue,
     bool evaluateForBuildsystem = false);
   static std::unique_ptr<TargetPropertyEntry> CreateFileSet(
     std::vector<std::string> dirs, bool contextSensitiveDirs,

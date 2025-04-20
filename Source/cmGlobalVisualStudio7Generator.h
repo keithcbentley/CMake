@@ -21,7 +21,7 @@ class cmGeneratorTarget;
 struct cmIDEFlagTable;
 class cmLocalGenerator;
 class cmMakefile;
-class cmake;
+class CMake;
 template <typename T>
 class BT;
 
@@ -130,7 +130,7 @@ public:
   virtual bool SupportsCxxModuleDyndep() const { return false; }
 
 protected:
-  cmGlobalVisualStudio7Generator(cmake* cm);
+  cmGlobalVisualStudio7Generator(CMake* cm);
 
   void Generate() override;
 

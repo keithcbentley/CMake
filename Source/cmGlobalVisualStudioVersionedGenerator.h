@@ -16,7 +16,7 @@
 
 class cmGlobalGeneratorFactory;
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalVisualStudioVersionedGenerator  */
 class cmGlobalVisualStudioVersionedGenerator
@@ -58,7 +58,7 @@ public:
   }
 
 protected:
-  cmGlobalVisualStudioVersionedGenerator(VSVersion version, cmake* cm,
+  cmGlobalVisualStudioVersionedGenerator(VSVersion version, CMake* cm,
                                          std::string const& name);
 
   bool SelectWindowsStoreToolset(std::string& toolset) const override;

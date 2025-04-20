@@ -62,7 +62,7 @@ cmMakefileTargetGenerator::cmMakefileTargetGenerator(cmGeneratorTarget* target)
     static_cast<cmLocalUnixMakefileGenerator3*>(target->GetLocalGenerator());
   this->GlobalGenerator = static_cast<cmGlobalUnixMakefileGenerator3*>(
     this->LocalGenerator->GetGlobalGenerator());
-  cmake* cm = this->GlobalGenerator->GetCMakeInstance();
+  CMake* cm = this->GlobalGenerator->GetCMakeInstance();
   this->NoRuleMessages = false;
   if (cmValue ruleStatus =
         cm->GetState()->GetGlobalProperty("RULE_MESSAGES")) {

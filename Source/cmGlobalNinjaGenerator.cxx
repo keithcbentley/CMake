@@ -555,7 +555,7 @@ void cmGlobalNinjaGenerator::WriteDefault(std::ostream& os,
   os << "\n";
 }
 
-cmGlobalNinjaGenerator::cmGlobalNinjaGenerator(cmake* cm)
+cmGlobalNinjaGenerator::cmGlobalNinjaGenerator(CMake* cm)
   : cmGlobalCommonGenerator(cm)
 {
 #ifdef _WIN32
@@ -1011,8 +1011,8 @@ cmGlobalNinjaGenerator::GenerateBuildCommand(
     makeCommand.Add("-v");
   }
 
-  if ((jobs != cmake::NO_BUILD_PARALLEL_LEVEL) &&
-      (jobs != cmake::DEFAULT_BUILD_PARALLEL_LEVEL)) {
+  if ((jobs != CMake::NO_BUILD_PARALLEL_LEVEL) &&
+      (jobs != CMake::DEFAULT_BUILD_PARALLEL_LEVEL)) {
     makeCommand.Add("-j", std::to_string(jobs));
   }
 
@@ -1822,7 +1822,7 @@ void cmGlobalNinjaGenerator::WriteTargetRebuildManifest(std::ostream& os)
     return;
   }
 
-  cmake* cm = this->GetCMakeInstance();
+  CMake* cm = this->GetCMakeInstance();
   auto const& lg = this->LocalGenerators[0];
 
   {
@@ -3017,7 +3017,7 @@ int cmcmd_cmake_ninja_dyndep(std::vector<std::string>::const_iterator argBeg,
 
   auto export_info = cmDyndepCollation::ParseExportInfo(tdi);
 
-  cmake cm(cmake::RoleInternal, cmState::Unknown);
+  CMake cm(CMake::RoleInternal, cmState::Unknown);
   cm.SetHomeDirectory(dir_top_src);
   cm.SetHomeOutputDirectory(dir_top_bld);
   auto ggd = cm.CreateGlobalGenerator("Ninja");
@@ -3079,7 +3079,7 @@ char const* cmGlobalNinjaMultiGenerator::NINJA_COMMON_FILE =
   "CMakeFiles/common.ninja";
 char const* cmGlobalNinjaMultiGenerator::NINJA_FILE_EXTENSION = ".ninja";
 
-cmGlobalNinjaMultiGenerator::cmGlobalNinjaMultiGenerator(cmake* cm)
+cmGlobalNinjaMultiGenerator::cmGlobalNinjaMultiGenerator(CMake* cm)
   : cmGlobalNinjaGenerator(cm)
 {
   cm->GetState()->SetIsGeneratorMultiConfig(true);

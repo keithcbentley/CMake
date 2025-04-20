@@ -828,7 +828,7 @@ void cmLocalUnixMakefileGenerator3::WriteSpecialTargetsBottom(
         "CMAKE_SUPPRESS_REGENERATION")) {
     // Build command to run CMake to check if anything needs regenerating.
     std::vector<std::string> commands;
-    cmake* cm = this->GlobalGenerator->GetCMakeInstance();
+    CMake* cm = this->GlobalGenerator->GetCMakeInstance();
     if (cm->DoWriteGlobVerifyTarget()) {
       std::string rescanRule =
         cmStrCat("$(CMAKE_COMMAND) -P ",
@@ -1830,7 +1830,7 @@ void cmLocalUnixMakefileGenerator3::WriteLocalAllRules(
     // write the depend rule, really a recompute depends rule
     depends.clear();
     commands.clear();
-    cmake* cm = this->GlobalGenerator->GetCMakeInstance();
+    CMake* cm = this->GlobalGenerator->GetCMakeInstance();
     if (cm->DoWriteGlobVerifyTarget()) {
       std::string rescanRule =
         cmStrCat("$(CMAKE_COMMAND) -P ",

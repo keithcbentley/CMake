@@ -174,7 +174,7 @@ void cmLocalVisualStudio7Generator::WriteStampFiles()
   depFile << "# CMake generation dependency list for this directory.\n";
 
   std::vector<std::string> listFiles(this->Makefile->GetListFiles());
-  cmake* cm = this->GlobalGenerator->GetCMakeInstance();
+  CMake* cm = this->GlobalGenerator->GetCMakeInstance();
   if (cm->DoWriteGlobVerifyTarget()) {
     listFiles.push_back(cm->GetGlobVerifyStamp());
   }
@@ -241,7 +241,7 @@ cmSourceFile* cmLocalVisualStudio7Generator::CreateVCProjBuildRule()
   }
 
   std::vector<std::string> listFiles = this->Makefile->GetListFiles();
-  cmake* cm = this->GlobalGenerator->GetCMakeInstance();
+  CMake* cm = this->GlobalGenerator->GetCMakeInstance();
   if (cm->DoWriteGlobVerifyTarget()) {
     listFiles.push_back(cm->GetGlobVerifyStamp());
   }

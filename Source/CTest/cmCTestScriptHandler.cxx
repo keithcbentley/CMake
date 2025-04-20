@@ -172,17 +172,17 @@ int cmCTestScriptHandler::ExecuteScript(std::string const& total_script_arg)
 void cmCTestScriptHandler::CreateCMake()
 {
   // create a cmake instance to read the configuration script
-  this->CMake = cm::make_unique<cmake>(cmake::RoleScript, cmState::CTest);
-  this->CMake->SetHomeDirectory("");
-  this->CMake->SetHomeOutputDirectory("");
-  this->CMake->GetCurrentSnapshot().SetDefaultDefinitions();
-  this->CMake->AddCMakePaths();
-  this->CMake->SetWorkingMode(cmake::SCRIPT_MODE,
-                              cmake::CommandFailureAction::EXIT_CODE);
+  this->m_pcmake = cm::make_unique<CMake>(CMake::RoleScript, cmState::CTest);
+  this->m_pcmake->SetHomeDirectory("");
+  this->m_pcmake->SetHomeOutputDirectory("");
+  this->m_pcmake->GetCurrentSnapshot().SetDefaultDefinitions();
+  this->m_pcmake->AddCMakePaths();
+  this->m_pcmake->SetWorkingMode(CMake::SCRIPT_MODE,
+                              CMake::CommandFailureAction::EXIT_CODE);
   this->GlobalGenerator =
-    cm::make_unique<cmGlobalGenerator>(this->CMake.get());
+    cm::make_unique<cmGlobalGenerator>(this->m_pcmake.get());
 
-  cmStateSnapshot snapshot = this->CMake->GetCurrentSnapshot();
+  cmStateSnapshot snapshot = this->m_pcmake->GetCurrentSnapshot();
   std::string cwd = cmSystemTools::GetLogicalWorkingDirectory();
   snapshot.GetDirectory().SetCurrentSource(cwd);
   snapshot.GetDirectory().SetCurrentBinary(cwd);
@@ -193,14 +193,14 @@ void cmCTestScriptHandler::CreateCMake()
       this->ParentMakefile->GetRecursionDepth());
   }
 
-  this->CMake->SetProgressCallback(
+  this->m_pcmake->SetProgressCallback(
     [this](std::string const& m, float /*unused*/) {
       if (!m.empty()) {
         cmCTestLog(this->CTest, HANDLER_OUTPUT, "-- " << m << std::endl);
       }
     });
 
-  cmState* state = this->CMake->GetState();
+  cmState* state = this->m_pcmake->GetState();
   state->AddBuiltinCommand("ctest_build", cmCTestBuildCommand(this->CTest));
   state->AddBuiltinCommand("ctest_configure",
                            cmCTestConfigureCommand(this->CTest));
@@ -309,8 +309,8 @@ int cmCTestScriptHandler::ReadInScript(std::string const& total_script_arg)
     res = -1;
   }
 
-  return this->CMake->HasScriptModeExitCode()
-    ? this->CMake->GetScriptModeExitCode()
+  return this->m_pcmake->HasScriptModeExitCode()
+    ? this->m_pcmake->GetScriptModeExitCode()
     : res;
 }
 

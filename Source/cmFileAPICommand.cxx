@@ -116,7 +116,7 @@ bool handleQueryCommand(std::vector<std::string> const& args,
   }
 
   cmMakefile& mf = status.GetMakefile();
-  cmake* cmi = mf.GetCMakeInstance();
+  CMake* cmi = mf.GetCMakeInstance();
   cmFileAPI* fileApi = cmi->GetFileAPI();
 
   // We want to check all keywords and report all errors, not just the first.

@@ -223,7 +223,7 @@ void cmMakefile::IssueMessage(MessageType t, std::string const& text) const
 
 Message::LogLevel cmMakefile::GetCurrentLogLevel() const
 {
-  cmake const* cmakeInstance = this->GetCMakeInstance();
+  CMake const* cmakeInstance = this->GetCMakeInstance();
 
   Message::LogLevel const logLevelCliOrDefault = cmakeInstance->GetLogLevel();
   assert("Expected a valid log level here" &&
@@ -234,7 +234,7 @@ Message::LogLevel cmMakefile::GetCurrentLogLevel() const
   // If the log-level was set via the command line option, it takes precedence
   // over the CMAKE_MESSAGE_LOG_LEVEL variable.
   if (!cmakeInstance->WasLogLevelSetViaCLI()) {
-    Message::LogLevel const logLevelFromVar = cmake::StringToLogLevel(
+    Message::LogLevel const logLevelFromVar = CMake::StringToLogLevel(
       this->GetSafeDefinition("CMAKE_MESSAGE_LOG_LEVEL"));
     if (logLevelFromVar != Message::LogLevel::LOG_UNDEFINED) {
       result = logLevelFromVar;
@@ -373,7 +373,7 @@ void cmMakefile::PrintCommandTrace(cmListFileFunction const& lff,
 
   std::ostringstream msg;
   switch (this->GetCMakeInstance()->GetTraceFormat()) {
-    case cmake::TraceFormat::JSONv1: {
+    case CMake::TraceFormat::JSONv1: {
 #ifndef CMAKE_BOOTSTRAP
       Json::Value val;
       Json::StreamWriterBuilder builder;
@@ -400,7 +400,7 @@ void cmMakefile::PrintCommandTrace(cmListFileFunction const& lff,
 #endif
       break;
     }
-    case cmake::TraceFormat::Human:
+    case CMake::TraceFormat::Human:
       msg << full_path << '(' << lff.Line() << "):";
       if (deferId) {
         msg << "DEFERRED:" << *deferId << ':';
@@ -412,7 +412,7 @@ void cmMakefile::PrintCommandTrace(cmListFileFunction const& lff,
       }
       msg << ')';
       break;
-    case cmake::TraceFormat::Undefined:
+    case CMake::TraceFormat::Undefined:
       msg << "INTERNAL ERROR: Trace format is Undefined";
       break;
   }
@@ -579,12 +579,12 @@ bool cmMakefile::ExecuteCommand(cmListFileFunction const& lff,
         }
         result = false;
         if (this->GetCMakeInstance()->GetCommandFailureAction() ==
-            cmake::CommandFailureAction::FATAL_ERROR) {
+            CMake::CommandFailureAction::FATAL_ERROR) {
           cmSystemTools::SetFatalErrorOccurred();
         }
       }
       if (this->GetCMakeInstance()->HasScriptModeExitCode() &&
-          this->GetCMakeInstance()->GetWorkingMode() == cmake::SCRIPT_MODE) {
+          this->GetCMakeInstance()->GetWorkingMode() == CMake::SCRIPT_MODE) {
         // pass-through the exit code from inner cmake_language(EXIT) ,
         // possibly from include() or similar command...
         status.SetExitCode(this->GetCMakeInstance()->GetScriptModeExitCode());
@@ -3224,7 +3224,7 @@ int cmMakefile::TryCompile(std::string const& srcdir,
   // make sure the same generator is used
   // use this program as the cmake to be run, it should not
   // be run that way but the cmake object requires a valid path
-  cmake cm(cmake::RoleProject, cmState::Project,
+  CMake cm(CMake::RoleProject, cmState::Project,
            cmState::ProjectKind::TryCompile);
   auto gg = cm.CreateGlobalGenerator(this->GetGlobalGenerator()->GetName());
   if (!gg) {
@@ -3333,7 +3333,7 @@ bool cmMakefile::GetIsSourceFileTryCompile() const
   return this->IsSourceFileTryCompile;
 }
 
-cmake* cmMakefile::GetCMakeInstance() const
+CMake* cmMakefile::GetCMakeInstance() const
 {
   return this->GlobalGenerator->GetCMakeInstance();
 }
@@ -3366,8 +3366,8 @@ cmState* cmMakefile::GetState() const
 
 void cmMakefile::DisplayStatus(std::string const& message, float s) const
 {
-  cmake* cm = this->GetCMakeInstance();
-  if (cm->GetWorkingMode() == cmake::FIND_PACKAGE_MODE) {
+  CMake* cm = this->GetCMakeInstance();
+  if (cm->GetWorkingMode() == CMake::FIND_PACKAGE_MODE) {
     // don't output any STATUS message in FIND_PACKAGE_MODE, since they will
     // directly be fed to the compiler, which will be confused.
     return;
@@ -3918,7 +3918,7 @@ bool cmMakefile::EnforceUniqueName(std::string const& name, std::string& msg,
 
     // The conflict is with a non-imported target.
     // Allow this if the user has requested support.
-    cmake* cm = this->GetCMakeInstance();
+    CMake* cm = this->GetCMakeInstance();
     if (isCustom && existing->GetType() == cmStateEnums::UTILITY &&
         this != existing->GetMakefile() &&
         cm->GetState()->GetGlobalPropertyAsBool(
@@ -4050,7 +4050,7 @@ bool cmMakefile::PolicyOptionalWarningEnabled(std::string const& var) const
   }
   // Enable optional policy warnings with --debug-output, --trace,
   // or --trace-expand.
-  cmake* cm = this->GetCMakeInstance();
+  CMake* cm = this->GetCMakeInstance();
   return cm->GetDebugOutput() || cm->GetTrace();
 }
 

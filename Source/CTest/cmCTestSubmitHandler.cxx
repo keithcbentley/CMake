@@ -250,7 +250,7 @@ bool cmCTestSubmitHandler::SubmitUsingHTTP(
         upload_as += ctest_curl.Escape(this->CTest->GetCurrentTag());
         upload_as += "-";
         upload_as += ctest_curl.Escape(this->CTest->GetTestGroupString());
-        if (cmake* cm = this->CMake) {
+        if (CMake* cm = this->m_pcmake) {
           cmValue subproject = cm->GetState()->GetGlobalProperty("SubProject");
           if (subproject) {
             upload_as += "&subproject=";
@@ -542,7 +542,7 @@ int cmCTestSubmitHandler::HandleCDashUploadFile(std::string const& file,
   // TODO I added support for subproject. You would need to add
   // a "&subproject=subprojectname" to the first POST.
   cmValue subproject =
-    this->CMake->GetState()->GetGlobalProperty("SubProject");
+    this->m_pcmake->GetState()->GetGlobalProperty("SubProject");
   // TODO: Encode values for a URL instead of trusting caller.
   std::ostringstream str;
   if (subproject) {

@@ -255,7 +255,7 @@ public:
   bool InTopLevelIncludes() const { return this->ProcessingTopLevelIncludes; }
 
 private:
-  friend class cmake;
+  friend class CMake;
   void AddCacheEntry(std::string const& key, cmValue value,
                      std::string const& helpString,
                      cmStateEnums::CacheEntryType type);

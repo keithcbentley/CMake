@@ -10,13 +10,13 @@
 #include "cmGlobalVisualStudio11Generator.h"
 
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalVisualStudio12Generator  */
 class cmGlobalVisualStudio12Generator : public cmGlobalVisualStudio11Generator
 {
 protected:
-  cmGlobalVisualStudio12Generator(cmake* cm, std::string const& name);
+  cmGlobalVisualStudio12Generator(CMake* cm, std::string const& name);
 
   bool ProcessGeneratorToolsetField(std::string const& key,
                                     std::string const& value) override;

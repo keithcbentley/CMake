@@ -195,7 +195,7 @@ void cmGraphVizWriter::ReadSettings(
   std::string const& settingsFileName,
   std::string const& fallbackSettingsFileName)
 {
-  cmake cm(cmake::RoleScript, cmState::Unknown);
+  CMake cm(CMake::RoleScript, cmState::Unknown);
   cm.SetHomeDirectory("");
   cm.SetHomeOutputDirectory("");
   cm.GetCurrentSnapshot().SetDefaultDefinitions();

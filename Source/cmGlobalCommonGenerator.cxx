@@ -22,7 +22,7 @@
 #include "cmValue.h"
 #include "cmake.h"
 
-cmGlobalCommonGenerator::cmGlobalCommonGenerator(cmake* cm)
+cmGlobalCommonGenerator::cmGlobalCommonGenerator(CMake* cm)
   : cmGlobalGenerator(cm)
 {
 }
@@ -109,7 +109,7 @@ std::string cmGlobalCommonGenerator::GetEditCacheCommand() const
 
   // Use an internal cache entry to track the latest dialog used
   // to edit the cache, and use that for the edit_cache target.
-  cmake* cm = this->GetCMakeInstance();
+  CMake* cm = this->GetCMakeInstance();
   std::string editCacheCommand = cm->GetCMakeEditCommand();
   if (!cm->GetCacheDefinition("CMAKE_EDIT_COMMAND") ||
       !editCacheCommand.empty()) {

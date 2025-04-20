@@ -32,7 +32,7 @@ bool cmLoadCacheCommand(std::vector<std::string> const& args,
   }
 
   if (status.GetMakefile().GetCMakeInstance()->GetWorkingMode() ==
-      cmake::SCRIPT_MODE) {
+      CMake::SCRIPT_MODE) {
     status.SetError(
       "Only load_cache(READ_WITH_PREFIX) may be used in script mode");
     return false;
@@ -167,7 +167,7 @@ static void CheckLine(cmMakefile& mf, std::string const& prefix,
   std::string var;
   std::string value;
   cmStateEnums::CacheEntryType type = cmStateEnums::UNINITIALIZED;
-  if (cmake::ParseCacheEntry(line, var, value, type)) {
+  if (CMake::ParseCacheEntry(line, var, value, type)) {
     // Found a real entry.  See if this one was requested.
     if (variablesToRead.find(var) != variablesToRead.end()) {
       // This was requested.  Set this variable locally with the given

@@ -12,7 +12,7 @@
 #include "cmSystemTools.h"
 #include "cmake.h"
 
-cmGlobalMSYSMakefileGenerator::cmGlobalMSYSMakefileGenerator(cmake* cm)
+cmGlobalMSYSMakefileGenerator::cmGlobalMSYSMakefileGenerator(CMake* cm)
   : cmGlobalUnixMakefileGenerator3(cm)
 {
   this->FindMakeProgramFile = "CMakeMSYSFindMake.cmake";

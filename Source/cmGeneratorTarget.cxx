@@ -74,7 +74,7 @@ cmTargetPropertyComputer::ImportedLocation<cmGeneratorTarget>(
 }
 
 static void CreatePropertyGeneratorExpressions(
-  cmake& cmakeInstance, cmBTStringRange entries,
+  CMake& cmakeInstance, cmBTStringRange entries,
   std::vector<std::unique_ptr<cmGeneratorTarget::TargetPropertyEntry>>& items,
   bool evaluateForBuildsystem = false)
 {
@@ -1384,7 +1384,7 @@ bool cmGeneratorTarget::NeedRelinkBeforeInstall(
       ;
     /* clang-format on */
 
-    cmake* cm = this->LocalGenerator->GetCMakeInstance();
+    CMake* cm = this->LocalGenerator->GetCMakeInstance();
     cm->IssueMessage(MessageType::FATAL_ERROR, w.str(), this->GetBacktrace());
   }
 
@@ -1532,7 +1532,7 @@ bool cmGeneratorTarget::DetermineHasMacOSXRpathInstallNameDir(
     w << "  This could be because you are using a Mac OS X version";
     w << " less than 10.5 or because CMake's platform configuration is";
     w << " corrupt.";
-    cmake* cm = this->LocalGenerator->GetCMakeInstance();
+    CMake* cm = this->LocalGenerator->GetCMakeInstance();
     cm->IssueMessage(MessageType::FATAL_ERROR, w.str(), this->GetBacktrace());
   }
 
@@ -4760,7 +4760,7 @@ std::string cmGeneratorTarget::CheckCMP0004(std::string const& item) const
     lib = lib.substr(0, pos + 1);
   }
   if (lib != item) {
-    cmake* cm = this->LocalGenerator->GetCMakeInstance();
+    CMake* cm = this->LocalGenerator->GetCMakeInstance();
     std::ostringstream e;
     e << "Target \"" << this->GetName() << "\" links to item \"" << item
       << "\" which has leading or trailing whitespace.  "

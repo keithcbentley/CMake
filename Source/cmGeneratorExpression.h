@@ -16,7 +16,7 @@
 #include "cmListFileCache.h"
 #include "cmLocalGenerator.h"
 
-class cmake;
+class CMake;
 class cmCompiledGeneratorExpression;
 class cmGeneratorTarget;
 struct cmGeneratorExpressionDAGChecker;
@@ -35,7 +35,7 @@ class cmGeneratorExpression
 {
 public:
   /** Construct. */
-  cmGeneratorExpression(cmake& cmakeInstance,
+  cmGeneratorExpression(CMake& cmakeInstance,
                         cmListFileBacktrace backtrace = cmListFileBacktrace());
   ~cmGeneratorExpression();
 
@@ -89,7 +89,7 @@ public:
                                    std::string const& replacement);
 
 private:
-  cmake& CMakeInstance;
+  CMake& CMakeInstance;
   cmListFileBacktrace Backtrace;
 };
 
@@ -156,7 +156,7 @@ public:
                               std::map<std::string, std::string>& mapping);
 
 private:
-  cmCompiledGeneratorExpression(cmake& cmakeInstance,
+  cmCompiledGeneratorExpression(CMake& cmakeInstance,
                                 cmListFileBacktrace backtrace,
                                 std::string input);
 

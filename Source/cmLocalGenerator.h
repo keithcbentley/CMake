@@ -40,7 +40,7 @@ class cmRulePlaceholderExpander;
 class cmSourceFile;
 class cmState;
 class cmTarget;
-class cmake;
+class CMake;
 
 template <typename Iter>
 class cmRange;
@@ -430,7 +430,7 @@ public:
 
   cmPolicies::PolicyStatus GetPolicyStatus(cmPolicies::PolicyID id) const;
 
-  cmake* GetCMakeInstance() const;
+  CMake* GetCMakeInstance() const;
 
   std::string const& GetSourceDirectory() const;
   std::string const& GetBinaryDirectory() const;

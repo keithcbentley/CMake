@@ -23,7 +23,7 @@ class cmLocalGenerator;
 class cmLocalUnixMakefileGenerator3;
 class cmMakefile;
 class cmMakefileTargetGenerator;
-class cmake;
+class CMake;
 
 /** \class cmGlobalUnixMakefileGenerator3
  * \brief Write a Unix makefiles.
@@ -60,7 +60,7 @@ class cmake;
 class cmGlobalUnixMakefileGenerator3 : public cmGlobalCommonGenerator
 {
 public:
-  cmGlobalUnixMakefileGenerator3(cmake* cm);
+  cmGlobalUnixMakefileGenerator3(CMake* cm);
   static std::unique_ptr<cmGlobalGeneratorFactory> NewFactory()
   {
     return std::unique_ptr<cmGlobalGeneratorFactory>(

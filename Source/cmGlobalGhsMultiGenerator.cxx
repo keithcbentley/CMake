@@ -42,7 +42,7 @@ char const* cmGlobalGhsMultiGenerator::DEFAULT_BUILD_PROGRAM = "gbuild.exe";
 char const* cmGlobalGhsMultiGenerator::CHECK_BUILD_SYSTEM_TARGET =
   "RERUN_CMAKE";
 
-cmGlobalGhsMultiGenerator::cmGlobalGhsMultiGenerator(cmake* cm)
+cmGlobalGhsMultiGenerator::cmGlobalGhsMultiGenerator(CMake* cm)
   : cmGlobalGenerator(cm)
 {
   cm->GetState()->SetGhsMultiIDE(true);
@@ -476,8 +476,8 @@ cmGlobalGhsMultiGenerator::GenerateBuildCommand(
 
   makeCommand.Add(this->SelectMakeProgram(makeProgram));
 
-  if (jobs != cmake::NO_BUILD_PARALLEL_LEVEL) {
-    if (jobs == cmake::DEFAULT_BUILD_PARALLEL_LEVEL) {
+  if (jobs != CMake::NO_BUILD_PARALLEL_LEVEL) {
+    if (jobs == CMake::DEFAULT_BUILD_PARALLEL_LEVEL) {
       makeCommand.Add("-parallel");
     } else {
       makeCommand.Add(std::string("-parallel=") + std::to_string(jobs));

@@ -55,7 +55,7 @@ class cmQtAutoGenGlobalInitializer;
 class cmSourceFile;
 class cmState;
 class cmStateDirectory;
-class cmake;
+class CMake;
 
 namespace detail {
 inline void AppendStrs(std::vector<std::string>&)
@@ -108,7 +108,7 @@ public:
   using LocalGeneratorVector = std::vector<std::unique_ptr<cmLocalGenerator>>;
 
   //! Free any memory allocated with the GlobalGenerator
-  cmGlobalGenerator(cmake* cm);
+  cmGlobalGenerator(CMake* cm);
   virtual ~cmGlobalGenerator();
 
   virtual std::unique_ptr<cmLocalGenerator> CreateLocalGenerator(
@@ -288,7 +288,7 @@ public:
                                         bool ignoreErrors);
 
   //! Get the CMake instance
-  cmake* GetCMakeInstance() const { return this->CMakeInstance; }
+  CMake* GetCMakeInstance() const { return this->CMakeInstance; }
 
   void SetConfiguredFilesPath(cmGlobalGenerator* gen);
   std::vector<std::unique_ptr<cmMakefile>> const& GetMakefiles() const
@@ -759,7 +759,7 @@ protected:
 
   std::string FindMakeProgramFile;
   std::string ConfiguredFilesPath;
-  cmake* CMakeInstance;
+  CMake* CMakeInstance;
   std::vector<std::unique_ptr<cmMakefile>> Makefiles;
   LocalGeneratorVector LocalGenerators;
 
@@ -872,7 +872,7 @@ private:
   using TargetDependMap = std::map<cmGeneratorTarget const*, TargetDependSet>;
   TargetDependMap TargetDependencies;
 
-  friend class cmake;
+  friend class CMake;
   void CreateGeneratorTargets(
     TargetTypes targetTypes, cmMakefile* mf, cmLocalGenerator* lg,
     std::map<cmTarget*, cmGeneratorTarget*> const& importedMap);

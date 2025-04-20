@@ -20,7 +20,7 @@ class cmCustomCommand;
 class cmGeneratorTarget;
 class cmLocalGenerator;
 class cmMakefile;
-class cmake;
+class CMake;
 
 /** \class cmGlobalVisualStudioGenerator
  * \brief Base class for global Visual Studio generators.
@@ -159,7 +159,7 @@ public:
   bool IsVisualStudio() const override { return true; }
 
 protected:
-  cmGlobalVisualStudioGenerator(cmake* cm);
+  cmGlobalVisualStudioGenerator(CMake* cm);
 
   virtual bool InitializePlatform(cmMakefile* mf);
 

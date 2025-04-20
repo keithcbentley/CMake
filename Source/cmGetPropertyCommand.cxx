@@ -338,7 +338,7 @@ bool HandleGlobalMode(cmExecutionStatus& status, std::string const& name,
   }
 
   // Get the property.
-  cmake* cm = status.GetMakefile().GetCMakeInstance();
+  CMake* cm = status.GetMakefile().GetCMakeInstance();
   return StoreResult(infoType, status.GetMakefile(), variable,
                      cm->GetState()->GetGlobalProperty(propertyName));
 }
@@ -520,7 +520,7 @@ bool HandleInstallMode(cmExecutionStatus& status, std::string const& name,
   }
 
   // Get the installed file.
-  cmake* cm = status.GetMakefile().GetCMakeInstance();
+  CMake* cm = status.GetMakefile().GetCMakeInstance();
 
   if (cmInstalledFile* file =
         cm->GetOrCreateInstalledFile(&status.GetMakefile(), name)) {

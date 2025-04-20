@@ -18,7 +18,7 @@
 #include "cmListFileCache.h"
 
 class cmLocalGenerator;
-class cmake;
+class CMake;
 struct cmGeneratorExpressionDAGChecker;
 
 cmLinkImplItem cmGeneratorTarget::TargetPropertyEntry::NoLinkImplItem;
@@ -150,7 +150,7 @@ private:
 
 std::unique_ptr<cmGeneratorTarget::TargetPropertyEntry>
 cmGeneratorTarget::TargetPropertyEntry::Create(
-  cmake& cmakeInstance, const BT<std::string>& propertyValue,
+  CMake& cmakeInstance, const BT<std::string>& propertyValue,
   bool evaluateForBuildsystem)
 {
   if (cmGeneratorExpression::Find(propertyValue.Value) != std::string::npos) {
