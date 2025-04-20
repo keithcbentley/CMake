@@ -120,7 +120,7 @@ public:
     std::string Toolset;
     cm::optional<ArchToolsetStrategy> ToolsetStrategy;
     std::string ToolchainFile;
-    std::string GraphVizFile;
+    std::string m_graphVizFile;
     std::string BinaryDir;
     std::string InstallDir;
 
@@ -130,18 +130,18 @@ public:
     cm::optional<bool> ErrorDev;
     cm::optional<bool> WarnDeprecated;
     cm::optional<bool> ErrorDeprecated;
-    cm::optional<bool> WarnUninitialized;
-    cm::optional<bool> WarnUnusedCli;
+    cm::optional<bool> m_warnUninitialized;
+    cm::optional<bool> m_warnUnusedCli;
     cm::optional<bool> WarnSystemVars;
 
-    cm::optional<bool> DebugOutput;
-    cm::optional<bool> DebugTryCompile;
+    cm::optional<bool> m_debugOutput;
+    cm::optional<bool> m_debugTryCompile;
     cm::optional<bool> DebugFind;
 
     cm::optional<TraceEnableMode> TraceMode;
     cm::optional<cmTraceEnums::TraceOutputFormat> TraceFormat;
     std::vector<std::string> TraceSource;
-    std::string TraceRedirect;
+    std::string m_traceRedirect;
 
     bool VisitPresetInherit(Preset const& parent) override;
     bool VisitPresetBeforeInherit() override;
@@ -338,7 +338,7 @@ public:
     std::map<std::string, std::string> Variables;
     std::string ConfigFile;
 
-    cm::optional<bool> DebugOutput;
+    cm::optional<bool> m_debugOutput;
     cm::optional<bool> VerboseOutput;
 
     std::string PackageName;

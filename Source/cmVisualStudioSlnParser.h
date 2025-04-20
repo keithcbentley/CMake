@@ -66,9 +66,9 @@ public:
   bool GetParseHadBOM() const;
 
 protected:
-  class State;
+  class m_state;
 
-  friend class State;
+  friend class m_state;
   class ParsedLine;
 
   struct ResultData
@@ -84,20 +84,20 @@ protected:
 
   bool IsDataGroupSetSupported(DataGroupSet dataGroups) const;
 
-  bool ParseImpl(std::istream& input, cmSlnData& output, State& state);
+  bool ParseImpl(std::istream& input, cmSlnData& output, m_state& state);
 
-  bool ParseBOM(std::istream& input, std::string& line, State& state);
+  bool ParseBOM(std::istream& input, std::string& line, m_state& state);
 
   bool ParseMultiValueTag(std::string const& line, ParsedLine& parsedLine,
-                          State& state);
+                          m_state& state);
 
   bool ParseSingleValueTag(std::string const& line, ParsedLine& parsedLine,
-                           State& state);
+                           m_state& state);
 
   bool ParseKeyValuePair(std::string const& line, ParsedLine& parsedLine,
-                         State& state);
+                         m_state& state);
 
-  bool ParseTag(cm::string_view fullTag, ParsedLine& parsedLine, State& state);
+  bool ParseTag(cm::string_view fullTag, ParsedLine& parsedLine, m_state& state);
 
   bool ParseValue(std::string const& value, ParsedLine& parsedLine);
 };

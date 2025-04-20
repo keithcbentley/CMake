@@ -739,8 +739,8 @@ int cmCPackGenerator::InstallCMakeProject(
   cm.SetProgressCallback([this](std::string const& msg, float prog) {
     this->DisplayVerboseOutput(msg, prog);
   });
-  cm.SetTrace(this->Trace);
-  cm.SetTraceExpand(this->TraceExpand);
+  cm.SetTrace(this->m_trace);
+  cm.SetTraceExpand(this->m_traceExpand);
   cmGlobalGenerator gg(&cm);
   cmMakefile mf(&gg, cm.GetCurrentSnapshot());
   if (!installSubDirectory.empty() && installSubDirectory != "/" &&

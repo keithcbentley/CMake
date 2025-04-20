@@ -211,9 +211,9 @@ auto const PresetWarningsHelper =
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false)
     .Bind("deprecated"_s, &ConfigurePreset::WarnDeprecated,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false)
-    .Bind("uninitialized"_s, &ConfigurePreset::WarnUninitialized,
+    .Bind("uninitialized"_s, &ConfigurePreset::m_warnUninitialized,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false)
-    .Bind("unusedCli"_s, &ConfigurePreset::WarnUnusedCli,
+    .Bind("unusedCli"_s, &ConfigurePreset::m_warnUnusedCli,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false)
     .Bind("systemVars"_s, &ConfigurePreset::WarnSystemVars,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false);
@@ -229,9 +229,9 @@ auto const PresetErrorsHelper =
 auto const PresetDebugHelper =
   JSONHelperBuilder::Object<ConfigurePreset>(
     JsonErrors::INVALID_NAMED_OBJECT_KEY, false)
-    .Bind("output"_s, &ConfigurePreset::DebugOutput,
+    .Bind("output"_s, &ConfigurePreset::m_debugOutput,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false)
-    .Bind("tryCompile"_s, &ConfigurePreset::DebugTryCompile,
+    .Bind("tryCompile"_s, &ConfigurePreset::m_debugTryCompile,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false)
     .Bind("find"_s, &ConfigurePreset::DebugFind,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false);
@@ -245,7 +245,7 @@ auto const PresetTraceHelper =
     .Bind("source"_s, &ConfigurePreset::TraceSource,
           cmCMakePresetsGraphInternal::PresetVectorOneOrMoreStringHelper,
           false)
-    .Bind("redirect"_s, &ConfigurePreset::TraceRedirect,
+    .Bind("redirect"_s, &ConfigurePreset::m_traceRedirect,
           cmCMakePresetsGraphInternal::PresetStringHelper, false);
 
 auto const ConfigurePresetHelper =
@@ -272,7 +272,7 @@ auto const ConfigurePresetHelper =
     .Bind("toolset"_s, ToolsetHelper, false)
     .Bind("toolchainFile"_s, &ConfigurePreset::ToolchainFile,
           cmCMakePresetsGraphInternal::PresetStringHelper, false)
-    .Bind("graphviz"_s, &ConfigurePreset::GraphVizFile,
+    .Bind("graphviz"_s, &ConfigurePreset::m_graphVizFile,
           cmCMakePresetsGraphInternal::PresetStringHelper, false)
     .Bind("binaryDir"_s, &ConfigurePreset::BinaryDir,
           cmCMakePresetsGraphInternal::PresetStringHelper, false)

@@ -203,7 +203,7 @@ protected:
 
   virtual void CloseFileStreams();
   cmLocalUnixMakefileGenerator3* LocalGenerator;
-  cmGlobalUnixMakefileGenerator3* GlobalGenerator;
+  cmGlobalUnixMakefileGenerator3* m_pGlobalGenerator;
 
   enum CustomCommandDriveType
   {

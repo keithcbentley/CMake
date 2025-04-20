@@ -29,7 +29,7 @@ cmWIXPatchElement::~cmWIXPatchElement() = default;
 cmWIXPatchParser::cmWIXPatchParser(fragment_map_t& fragments,
                                    cmCPackLog* logger)
   : Logger(logger)
-  , State(BEGIN_DOCUMENT)
+  , m_state(BEGIN_DOCUMENT)
   , Valid(true)
   , Fragments(fragments)
 {
@@ -37,20 +37,20 @@ cmWIXPatchParser::cmWIXPatchParser(fragment_map_t& fragments,
 
 void cmWIXPatchParser::StartElement(std::string const& name, char const** atts)
 {
-  if (State == BEGIN_DOCUMENT) {
+  if (m_state == BEGIN_DOCUMENT) {
     if (name == "CPackWiXPatch"_s) {
-      State = BEGIN_FRAGMENTS;
+      m_state = BEGIN_FRAGMENTS;
     } else {
       ReportValidationError("Expected root element 'CPackWiXPatch'");
     }
-  } else if (State == BEGIN_FRAGMENTS) {
+  } else if (m_state == BEGIN_FRAGMENTS) {
     if (name == "CPackWiXFragment"_s) {
-      State = INSIDE_FRAGMENT;
+      m_state = INSIDE_FRAGMENT;
       StartFragment(atts);
     } else {
       ReportValidationError("Expected 'CPackWixFragment' element");
     }
-  } else if (State == INSIDE_FRAGMENT) {
+  } else if (m_state == INSIDE_FRAGMENT) {
     cmWIXPatchElement& parent = *ElementStack.back();
 
     auto element = cm::make_unique<cmWIXPatchElement>();
@@ -106,9 +106,9 @@ void cmWIXPatchParser::StartFragment(char const** attributes)
 
 void cmWIXPatchParser::EndElement(std::string const& name)
 {
-  if (State == INSIDE_FRAGMENT) {
+  if (m_state == INSIDE_FRAGMENT) {
     if (name == "CPackWiXFragment"_s) {
-      State = BEGIN_FRAGMENTS;
+      m_state = BEGIN_FRAGMENTS;
       ElementStack.clear();
     } else {
       ElementStack.pop_back();
@@ -120,7 +120,7 @@ void cmWIXPatchParser::CharacterDataHandler(char const* data, int length)
 {
   char const* whitespace = "\x20\x09\x0d\x0a";
 
-  if (State == INSIDE_FRAGMENT) {
+  if (m_state == INSIDE_FRAGMENT) {
     cmWIXPatchElement& parent = *ElementStack.back();
 
     std::string text(data, length);

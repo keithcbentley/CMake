@@ -117,7 +117,7 @@ private:
 
   std::vector<cmsys::RegularExpression> TargetsToIgnoreRegex;
 
-  cmGlobalGenerator const* GlobalGenerator;
+  cmGlobalGenerator const* m_pGlobalGenerator;
 
   int NextNodeId = 0;
   // maps from the actual item names to node names in dot:

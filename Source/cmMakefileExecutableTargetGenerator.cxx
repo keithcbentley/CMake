@@ -152,7 +152,7 @@ void cmMakefileExecutableTargetGenerator::WriteNvidiaDeviceExecutableRule(
     this->LocalGenerator->MaybeRelativeToCurBinDir(targetOutput));
 
   // Determine whether a link script will be used.
-  bool useLinkScript = this->GlobalGenerator->GetUseLinkScript();
+  bool useLinkScript = this->m_pGlobalGenerator->GetUseLinkScript();
 
   // Construct the main link rule.
   std::string const linkRuleVar = "CMAKE_CUDA_DEVICE_LINK_EXECUTABLE";
@@ -470,7 +470,7 @@ void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink)
   }
 
   // Determine whether a link script will be used.
-  bool useLinkScript = this->GlobalGenerator->GetUseLinkScript();
+  bool useLinkScript = this->m_pGlobalGenerator->GetUseLinkScript();
 
   // Construct the main link rule.
   std::string linkRuleVar = this->GeneratorTarget->GetCreateRuleVariable(

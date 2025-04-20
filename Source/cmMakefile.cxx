@@ -153,12 +153,12 @@ cmDirectoryId::cmDirectoryId(std::string s)
 // default is not to be building executables
 cmMakefile::cmMakefile(cmGlobalGenerator* globalGenerator,
                        cmStateSnapshot const& snapshot)
-  : GlobalGenerator(globalGenerator)
+  : m_pGlobalGenerator(globalGenerator)
   , StateSnapshot(snapshot)
 {
   this->IsSourceFileTryCompile = false;
 
-  this->CheckSystemVars = this->GetCMakeInstance()->GetCheckSystemVars();
+  this->m_checkSystemVars = this->GetCMakeInstance()->GetCheckSystemVars();
 
   // Setup the default include complaint regular expression (match nothing).
   this->ComplainFileRegularExpression = "^$";
@@ -1731,7 +1731,7 @@ void cmMakefile::AddSubDirectory(std::string const& srcPath,
   cmSystemTools::MakeDirectory(binPath);
 
   auto subMfu =
-    cm::make_unique<cmMakefile>(this->GlobalGenerator, newSnapshot);
+    cm::make_unique<cmMakefile>(this->m_pGlobalGenerator, newSnapshot);
   auto* subMf = subMfu.get();
   this->GetGlobalGenerator()->AddMakefile(std::move(subMfu));
 
@@ -1907,7 +1907,7 @@ void cmMakefile::MaybeWarnUninitialized(std::string const& variable,
   // not been "cleared"/initialized with a set(foo ) call
   if (this->GetCMakeInstance()->GetWarnUninitialized() &&
       !this->VariableInitialized(variable)) {
-    if (this->CheckSystemVars ||
+    if (this->m_checkSystemVars ||
         (sourceFilename && this->IsProjectFile(sourceFilename))) {
       this->IssueMessage(MessageType::AUTHOR_WARNING,
                          cmStrCat("uninitialized variable '", variable, '\''));
@@ -3335,7 +3335,7 @@ bool cmMakefile::GetIsSourceFileTryCompile() const
 
 CMake* cmMakefile::GetCMakeInstance() const
 {
-  return this->GlobalGenerator->GetCMakeInstance();
+  return this->m_pGlobalGenerator->GetCMakeInstance();
 }
 
 cmMessenger* cmMakefile::GetMessenger() const
@@ -3345,7 +3345,7 @@ cmMessenger* cmMakefile::GetMessenger() const
 
 cmGlobalGenerator* cmMakefile::GetGlobalGenerator() const
 {
-  return this->GlobalGenerator;
+  return this->m_pGlobalGenerator;
 }
 
 #ifndef CMAKE_BOOTSTRAP

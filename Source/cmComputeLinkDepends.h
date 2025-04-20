@@ -89,7 +89,7 @@ private:
   // Context information.
   cmGeneratorTarget const* Target = nullptr;
   cmMakefile* Makefile = nullptr;
-  cmGlobalGenerator const* GlobalGenerator = nullptr;
+  cmGlobalGenerator const* m_pGlobalGenerator = nullptr;
   CMake* CMakeInstance;
   std::string Config;
   bool DebugMode = false;

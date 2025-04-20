@@ -64,7 +64,7 @@ bool cmInstrumentationCommand(std::vector<std::string> const& args,
 {
   // if (status->GetMakefile().GetPropertyKeys) {
   if (!cmExperimental::HasSupportEnabled(
-        status.GetMakefile(), cmExperimental::Feature::Instrumentation)) {
+        status.GetMakefile(), cmExperimental::Feature::m_instrumentation)) {
     status.SetError(
       "requires the experimental Instrumentation flag to be enabled");
     return false;

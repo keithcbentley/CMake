@@ -34,7 +34,7 @@ cmGlobalVisualStudioGenerator::VSVersion
 cmLocalVisualStudioGenerator::GetVersion() const
 {
   cmGlobalVisualStudioGenerator* gg =
-    static_cast<cmGlobalVisualStudioGenerator*>(this->GlobalGenerator);
+    static_cast<cmGlobalVisualStudioGenerator*>(this->m_pGlobalGenerator);
   return gg->GetVersion();
 }
 
@@ -57,7 +57,7 @@ void cmLocalVisualStudioGenerator::ComputeObjectFilenames(
       objectNameLower += custom_ext;
     } else {
       objectNameLower +=
-        this->GlobalGenerator->GetLanguageOutputExtension(*sf);
+        this->m_pGlobalGenerator->GetLanguageOutputExtension(*sf);
     }
     counts[objectNameLower] += 1;
   }
@@ -72,7 +72,7 @@ void cmLocalVisualStudioGenerator::ComputeObjectFilenames(
     if (custom_ext) {
       objectName += custom_ext;
     } else {
-      objectName += this->GlobalGenerator->GetLanguageOutputExtension(*sf);
+      objectName += this->m_pGlobalGenerator->GetLanguageOutputExtension(*sf);
     }
     if (counts[cmSystemTools::LowerCase(objectName)] > 1) {
       const_cast<cmGeneratorTarget*>(gt)->AddExplicitObjectName(sf);

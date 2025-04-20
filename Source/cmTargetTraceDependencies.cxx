@@ -28,7 +28,7 @@ cmTargetTraceDependencies::cmTargetTraceDependencies(cmGeneratorTarget* target)
   // Convenience.
   this->Makefile = target->Target->GetMakefile();
   this->LocalGenerator = target->GetLocalGenerator();
-  this->GlobalGenerator = this->LocalGenerator->GetGlobalGenerator();
+  this->m_pGlobalGenerator = this->LocalGenerator->GetGlobalGenerator();
   this->CurrentEntry = nullptr;
 
   // Queue all the source files already specified for the target.
@@ -40,7 +40,7 @@ cmTargetTraceDependencies::cmTargetTraceDependencies(cmGeneratorTarget* target)
     this->GeneratorTarget->GetSourceFiles(sources, c);
     for (cmSourceFile* sf : sources) {
       std::set<cmGeneratorTarget const*> const tgts =
-        this->GlobalGenerator->GetFilenameTargetDepends(sf);
+        this->m_pGlobalGenerator->GetFilenameTargetDepends(sf);
       if (cm::contains(tgts, this->GeneratorTarget)) {
         std::ostringstream e;
         e << "Evaluation output file\n  \"" << sf->ResolveFullPath()
@@ -62,7 +62,7 @@ cmTargetTraceDependencies::cmTargetTraceDependencies(cmGeneratorTarget* target)
   this->CheckCustomCommands(this->GeneratorTarget->GetPostBuildCommands());
 }
 
-void cmTargetTraceDependencies::Trace()
+void cmTargetTraceDependencies::m_trace()
 {
   // Process one dependency at a time until the queue is empty.
   while (!this->SourceQueue.empty()) {

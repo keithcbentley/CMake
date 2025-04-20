@@ -168,15 +168,15 @@ void cmLocalUnixMakefileGenerator3::Generate()
 
   // Generate the rule files for each target.
   cmGlobalUnixMakefileGenerator3* gg =
-    static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+    static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
   for (cmGeneratorTarget* gt :
-       this->GlobalGenerator->GetLocalGeneratorTargetsInOrder(this)) {
+       this->m_pGlobalGenerator->GetLocalGeneratorTargetsInOrder(this)) {
     if (!gt->IsInBuildSystem()) {
       continue;
     }
 
     auto& gtVisited = this->GetCommandsVisited(gt);
-    auto const& deps = this->GlobalGenerator->GetTargetDirectDepends(gt);
+    auto const& deps = this->m_pGlobalGenerator->GetTargetDirectDepends(gt);
     for (auto const& d : deps) {
       // Take the union of visited source files of custom commands
       auto depVisited = this->GetCommandsVisited(d);
@@ -274,7 +274,7 @@ void cmLocalUnixMakefileGenerator3::WriteLocalMakefile()
   // rules may depend on this file itself.
   std::string ruleFileNameFull = this->ConvertToFullPath(ruleFileName);
   cmGeneratedFileStream ruleFileStream(
-    ruleFileNameFull, false, this->GlobalGenerator->GetMakefileEncoding());
+    ruleFileNameFull, false, this->m_pGlobalGenerator->GetMakefileEncoding());
   if (!ruleFileStream) {
     return;
   }
@@ -295,7 +295,7 @@ void cmLocalUnixMakefileGenerator3::WriteLocalMakefile()
     this->WriteLocalMakefileTargets(ruleFileStream, emittedTargets);
   } else {
     cmGlobalUnixMakefileGenerator3* gg =
-      static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+      static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
     gg->WriteConvenienceRules(ruleFileStream, emittedTargets);
   }
 
@@ -353,7 +353,7 @@ void cmLocalUnixMakefileGenerator3::WriteLocalMakefile()
   // add a help target as long as there isn;t a real target named help
   if (emittedTargets.insert("help").second) {
     cmGlobalUnixMakefileGenerator3* gg =
-      static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+      static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
     gg->WriteHelpRule(ruleFileStream, this);
   }
 
@@ -550,7 +550,7 @@ std::string cmLocalUnixMakefileGenerator3::ConvertToMakefilePath(
   std::string const& path) const
 {
   cmGlobalUnixMakefileGenerator3* gg =
-    static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+    static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
   return gg->ConvertToMakefilePath(path);
 }
 
@@ -653,7 +653,7 @@ void cmLocalUnixMakefileGenerator3::WriteMakeVariables(
   makefileStream << "# Set environment variables for the build.\n"
                     "\n";
   cmGlobalUnixMakefileGenerator3* gg =
-    static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+    static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
   if (gg->DefineWindowsNULL) {
     makefileStream << "!IF \"$(OS)\" == \"Windows_NT\"\n"
                       "NULL=\n"
@@ -796,7 +796,7 @@ void cmLocalUnixMakefileGenerator3::WriteSpecialTargetsTop(
   // Work-around for makes that drop rules that have no dependencies
   // or commands.
   cmGlobalUnixMakefileGenerator3* gg =
-    static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+    static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
   std::string hack = gg->GetEmptyRuleHackDepends();
   if (!hack.empty()) {
     no_depends.push_back(std::move(hack));
@@ -824,11 +824,11 @@ void cmLocalUnixMakefileGenerator3::WriteSpecialTargetsBottom(
 
   // Write special "cmake_check_build_system" target to run cmake with
   // the --check-build-system flag.
-  if (!this->GlobalGenerator->GlobalSettingIsOn(
+  if (!this->m_pGlobalGenerator->GlobalSettingIsOn(
         "CMAKE_SUPPRESS_REGENERATION")) {
     // Build command to run CMake to check if anything needs regenerating.
     std::vector<std::string> commands;
-    CMake* cm = this->GlobalGenerator->GetCMakeInstance();
+    CMake* cm = this->m_pGlobalGenerator->GetCMakeInstance();
     if (cm->DoWriteGlobVerifyTarget()) {
       std::string rescanRule =
         cmStrCat("$(CMAKE_COMMAND) -P ",
@@ -1102,7 +1102,7 @@ void cmLocalUnixMakefileGenerator3::AppendCustomCommand(
   this->CreateCDCommand(commands1, dir, relative);
 
   cmGlobalUnixMakefileGenerator3* gg =
-    static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+    static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
 
   // Prefix the commands with the jobserver prefix "+"
   if (ccg.GetCC().GetJobserverAware() && gg->IsGNUMakeJobServerAware()) {
@@ -1213,7 +1213,7 @@ void cmLocalUnixMakefileGenerator3::AppendEcho(
 {
   // Choose the color for the text.
   std::string color_name;
-  if (this->GlobalGenerator->GetToolSupportsColor() && this->ColorMakefile) {
+  if (this->m_pGlobalGenerator->GetToolSupportsColor() && this->ColorMakefile) {
     // See cmake::ExecuteEchoColor in cmake.cxx for these options.
     // This color set is readable on both black and white backgrounds.
     switch (color) {
@@ -1389,7 +1389,7 @@ bool cmLocalUnixMakefileGenerator3::UpdateDependencies(
     // project but no other sources were touched.
     bool needRescanDependInfo = false;
     cmFileTimeCache* ftc =
-      this->GlobalGenerator->GetCMakeInstance()->GetFileTimeCache();
+      this->m_pGlobalGenerator->GetCMakeInstance()->GetFileTimeCache();
     {
       int result;
       if (!ftc->Compare(internalDependFile, tgtInfo, &result) || result < 0) {
@@ -1502,7 +1502,7 @@ bool cmLocalUnixMakefileGenerator3::UpdateDependencies(
       // Open the make depends file.  This should be copy-if-different
       // because the make tool may try to reload it needlessly otherwise.
       cmGeneratedFileStream ruleFileStream(
-        depFile, false, this->GlobalGenerator->GetMakefileEncoding());
+        depFile, false, this->m_pGlobalGenerator->GetMakefileEncoding());
       ruleFileStream.SetCopyIfDifferent(true);
       if (!ruleFileStream) {
         return false;
@@ -1512,7 +1512,7 @@ bool cmLocalUnixMakefileGenerator3::UpdateDependencies(
       // copy-if-different because dependencies are re-scanned when it is
       // older than the DependInfo.cmake.
       cmGeneratedFileStream internalRuleFileStream(
-        internalDepFile, false, this->GlobalGenerator->GetMakefileEncoding());
+        internalDepFile, false, this->m_pGlobalGenerator->GetMakefileEncoding());
       if (!internalRuleFileStream) {
         return false;
       }
@@ -1570,7 +1570,7 @@ bool cmLocalUnixMakefileGenerator3::ScanDependencies(
   // Open the make depends file.  This should be copy-if-different
   // because the make tool may try to reload it needlessly otherwise.
   cmGeneratedFileStream ruleFileStream(
-    dependFile, false, this->GlobalGenerator->GetMakefileEncoding());
+    dependFile, false, this->m_pGlobalGenerator->GetMakefileEncoding());
   ruleFileStream.SetCopyIfDifferent(true);
   if (!ruleFileStream) {
     return false;
@@ -1580,7 +1580,7 @@ bool cmLocalUnixMakefileGenerator3::ScanDependencies(
   // copy-if-different because dependencies are re-scanned when it is
   // older than the DependInfo.cmake.
   cmGeneratedFileStream internalRuleFileStream(
-    internalDependFile, false, this->GlobalGenerator->GetMakefileEncoding());
+    internalDependFile, false, this->m_pGlobalGenerator->GetMakefileEncoding());
   if (!internalRuleFileStream) {
     return false;
   }
@@ -1613,7 +1613,7 @@ bool cmLocalUnixMakefileGenerator3::ScanDependencies(
     if (scanner) {
       scanner->SetLocalGenerator(this);
       scanner->SetFileTimeCache(
-        this->GlobalGenerator->GetCMakeInstance()->GetFileTimeCache());
+        this->m_pGlobalGenerator->GetCMakeInstance()->GetFileTimeCache());
       scanner->SetLanguage(lang);
       scanner->SetTargetDirectory(targetDir);
       scanner->Write(ruleFileStream, internalRuleFileStream);
@@ -1674,7 +1674,7 @@ void cmLocalUnixMakefileGenerator3::WriteLocalAllRules(
 
     // Help out users that try "gmake target1 target2 -j".
     cmGlobalUnixMakefileGenerator3* gg =
-      static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+      static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
     if (gg->AllowNotParallel()) {
       std::vector<std::string> no_depends;
       this->WriteMakeRule(ruleFileStream,
@@ -1746,7 +1746,7 @@ void cmLocalUnixMakefileGenerator3::WriteLocalAllRules(
     cmStrCat(this->GetCurrentBinaryDirectory(), "/all");
 
   bool regenerate =
-    !this->GlobalGenerator->GlobalSettingIsOn("CMAKE_SUPPRESS_REGENERATION");
+    !this->m_pGlobalGenerator->GlobalSettingIsOn("CMAKE_SUPPRESS_REGENERATION");
   if (regenerate) {
     depends.emplace_back("cmake_check_build_system");
   }
@@ -1830,7 +1830,7 @@ void cmLocalUnixMakefileGenerator3::WriteLocalAllRules(
     // write the depend rule, really a recompute depends rule
     depends.clear();
     commands.clear();
-    CMake* cm = this->GlobalGenerator->GetCMakeInstance();
+    CMake* cm = this->m_pGlobalGenerator->GetCMakeInstance();
     if (cm->DoWriteGlobVerifyTarget()) {
       std::string rescanRule =
         cmStrCat("$(CMAKE_COMMAND) -P ",
@@ -2099,7 +2099,7 @@ void cmLocalUnixMakefileGenerator3::WriteDisclaimer(std::ostream& os)
 {
   os << "# CMAKE generated file: DO NOT EDIT!\n"
         "# Generated by \""
-     << this->GlobalGenerator->GetName()
+     << this->m_pGlobalGenerator->GetName()
      << "\""
         " Generator, CMake Version "
      << cmVersion::GetMajorVersion() << '.' << cmVersion::GetMinorVersion()
@@ -2115,7 +2115,7 @@ std::string cmLocalUnixMakefileGenerator3::GetRecursiveMakeCall(
     this->ConvertToOutputFormat(makefile, cmOutputConverter::SHELL), ' ');
 
   cmGlobalUnixMakefileGenerator3* gg =
-    static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+    static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
   // Pass down verbosity level.
   if (!gg->MakeSilentFlag.empty()) {
     cmd += gg->MakeSilentFlag;
@@ -2281,7 +2281,7 @@ void cmLocalUnixMakefileGenerator3::CreateCDCommand(
   char const* cd_cmd = this->IsMinGWMake() ? "cd /d " : "cd ";
 
   cmGlobalUnixMakefileGenerator3* gg =
-    static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
+    static_cast<cmGlobalUnixMakefileGenerator3*>(this->m_pGlobalGenerator);
   if (!gg->UnixCD) {
     // On Windows we must perform each step separately and then change
     // back because the shell keeps the working directory between

@@ -16,7 +16,7 @@ cmWIXSourceWriter::cmWIXSourceWriter(unsigned long wixVersion,
   : WixVersion(wixVersion)
   , Logger(logger)
   , File(filename.c_str())
-  , State(DEFAULT)
+  , m_state(DEFAULT)
   , SourceFilename(filename)
   , ComponentGuidType(componentGuidType)
 {
@@ -68,7 +68,7 @@ void cmWIXSourceWriter::EndElement_StandardDirectory()
 
 void cmWIXSourceWriter::BeginElement(std::string const& name)
 {
-  if (State == BEGIN) {
+  if (m_state == BEGIN) {
     File << '>';
   }
 
@@ -77,7 +77,7 @@ void cmWIXSourceWriter::BeginElement(std::string const& name)
   File << '<' << name;
 
   Elements.push_back(name);
-  State = BEGIN;
+  m_state = BEGIN;
 }
 
 void cmWIXSourceWriter::EndElement(std::string const& name)
@@ -97,7 +97,7 @@ void cmWIXSourceWriter::EndElement(std::string const& name)
     return;
   }
 
-  if (State == DEFAULT) {
+  if (m_state == DEFAULT) {
     File << '\n';
     Indent(Elements.size() - 1);
     File << "</" << Elements.back() << '>';
@@ -106,12 +106,12 @@ void cmWIXSourceWriter::EndElement(std::string const& name)
   }
 
   Elements.pop_back();
-  State = DEFAULT;
+  m_state = DEFAULT;
 }
 
 void cmWIXSourceWriter::AddTextNode(std::string const& text)
 {
-  if (State == BEGIN) {
+  if (m_state == BEGIN) {
     File << '>';
   }
 
@@ -123,13 +123,13 @@ void cmWIXSourceWriter::AddTextNode(std::string const& text)
   }
 
   File << cmWIXSourceWriter::EscapeAttributeValue(text);
-  State = DEFAULT;
+  m_state = DEFAULT;
 }
 
 void cmWIXSourceWriter::AddProcessingInstruction(std::string const& target,
                                                  std::string const& content)
 {
-  if (State == BEGIN) {
+  if (m_state == BEGIN) {
     File << '>';
   }
 
@@ -137,7 +137,7 @@ void cmWIXSourceWriter::AddProcessingInstruction(std::string const& target,
   Indent(Elements.size());
   File << "<?" << target << ' ' << content << "?>";
 
-  State = DEFAULT;
+  m_state = DEFAULT;
 }
 
 void cmWIXSourceWriter::AddAttribute(std::string const& key,

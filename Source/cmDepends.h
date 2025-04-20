@@ -72,7 +72,7 @@ public:
   void Clear(std::string const& file) const;
 
   /** Set the file comparison object */
-  void SetFileTimeCache(cmFileTimeCache* fc) { this->FileTimeCache = fc; }
+  void SetFileTimeCache(cmFileTimeCache* fc) { this->m_fileTimeCache = fc; }
 
 protected:
   // Write dependencies for the target file to the given stream.
@@ -98,7 +98,7 @@ protected:
 
   // Flag for verbose output.
   bool Verbose = false;
-  cmFileTimeCache* FileTimeCache = nullptr;
+  cmFileTimeCache* m_fileTimeCache = nullptr;
 
   std::string Language;
 

@@ -293,10 +293,10 @@ bool ExpandMacros(cmCMakePresetsGraph const& graph,
     out->ToolchainFile = toolchain;
   }
 
-  if (!preset.GraphVizFile.empty()) {
-    std::string graphVizFile = preset.GraphVizFile;
+  if (!preset.m_graphVizFile.empty()) {
+    std::string graphVizFile = preset.m_graphVizFile;
     CHECK_EXPAND(out, graphVizFile, macroExpanders, graph.GetVersion(preset));
-    out->GraphVizFile = graphVizFile;
+    out->m_graphVizFile = graphVizFile;
   }
 
   for (auto& variable : out->CacheVariables) {
@@ -490,33 +490,33 @@ ExpandMacroResult cmCMakePresetsGraphInternal::ExpandMacros(
   std::string macroNamespace;
   std::string macroName;
 
-  enum class State
+  enum class m_state
   {
     Default,
     MacroNamespace,
     MacroName,
-  } state = State::Default;
+  } state = m_state::Default;
 
   for (auto c : out) {
     switch (state) {
-      case State::Default:
+      case m_state::Default:
         if (c == '$') {
-          state = State::MacroNamespace;
+          state = m_state::MacroNamespace;
         } else {
           result += c;
         }
         break;
 
-      case State::MacroNamespace:
+      case m_state::MacroNamespace:
         if (c == '{') {
           if (IsValidMacroNamespace(macroNamespace)) {
-            state = State::MacroName;
+            state = m_state::MacroName;
           } else {
             result += '$';
             result += macroNamespace;
             result += '{';
             macroNamespace.clear();
-            state = State::Default;
+            state = m_state::Default;
           }
         } else {
           macroNamespace += c;
@@ -524,12 +524,12 @@ ExpandMacroResult cmCMakePresetsGraphInternal::ExpandMacros(
             result += '$';
             result += macroNamespace;
             macroNamespace.clear();
-            state = State::Default;
+            state = m_state::Default;
           }
         }
         break;
 
-      case State::MacroName:
+      case m_state::MacroName:
         if (c == '}') {
           auto e = ExpandMacro(result, macroNamespace, macroName,
                                macroExpanders, version);
@@ -538,7 +538,7 @@ ExpandMacroResult cmCMakePresetsGraphInternal::ExpandMacros(
           }
           macroNamespace.clear();
           macroName.clear();
-          state = State::Default;
+          state = m_state::Default;
         } else {
           macroName += c;
         }
@@ -547,13 +547,13 @@ ExpandMacroResult cmCMakePresetsGraphInternal::ExpandMacros(
   }
 
   switch (state) {
-    case State::Default:
+    case m_state::Default:
       break;
-    case State::MacroNamespace:
+    case m_state::MacroNamespace:
       result += '$';
       result += macroNamespace;
       break;
-    case State::MacroName:
+    case m_state::MacroName:
       return ExpandMacroResult::Error;
   }
 
@@ -781,13 +781,13 @@ bool cmCMakePresetsGraph::ConfigurePreset::VisitPresetInherit(
   InheritString(preset.BinaryDir, parent.BinaryDir);
   InheritString(preset.InstallDir, parent.InstallDir);
   InheritString(preset.ToolchainFile, parent.ToolchainFile);
-  InheritString(preset.GraphVizFile, parent.GraphVizFile);
+  InheritString(preset.m_graphVizFile, parent.m_graphVizFile);
   InheritOptionalValue(preset.WarnDev, parent.WarnDev);
   InheritOptionalValue(preset.ErrorDev, parent.ErrorDev);
   InheritOptionalValue(preset.WarnDeprecated, parent.WarnDeprecated);
   InheritOptionalValue(preset.ErrorDeprecated, parent.ErrorDeprecated);
-  InheritOptionalValue(preset.WarnUninitialized, parent.WarnUninitialized);
-  InheritOptionalValue(preset.WarnUnusedCli, parent.WarnUnusedCli);
+  InheritOptionalValue(preset.m_warnUninitialized, parent.m_warnUninitialized);
+  InheritOptionalValue(preset.m_warnUnusedCli, parent.m_warnUnusedCli);
   InheritOptionalValue(preset.WarnSystemVars, parent.WarnSystemVars);
 
   for (auto const& v : parent.CacheVariables) {
@@ -1000,7 +1000,7 @@ bool cmCMakePresetsGraph::PackagePreset::VisitPresetInherit(
     preset.Variables.insert(v);
   }
 
-  InheritOptionalValue(preset.DebugOutput, parent.DebugOutput);
+  InheritOptionalValue(preset.m_debugOutput, parent.m_debugOutput);
   InheritOptionalValue(preset.VerboseOutput, parent.VerboseOutput);
   InheritString(preset.PackageName, parent.PackageName);
   InheritString(preset.PackageVersion, parent.PackageVersion);

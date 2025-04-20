@@ -45,7 +45,7 @@ struct Dummies
 {
   std::shared_ptr<CMake> CMake;
   std::shared_ptr<cmMakefile> Makefile;
-  std::shared_ptr<cmGlobalGenerator> GlobalGenerator;
+  std::shared_ptr<cmGlobalGenerator> m_pGlobalGenerator;
 };
 
 static Dummies CreateDummies(
@@ -57,13 +57,13 @@ static Dummies CreateDummies(
   dummies.CMake =
     std::make_shared<CMake>(CMake::RoleProject, cmState::Project);
   cmState* state = dummies.CMake->GetState();
-  dummies.GlobalGenerator =
+  dummies.m_pGlobalGenerator =
     std::make_shared<cmGlobalGenerator>(dummies.CMake.get());
   cmStateSnapshot snapshot = state->CreateBaseSnapshot();
   snapshot.GetDirectory().SetCurrentSource(currentSourceDirectory);
   snapshot.GetDirectory().SetCurrentBinary(currentBinaryDirectory);
   dummies.Makefile =
-    std::make_shared<cmMakefile>(dummies.GlobalGenerator.get(), snapshot);
+    std::make_shared<cmMakefile>(dummies.m_pGlobalGenerator.get(), snapshot);
   dummies.Makefile->CreateNewTarget(targetName, cmStateEnums::EXECUTABLE);
   return dummies;
 }
@@ -234,7 +234,7 @@ static bool testCreateFromGlobalGenerator()
   auto dummies = CreateDummies("Foo");
 
   auto vars = cmDebugger::cmDebuggerVariablesHelper::CreateIfAny(
-    variablesManager, "Locals", true, dummies.GlobalGenerator.get());
+    variablesManager, "Locals", true, dummies.m_pGlobalGenerator.get());
 
   dap::array<dap::Variable> variables =
     variablesManager->HandleVariablesRequest(

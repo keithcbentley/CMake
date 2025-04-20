@@ -106,10 +106,10 @@ public:
   cmMakefile* GetMakefile() const { return this->Makefile; }
 
   //! Get the GlobalGenerator this is associated with
-  cmGlobalGenerator* GetGlobalGenerator() { return this->GlobalGenerator; }
+  cmGlobalGenerator* GetGlobalGenerator() { return this->m_pGlobalGenerator; }
   cmGlobalGenerator const* GetGlobalGenerator() const
   {
-    return this->GlobalGenerator;
+    return this->m_pGlobalGenerator;
   }
 
   virtual std::unique_ptr<cmRulePlaceholderExpander>
@@ -570,7 +570,7 @@ protected:
 
   cmMakefile* Makefile;
   cmListFileBacktrace DirectoryBacktrace;
-  cmGlobalGenerator* GlobalGenerator;
+  cmGlobalGenerator* m_pGlobalGenerator;
   std::map<std::string, std::string> UniqueObjectNamesMap;
   std::string::size_type ObjectPathMax;
   std::set<std::string> ObjectMaxPathViolations;

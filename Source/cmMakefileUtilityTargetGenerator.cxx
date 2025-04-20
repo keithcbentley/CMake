@@ -46,14 +46,14 @@ void cmMakefileUtilityTargetGenerator::WriteRuleFiles()
     cmStrCat(this->TargetBuildDirectoryFull, "/compiler_depend.make");
   *this->BuildFileStream
     << "# Include any custom commands dependencies for this target.\n"
-    << this->GlobalGenerator->IncludeDirective << " " << root
+    << this->m_pGlobalGenerator->IncludeDirective << " " << root
     << cmSystemTools::ConvertToOutputPath(
          this->LocalGenerator->MaybeRelativeToTopBinDir(dependFile))
     << "\n\n";
   if (!cmSystemTools::FileExists(dependFile)) {
     // Write an empty dependency file.
     cmGeneratedFileStream depFileStream(
-      dependFile, false, this->GlobalGenerator->GetMakefileEncoding());
+      dependFile, false, this->m_pGlobalGenerator->GetMakefileEncoding());
     depFileStream << "# Empty custom commands generated dependencies file for "
                   << this->GeneratorTarget->GetName()
                   << ".\n"
@@ -65,7 +65,7 @@ void cmMakefileUtilityTargetGenerator::WriteRuleFiles()
   if (!cmSystemTools::FileExists(dependTimestamp)) {
     // Write a dependency timestamp file.
     cmGeneratedFileStream depFileStream(
-      dependTimestamp, false, this->GlobalGenerator->GetMakefileEncoding());
+      dependTimestamp, false, this->m_pGlobalGenerator->GetMakefileEncoding());
     depFileStream << "# CMAKE generated file: DO NOT EDIT!\n"
                      "# Timestamp file for custom commands dependencies "
                      "management for "
@@ -76,7 +76,7 @@ void cmMakefileUtilityTargetGenerator::WriteRuleFiles()
     // Include the progress variables for the target.
     *this->BuildFileStream
       << "# Include the progress variables for this target.\n"
-      << this->GlobalGenerator->IncludeDirective << " " << root
+      << this->m_pGlobalGenerator->IncludeDirective << " " << root
       << cmSystemTools::ConvertToOutputPath(
            this->LocalGenerator->MaybeRelativeToTopBinDir(
              this->ProgressFileNameFull))
@@ -118,7 +118,7 @@ void cmMakefileUtilityTargetGenerator::WriteRuleFiles()
   // If the rule is empty add the special empty rule dependency needed
   // by some make tools.
   if (depends.empty() && commands.empty()) {
-    std::string hack = this->GlobalGenerator->GetEmptyRuleHackDepends();
+    std::string hack = this->m_pGlobalGenerator->GetEmptyRuleHackDepends();
     if (!hack.empty()) {
       depends.push_back(std::move(hack));
     }

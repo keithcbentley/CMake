@@ -59,7 +59,7 @@ protected:
   cmCPackLog* Logger;
 
 private:
-  enum State
+  enum m_state
   {
     DEFAULT,
     BEGIN
@@ -71,7 +71,7 @@ private:
 
   cmsys::ofstream File;
 
-  State State;
+  m_state m_state;
 
   std::vector<std::string> Elements;
 

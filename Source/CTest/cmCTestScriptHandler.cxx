@@ -179,7 +179,7 @@ void cmCTestScriptHandler::CreateCMake()
   this->m_pcmake->AddCMakePaths();
   this->m_pcmake->SetWorkingMode(CMake::SCRIPT_MODE,
                               CMake::CommandFailureAction::EXIT_CODE);
-  this->GlobalGenerator =
+  this->m_pGlobalGenerator =
     cm::make_unique<cmGlobalGenerator>(this->m_pcmake.get());
 
   cmStateSnapshot snapshot = this->m_pcmake->GetCurrentSnapshot();
@@ -187,7 +187,7 @@ void cmCTestScriptHandler::CreateCMake()
   snapshot.GetDirectory().SetCurrentSource(cwd);
   snapshot.GetDirectory().SetCurrentBinary(cwd);
   this->Makefile =
-    cm::make_unique<cmMakefile>(this->GlobalGenerator.get(), snapshot);
+    cm::make_unique<cmMakefile>(this->m_pGlobalGenerator.get(), snapshot);
   if (this->ParentMakefile) {
     this->Makefile->SetRecursionDepth(
       this->ParentMakefile->GetRecursionDepth());

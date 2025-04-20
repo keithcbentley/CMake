@@ -222,7 +222,7 @@ Json::Value BacktraceData::Dump()
 
 class Codemodel
 {
-  cmFileAPI& FileAPI;
+  cmFileAPI& m_fileAPI;
   unsigned long Version;
 
   Json::Value DumpPaths();
@@ -236,7 +236,7 @@ public:
 
 class CodemodelConfig
 {
-  cmFileAPI& FileAPI;
+  cmFileAPI& m_fileAPI;
   unsigned long Version;
   std::string const& Config;
   std::string TopSource;
@@ -516,7 +516,7 @@ public:
 };
 
 Codemodel::Codemodel(cmFileAPI& fileAPI, unsigned long version)
-  : FileAPI(fileAPI)
+  : m_fileAPI(fileAPI)
   , Version(version)
 {
 }
@@ -534,8 +534,8 @@ Json::Value Codemodel::Dump()
 Json::Value Codemodel::DumpPaths()
 {
   Json::Value paths = Json::objectValue;
-  paths["source"] = this->FileAPI.GetCMakeInstance()->GetHomeDirectory();
-  paths["build"] = this->FileAPI.GetCMakeInstance()->GetHomeOutputDirectory();
+  paths["source"] = this->m_fileAPI.GetCMakeInstance()->GetHomeDirectory();
+  paths["build"] = this->m_fileAPI.GetCMakeInstance()->GetHomeOutputDirectory();
   return paths;
 }
 
@@ -543,7 +543,7 @@ Json::Value Codemodel::DumpConfigurations()
 {
   Json::Value configurations = Json::arrayValue;
   cmGlobalGenerator* gg =
-    this->FileAPI.GetCMakeInstance()->GetGlobalGenerator();
+    this->m_fileAPI.GetCMakeInstance()->GetGlobalGenerator();
   auto const& makefiles = gg->GetMakefiles();
   if (!makefiles.empty()) {
     std::vector<std::string> const& configs =
@@ -557,17 +557,17 @@ Json::Value Codemodel::DumpConfigurations()
 
 Json::Value Codemodel::DumpConfiguration(std::string const& config)
 {
-  CodemodelConfig configuration(this->FileAPI, this->Version, config);
+  CodemodelConfig configuration(this->m_fileAPI, this->Version, config);
   return configuration.Dump();
 }
 
 CodemodelConfig::CodemodelConfig(cmFileAPI& fileAPI, unsigned long version,
                                  std::string const& config)
-  : FileAPI(fileAPI)
+  : m_fileAPI(fileAPI)
   , Version(version)
   , Config(config)
-  , TopSource(this->FileAPI.GetCMakeInstance()->GetHomeDirectory())
-  , TopBuild(this->FileAPI.GetCMakeInstance()->GetHomeOutputDirectory())
+  , TopSource(this->m_fileAPI.GetCMakeInstance()->GetHomeDirectory())
+  , TopBuild(this->m_fileAPI.GetCMakeInstance()->GetHomeOutputDirectory())
 {
   static_cast<void>(this->Version);
 }
@@ -586,7 +586,7 @@ Json::Value CodemodelConfig::Dump()
 void CodemodelConfig::ProcessDirectories()
 {
   cmGlobalGenerator* gg =
-    this->FileAPI.GetCMakeInstance()->GetGlobalGenerator();
+    this->m_fileAPI.GetCMakeInstance()->GetGlobalGenerator();
   auto const& localGens = gg->GetLocalGenerators();
 
   // Add directories in forward order to process parents before children.
@@ -672,7 +672,7 @@ Json::Value CodemodelConfig::DumpTargets()
 
   std::vector<cmGeneratorTarget*> targetList;
   cmGlobalGenerator* gg =
-    this->FileAPI.GetCMakeInstance()->GetGlobalGenerator();
+    this->m_fileAPI.GetCMakeInstance()->GetGlobalGenerator();
   for (auto const& lg : gg->GetLocalGenerators()) {
     cm::append(targetList, lg->GetGeneratorTargets());
   }
@@ -706,7 +706,7 @@ Json::Value CodemodelConfig::DumpTarget(cmGeneratorTarget* gt,
   if (!this->Config.empty()) {
     prefix += "-" + this->Config;
   }
-  Json::Value target = this->FileAPI.MaybeJsonFile(t.Dump(), prefix);
+  Json::Value target = this->m_fileAPI.MaybeJsonFile(t.Dump(), prefix);
   target["name"] = gt->GetName();
   target["id"] = TargetId(gt, this->TopBuild);
 
@@ -798,7 +798,7 @@ Json::Value CodemodelConfig::DumpDirectoryObject(Directory& d)
   }
 
   DirectoryObject dir(d.LocalGenerator, this->Config, this->TargetIndexMap);
-  return this->FileAPI.MaybeJsonFile(dir.Dump(), prefix);
+  return this->m_fileAPI.MaybeJsonFile(dir.Dump(), prefix);
 }
 
 Json::Value CodemodelConfig::DumpProjects()

@@ -375,7 +375,7 @@ int main(int argc, char const* const* argv)
     definitions.insert(expandedPreset->Variables.begin(),
                        expandedPreset->Variables.end());
 
-    if (expandedPreset->DebugOutput == true) {
+    if (expandedPreset->m_debugOutput == true) {
       debugLambda("", &cminst, &globalMF);
     }
 

@@ -26,13 +26,13 @@ private:
 
   cmGccDepfileContent Content;
 
-  enum class State
+  enum class m_state
   {
     Rule,
     Dependency,
     Failed,
   };
-  State HelperState = State::Rule;
+  m_state HelperState = m_state::Rule;
 };
 
 #define YY_EXTRA_TYPE cmGccDepfileLexerHelper*

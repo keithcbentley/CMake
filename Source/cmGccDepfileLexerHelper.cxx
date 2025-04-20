@@ -38,19 +38,19 @@ bool cmGccDepfileLexerHelper::readFile(char const* filePath)
   cmGccDepfile_yylex_destroy(scanner);
   this->sanitizeContent();
   fclose(file);
-  return this->HelperState != State::Failed;
+  return this->HelperState != m_state::Failed;
 }
 
 void cmGccDepfileLexerHelper::newEntry()
 {
-  if (this->HelperState == State::Rule && !this->Content.empty()) {
+  if (this->HelperState == m_state::Rule && !this->Content.empty()) {
     if (!this->Content.back().rules.empty() &&
         !this->Content.back().rules.back().empty()) {
-      this->HelperState = State::Failed;
+      this->HelperState = m_state::Failed;
     }
     return;
   }
-  this->HelperState = State::Rule;
+  this->HelperState = m_state::Rule;
   this->Content.emplace_back();
   this->newRule();
 }
@@ -65,10 +65,10 @@ void cmGccDepfileLexerHelper::newRule()
 
 void cmGccDepfileLexerHelper::newDependency()
 {
-  if (this->HelperState == State::Failed) {
+  if (this->HelperState == m_state::Failed) {
     return;
   }
-  this->HelperState = State::Dependency;
+  this->HelperState = m_state::Dependency;
   auto& entry = this->Content.back();
   if (entry.paths.empty() || !entry.paths.back().empty()) {
     entry.paths.emplace_back();
@@ -77,9 +77,9 @@ void cmGccDepfileLexerHelper::newDependency()
 
 void cmGccDepfileLexerHelper::newRuleOrDependency()
 {
-  if (this->HelperState == State::Rule) {
+  if (this->HelperState == m_state::Rule) {
     this->newRule();
-  } else if (this->HelperState == State::Dependency) {
+  } else if (this->HelperState == m_state::Dependency) {
     this->newDependency();
   }
 }
@@ -92,19 +92,19 @@ void cmGccDepfileLexerHelper::addToCurrentPath(char const* s)
   cmGccStyleDependency* dep = &this->Content.back();
   std::string* dst = nullptr;
   switch (this->HelperState) {
-    case State::Rule: {
+    case m_state::Rule: {
       if (dep->rules.empty()) {
         return;
       }
       dst = &dep->rules.back();
     } break;
-    case State::Dependency: {
+    case m_state::Dependency: {
       if (dep->paths.empty()) {
         return;
       }
       dst = &dep->paths.back();
     } break;
-    case State::Failed:
+    case m_state::Failed:
       return;
   }
   dst->append(s);

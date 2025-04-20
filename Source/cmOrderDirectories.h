@@ -40,7 +40,7 @@ public:
   std::vector<std::string> const& GetOrderedDirectories();
 
 private:
-  cmGlobalGenerator* GlobalGenerator;
+  cmGlobalGenerator* m_pGlobalGenerator;
   cmGeneratorTarget const* Target;
   std::string Purpose;
 

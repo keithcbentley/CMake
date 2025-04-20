@@ -448,7 +448,7 @@ std::string cmLocalNinjaGenerator::WriteCommandScript(
   cmSystemTools::MakeDirectory(scriptPath);
   scriptPath += '/';
   scriptPath += customStep;
-  if (this->GlobalGenerator->IsMultiConfig()) {
+  if (this->m_pGlobalGenerator->IsMultiConfig()) {
     scriptPath += cmStrCat('-', commandConfig);
   }
 #ifdef _WIN32
@@ -705,7 +705,7 @@ void cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(
       gg->WriteBuild(this->GetImplFileStream(fileConfig), build);
     } else {
       std::string customStep = cmSystemTools::GetFilenameName(mainOutput);
-      if (this->GlobalGenerator->IsMultiConfig()) {
+      if (this->m_pGlobalGenerator->IsMultiConfig()) {
         customStep += '-';
         customStep += fileConfig;
         customStep += '-';

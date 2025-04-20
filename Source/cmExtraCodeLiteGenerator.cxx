@@ -56,7 +56,7 @@ void cmExtraCodeLiteGenerator::Generate()
   std::string workspaceSourcePath;
 
   std::map<std::string, std::vector<cmLocalGenerator*>> const& projectMap =
-    this->GlobalGenerator->GetProjectMap();
+    this->m_pGlobalGenerator->GetProjectMap();
 
   // loop projects and locate the root project.
   // and extract the information for creating the workspace
@@ -85,7 +85,7 @@ void cmExtraCodeLiteGenerator::Generate()
   xml.Attribute("Name", workspaceProjectName);
 
   bool const targetsAreProjects =
-    this->GlobalGenerator->GlobalSettingIsOn("CMAKE_CODELITE_USE_TARGETS");
+    this->m_pGlobalGenerator->GlobalSettingIsOn("CMAKE_CODELITE_USE_TARGETS");
 
   std::vector<std::string> ProjectNames;
   if (targetsAreProjects) {
@@ -117,7 +117,7 @@ std::vector<std::string> cmExtraCodeLiteGenerator::CreateProjectsByTarget(
 {
   std::vector<std::string> retval;
   // for each target in the workspace create a codelite project
-  auto const& lgs = this->GlobalGenerator->GetLocalGenerators();
+  auto const& lgs = this->m_pGlobalGenerator->GetLocalGenerators();
   for (auto const& lg : lgs) {
     for (auto const& lt : lg->GetGeneratorTargets()) {
       cmStateEnums::TargetType type = lt->GetType();
@@ -158,7 +158,7 @@ std::vector<std::string> cmExtraCodeLiteGenerator::CreateProjectsByProjectMaps(
 {
   std::vector<std::string> retval;
   // for each sub project in the workspace create a codelite project
-  for (auto const& it : this->GlobalGenerator->GetProjectMap()) {
+  for (auto const& it : this->m_pGlobalGenerator->GetProjectMap()) {
 
     std::string const& outputDir = it.second[0]->GetCurrentBinaryDirectory();
     std::string projectName = it.second[0]->GetProjectName();
@@ -288,7 +288,7 @@ void cmExtraCodeLiteGenerator::FindMatchingHeaderfiles(
 {
 
   std::vector<std::string> const& headerExts =
-    this->GlobalGenerator->GetCMakeInstance()->GetHeaderExtensions();
+    this->m_pGlobalGenerator->GetCMakeInstance()->GetHeaderExtensions();
 
   // The following loop tries to add header files matching to implementation
   // files to the project. It does that by iterating over all source files,
@@ -589,7 +589,7 @@ std::string cmExtraCodeLiteGenerator::GetCodeLiteCompilerName(
   // figure out which language to use
   // for now care only for C and C++
   std::string compilerIdVar = "CMAKE_CXX_COMPILER_ID";
-  if (!this->GlobalGenerator->GetLanguageEnabled("CXX")) {
+  if (!this->m_pGlobalGenerator->GetLanguageEnabled("CXX")) {
     compilerIdVar = "CMAKE_C_COMPILER_ID";
   }
 

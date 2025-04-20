@@ -355,7 +355,7 @@ cmGeneratorTarget::KindedSources const& cmGeneratorTarget::GetKindedSources(
       e << "The SOURCES of \"" << this->GetName()
         << "\" use a generator expression that depends on the "
            "SOURCES themselves.";
-      this->GlobalGenerator->GetCMakeInstance()->IssueMessage(
+      this->m_pGlobalGenerator->GetCMakeInstance()->IssueMessage(
         MessageType::FATAL_ERROR, e.str(), this->GetBacktrace());
       static KindedSources empty;
       return empty;
@@ -454,7 +454,7 @@ void cmGeneratorTarget::ComputeKindedSources(KindedSources& files,
     }
     e << "but may contain only sources that compile, header files, and "
          "other files that would not affect linking of a normal library.";
-    this->GlobalGenerator->GetCMakeInstance()->IssueMessage(
+    this->m_pGlobalGenerator->GetCMakeInstance()->IssueMessage(
       MessageType::FATAL_ERROR, e.str(), this->GetBacktrace());
   }
 }

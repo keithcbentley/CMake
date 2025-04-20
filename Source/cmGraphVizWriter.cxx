@@ -109,7 +109,7 @@ cmGraphVizWriter::cmGraphVizWriter(std::string const& fileName,
   , GraphName(globalGenerator->GetSafeGlobalSetting("CMAKE_PROJECT_NAME"))
   , GraphHeader("node [\n  fontsize = \"12\"\n];")
   , GraphNodePrefix("node")
-  , GlobalGenerator(globalGenerator)
+  , m_pGlobalGenerator(globalGenerator)
 {
 }
 
@@ -270,7 +270,7 @@ void cmGraphVizWriter::ReadSettings(
 
 void cmGraphVizWriter::Write()
 {
-  auto const* gg = this->GlobalGenerator;
+  auto const* gg = this->m_pGlobalGenerator;
 
   this->VisitGraph(gg->GetName());
 
@@ -548,7 +548,7 @@ std::string cmGraphVizWriter::ItemNameWithAliases(
   std::string const& itemName) const
 {
   std::vector<std::string> items;
-  for (auto const& lg : this->GlobalGenerator->GetLocalGenerators()) {
+  for (auto const& lg : this->m_pGlobalGenerator->GetLocalGenerators()) {
     for (auto const& aliasTargets : lg->GetMakefile()->GetAliasTargets()) {
       if (aliasTargets.second == itemName) {
         items.push_back(aliasTargets.first);

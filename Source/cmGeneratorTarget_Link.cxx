@@ -503,7 +503,7 @@ bool cmGeneratorTarget::IsLinkLookupScope(std::string const& n,
       return true;
     }
     if (cmLocalGenerator const* otherLG =
-          this->GlobalGenerator->FindLocalGenerator(dirId)) {
+          this->m_pGlobalGenerator->FindLocalGenerator(dirId)) {
       lg = otherLG;
       return true;
     }

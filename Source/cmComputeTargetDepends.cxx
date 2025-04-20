@@ -100,8 +100,8 @@ transitively on all the static libraries it links.
 
 cmComputeTargetDepends::cmComputeTargetDepends(cmGlobalGenerator* gg)
 {
-  this->GlobalGenerator = gg;
-  CMake* cm = this->GlobalGenerator->GetCMakeInstance();
+  this->m_pGlobalGenerator = gg;
+  CMake* cm = this->m_pGlobalGenerator->GetCMakeInstance();
   this->DebugMode =
     cm->GetState()->GetGlobalPropertyAsBool("GLOBAL_DEPENDS_DEBUG_MODE");
   this->NoCycles =
@@ -176,7 +176,7 @@ void cmComputeTargetDepends::GetTargetDirectDepends(cmGeneratorTarget const* t,
 void cmComputeTargetDepends::CollectTargets()
 {
   // Collect all targets from all generators.
-  auto const& lgens = this->GlobalGenerator->GetLocalGenerators();
+  auto const& lgens = this->m_pGlobalGenerator->GetLocalGenerators();
   for (auto const& lgen : lgens) {
     for (auto const& ti : lgen->GetGeneratorTargets()) {
       size_t index = this->Targets.size();
@@ -330,7 +330,7 @@ void cmComputeTargetDepends::AddObjectDepends(size_t depender_index,
         depender->GetType() != cmStateEnums::SHARED_LIBRARY &&
         depender->GetType() != cmStateEnums::MODULE_LIBRARY &&
         depender->GetType() != cmStateEnums::OBJECT_LIBRARY) {
-      this->GlobalGenerator->GetCMakeInstance()->IssueMessage(
+      this->m_pGlobalGenerator->GetCMakeInstance()->IssueMessage(
         MessageType::FATAL_ERROR,
         "Only executables and libraries may reference target objects.",
         depender->GetBacktrace());
@@ -353,7 +353,7 @@ void cmComputeTargetDepends::AddTargetDepend(size_t depender_index,
 
   if (!dependee && !linking &&
       (depender->GetType() != cmStateEnums::GLOBAL_TARGET)) {
-    this->GlobalGenerator->GetCMakeInstance()->IssueMessage(
+    this->m_pGlobalGenerator->GetCMakeInstance()->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("The dependency target \"", dependee_name.AsStr(),
                "\" of target \"", depender->GetName(), "\" does not exist."),

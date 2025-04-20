@@ -68,13 +68,13 @@ cmExtraSublimeTextGenerator::cmExtraSublimeTextGenerator()
 
 void cmExtraSublimeTextGenerator::Generate()
 {
-  this->ExcludeBuildFolder = this->GlobalGenerator->GlobalSettingIsOn(
+  this->ExcludeBuildFolder = this->m_pGlobalGenerator->GlobalSettingIsOn(
     "CMAKE_SUBLIME_TEXT_2_EXCLUDE_BUILD_TREE");
-  this->EnvSettings = this->GlobalGenerator->GetSafeGlobalSetting(
+  this->EnvSettings = this->m_pGlobalGenerator->GetSafeGlobalSetting(
     "CMAKE_SUBLIME_TEXT_2_ENV_SETTINGS");
 
   // for each sub project in the project create a sublime text 2 project
-  for (auto const& it : this->GlobalGenerator->GetProjectMap()) {
+  for (auto const& it : this->m_pGlobalGenerator->GetProjectMap()) {
     // create a project file
     this->CreateProjectFile(it.second);
   }
@@ -289,7 +289,7 @@ void cmExtraSublimeTextGenerator::AppendTarget(
   // Ninja uses ninja.build files (look for a way to get the output file name
   // from cmMakefile or something)
   std::string makefileName;
-  if (this->GlobalGenerator->GetName() == "Ninja") {
+  if (this->m_pGlobalGenerator->GetName() == "Ninja") {
     makefileName = "build.ninja";
   } else {
     makefileName = "Makefile";
@@ -315,7 +315,7 @@ std::string cmExtraSublimeTextGenerator::BuildMakeCommand(
   std::string const& target)
 {
   std::string command = cmStrCat('"', make, '"');
-  std::string generator = this->GlobalGenerator->GetName();
+  std::string generator = this->m_pGlobalGenerator->GetName();
   if (generator == "NMake Makefiles") {
     std::string makefileName = cmSystemTools::ConvertToOutputPath(makefile);
     command += R"(, "/NOLOGO", "/f", ")";
@@ -447,7 +447,7 @@ bool cmExtraSublimeTextGenerator::Open(std::string const& bindir,
                                        bool dryRun)
 {
   cmValue sublExecutable =
-    this->GlobalGenerator->GetCMakeInstance()->GetCacheDefinition(
+    this->m_pGlobalGenerator->GetCMakeInstance()->GetCacheDefinition(
       "CMAKE_SUBLIMETEXT_EXECUTABLE");
   if (!sublExecutable) {
     return false;

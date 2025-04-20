@@ -401,7 +401,7 @@ public:
   cmTarget* Target;
   cmMakefile* Makefile;
   cmLocalGenerator* LocalGenerator;
-  cmGlobalGenerator const* GlobalGenerator;
+  cmGlobalGenerator const* m_pGlobalGenerator;
 
   std::string targetLabelsString;
 

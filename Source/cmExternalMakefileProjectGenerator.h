@@ -34,7 +34,7 @@ public:
   //! set the global generator which will generate the makefiles
   virtual void SetGlobalGenerator(cmGlobalGenerator* generator)
   {
-    this->GlobalGenerator = generator;
+    this->m_pGlobalGenerator = generator;
   }
 
   //! Return the list of global generators supported by this extra generator
@@ -62,7 +62,7 @@ protected:
   //! Contains the names of the global generators support by this generator.
   std::vector<std::string> SupportedGlobalGenerators;
   //! the global generator which creates the makefiles
-  cmGlobalGenerator const* GlobalGenerator = nullptr;
+  cmGlobalGenerator const* m_pGlobalGenerator = nullptr;
 
   std::string Name;
 };

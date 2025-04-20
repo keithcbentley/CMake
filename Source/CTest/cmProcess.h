@@ -49,7 +49,7 @@ public:
   void SetTimeoutReason(TimeoutReason r) { this->TimeoutReason_ = r; }
   TimeoutReason GetTimeoutReason() const { return this->TimeoutReason_; }
 
-  enum class State
+  enum class m_state
   {
     Starting,
     Error,
@@ -61,7 +61,7 @@ public:
     Disowned
   };
 
-  State GetProcessStatus();
+  m_state GetProcessStatus();
   int GetId() const { return this->Id; }
   void SetId(int id) { this->Id = id; }
   int64_t GetExitValue() const { return this->ExitValue; }
@@ -118,7 +118,7 @@ private:
   std::unique_ptr<cmCTestRunTest> Runner;
   cmProcessOutput Conv;
   int Signal = 0;
-  cmProcess::State ProcessState = cmProcess::State::Starting;
+  cmProcess::m_state ProcessState = cmProcess::m_state::Starting;
 
   static void OnExitCB(uv_process_t* process, int64_t exit_status,
                        int term_signal);

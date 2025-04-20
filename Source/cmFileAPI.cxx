@@ -90,7 +90,7 @@ std::vector<unsigned long> cmFileAPI::GetConfigureLogVersions()
   std::vector<unsigned long> versions;
   auto getConfigureLogVersions = [&versions](Query const& q) {
     for (Object const& o : q.Known) {
-      if (o.Kind == ObjectKind::ConfigureLog) {
+      if (o.Kind == ObjectKind::m_configureLog) {
         versions.emplace_back(o.Version);
       }
     }
@@ -307,9 +307,9 @@ bool cmFileAPI::ReadQuery(std::string const& query,
     objects.push_back(o);
     return true;
   }
-  if (kindName == ObjectKindName(ObjectKind::ConfigureLog)) {
+  if (kindName == ObjectKindName(ObjectKind::m_configureLog)) {
     Object o;
-    o.Kind = ObjectKind::ConfigureLog;
+    o.Kind = ObjectKind::m_configureLog;
     if (verStr == "v1") {
       o.Version = 1;
     } else {
@@ -461,7 +461,7 @@ Json::Value cmFileAPI::BuildReplyEntry(Object const& object)
 {
   if (this->ReplyIndexFor != IndexFor::Success) {
     switch (object.Kind) {
-      case ObjectKind::ConfigureLog:
+      case ObjectKind::m_configureLog:
         break;
       case ObjectKind::CodeModel:
       case ObjectKind::Cache:
@@ -537,7 +537,7 @@ Json::Value cmFileAPI::BuildObject(Object const& object)
     case ObjectKind::CodeModel:
       value = this->BuildCodeModel(object);
       break;
-    case ObjectKind::ConfigureLog:
+    case ObjectKind::m_configureLog:
       value = this->BuildConfigureLog(object);
       break;
     case ObjectKind::Cache:
@@ -601,8 +601,8 @@ cmFileAPI::ClientRequest cmFileAPI::BuildClientRequest(
 
   if (kindName == this->ObjectKindName(ObjectKind::CodeModel)) {
     r.Kind = ObjectKind::CodeModel;
-  } else if (kindName == this->ObjectKindName(ObjectKind::ConfigureLog)) {
-    r.Kind = ObjectKind::ConfigureLog;
+  } else if (kindName == this->ObjectKindName(ObjectKind::m_configureLog)) {
+    r.Kind = ObjectKind::m_configureLog;
   } else if (kindName == this->ObjectKindName(ObjectKind::Cache)) {
     r.Kind = ObjectKind::Cache;
   } else if (kindName == this->ObjectKindName(ObjectKind::CMakeFiles)) {
@@ -630,7 +630,7 @@ cmFileAPI::ClientRequest cmFileAPI::BuildClientRequest(
     case ObjectKind::CodeModel:
       this->BuildClientRequestCodeModel(r, versions);
       break;
-    case ObjectKind::ConfigureLog:
+    case ObjectKind::m_configureLog:
       this->BuildClientRequestConfigureLog(r, versions);
       break;
     case ObjectKind::Cache:
@@ -1008,7 +1008,7 @@ Json::Value cmFileAPI::ReportCapabilities()
 
   {
     Json::Value request = Json::objectValue;
-    request["kind"] = ObjectKindName(ObjectKind::ConfigureLog);
+    request["kind"] = ObjectKindName(ObjectKind::m_configureLog);
     Json::Value& versions = request["version"] = Json::arrayValue;
     versions.append(BuildVersion(1, ConfigureLogV1Minor));
     requests.append(std::move(request)); // NOLINT(*)
@@ -1066,7 +1066,7 @@ bool cmFileAPI::AddProjectQuery(cmFileAPI::ObjectKind kind,
       }
       break;
     // These cannot be requested by the project
-    case ObjectKind::ConfigureLog:
+    case ObjectKind::m_configureLog:
     case ObjectKind::InternalTest:
       return false;
   }

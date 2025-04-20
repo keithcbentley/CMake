@@ -44,14 +44,14 @@ cmExternalMakefileProjectGeneratorFactory* cmExtraKateGenerator::GetFactory()
 
 void cmExtraKateGenerator::Generate()
 {
-  auto const& lg = this->GlobalGenerator->GetLocalGenerators()[0];
+  auto const& lg = this->m_pGlobalGenerator->GetLocalGenerators()[0];
   cmMakefile const* mf = lg->GetMakefile();
   this->ProjectName = this->GenerateProjectName(
     lg->GetProjectName(), mf->GetSafeDefinition("CMAKE_BUILD_TYPE"),
     this->GetPathBasename(lg->GetBinaryDirectory()));
   this->UseNinja =
-    ((this->GlobalGenerator->GetName() == "Ninja") ||
-     (this->GlobalGenerator->GetName() == "Ninja Multi-Config"));
+    ((this->m_pGlobalGenerator->GetName() == "Ninja") ||
+     (this->m_pGlobalGenerator->GetName() == "Ninja Multi-Config"));
 
   this->CreateKateProjectFile(*lg);
   this->CreateDummyKateProjectFile(*lg);
@@ -116,7 +116,7 @@ void cmExtraKateGenerator::WriteTargets(cmLocalGenerator const& lg,
 
   // add all executable and library targets and some of the GLOBAL
   // and UTILITY targets
-  for (auto const& localGen : this->GlobalGenerator->GetLocalGenerators()) {
+  for (auto const& localGen : this->m_pGlobalGenerator->GetLocalGenerators()) {
     auto const& targets = localGen->GetGeneratorTargets();
     std::string const currentDir = localGen->GetCurrentBinaryDirectory();
     bool topLevel = (currentDir == localGen->GetBinaryDirectory());
@@ -289,7 +289,7 @@ std::string cmExtraKateGenerator::GenerateFilesString(
 
   std::set<std::string> files;
   std::string tmp;
-  auto const& lgs = this->GlobalGenerator->GetLocalGenerators();
+  auto const& lgs = this->m_pGlobalGenerator->GetLocalGenerators();
 
   for (auto const& lgen : lgs) {
     cmMakefile* makefile = lgen->GetMakefile();

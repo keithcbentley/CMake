@@ -94,7 +94,7 @@ cmLocalGenerator::cmLocalGenerator(cmGlobalGenerator* gg, cmMakefile* makefile)
   : cmOutputConverter(makefile->GetStateSnapshot())
   , DirectoryBacktrace(makefile->GetBacktrace())
 {
-  this->GlobalGenerator = gg;
+  this->m_pGlobalGenerator = gg;
 
   this->Makefile = makefile;
 
@@ -363,7 +363,7 @@ void cmLocalGenerator::GenerateTestFiles()
   std::string file =
     cmStrCat(this->StateSnapshot.GetDirectory().GetCurrentBinary(),
              "/CTestTestfile.cmake");
-  this->GlobalGenerator->AddTestFile(file);
+  this->m_pGlobalGenerator->AddTestFile(file);
 
   cmGeneratedFileStream fout(file);
 
@@ -800,13 +800,13 @@ void cmLocalGenerator::AddGeneratorTarget(
 
   this->GeneratorTargets.push_back(std::move(gt));
   this->GeneratorTargetSearchIndex.emplace(gt_ptr->GetName(), gt_ptr);
-  this->GlobalGenerator->IndexGeneratorTarget(gt_ptr);
+  this->m_pGlobalGenerator->IndexGeneratorTarget(gt_ptr);
 }
 
 void cmLocalGenerator::AddImportedGeneratorTarget(cmGeneratorTarget* gt)
 {
   this->ImportedGeneratorTargets.emplace(gt->GetName(), gt);
-  this->GlobalGenerator->IndexGeneratorTarget(gt);
+  this->m_pGlobalGenerator->IndexGeneratorTarget(gt);
 }
 
 void cmLocalGenerator::AddOwnedImportedGeneratorTarget(
@@ -888,7 +888,7 @@ bool cmLocalGenerator::IsRootMakefile() const
 
 cmState* cmLocalGenerator::GetState() const
 {
-  return this->GlobalGenerator->GetCMakeInstance()->GetState();
+  return this->m_pGlobalGenerator->GetCMakeInstance()->GetState();
 }
 
 cmStateSnapshot cmLocalGenerator::GetStateSnapshot() const
@@ -1292,7 +1292,7 @@ std::vector<BT<std::string>> cmLocalGenerator::GetIncludeDirectoriesImplicit(
     }
 
     for (std::string const& i : impDirVec) {
-      if (implicitSet.insert(this->GlobalGenerator->GetRealPath(i)).second) {
+      if (implicitSet.insert(this->m_pGlobalGenerator->GetRealPath(i)).second) {
         implicitDirs.emplace_back(i);
       }
     }
@@ -1306,14 +1306,14 @@ std::vector<BT<std::string>> cmLocalGenerator::GetIncludeDirectoriesImplicit(
   std::set<std::string> resolvedEnvCPATH;
   if (isCorCxx) {
     for (std::string const& i : this->EnvCPATH) {
-      resolvedEnvCPATH.emplace(this->GlobalGenerator->GetRealPath(i));
+      resolvedEnvCPATH.emplace(this->m_pGlobalGenerator->GetRealPath(i));
     }
   }
 
   // Checks if this is not an excluded (implicit) include directory.
   auto notExcluded = [this, &implicitSet, &implicitExclude, &resolvedEnvCPATH,
                       isCorCxx](std::string const& dir) -> bool {
-    std::string const& real_dir = this->GlobalGenerator->GetRealPath(dir);
+    std::string const& real_dir = this->m_pGlobalGenerator->GetRealPath(dir);
     return
       // Do not exclude directories that are not in any excluded set.
       !(cm::contains(implicitSet, real_dir) ||
@@ -2646,7 +2646,7 @@ void cmLocalGenerator::AppendFlags(std::string& flags,
       if (compileOrLink == cmBuildStep::Link) {
         std::vector<std::string> options;
         cmSystemTools::ParseUnixCommandLine(newFlags.c_str(), options);
-        this->SetLinkScriptShell(this->GlobalGenerator->GetUseLinkScript());
+        this->SetLinkScriptShell(this->m_pGlobalGenerator->GetUseLinkScript());
         std::vector<BT<std::string>> optionsWithBT{ options.size() };
         std::transform(options.cbegin(), options.cend(), optionsWithBT.begin(),
                        [](std::string const& item) -> BT<std::string> {
@@ -2823,7 +2823,7 @@ void cmLocalGenerator::AddPchDependencies(cmGeneratorTarget* target)
                 cmStrCat("$<$<CONFIG:", config, ">:", pchFile, ">"));
             } else {
               auto* reuseTarget =
-                this->GlobalGenerator->FindGeneratorTarget(*ReuseFrom);
+                this->m_pGlobalGenerator->FindGeneratorTarget(*ReuseFrom);
 
               if (this->Makefile->IsOn("CMAKE_PCH_COPY_COMPILE_PDB")) {
 
@@ -4263,7 +4263,7 @@ std::string cmLocalGenerator::GetObjectFileNameWithoutTarget(
     if (customOutputExtension) {
       objectName += customOutputExtension;
     } else {
-      objectName += this->GlobalGenerator->GetLanguageOutputExtension(source);
+      objectName += this->m_pGlobalGenerator->GetLanguageOutputExtension(source);
     }
   }
   if (hasSourceExtension) {
@@ -4281,7 +4281,7 @@ std::string cmLocalGenerator::GetSourceFileLanguage(cmSourceFile const& source)
 
 CMake* cmLocalGenerator::GetCMakeInstance() const
 {
-  return this->GlobalGenerator->GetCMakeInstance();
+  return this->m_pGlobalGenerator->GetCMakeInstance();
 }
 
 std::string const& cmLocalGenerator::GetSourceDirectory() const

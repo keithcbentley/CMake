@@ -23,7 +23,7 @@ using PackagePreset = cmCMakePresetsGraph::PackagePreset;
 auto const OutputHelper =
   cmJSONHelperBuilder::Object<PackagePreset>(
     JsonErrors::INVALID_NAMED_OBJECT_KEY, false)
-    .Bind("debug"_s, &PackagePreset::DebugOutput,
+    .Bind("debug"_s, &PackagePreset::m_debugOutput,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false)
     .Bind("verbose"_s, &PackagePreset::VerboseOutput,
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false);

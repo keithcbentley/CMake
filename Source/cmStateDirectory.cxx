@@ -344,7 +344,7 @@ void cmStateDirectory::AppendProperty(std::string const& prop,
 cmValue cmStateDirectory::GetProperty(std::string const& prop) const
 {
   bool const chain =
-    this->Snapshot_.State->IsPropertyChained(prop, cmProperty::DIRECTORY);
+    this->Snapshot_.m_state->IsPropertyChained(prop, cmProperty::DIRECTORY);
   return this->GetProperty(prop, chain);
 }
 
@@ -400,12 +400,12 @@ cmValue cmStateDirectory::GetProperty(std::string const& prop,
     return cmValue(output);
   }
   if (prop == "CACHE_VARIABLES") {
-    output = cmList::to_string(this->Snapshot_.State->GetCacheEntryKeys());
+    output = cmList::to_string(this->Snapshot_.m_state->GetCacheEntryKeys());
     return cmValue(output);
   }
   if (prop == "VARIABLES") {
     std::vector<std::string> res = this->Snapshot_.ClosureKeys();
-    cm::append(res, this->Snapshot_.State->GetCacheEntryKeys());
+    cm::append(res, this->Snapshot_.m_state->GetCacheEntryKeys());
     std::sort(res.begin(), res.end());
     output = cmList::to_string(res);
     return cmValue(output);
@@ -438,7 +438,7 @@ cmValue cmStateDirectory::GetProperty(std::string const& prop,
     if (parentSnapshot.IsValid()) {
       return parentSnapshot.GetDirectory().GetProperty(prop, chain);
     }
-    return this->Snapshot_.State->GetGlobalProperty(prop);
+    return this->Snapshot_.m_state->GetGlobalProperty(prop);
   }
 
   return retVal;

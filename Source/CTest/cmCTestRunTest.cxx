@@ -106,8 +106,8 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
   this->WriteLogOutputTop(completed, total);
   std::string reason;
   bool passed = true;
-  cmProcess::State res =
-    started ? this->TestProcess->GetProcessStatus() : cmProcess::State::Error;
+  cmProcess::m_state res =
+    started ? this->TestProcess->GetProcessStatus() : cmProcess::m_state::Error;
   std::int64_t retVal = this->TestProcess->GetExitValue();
   bool forceFail = false;
   bool forceSkip = false;
@@ -169,7 +169,7 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
     }
   }
   std::ostringstream outputStream;
-  if (res == cmProcess::State::Exited) {
+  if (res == cmProcess::m_state::Exited) {
     bool success = !forceFail &&
       (retVal == 0 ||
        !this->TestProperties->RequiredRegularExpressions.empty());
@@ -195,7 +195,7 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
       outputTestErrorsToConsole =
         this->CTest->GetOutputTestOutputOnTestFailure();
     }
-  } else if (res == cmProcess::State::Expired) {
+  } else if (res == cmProcess::m_state::Expired) {
     outputStream << "***Timeout ";
     if (this->TestProperties->TimeoutSignal &&
         this->TestProcess->GetTerminationStyle() ==
@@ -205,7 +205,7 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
     this->TestResult.Status = cmCTestTestHandler::TIMEOUT;
     outputTestErrorsToConsole =
       this->CTest->GetOutputTestOutputOnTestFailure();
-  } else if (res == cmProcess::State::Exception) {
+  } else if (res == cmProcess::m_state::Exception) {
     outputTestErrorsToConsole =
       this->CTest->GetOutputTestOutputOnTestFailure();
     outputStream << "***Exception: ";
@@ -376,7 +376,7 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
   }
   cmCTestRunTest::EndTestResult testResult;
   testResult.Passed = passed || skipped;
-  if (res == cmProcess::State::Expired &&
+  if (res == cmProcess::m_state::Expired &&
       this->TestProcess->GetTimeoutReason() ==
         cmProcess::TimeoutReason::StopTime) {
     testResult.StopTimePassed = true;

@@ -604,8 +604,8 @@ cmComputeLinkDepends::cmComputeLinkDepends(cmGeneratorTarget const* target,
                                            LinkLibrariesStrategy strategy)
   : Target(target)
   , Makefile(this->Target->Target->GetMakefile())
-  , GlobalGenerator(this->Target->GetLocalGenerator()->GetGlobalGenerator())
-  , CMakeInstance(this->GlobalGenerator->GetCMakeInstance())
+  , m_pGlobalGenerator(this->Target->GetLocalGenerator()->GetGlobalGenerator())
+  , CMakeInstance(this->m_pGlobalGenerator->GetCMakeInstance())
   , Config(config)
   , DebugMode(this->Makefile->IsOn("CMAKE_LINK_DEPENDS_DEBUG_MODE") ||
               this->Target->GetProperty("LINK_DEPENDS_DEBUG_MODE").IsOn())

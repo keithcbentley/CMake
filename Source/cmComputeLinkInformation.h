@@ -147,7 +147,7 @@ private:
   // Context information.
   cmGeneratorTarget const* const Target;
   cmMakefile* const Makefile;
-  cmGlobalGenerator* const GlobalGenerator;
+  cmGlobalGenerator* const m_pGlobalGenerator;
   CMake* const CMakeInstance;
 
   // Configuration information.

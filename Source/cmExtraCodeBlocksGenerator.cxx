@@ -66,7 +66,7 @@ cmExtraCodeBlocksGenerator::GetFactory()
 void cmExtraCodeBlocksGenerator::Generate()
 {
   // for each sub project in the project create a codeblocks project
-  for (auto const& it : this->GlobalGenerator->GetProjectMap()) {
+  for (auto const& it : this->m_pGlobalGenerator->GetProjectMap()) {
     // create a project file
     this->CreateProjectFile(it.second);
   }
@@ -211,7 +211,7 @@ void cmExtraCodeBlocksGenerator::CreateNewProjectFile(
   Tree tree;
 
   // build tree of virtual folders
-  for (auto const& it : this->GlobalGenerator->GetProjectMap()) {
+  for (auto const& it : this->m_pGlobalGenerator->GetProjectMap()) {
     // Collect all files
     std::vector<std::string> listFiles;
     for (cmLocalGenerator* lg : it.second) {
@@ -342,7 +342,7 @@ void cmExtraCodeBlocksGenerator::CreateNewProjectFile(
   all_files_map_t allFiles;
   std::vector<std::string> cFiles;
 
-  auto* cm = this->GlobalGenerator->GetCMakeInstance();
+  auto* cm = this->m_pGlobalGenerator->GetCMakeInstance();
 
   for (cmLocalGenerator* lg : lgs) {
     cmMakefile* makefile = lg->GetMakefile();
@@ -405,7 +405,7 @@ void cmExtraCodeBlocksGenerator::CreateNewProjectFile(
   }
 
   std::vector<std::string> const& headerExts =
-    this->GlobalGenerator->GetCMakeInstance()->GetHeaderExtensions();
+    this->m_pGlobalGenerator->GetCMakeInstance()->GetHeaderExtensions();
 
   // The following loop tries to add header files matching to implementation
   // files to the project. It does that by iterating over all
@@ -641,11 +641,11 @@ std::string cmExtraCodeBlocksGenerator::GetCBCompilerId(cmMakefile const* mf)
   // projects with C/C++ and Fortran are handled as C/C++ projects
   bool pureFortran = false;
   std::string compilerIdVar;
-  if (this->GlobalGenerator->GetLanguageEnabled("CXX")) {
+  if (this->m_pGlobalGenerator->GetLanguageEnabled("CXX")) {
     compilerIdVar = "CMAKE_CXX_COMPILER_ID";
-  } else if (this->GlobalGenerator->GetLanguageEnabled("C")) {
+  } else if (this->m_pGlobalGenerator->GetLanguageEnabled("C")) {
     compilerIdVar = "CMAKE_C_COMPILER_ID";
-  } else if (this->GlobalGenerator->GetLanguageEnabled("Fortran")) {
+  } else if (this->m_pGlobalGenerator->GetLanguageEnabled("Fortran")) {
     compilerIdVar = "CMAKE_Fortran_COMPILER_ID";
     pureFortran = true;
   }
@@ -728,7 +728,7 @@ std::string cmExtraCodeBlocksGenerator::BuildMakeCommand(
     command += makeFlags;
   }
 
-  std::string generator = this->GlobalGenerator->GetName();
+  std::string generator = this->m_pGlobalGenerator->GetName();
   if (generator == "NMake Makefiles" || generator == "NMake Makefiles JOM") {
     // For Windows ConvertToOutputPath already adds quotes when required.
     // These need to be escaped, see

@@ -33,7 +33,7 @@ private:
   // since we want to imbue on standard streams.  However, we do
   // know that it is a trivial type.  Define our own type to overlay
   // on it safely with no alignment requirements.
-  struct State
+  struct m_state
   {
     // Buffer bytes we have consumed from a partial codepoint.
     char partial[3];

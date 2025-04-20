@@ -256,7 +256,7 @@ private:
   std::set<std::string> ASanEnabledConfigurations;
   std::set<std::string> FuzzerEnabledConfigurations;
   std::map<std::string, std::string> SpectreMitigation;
-  cmGlobalVisualStudio10Generator* const GlobalGenerator;
+  cmGlobalVisualStudio10Generator* const m_pGlobalGenerator;
   cmLocalVisualStudio10Generator* const LocalGenerator;
   std::set<std::string> CSharpCustomCommandNames;
   bool IsMissingFiles = false;

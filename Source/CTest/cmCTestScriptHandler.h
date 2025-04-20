@@ -63,6 +63,6 @@ private:
 
   std::unique_ptr<cmMakefile> Makefile;
   cmMakefile* ParentMakefile = nullptr;
-  std::unique_ptr<cmGlobalGenerator> GlobalGenerator;
+  std::unique_ptr<cmGlobalGenerator> m_pGlobalGenerator;
   std::unique_ptr<CMake> m_pcmake;
 };

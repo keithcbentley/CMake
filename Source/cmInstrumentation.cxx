@@ -30,7 +30,7 @@
 cmInstrumentation::cmInstrumentation(std::string const& binary_dir)
 {
   std::string const uuid =
-    cmExperimental::DataForFeature(cmExperimental::Feature::Instrumentation)
+    cmExperimental::DataForFeature(cmExperimental::Feature::m_instrumentation)
       .Uuid;
   this->binaryDir = binary_dir;
   this->timingDirv1 =
@@ -61,7 +61,7 @@ void cmInstrumentation::LoadQueries()
       !cmIsOff(envVal)) {
     if (cmSystemTools::GetEnv("CTEST_EXPERIMENTAL_INSTRUMENTATION", envVal)) {
       std::string const uuid = cmExperimental::DataForFeature(
-                                 cmExperimental::Feature::Instrumentation)
+                                 cmExperimental::Feature::m_instrumentation)
                                  .Uuid;
       if (envVal == uuid) {
         this->AddHook(cmInstrumentationQuery::Hook::PrepareForCDash);

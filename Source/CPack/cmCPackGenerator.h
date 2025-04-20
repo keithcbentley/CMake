@@ -44,12 +44,12 @@ public:
   /**
    * Put underlying cmake scripts in trace mode.
    */
-  void SetTrace(bool val) { this->Trace = val; }
+  void SetTrace(bool val) { this->m_trace = val; }
 
   /**
    * Put underlying cmake scripts in expanded trace mode.
    */
-  void SetTraceExpand(bool val) { this->TraceExpand = val; }
+  void SetTraceExpand(bool val) { this->m_traceExpand = val; }
 
   /**
    * Returns true if the generator may work on this system.
@@ -363,8 +363,8 @@ protected:
   ComponentPackageMethod componentPackageMethod;
 
   cmCPackLog* Logger;
-  bool Trace;
-  bool TraceExpand;
+  bool m_trace;
+  bool m_traceExpand;
 
   cmMakefile* MakefileMap;
 

@@ -28,7 +28,7 @@ struct ToolchainVariable
 
 class Toolchains
 {
-  cmFileAPI& FileAPI;
+  cmFileAPI& m_fileAPI;
   unsigned long Version;
 
   Json::Value DumpToolchains();
@@ -46,7 +46,7 @@ public:
 };
 
 Toolchains::Toolchains(cmFileAPI& fileAPI, unsigned long version)
-  : FileAPI(fileAPI)
+  : m_fileAPI(fileAPI)
   , Version(version)
 {
   static_cast<void>(this->Version);
@@ -64,7 +64,7 @@ Json::Value Toolchains::DumpToolchains()
   Json::Value toolchains = Json::arrayValue;
 
   for (std::string const& lang :
-       this->FileAPI.GetCMakeInstance()->GetState()->GetEnabledLanguages()) {
+       this->m_fileAPI.GetCMakeInstance()->GetState()->GetEnabledLanguages()) {
     toolchains.append(this->DumpToolchain(lang));
   }
 
@@ -93,7 +93,7 @@ Json::Value Toolchains::DumpToolchain(std::string const& lang)
   };
 
   auto const& mf =
-    this->FileAPI.GetCMakeInstance()->GetGlobalGenerator()->GetMakefiles()[0];
+    this->m_fileAPI.GetCMakeInstance()->GetGlobalGenerator()->GetMakefiles()[0];
   Json::Value toolchain = Json::objectValue;
   toolchain["language"] = lang;
   toolchain["compiler"] =

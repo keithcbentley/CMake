@@ -82,7 +82,7 @@ private:
     INSIDE_FRAGMENT
   };
 
-  ParserState State;
+  ParserState m_state;
 
   bool Valid;
 

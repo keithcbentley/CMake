@@ -89,9 +89,9 @@ cmGeneratorTarget::cmGeneratorTarget(cmTarget* t, cmLocalGenerator* lg)
 {
   this->Makefile = this->Target->GetMakefile();
   this->LocalGenerator = lg;
-  this->GlobalGenerator = this->LocalGenerator->GetGlobalGenerator();
+  this->m_pGlobalGenerator = this->LocalGenerator->GetGlobalGenerator();
 
-  this->GlobalGenerator->ComputeTargetObjectDirectory(this);
+  this->m_pGlobalGenerator->ComputeTargetObjectDirectory(this);
 
   CreatePropertyGeneratorExpressions(*lg->GetCMakeInstance(),
                                      t->GetIncludeDirectoriesEntries(),
@@ -831,7 +831,7 @@ bool cmGeneratorTarget::IsIPOEnabled(std::string const& lang,
   } else if (!this->Makefile->IsOn("_CMAKE_" + lang +
                                    "_IPO_MAY_BE_SUPPORTED_BY_COMPILER")) {
     message = "Compiler doesn't support IPO";
-  } else if (!this->GlobalGenerator->IsIPOSupported()) {
+  } else if (!this->m_pGlobalGenerator->IsIPOSupported()) {
     message = "CMake doesn't support IPO for current generator";
   }
 
@@ -1861,7 +1861,7 @@ std::string cmGeneratorTarget::GetEffectiveFolderName() const
 {
   std::string effectiveFolder;
 
-  if (!this->GlobalGenerator->UseFolderProperty()) {
+  if (!this->m_pGlobalGenerator->UseFolderProperty()) {
     return effectiveFolder;
   }
 
@@ -1995,7 +1995,7 @@ void cmGeneratorTarget::TraceDependencies()
 
   // Use a helper object to trace the dependencies.
   cmTargetTraceDependencies tracer(this);
-  tracer.Trace();
+  tracer.m_trace();
 }
 
 std::string cmGeneratorTarget::GetCompilePDBDirectory(
@@ -3835,7 +3835,7 @@ std::string cmGeneratorTarget::GetObjectDirectory(
   std::string const& config) const
 {
   std::string obj_dir =
-    this->GlobalGenerator->ExpandCFGIntDir(this->ObjectDirectory, config);
+    this->m_pGlobalGenerator->ExpandCFGIntDir(this->ObjectDirectory, config);
 #if defined(__APPLE__)
   // Replace Xcode's placeholder for the object file directory since
   // installation and export scripts need to know the real directory.
@@ -3906,7 +3906,7 @@ cmGeneratorTarget::GetTargetSourceFileFlags(cmSourceFile const* sf) const
     if (cmValue location = sf->GetProperty("MACOSX_PACKAGE_LOCATION")) {
       flags.MacFolder = location->c_str();
       bool const stripResources =
-        this->GlobalGenerator->ShouldStripResourcePath(this->Makefile);
+        this->m_pGlobalGenerator->ShouldStripResourcePath(this->Makefile);
       if (*location == "Resources") {
         flags.Type = cmGeneratorTarget::SourceFileTypeResource;
         if (stripResources) {
@@ -3964,7 +3964,7 @@ void cmGeneratorTarget::ConstructSourceFileFlags() const
       if (cmSourceFile* sf = this->Makefile->GetSource(relFile)) {
         SourceFileFlags& flags = this->SourceFlagsMap[sf];
         flags.MacFolder = "";
-        if (!this->GlobalGenerator->ShouldStripResourcePath(this->Makefile)) {
+        if (!this->m_pGlobalGenerator->ShouldStripResourcePath(this->Makefile)) {
           flags.MacFolder = "Resources";
         }
         flags.Type = cmGeneratorTarget::SourceFileTypeResource;
@@ -4378,7 +4378,7 @@ bool cmGeneratorTarget::ComputeOutputDir(std::string const& config,
   // The generator may add the configuration's subdirectory.
   if (!conf.empty()) {
     bool useEPN =
-      this->GlobalGenerator->UseEffectivePlatformName(this->Makefile);
+      this->m_pGlobalGenerator->UseEffectivePlatformName(this->Makefile);
     std::string suffix =
       usesDefaultOutputDir && useEPN ? "${EFFECTIVE_PLATFORM_NAME}" : "";
     this->LocalGenerator->GetGlobalGenerator()->AppendDirectoryForConfig(
@@ -4702,7 +4702,7 @@ bool cmGeneratorTarget::GetConfigCommonSourceFilesForXcode(
       e << "Target \"" << this->GetName()
         << "\" has source files which vary by "
         "configuration. This is not supported by the \""
-        << this->GlobalGenerator->GetName()
+        << this->m_pGlobalGenerator->GetName()
         << "\" generator.\n"
           "Config \"" << firstConfig << "\":\n"
           "  " << firstConfigFiles << "\n"
@@ -5389,7 +5389,7 @@ bool cmGeneratorTarget::AddHeaderSetVerification()
 
   cmTarget* verifyTarget = nullptr;
   cmTarget* allVerifyTarget =
-    this->GlobalGenerator->GetMakefiles().front()->FindTargetToUse(
+    this->m_pGlobalGenerator->GetMakefiles().front()->FindTargetToUse(
       "all_verify_interface_header_sets",
       { cmStateEnums::TargetDomain::NATIVE });
 
@@ -5479,7 +5479,7 @@ bool cmGeneratorTarget::AddHeaderSetVerification()
               this->Makefile->GetCompileDefinitionsEntries());
 
             if (!allVerifyTarget) {
-              allVerifyTarget = this->GlobalGenerator->GetMakefiles()
+              allVerifyTarget = this->m_pGlobalGenerator->GetMakefiles()
                                   .front()
                                   ->AddNewUtilityTarget(
                                     "all_verify_interface_header_sets", true);
@@ -5539,7 +5539,7 @@ std::string cmGeneratorTarget::GenerateHeaderSetVerificationFile(
 
       if (languages->empty()) {
         std::vector<std::string> languagesVector;
-        this->GlobalGenerator->GetEnabledLanguages(languagesVector);
+        this->m_pGlobalGenerator->GetEnabledLanguages(languagesVector);
         languages->insert(languagesVector.begin(), languagesVector.end());
       }
     }

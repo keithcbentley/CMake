@@ -78,7 +78,7 @@ private:
                            std::set<cmLinkItem>& emitted);
   void AddObjectDepends(size_t depender_index, cmSourceFile const* o,
                         std::set<cmLinkItem>& emitted);
-  cmGlobalGenerator* GlobalGenerator;
+  cmGlobalGenerator* m_pGlobalGenerator;
   bool DebugMode;
   bool NoCycles;
 

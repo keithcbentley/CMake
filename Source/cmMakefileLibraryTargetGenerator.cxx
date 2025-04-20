@@ -309,7 +309,7 @@ void cmMakefileLibraryTargetGenerator::WriteNvidiaDeviceLibraryRules(
     this->LocalGenerator->MaybeRelativeToCurBinDir(targetOutput));
 
   // Determine whether a link script will be used.
-  bool useLinkScript = this->GlobalGenerator->GetUseLinkScript();
+  bool useLinkScript = this->m_pGlobalGenerator->GetUseLinkScript();
 
   bool useResponseFileForObjects =
     this->CheckUseResponseFileForObjects(linkLanguage);
@@ -650,7 +650,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
   }
 
   // Determine whether a link script will be used.
-  bool useLinkScript = this->GlobalGenerator->GetUseLinkScript();
+  bool useLinkScript = this->m_pGlobalGenerator->GetUseLinkScript();
 
   bool useResponseFileForObjects =
     this->CheckUseResponseFileForObjects(linkLanguage);

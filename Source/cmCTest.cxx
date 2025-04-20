@@ -196,7 +196,7 @@ struct cmCTest::Private
   cmCTestTestOptions TestOptions;
   std::vector<std::string> CommandLineHttpHeaders;
 
-  std::unique_ptr<cmInstrumentation> Instrumentation;
+  std::unique_ptr<cmInstrumentation> m_instrumentation;
 };
 
 struct tm* cmCTest::GetNightlyTime(std::string const& str, bool tomorrowtag)
@@ -3679,11 +3679,11 @@ bool cmCTest::StartLogFile(char const* name, int submitIndex,
 
 cmInstrumentation& cmCTest::GetInstrumentation()
 {
-  if (!this->Impl->Instrumentation) {
-    this->Impl->Instrumentation =
+  if (!this->Impl->m_instrumentation) {
+    this->Impl->m_instrumentation =
       cm::make_unique<cmInstrumentation>(this->GetBinaryDir());
   }
-  return *this->Impl->Instrumentation;
+  return *this->Impl->m_instrumentation;
 }
 
 bool cmCTest::GetUseVerboseInstrumentation() const

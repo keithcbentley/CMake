@@ -254,8 +254,8 @@ cmComputeLinkInformation::cmComputeLinkInformation(
   // Store context information.
   : Target(target)
   , Makefile(target->Target->GetMakefile())
-  , GlobalGenerator(target->GetLocalGenerator()->GetGlobalGenerator())
-  , CMakeInstance(this->GlobalGenerator->GetCMakeInstance())
+  , m_pGlobalGenerator(target->GetLocalGenerator()->GetGlobalGenerator())
+  , CMakeInstance(this->m_pGlobalGenerator->GetCMakeInstance())
   // The configuration being linked.
   , Config(config)
 {
@@ -265,9 +265,9 @@ cmComputeLinkInformation::cmComputeLinkInformation(
 
   // Allocate internals.
   this->OrderLinkerSearchPath = cm::make_unique<cmOrderDirectories>(
-    this->GlobalGenerator, target, "linker search path");
+    this->m_pGlobalGenerator, target, "linker search path");
   this->OrderRuntimeSearchPath = cm::make_unique<cmOrderDirectories>(
-    this->GlobalGenerator, target, "runtime search path");
+    this->m_pGlobalGenerator, target, "runtime search path");
 
   // Get the language used for linking this target.
   this->LinkLanguage = this->Target->GetLinkerLanguage(config);
@@ -403,7 +403,7 @@ cmComputeLinkInformation::cmComputeLinkInformation(
   } else if (!this->RPathLinkFlag.empty()) {
     this->SharedDependencyMode = SharedDepModeDir;
     this->OrderDependentRPath = cm::make_unique<cmOrderDirectories>(
-      this->GlobalGenerator, target, "dependent library path");
+      this->m_pGlobalGenerator, target, "dependent library path");
   }
 
   // Add the search path entries requested by the user to path ordering.
@@ -1149,7 +1149,7 @@ void cmComputeLinkInformation::AddItem(LinkEntry const& entry)
       }
     } else if (tgt->GetType() == cmStateEnums::OBJECT_LIBRARY) {
       this->Items.emplace_back(item, ItemIsPath::No, tgt);
-    } else if (this->GlobalGenerator->IsXcode() &&
+    } else if (this->m_pGlobalGenerator->IsXcode() &&
                !tgt->GetImportedXcFrameworkPath(config).empty()) {
       this->Items.emplace_back(
         tgt->GetImportedXcFrameworkPath(config), ItemIsPath::Yes, tgt, nullptr,
@@ -1617,7 +1617,7 @@ void cmComputeLinkInformation::AddTargetItem(LinkEntry const& entry)
     target->IsImportedFrameworkFolderOnApple(this->Config);
   if (target->IsFrameworkOnApple() || isImportedFrameworkFolderOnApple) {
     // Add the framework directory and the framework item itself
-    auto fwDescriptor = this->GlobalGenerator->SplitFrameworkPath(
+    auto fwDescriptor = this->m_pGlobalGenerator->SplitFrameworkPath(
       item.Value, cmGlobalGenerator::FrameworkFormat::Extended);
     if (!fwDescriptor) {
       this->CMakeInstance->IssueMessage(
@@ -1632,7 +1632,7 @@ void cmComputeLinkInformation::AddTargetItem(LinkEntry const& entry)
       this->AddFrameworkPath(fwDescriptor->Directory);
     }
 
-    if (this->GlobalGenerator->IsXcode()) {
+    if (this->m_pGlobalGenerator->IsXcode()) {
       if (isImportedFrameworkFolderOnApple) {
         if (entry.Feature == DEFAULT) {
           this->AddLibraryFeature("FRAMEWORK");
@@ -1869,7 +1869,7 @@ void cmComputeLinkInformation::AddFrameworkItem(LinkEntry const& entry)
   std::string const& item = entry.Item.Value;
 
   // Try to separate the framework name and path.
-  auto fwDescriptor = this->GlobalGenerator->SplitFrameworkPath(
+  auto fwDescriptor = this->m_pGlobalGenerator->SplitFrameworkPath(
     item,
     entry.Feature == DEFAULT ? cmGlobalGenerator::FrameworkFormat::Relaxed
                              : cmGlobalGenerator::FrameworkFormat::Extended);
@@ -1895,7 +1895,7 @@ void cmComputeLinkInformation::AddFrameworkItem(LinkEntry const& entry)
     this->AddLibraryFeature("FRAMEWORK");
   }
 
-  if (this->GlobalGenerator->IsXcode()) {
+  if (this->m_pGlobalGenerator->IsXcode()) {
     // Add framework path - it will be handled by Xcode after it's added to
     // "Link Binary With Libraries" build phase
     this->Items.emplace_back(item, ItemIsPath::Yes, nullptr, nullptr,
@@ -1920,7 +1920,7 @@ void cmComputeLinkInformation::AddXcFrameworkItem(LinkEntry const& entry)
 
   if (auto const* lib =
         plist->SelectSuitableLibrary(*this->Makefile, entry.Item.Backtrace)) {
-    if (this->GlobalGenerator->IsXcode()) {
+    if (this->m_pGlobalGenerator->IsXcode()) {
       this->Items.emplace_back(
         entry.Item.Value, ItemIsPath::Yes, nullptr, nullptr,
         this->FindLibraryFeature(entry.Feature == DEFAULT
@@ -2150,7 +2150,7 @@ void cmComputeLinkInformation::AddLibraryRuntimeInfo(
   // It could be an Apple framework
   if (!is_shared_library) {
     is_shared_library =
-      this->GlobalGenerator
+      this->m_pGlobalGenerator
         ->SplitFrameworkPath(fullPath,
                              cmGlobalGenerator::FrameworkFormat::Strict)
         .has_value();

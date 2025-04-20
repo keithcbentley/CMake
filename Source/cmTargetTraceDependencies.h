@@ -22,13 +22,13 @@ class cmTargetTraceDependencies
 {
 public:
   cmTargetTraceDependencies(cmGeneratorTarget* target);
-  void Trace();
+  void m_trace();
 
 private:
   cmGeneratorTarget* GeneratorTarget;
   cmMakefile* Makefile;
   cmLocalGenerator* LocalGenerator;
-  cmGlobalGenerator const* GlobalGenerator;
+  cmGlobalGenerator const* m_pGlobalGenerator;
   using SourceEntry = cmGeneratorTarget::SourceEntry;
   SourceEntry* CurrentEntry;
   std::queue<cmSourceFile*> SourceQueue;

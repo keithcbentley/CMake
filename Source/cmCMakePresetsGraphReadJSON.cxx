@@ -606,13 +606,13 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
     // Support for trace presets added in version 7.
     if (v < 7 &&
         (preset.TraceMode.has_value() || preset.TraceFormat.has_value() ||
-         !preset.TraceRedirect.empty() || !preset.TraceSource.empty())) {
+         !preset.m_traceRedirect.empty() || !preset.TraceSource.empty())) {
       cmCMakePresetsErrors::TRACE_UNSUPPORTED(&this->parseState);
       return false;
     }
 
     // Support for graphviz argument added in version 10.
-    if (v < 10 && !preset.GraphVizFile.empty()) {
+    if (v < 10 && !preset.m_graphVizFile.empty()) {
       cmCMakePresetsErrors::GRAPHVIZ_FILE_UNSUPPORTED(&this->parseState);
       return false;
     }

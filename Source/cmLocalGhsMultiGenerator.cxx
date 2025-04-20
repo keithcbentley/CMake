@@ -30,7 +30,7 @@ std::string cmLocalGhsMultiGenerator::GetTargetDirectory(
 void cmLocalGhsMultiGenerator::Generate()
 {
   for (cmGeneratorTarget* gt :
-       this->GlobalGenerator->GetLocalGeneratorTargetsInOrder(this)) {
+       this->m_pGlobalGenerator->GetLocalGeneratorTargetsInOrder(this)) {
     if (!gt->IsInBuildSystem()) {
       continue;
     }
@@ -56,7 +56,7 @@ void cmLocalGhsMultiGenerator::ComputeObjectFilenames(
     std::string objectNameLower = cmStrCat(
       cmSystemTools::LowerCase(
         cmSystemTools::GetFilenameWithoutLastExtension(sf->GetFullPath())),
-      this->GlobalGenerator->GetLanguageOutputExtension(*sf));
+      this->m_pGlobalGenerator->GetLanguageOutputExtension(*sf));
     counts[objectNameLower] += 1;
   }
 
@@ -66,7 +66,7 @@ void cmLocalGhsMultiGenerator::ComputeObjectFilenames(
     cmSourceFile const* sf = si.first;
     std::string objectName = cmStrCat(
       cmSystemTools::GetFilenameWithoutLastExtension(sf->GetFullPath()),
-      this->GlobalGenerator->GetLanguageOutputExtension(*sf));
+      this->m_pGlobalGenerator->GetLanguageOutputExtension(*sf));
 
     if (counts[cmSystemTools::LowerCase(objectName)] > 1) {
       const_cast<cmGeneratorTarget*>(gt)->AddExplicitObjectName(sf);

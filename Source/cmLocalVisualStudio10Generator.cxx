@@ -69,7 +69,7 @@ cmLocalVisualStudio10Generator::~cmLocalVisualStudio10Generator() = default;
 
 void cmLocalVisualStudio10Generator::GenerateTarget(cmGeneratorTarget* target)
 {
-  if (static_cast<cmGlobalVisualStudioGenerator*>(this->GlobalGenerator)
+  if (static_cast<cmGlobalVisualStudioGenerator*>(this->m_pGlobalGenerator)
         ->TargetIsFortranOnly(target)) {
     this->cmLocalVisualStudio7Generator::GenerateTarget(target);
   } else {
@@ -94,7 +94,7 @@ void cmLocalVisualStudio10Generator::ReadAndStoreExternalGUID(
 
   std::string guidStoreName = cmStrCat(name, "_GUID_CMAKE");
   // save the GUID in the cache
-  this->GlobalGenerator->GetCMakeInstance()->AddCacheEntry(
+  this->m_pGlobalGenerator->GetCMakeInstance()->AddCacheEntry(
     guidStoreName, parser.GUID, "Stored GUID", cmStateEnums::INTERNAL);
 }
 

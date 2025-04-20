@@ -72,7 +72,7 @@ bool cmDepends::Check(std::string const& makeFile,
     // Clear all dependencies so they will be regenerated.
     this->Clear(makeFile);
     cmSystemTools::RemoveFile(internalFile);
-    this->FileTimeCache->Remove(internalFile);
+    this->m_fileTimeCache->Remove(internalFile);
     okay = false;
   }
   return okay;
@@ -107,7 +107,7 @@ bool cmDepends::CheckDependencies(std::istream& internalDepends,
 {
   // Read internal depends file time
   cmFileTime internalDependsTime;
-  if (!this->FileTimeCache->Load(internalDependsFileName,
+  if (!this->m_fileTimeCache->Load(internalDependsFileName,
                                  internalDependsTime)) {
     return false;
   }
@@ -141,7 +141,7 @@ bool cmDepends::CheckDependencies(std::istream& internalDepends,
     // Check if this a depender line
     if (line.front() != ' ') {
       depender = line;
-      dependerExists = this->FileTimeCache->Load(depender, dependerTime);
+      dependerExists = this->m_fileTimeCache->Load(depender, dependerTime);
       // If we erase validDeps[this->Depender] by overwriting it with an empty
       // vector, we lose dependencies for dependers that have multiple
       // entries. No need to initialize the entry, std::map will do so on first
@@ -164,7 +164,7 @@ bool cmDepends::CheckDependencies(std::istream& internalDepends,
     // * if the depender does not exist, but the dependee is newer than the
     //   depends file
     bool regenerate = false;
-    bool dependeeExists = this->FileTimeCache->Load(dependee, dependeeTime);
+    bool dependeeExists = this->m_fileTimeCache->Load(dependee, dependeeTime);
     if (!dependeeExists) {
       // The dependee does not exist.
       regenerate = true;
@@ -218,7 +218,7 @@ bool cmDepends::CheckDependencies(std::istream& internalDepends,
       // Remove the depender to be sure it is rebuilt.
       if (dependerExists) {
         cmSystemTools::RemoveFile(depender);
-        this->FileTimeCache->Remove(depender);
+        this->m_fileTimeCache->Remove(depender);
         dependerExists = false;
       }
     }

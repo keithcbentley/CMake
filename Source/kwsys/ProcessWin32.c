@@ -178,7 +178,7 @@ typedef struct kwsysProcessResults_s kwsysProcessResults;
 struct kwsysProcessResults_s
 {
   /* The status of the process.  */
-  int State;
+  int m_state;
 
   /* The exceptional behavior that terminated the process, if any.  */
   int ExitException;
@@ -199,7 +199,7 @@ struct kwsysProcess_s
   /* ------------- Data managed per instance of kwsysProcess ------------- */
 
   /* The status of the process structure.  */
-  int State;
+  int m_state;
 
   /* The command lines to execute.  */
   wchar_t** Commands;
@@ -339,7 +339,7 @@ kwsysProcess* kwsysProcess_New(void)
   cp->PipeSharedSTDIN = 1;
 
   /* Set initial status.  */
-  cp->State = kwsysProcess_State_Starting;
+  cp->m_state = kwsysProcess_State_Starting;
 
   /* Choose a method of running the child based on version of
      windows.  */
@@ -463,7 +463,7 @@ void kwsysProcess_Delete(kwsysProcess* cp)
   }
 
   /* If the process is executing, wait for it to finish.  */
-  if (cp->State == kwsysProcess_State_Executing) {
+  if (cp->m_state == kwsysProcess_State_Executing) {
     if (cp->Detached) {
       kwsysProcess_Disown(cp);
     } else {
@@ -843,7 +843,7 @@ void kwsysProcess_SetOption(kwsysProcess* cp, int optionId, int value)
 
 int kwsysProcess_GetState(kwsysProcess* cp)
 {
-  return cp ? cp->State : kwsysProcess_State_Error;
+  return cp ? cp->m_state : kwsysProcess_State_Error;
 }
 
 int kwsysProcess_GetExitException(kwsysProcess* cp)
@@ -871,7 +871,7 @@ char const* kwsysProcess_GetErrorString(kwsysProcess* cp)
 {
   if (!cp) {
     return "Process management structure could not be allocated";
-  } else if (cp->State == kwsysProcess_State_Error) {
+  } else if (cp->m_state == kwsysProcess_State_Error) {
     return cp->ErrorMessage;
   }
   return "Success";
@@ -881,7 +881,7 @@ char const* kwsysProcess_GetExceptionString(kwsysProcess* cp)
 {
   if (!(cp && cp->ProcessResults && (cp->NumberOfCommands > 0))) {
     return "GetExceptionString called with NULL process management structure";
-  } else if (cp->State == kwsysProcess_State_Exception) {
+  } else if (cp->m_state == kwsysProcess_State_Exception) {
     return cp->ProcessResults[cp->NumberOfCommands - 1].ExitExceptionString;
   }
   return "No exception";
@@ -897,7 +897,7 @@ char const* kwsysProcess_GetExceptionString(kwsysProcess* cp)
 int kwsysProcess_GetStateByIndex(kwsysProcess* cp, int idx)
 {
   KWSYSPE_IDX_CHK(kwsysProcess_State_Error)
-  return cp->ProcessResults[idx].State;
+  return cp->ProcessResults[idx].m_state;
 }
 
 int kwsysProcess_GetExitExceptionByIndex(kwsysProcess* cp, int idx)
@@ -922,7 +922,7 @@ char const* kwsysProcess_GetExceptionStringByIndex(kwsysProcess* cp, int idx)
 {
   KWSYSPE_IDX_CHK("GetExceptionString called with NULL process management "
                   "structure or index out of bound")
-  if (cp->ProcessResults[idx].State == kwsysProcess_StateByIndex_Exception) {
+  if (cp->ProcessResults[idx].m_state == kwsysProcess_StateByIndex_Exception) {
     return cp->ProcessResults[idx].ExitExceptionString;
   }
   return "No exception";
@@ -935,21 +935,21 @@ void kwsysProcess_Execute(kwsysProcess* cp)
   int i;
 
   /* Do not execute a second time.  */
-  if (!cp || cp->State == kwsysProcess_State_Executing) {
+  if (!cp || cp->m_state == kwsysProcess_State_Executing) {
     return;
   }
 
   /* Make sure we have something to run.  */
   if (cp->NumberOfCommands < 1) {
     strcpy(cp->ErrorMessage, "No command");
-    cp->State = kwsysProcess_State_Error;
+    cp->m_state = kwsysProcess_State_Error;
     return;
   }
 
   /* Initialize the control structure for a new process.  */
   if (!kwsysProcessInitialize(cp)) {
     strcpy(cp->ErrorMessage, "Out of memory");
-    cp->State = kwsysProcess_State_Error;
+    cp->m_state = kwsysProcess_State_Error;
     return;
   }
 
@@ -1170,7 +1170,7 @@ void kwsysProcess_Execute(kwsysProcess* cp)
   cp->PipesLeft = KWSYSPE_PIPE_COUNT;
 
   /* The process has now started.  */
-  cp->State = kwsysProcess_State_Executing;
+  cp->m_state = kwsysProcess_State_Executing;
   cp->Detached = cp->OptionDetach;
 }
 
@@ -1179,7 +1179,7 @@ void kwsysProcess_Disown(kwsysProcess* cp)
   int i;
 
   /* Make sure we are executing a detached process.  */
-  if (!cp || !cp->Detached || cp->State != kwsysProcess_State_Executing ||
+  if (!cp || !cp->Detached || cp->m_state != kwsysProcess_State_Executing ||
       cp->TimeoutExpired || cp->Killed || cp->Terminated) {
     return;
   }
@@ -1197,7 +1197,7 @@ void kwsysProcess_Disown(kwsysProcess* cp)
   kwsysProcessCleanup(cp, 0);
 
   /* The process has been disowned.  */
-  cp->State = kwsysProcess_State_Disowned;
+  cp->m_state = kwsysProcess_State_Disowned;
 }
 
 int kwsysProcess_WaitForData(kwsysProcess* cp, char** data, int* length,
@@ -1214,7 +1214,7 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, char** data, int* length,
   DWORD w;
 
   /* Make sure we are executing a process.  */
-  if (!cp || cp->State != kwsysProcess_State_Executing || cp->Killed ||
+  if (!cp || cp->m_state != kwsysProcess_State_Executing || cp->Killed ||
       cp->TimeoutExpired) {
     return kwsysProcess_Pipe_None;
   }
@@ -1331,7 +1331,7 @@ int kwsysProcess_WaitForExit(kwsysProcess* cp, double* userTimeout)
   int pipe;
 
   /* Make sure we are executing a process.  */
-  if (!cp || cp->State != kwsysProcess_State_Executing) {
+  if (!cp || cp->m_state != kwsysProcess_State_Executing) {
     return 1;
   }
 
@@ -1368,29 +1368,29 @@ int kwsysProcess_WaitForExit(kwsysProcess* cp, double* userTimeout)
   /* Determine the outcome.  */
   if (cp->Killed) {
     /* We killed the child.  */
-    cp->State = kwsysProcess_State_Killed;
+    cp->m_state = kwsysProcess_State_Killed;
   } else if (cp->TimeoutExpired) {
     /* The timeout expired.  */
-    cp->State = kwsysProcess_State_Expired;
+    cp->m_state = kwsysProcess_State_Expired;
   } else {
     /* The children exited.  Report the outcome of the child processes.  */
     for (i = 0; i < cp->NumberOfCommands; ++i) {
       cp->ProcessResults[i].ExitCode = cp->CommandExitCodes[i];
       if ((cp->ProcessResults[i].ExitCode & 0xF0000000) == 0xC0000000) {
         /* Child terminated due to exceptional behavior.  */
-        cp->ProcessResults[i].State = kwsysProcess_StateByIndex_Exception;
+        cp->ProcessResults[i].m_state = kwsysProcess_StateByIndex_Exception;
         cp->ProcessResults[i].ExitValue = 1;
         kwsysProcessSetExitExceptionByIndex(cp, cp->ProcessResults[i].ExitCode,
                                             i);
       } else {
         /* Child exited without exception.  */
-        cp->ProcessResults[i].State = kwsysProcess_StateByIndex_Exited;
+        cp->ProcessResults[i].m_state = kwsysProcess_StateByIndex_Exited;
         cp->ProcessResults[i].ExitException = kwsysProcess_Exception_None;
         cp->ProcessResults[i].ExitValue = cp->ProcessResults[i].ExitCode;
       }
     }
     /* support legacy state status value */
-    cp->State = cp->ProcessResults[cp->NumberOfCommands - 1].State;
+    cp->m_state = cp->ProcessResults[cp->NumberOfCommands - 1].m_state;
   }
 
   return 1;
@@ -1400,7 +1400,7 @@ void kwsysProcess_Interrupt(kwsysProcess* cp)
 {
   int i;
   /* Make sure we are executing a process.  */
-  if (!cp || cp->State != kwsysProcess_State_Executing || cp->TimeoutExpired ||
+  if (!cp || cp->m_state != kwsysProcess_State_Executing || cp->TimeoutExpired ||
       cp->Killed) {
     KWSYSPE_DEBUG((stderr, "interrupt: child not executing\n"));
     return;
@@ -1437,7 +1437,7 @@ void kwsysProcess_Kill(kwsysProcess* cp)
 {
   int i;
   /* Make sure we are executing a process.  */
-  if (!cp || cp->State != kwsysProcess_State_Executing || cp->TimeoutExpired ||
+  if (!cp || cp->m_state != kwsysProcess_State_Executing || cp->TimeoutExpired ||
       cp->Killed) {
     KWSYSPE_DEBUG((stderr, "kill: child not executing\n"));
     return;
@@ -1595,7 +1595,7 @@ int kwsysProcessInitialize(kwsysProcess* cp)
              sizeof(kwsysProcessResults) * cp->NumberOfCommands);
   for (i = 0; i < cp->NumberOfCommands; i++) {
     cp->ProcessResults[i].ExitException = kwsysProcess_Exception_None;
-    cp->ProcessResults[i].State = kwsysProcess_StateByIndex_Starting;
+    cp->ProcessResults[i].m_state = kwsysProcess_StateByIndex_Starting;
     cp->ProcessResults[i].ExitCode = 1;
     cp->ProcessResults[i].ExitValue = 1;
     strcpy(cp->ProcessResults[i].ExitExceptionString, "No exception");
@@ -1886,7 +1886,7 @@ void kwsysProcessCleanup(kwsysProcess* cp, DWORD error)
     kwsysProcessCleanErrorMessage(cp);
 
     /* Set the error state.  */
-    cp->State = kwsysProcess_State_Error;
+    cp->m_state = kwsysProcess_State_Error;
 
     /* Cleanup any processes already started in a suspended state.  */
     if (cp->ProcessInformation) {

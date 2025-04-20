@@ -32,7 +32,7 @@ class cmOrderDirectoriesConstraint
 public:
   cmOrderDirectoriesConstraint(cmOrderDirectories* od, std::string const& file)
     : OD(od)
-    , GlobalGenerator(od->GlobalGenerator)
+    , m_pGlobalGenerator(od->m_pGlobalGenerator)
   {
     this->FullPath = file;
 
@@ -106,7 +106,7 @@ protected:
   bool FileMayConflict(std::string const& dir, std::string const& name);
 
   cmOrderDirectories* OD;
-  cmGlobalGenerator* GlobalGenerator;
+  cmGlobalGenerator* m_pGlobalGenerator;
 
   // The location in which the item is supposed to be found.
   std::string FullPath;
@@ -130,7 +130,7 @@ bool cmOrderDirectoriesConstraint::FileMayConflict(std::string const& dir,
 
   // Check if the file will be built by cmake.
   std::set<std::string> const& files =
-    (this->GlobalGenerator->GetDirectoryContent(dir, false));
+    (this->m_pGlobalGenerator->GetDirectoryContent(dir, false));
   auto fi = files.find(name);
   return fi != files.end();
 }
@@ -183,7 +183,7 @@ bool cmOrderDirectoriesConstraintSOName::FindConflict(std::string const& dir)
     // We do not have the soname.  Look for files in the directory
     // that may conflict.
     std::set<std::string> const& files =
-      (this->GlobalGenerator->GetDirectoryContent(dir, true));
+      (this->m_pGlobalGenerator->GetDirectoryContent(dir, true));
 
     // Get the set of files that might conflict.  Since we do not
     // know the soname just look at all files that start with the
@@ -245,7 +245,7 @@ cmOrderDirectories::cmOrderDirectories(cmGlobalGenerator* gg,
                                        cmGeneratorTarget const* target,
                                        char const* purpose)
 {
-  this->GlobalGenerator = gg;
+  this->m_pGlobalGenerator = gg;
   this->Target = target;
   this->Purpose = purpose;
   this->Computed = false;
@@ -467,7 +467,7 @@ void cmOrderDirectories::FindImplicitConflicts()
   }
 
   // Warn about the conflicts.
-  this->GlobalGenerator->GetCMakeInstance()->IssueMessage(
+  this->m_pGlobalGenerator->GetCMakeInstance()->IssueMessage(
     MessageType::WARNING,
     cmStrCat("Cannot generate a safe ", this->Purpose, " for target ",
              this->Target->GetName(),
@@ -542,7 +542,7 @@ void cmOrderDirectories::DiagnoseCycle()
     }
   }
   e << "Some of these libraries may not be found correctly.";
-  this->GlobalGenerator->GetCMakeInstance()->IssueMessage(
+  this->m_pGlobalGenerator->GetCMakeInstance()->IssueMessage(
     MessageType::WARNING, e.str(), this->Target->GetBacktrace());
 }
 

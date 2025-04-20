@@ -10,27 +10,27 @@
 
 namespace {
 
-class ConfigureLog
+class m_configureLog
 {
-  cmFileAPI& FileAPI;
+  cmFileAPI& m_fileAPI;
   unsigned long Version;
 
   Json::Value DumpPath();
   Json::Value DumpEventKindNames();
 
 public:
-  ConfigureLog(cmFileAPI& fileAPI, unsigned long version);
+  m_configureLog(cmFileAPI& fileAPI, unsigned long version);
   Json::Value Dump();
 };
 
-ConfigureLog::ConfigureLog(cmFileAPI& fileAPI, unsigned long version)
-  : FileAPI(fileAPI)
+m_configureLog::m_configureLog(cmFileAPI& fileAPI, unsigned long version)
+  : m_fileAPI(fileAPI)
   , Version(version)
 {
   static_cast<void>(this->Version);
 }
 
-Json::Value ConfigureLog::Dump()
+Json::Value m_configureLog::Dump()
 {
   Json::Value configureLog = Json::objectValue;
   configureLog["path"] = this->DumpPath();
@@ -38,13 +38,13 @@ Json::Value ConfigureLog::Dump()
   return configureLog;
 }
 
-Json::Value ConfigureLog::DumpPath()
+Json::Value m_configureLog::DumpPath()
 {
-  return cmStrCat(this->FileAPI.GetCMakeInstance()->GetHomeOutputDirectory(),
+  return cmStrCat(this->m_fileAPI.GetCMakeInstance()->GetHomeOutputDirectory(),
                   "/CMakeFiles/CMakeConfigureLog.yaml");
 }
 
-Json::Value ConfigureLog::DumpEventKindNames()
+Json::Value m_configureLog::DumpEventKindNames()
 {
   // Report at most one version of each event kind.
   // If a new event kind is added, increment ConfigureLogV1Minor.
@@ -63,6 +63,6 @@ Json::Value ConfigureLog::DumpEventKindNames()
 Json::Value cmFileAPIConfigureLogDump(cmFileAPI& fileAPI,
                                       unsigned long version)
 {
-  ConfigureLog configureLog(fileAPI, version);
+  m_configureLog configureLog(fileAPI, version);
   return configureLog.Dump();
 }

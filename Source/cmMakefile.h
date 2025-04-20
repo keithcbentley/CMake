@@ -1142,7 +1142,7 @@ protected:
   size_t ObjectLibrariesSourceGroupIndex;
 #endif
 
-  cmGlobalGenerator* GlobalGenerator;
+  cmGlobalGenerator* m_pGlobalGenerator;
   bool IsFunctionBlocked(cmListFileFunction const& lff,
                          cmExecutionStatus& status);
 
@@ -1248,7 +1248,7 @@ private:
 
   bool DebugFindPkg = false;
 
-  bool CheckSystemVars;
+  bool m_checkSystemVars;
   bool CheckCMP0000;
   std::set<std::string> WarnedCMP0074;
   std::set<std::string> WarnedCMP0144;

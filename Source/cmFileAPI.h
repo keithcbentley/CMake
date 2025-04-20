@@ -54,7 +54,7 @@ public:
   enum class ObjectKind
   {
     CodeModel,
-    ConfigureLog,
+    m_configureLog,
     Cache,
     CMakeFiles,
     Toolchains,

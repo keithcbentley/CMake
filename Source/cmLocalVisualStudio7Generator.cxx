@@ -105,13 +105,13 @@ void cmLocalVisualStudio7Generator::Generate()
 {
   // Create the project file for each target.
   for (cmGeneratorTarget* gt :
-       this->GlobalGenerator->GetLocalGeneratorTargetsInOrder(this)) {
+       this->m_pGlobalGenerator->GetLocalGeneratorTargetsInOrder(this)) {
     if (!gt->IsInBuildSystem() || gt->GetProperty("EXTERNAL_MSPROJECT")) {
       continue;
     }
 
     auto& gtVisited = this->GetSourcesVisited(gt);
-    auto const& deps = this->GlobalGenerator->GetTargetDirectDepends(gt);
+    auto const& deps = this->m_pGlobalGenerator->GetTargetDirectDepends(gt);
     for (auto const& d : deps) {
       // Take the union of visited source files of custom commands
       auto depVisited = this->GetSourcesVisited(d);
@@ -174,7 +174,7 @@ void cmLocalVisualStudio7Generator::WriteStampFiles()
   depFile << "# CMake generation dependency list for this directory.\n";
 
   std::vector<std::string> listFiles(this->Makefile->GetListFiles());
-  CMake* cm = this->GlobalGenerator->GetCMakeInstance();
+  CMake* cm = this->m_pGlobalGenerator->GetCMakeInstance();
   if (cm->DoWriteGlobVerifyTarget()) {
     listFiles.push_back(cm->GetGlobVerifyStamp());
   }
@@ -193,7 +193,7 @@ void cmLocalVisualStudio7Generator::GenerateTarget(cmGeneratorTarget* target)
 {
   std::string const& lname = target->GetName();
   cmGlobalVisualStudioGenerator* gg =
-    static_cast<cmGlobalVisualStudioGenerator*>(this->GlobalGenerator);
+    static_cast<cmGlobalVisualStudioGenerator*>(this->m_pGlobalGenerator);
   this->FortranProject = gg->TargetIsFortranOnly(target);
   this->WindowsCEProject = gg->TargetsWindowsCE();
 
@@ -215,7 +215,7 @@ void cmLocalVisualStudio7Generator::GenerateTarget(cmGeneratorTarget* target)
   fout.SetCopyIfDifferent(true);
   this->WriteVCProjFile(fout, lname, target);
   if (fout.Close()) {
-    this->GlobalGenerator->FileReplacedDuringGenerate(fname);
+    this->m_pGlobalGenerator->FileReplacedDuringGenerate(fname);
   }
 
   this->WindowsCEProject = false;
@@ -224,7 +224,7 @@ void cmLocalVisualStudio7Generator::GenerateTarget(cmGeneratorTarget* target)
 
 cmSourceFile* cmLocalVisualStudio7Generator::CreateVCProjBuildRule()
 {
-  if (this->GlobalGenerator->GlobalSettingIsOn(
+  if (this->m_pGlobalGenerator->GlobalSettingIsOn(
         "CMAKE_SUPPRESS_REGENERATION")) {
     return nullptr;
   }
@@ -241,7 +241,7 @@ cmSourceFile* cmLocalVisualStudio7Generator::CreateVCProjBuildRule()
   }
 
   std::vector<std::string> listFiles = this->Makefile->GetListFiles();
-  CMake* cm = this->GlobalGenerator->GetCMakeInstance();
+  CMake* cm = this->m_pGlobalGenerator->GetCMakeInstance();
   if (cm->DoWriteGlobVerifyTarget()) {
     listFiles.push_back(cm->GetGlobVerifyStamp());
   }
@@ -627,7 +627,7 @@ void cmLocalVisualStudio7Generator::WriteConfiguration(
     mfcFlag = "0";
   }
   cmGlobalVisualStudio7Generator* gg =
-    static_cast<cmGlobalVisualStudio7Generator*>(this->GlobalGenerator);
+    static_cast<cmGlobalVisualStudio7Generator*>(this->m_pGlobalGenerator);
   fout << "\t\t<Configuration\n"
           "\t\t\tName=\""
        << configName << '|' << gg->GetPlatformName() << "\"\n";
@@ -959,7 +959,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(
   Options const& targetOptions)
 {
   cmGlobalVisualStudio7Generator* gg =
-    static_cast<cmGlobalVisualStudio7Generator*>(this->GlobalGenerator);
+    static_cast<cmGlobalVisualStudio7Generator*>(this->m_pGlobalGenerator);
   std::string temp;
   std::string extraLinkOptions;
   if (target->GetType() == cmStateEnums::EXECUTABLE) {
@@ -1506,7 +1506,7 @@ cmLocalVisualStudio7GeneratorFCInfo::cmLocalVisualStudio7GeneratorFCInfo(
     cmLVS7GFileConfig fc;
 
     std::string lang =
-      lg->GlobalGenerator->GetLanguageFromExtension(sf.GetExtension().c_str());
+      lg->m_pGlobalGenerator->GetLanguageFromExtension(sf.GetExtension().c_str());
     std::string const& sourceLang = lg->GetSourceFileLanguage(sf);
     bool needForceLang = false;
     // source file does not match its extension language
@@ -1672,7 +1672,7 @@ bool cmLocalVisualStudio7Generator::WriteGroup(
   AllConfigSources const& sources)
 {
   cmGlobalVisualStudio7Generator* gg =
-    static_cast<cmGlobalVisualStudio7Generator*>(this->GlobalGenerator);
+    static_cast<cmGlobalVisualStudio7Generator*>(this->m_pGlobalGenerator);
   std::vector<cmSourceFile const*> const& sourceFiles = sg->GetSourceFiles();
   std::vector<cmSourceGroup> const& children = sg->GetGroupChildren();
 
@@ -1832,7 +1832,7 @@ void cmLocalVisualStudio7Generator::WriteCustomRule(
   char const* source, cmCustomCommand const& command, FCInfo& fcinfo)
 {
   cmGlobalVisualStudio7Generator* gg =
-    static_cast<cmGlobalVisualStudio7Generator*>(this->GlobalGenerator);
+    static_cast<cmGlobalVisualStudio7Generator*>(this->m_pGlobalGenerator);
 
   // Write the rule for each configuration.
   char const* compileTool = "VCCLCompilerTool";
@@ -1951,7 +1951,7 @@ void cmLocalVisualStudio7Generator::OutputTargetRules(
     addedPrelink = true;
     std::vector<cmCustomCommand> commands = target->GetPreLinkCommands();
     cmGlobalVisualStudioGenerator* gg =
-      static_cast<cmGlobalVisualStudioGenerator*>(this->GlobalGenerator);
+      static_cast<cmGlobalVisualStudioGenerator*>(this->m_pGlobalGenerator);
     gg->AddSymbolExportCommand(target, commands, configName);
     event.Write(commands);
   }
@@ -2001,7 +2001,7 @@ void cmLocalVisualStudio7Generator::WriteProjectStartFortran(
 {
 
   cmGlobalVisualStudio7Generator* gg =
-    static_cast<cmGlobalVisualStudio7Generator*>(this->GlobalGenerator);
+    static_cast<cmGlobalVisualStudio7Generator*>(this->m_pGlobalGenerator);
   fout << R"(<?xml version="1.0" encoding = ")" << gg->Encoding()
        << "\"?>\n"
           "<VisualStudioProject\n"
@@ -2061,7 +2061,7 @@ void cmLocalVisualStudio7Generator::WriteProjectStart(
   }
 
   cmGlobalVisualStudio7Generator* gg =
-    static_cast<cmGlobalVisualStudio7Generator*>(this->GlobalGenerator);
+    static_cast<cmGlobalVisualStudio7Generator*>(this->m_pGlobalGenerator);
 
   fout << R"(<?xml version="1.0" encoding = ")" << gg->Encoding()
        << "\"?>\n"
@@ -2225,7 +2225,7 @@ void cmLocalVisualStudio7Generator::ReadAndStoreExternalGUID(
   }
   std::string guidStoreName = cmStrCat(name, "_GUID_CMAKE");
   // save the GUID in the cache
-  this->GlobalGenerator->GetCMakeInstance()->AddCacheEntry(
+  this->m_pGlobalGenerator->GetCMakeInstance()->AddCacheEntry(
     guidStoreName, parser.GUID, "Stored GUID", cmStateEnums::INTERNAL);
 }
 
