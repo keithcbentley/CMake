@@ -155,10 +155,7 @@ public:
 
   struct FileExtensions
   {
-    bool Test(cm::string_view ext) const
-    {
-      return (this->unordered.find(ext) != this->unordered.end());
-    }
+    bool Test(cm::string_view ext) const { return (this->unordered.find(ext) != this->unordered.end()); }
 
     std::vector<std::string> ordered;
     std::unordered_set<cm::string_view> unordered;
@@ -170,8 +167,10 @@ public:
   static int const DEFAULT_BUILD_PARALLEL_LEVEL = 0;
 
   /// Default constructor
-  cmake(Role role, cmState::Mode mode,
-        cmState::ProjectKind projectKind = cmState::ProjectKind::Normal);
+  cmake(
+    Role role,
+    cmState::Mode mode,
+    cmState::ProjectKind projectKind = cmState::ProjectKind::Normal);
   /// Destructor
   ~cmake();
 
@@ -215,19 +214,15 @@ public:
   /**
    * Working directory at CMake launch
    */
-  std::string const& GetCMakeWorkingDirectory() const
-  {
-    return this->CMakeWorkingDirectory;
-  }
+  std::string const& GetCMakeWorkingDirectory() const { return this->CMakeWorkingDirectory; }
 
   /**
    * Handle a command line invocation of cmake.
    */
-  int Run(std::vector<std::string> const& args)
-  {
-    return this->Run(args, false);
-  }
-  int Run(std::vector<std::string> const& args, bool noconfigure);
+  int Run(std::vector<std::string> const& args) { return this->Run(args, false); }
+  int Run(
+    std::vector<std::string> const& args,
+    bool noconfigure);
 
   /**
    * Run the global generator Generate step.
@@ -244,22 +239,25 @@ public:
   int ActualConfigure();
 
   //! Break up a line like VAR:type="value" into var, type and value
-  static bool ParseCacheEntry(std::string const& entry, std::string& var,
-                              std::string& value,
-                              cmStateEnums::CacheEntryType& type);
+  static bool ParseCacheEntry(
+    std::string const& entry,
+    std::string& var,
+    std::string& value,
+    cmStateEnums::CacheEntryType& type);
 
   int LoadCache();
   bool LoadCache(std::string const& path);
-  bool LoadCache(std::string const& path, bool internal,
-                 std::set<std::string>& excludes,
-                 std::set<std::string>& includes);
+  bool LoadCache(
+    std::string const& path,
+    bool internal,
+    std::set<std::string>& excludes,
+    std::set<std::string>& includes);
   bool SaveCache(std::string const& path);
   bool DeleteCache(std::string const& path);
   void PreLoadCMakeFiles();
 
   //! Create a GlobalGenerator
-  std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(
-    std::string const& name);
+  std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(std::string const& name);
 
   //! Create a GlobalGenerator and set it as our own
   bool CreateAndSetGlobalGenerator(std::string const& name);
@@ -270,15 +268,9 @@ public:
 #endif
 
   //! Return the global generator assigned to this instance of cmake
-  cmGlobalGenerator* GetGlobalGenerator()
-  {
-    return this->GlobalGenerator.get();
-  }
+  cmGlobalGenerator* GetGlobalGenerator() { return this->GlobalGenerator.get(); }
   //! Return the global generator assigned to this instance of cmake, const
-  cmGlobalGenerator const* GetGlobalGenerator() const
-  {
-    return this->GlobalGenerator.get();
-  }
+  cmGlobalGenerator const* GetGlobalGenerator() const { return this->GlobalGenerator.get(); }
 
   //! Return the full path to where the CMakeCache.txt file should be.
   static std::string FindCacheFile(std::string const& binaryDir);
@@ -315,16 +307,11 @@ public:
 
   bool IsAKnownSourceExtension(cm::string_view ext) const
   {
-    return this->CLikeSourceFileExtensions.Test(ext) ||
-      this->CudaFileExtensions.Test(ext) ||
-      this->FortranFileExtensions.Test(ext) ||
-      this->HipFileExtensions.Test(ext) || this->ISPCFileExtensions.Test(ext);
+    return this->CLikeSourceFileExtensions.Test(ext) || this->CudaFileExtensions.Test(ext) ||
+      this->FortranFileExtensions.Test(ext) || this->HipFileExtensions.Test(ext) || this->ISPCFileExtensions.Test(ext);
   }
 
-  bool IsACLikeSourceExtension(cm::string_view ext) const
-  {
-    return this->CLikeSourceFileExtensions.Test(ext);
-  }
+  bool IsACLikeSourceExtension(cm::string_view ext) const { return this->CLikeSourceFileExtensions.Test(ext); }
 
   bool IsAKnownExtension(cm::string_view ext) const
   {
@@ -333,15 +320,9 @@ public:
 
   std::vector<std::string> GetAllExtensions() const;
 
-  std::vector<std::string> const& GetHeaderExtensions() const
-  {
-    return this->HeaderFileExtensions.ordered;
-  }
+  std::vector<std::string> const& GetHeaderExtensions() const { return this->HeaderFileExtensions.ordered; }
 
-  bool IsAHeaderExtension(cm::string_view ext) const
-  {
-    return this->HeaderFileExtensions.Test(ext);
-  }
+  bool IsAHeaderExtension(cm::string_view ext) const { return this->HeaderFileExtensions.Test(ext); }
 
   // Strips the extension (if present and known) from a filename
   std::string StripExtension(std::string const& file) const;
@@ -351,25 +332,35 @@ public:
    */
   cmValue GetCacheDefinition(std::string const&) const;
   //! Add an entry into the cache
-  void AddCacheEntry(std::string const& key, std::string const& value,
-                     std::string const& helpString, int type)
+  void AddCacheEntry(
+    std::string const& key,
+    std::string const& value,
+    std::string const& helpString,
+    int type)
   {
     this->AddCacheEntry(key, cmValue{ value }, cmValue{ helpString }, type);
   }
-  void AddCacheEntry(std::string const& key, cmValue value,
-                     std::string const& helpString, int type)
+  void AddCacheEntry(
+    std::string const& key,
+    cmValue value,
+    std::string const& helpString,
+    int type)
   {
     this->AddCacheEntry(key, value, cmValue{ helpString }, type);
   }
-  void AddCacheEntry(std::string const& key, cmValue value, cmValue helpString,
-                     int type);
+  void AddCacheEntry(
+    std::string const& key,
+    cmValue value,
+    cmValue helpString,
+    int type);
 
   bool DoWriteGlobVerifyTarget() const;
   std::string const& GetGlobVerifyScript() const;
   std::string const& GetGlobVerifyStamp() const;
-  void AddGlobCacheEntry(cmGlobCacheEntry const& entry,
-                         std::string const& variable,
-                         cmListFileBacktrace const& bt);
+  void AddGlobCacheEntry(
+    cmGlobCacheEntry const& entry,
+    std::string const& variable,
+    cmListFileBacktrace const& bt);
   std::vector<cmGlobCacheEntry> GetGlobCacheEntries() const;
 
   /**
@@ -387,9 +378,10 @@ public:
   bool GetIsInTryCompile() const;
 
 #ifndef CMAKE_BOOTSTRAP
-  void SetWarningFromPreset(std::string const& name,
-                            cm::optional<bool> const& warning,
-                            cm::optional<bool> const& error);
+  void SetWarningFromPreset(
+    std::string const& name,
+    cm::optional<bool> const& warning,
+    cm::optional<bool> const& error);
   void ProcessPresetVariables();
   void PrintPresetVariables();
   void ProcessPresetEnvironment();
@@ -399,8 +391,10 @@ public:
   //! Parse command line arguments that might set cache values
   bool SetCacheArgs(std::vector<std::string> const&);
 
-  void ProcessCacheArg(std::string const& var, std::string const& value,
-                       cmStateEnums::CacheEntryType type);
+  void ProcessCacheArg(
+    std::string const& var,
+    std::string const& value,
+    cmStateEnums::CacheEntryType type);
 
   using ProgressCallbackType = std::function<void(std::string const&, float)>;
   /**
@@ -413,7 +407,9 @@ public:
   void SetProgressCallback(ProgressCallbackType f);
 
   //! this is called by generators to update the progress
-  void UpdateProgress(std::string const& msg, float prog);
+  void UpdateProgress(
+    std::string const& msg,
+    float prog);
 
 #if !defined(CMAKE_BOOTSTRAP)
   //! Get the variable watch object
@@ -423,35 +419,43 @@ public:
   std::vector<cmDocumentationEntry> GetGeneratorsDocumentation();
 
   //! Set/Get a property of this target file
-  void SetProperty(std::string const& prop, cmValue value);
-  void SetProperty(std::string const& prop, std::nullptr_t)
+  void SetProperty(
+    std::string const& prop,
+    cmValue value);
+  void SetProperty(
+    std::string const& prop,
+    std::nullptr_t)
   {
     this->SetProperty(prop, cmValue{ nullptr });
   }
-  void SetProperty(std::string const& prop, std::string const& value)
+  void SetProperty(
+    std::string const& prop,
+    std::string const& value)
   {
     this->SetProperty(prop, cmValue(value));
   }
-  void AppendProperty(std::string const& prop, std::string const& value,
-                      bool asString = false);
+  void AppendProperty(
+    std::string const& prop,
+    std::string const& value,
+    bool asString = false);
   cmValue GetProperty(std::string const& prop);
   bool GetPropertyAsBool(std::string const& prop);
 
   //! Get or create an cmInstalledFile instance and return a pointer to it
-  cmInstalledFile* GetOrCreateInstalledFile(cmMakefile* mf,
-                                            std::string const& name);
+  cmInstalledFile* GetOrCreateInstalledFile(
+    cmMakefile* mf,
+    std::string const& name);
 
   cmInstalledFile const* GetInstalledFile(std::string const& name) const;
 
-  InstalledFilesMap const& GetInstalledFiles() const
-  {
-    return this->InstalledFiles;
-  }
+  InstalledFilesMap const& GetInstalledFiles() const { return this->InstalledFiles; }
 
   //! Do all the checks before running configure
   int DoPreConfigureChecks();
 
-  void SetWorkingMode(WorkingMode mode, CommandFailureAction policy)
+  void SetWorkingMode(
+    WorkingMode mode,
+    CommandFailureAction policy)
   {
     this->CurrentWorkingMode = mode;
     this->CurrentCommandFailureAction = policy;
@@ -459,10 +463,7 @@ public:
 
   WorkingMode GetWorkingMode() const { return this->CurrentWorkingMode; }
 
-  CommandFailureAction GetCommandFailureAction() const
-  {
-    return this->CurrentCommandFailureAction;
-  }
+  CommandFailureAction GetCommandFailureAction() const { return this->CurrentCommandFailureAction; }
 
   //! Debug the try compile stuff by not deleting the files
   bool GetDebugTryCompile() const { return this->DebugTryCompile; }
@@ -487,14 +488,8 @@ public:
   static std::string LogLevelToString(Message::LogLevel level);
   static TraceFormat StringToTraceFormat(std::string const& levelStr);
 
-  bool HasCheckInProgress() const
-  {
-    return !this->CheckInProgressMessages.empty();
-  }
-  std::size_t GetCheckInProgressSize() const
-  {
-    return this->CheckInProgressMessages.size();
-  }
+  bool HasCheckInProgress() const { return !this->CheckInProgressMessages.empty(); }
+  std::size_t GetCheckInProgressSize() const { return this->CheckInProgressMessages.size(); }
   std::string GetTopCheckInProgressMessage()
   {
     auto message = this->CheckInProgressMessages.back();
@@ -505,10 +500,7 @@ public:
   {
     this->CheckInProgressMessages.emplace_back(std::move(message));
   }
-  std::vector<std::string> const& GetCheckInProgressMessages() const
-  {
-    return this->CheckInProgressMessages;
-  }
+  std::vector<std::string> const& GetCheckInProgressMessages() const { return this->CheckInProgressMessages; }
 
   //! Should `message` command display context.
   bool GetShowLogContext() const { return this->LogContext; }
@@ -533,14 +525,8 @@ public:
   void SetTraceExpand(bool b) { this->TraceExpand = b; }
   TraceFormat GetTraceFormat() const { return this->TraceFormatVar; }
   void SetTraceFormat(TraceFormat f) { this->TraceFormatVar = f; }
-  void AddTraceSource(std::string const& file)
-  {
-    this->TraceOnlyThisSources.push_back(file);
-  }
-  std::vector<std::string> const& GetTraceSources() const
-  {
-    return this->TraceOnlyThisSources;
-  }
+  void AddTraceSource(std::string const& file) { this->TraceOnlyThisSources.push_back(file); }
+  std::vector<std::string> const& GetTraceSources() const { return this->TraceOnlyThisSources; }
   cmGeneratedFileStream& GetTraceFile()
   {
     if (this->TraceRedirect) {
@@ -564,22 +550,10 @@ public:
   void SetWarnUnusedCli(bool b) { this->WarnUnusedCli = b; }
   bool GetCheckSystemVars() const { return this->CheckSystemVars; }
   void SetCheckSystemVars(bool b) { this->CheckSystemVars = b; }
-  bool GetIgnoreCompileWarningAsError() const
-  {
-    return this->IgnoreCompileWarningAsError;
-  }
-  void SetIgnoreCompileWarningAsError(bool b)
-  {
-    this->IgnoreCompileWarningAsError = b;
-  }
-  bool GetIgnoreLinkWarningAsError() const
-  {
-    return this->IgnoreLinkWarningAsError;
-  }
-  void SetIgnoreLinkWarningAsError(bool b)
-  {
-    this->IgnoreLinkWarningAsError = b;
-  }
+  bool GetIgnoreCompileWarningAsError() const { return this->IgnoreCompileWarningAsError; }
+  void SetIgnoreCompileWarningAsError(bool b) { this->IgnoreCompileWarningAsError = b; }
+  bool GetIgnoreLinkWarningAsError() const { return this->IgnoreLinkWarningAsError; }
+  void SetIgnoreLinkWarningAsError(bool b) { this->IgnoreLinkWarningAsError = b; }
 
   void MarkCliAsUsed(std::string const& variable);
 
@@ -587,14 +561,8 @@ public:
       debugging configurations.*/
   std::vector<std::string> GetDebugConfigs();
 
-  void SetCMakeEditCommand(std::string const& s)
-  {
-    this->CMakeEditCommand = s;
-  }
-  std::string const& GetCMakeEditCommand() const
-  {
-    return this->CMakeEditCommand;
-  }
+  void SetCMakeEditCommand(std::string const& s) { this->CMakeEditCommand = s; }
+  std::string const& GetCMakeEditCommand() const { return this->CMakeEditCommand; }
 
   cmMessenger* GetMessenger() const { return this->Messenger.get(); }
 
@@ -602,8 +570,7 @@ public:
   /// Get the SARIF file path if set manually for this run
   cm::optional<std::string> GetSarifFilePath() const
   {
-    return (this->SarifFileOutput ? cm::make_optional(this->SarifFilePath)
-                                  : cm::nullopt);
+    return (this->SarifFileOutput ? cm::make_optional(this->SarifFilePath) : cm::nullopt);
   }
 #endif
 
@@ -653,15 +620,22 @@ public:
 
   /** Display a message to the user.  */
   void IssueMessage(
-    MessageType t, std::string const& text,
+    MessageType t,
+    std::string const& text,
     cmListFileBacktrace const& backtrace = cmListFileBacktrace()) const;
 
   //! run the --build option
-  int Build(int jobs, std::string dir, std::vector<std::string> targets,
-            std::string config, std::vector<std::string> nativeOptions,
-            cmBuildOptions& buildOptions, bool verbose,
-            std::string const& presetName, bool listPresets,
-            std::vector<std::string> const& args);
+  int Build(
+    int jobs,
+    std::string dir,
+    std::vector<std::string> targets,
+    std::string config,
+    std::vector<std::string> nativeOptions,
+    cmBuildOptions& buildOptions,
+    bool verbose,
+    std::string const& presetName,
+    bool listPresets,
+    std::vector<std::string> const& args);
 
   enum class DryRun
   {
@@ -670,7 +644,9 @@ public:
   };
 
   //! run the --open option
-  bool Open(std::string const& dir, DryRun dryRun);
+  bool Open(
+    std::string const& dir,
+    DryRun dryRun);
 
   //! run the --workflow option
   enum class WorkflowListPresets
@@ -683,25 +659,21 @@ public:
     No,
     Yes,
   };
-  int Workflow(std::string const& presetName, WorkflowListPresets listPresets,
-               WorkflowFresh fresh);
+  int Workflow(
+    std::string const& presetName,
+    WorkflowListPresets listPresets,
+    WorkflowFresh fresh);
 
   void UnwatchUnusedCli(std::string const& var);
   void WatchUnusedCli(std::string const& var);
 
 #if !defined(CMAKE_BOOTSTRAP)
   cmFileAPI* GetFileAPI() const { return this->FileAPI.get(); }
-  cmInstrumentation* GetInstrumentation() const
-  {
-    return this->Instrumentation.get();
-  }
+  cmInstrumentation* GetInstrumentation() const { return this->Instrumentation.get(); }
 #endif
 
   cmState* GetState() const { return this->State.get(); }
-  void SetCurrentSnapshot(cmStateSnapshot const& snapshot)
-  {
-    this->CurrentSnapshot = snapshot;
-  }
+  void SetCurrentSnapshot(cmStateSnapshot const& snapshot) { this->CurrentSnapshot = snapshot; }
   cmStateSnapshot GetCurrentSnapshot() const { return this->CurrentSnapshot; }
 
   bool GetRegenerateDuringBuild() const { return this->RegenerateDuringBuild; }
@@ -714,19 +686,20 @@ public:
   bool IsProfilingEnabled() const;
 
   cm::optional<cmMakefileProfilingData::RAII> CreateProfilingEntry(
-    std::string const& category, std::string const& name)
+    std::string const& category,
+    std::string const& name)
   {
-    return this->CreateProfilingEntry(
-      category, name, []() -> cm::nullopt_t { return cm::nullopt; });
+    return this->CreateProfilingEntry(category, name, []() -> cm::nullopt_t { return cm::nullopt; });
   }
 
   template <typename ArgsFunc>
   cm::optional<cmMakefileProfilingData::RAII> CreateProfilingEntry(
-    std::string const& category, std::string const& name, ArgsFunc&& argsFunc)
+    std::string const& category,
+    std::string const& name,
+    ArgsFunc&& argsFunc)
   {
     if (this->IsProfilingEnabled()) {
-      return cm::make_optional<cmMakefileProfilingData::RAII>(
-        this->GetProfilingOutput(), category, name, argsFunc());
+      return cm::make_optional<cmMakefileProfilingData::RAII>(this->GetProfilingOutput(), category, name, argsFunc());
     }
     return cm::nullopt;
   }
@@ -735,29 +708,20 @@ public:
 #ifdef CMake_ENABLE_DEBUGGER
   bool GetDebuggerOn() const { return this->DebuggerOn; }
   std::string GetDebuggerPipe() const { return this->DebuggerPipe; }
-  std::string GetDebuggerDapLogFile() const
-  {
-    return this->DebuggerDapLogFile;
-  }
+  std::string GetDebuggerDapLogFile() const { return this->DebuggerDapLogFile; }
   void SetDebuggerOn(bool b) { this->DebuggerOn = b; }
   bool StartDebuggerIfEnabled();
   void StopDebuggerIfNeeded(int exitCode);
-  std::shared_ptr<cmDebugger::cmDebuggerAdapter> GetDebugAdapter()
-    const noexcept
-  {
-    return this->DebugAdapter;
-  }
+  std::shared_ptr<cmDebugger::cmDebuggerAdapter> GetDebugAdapter() const noexcept { return this->DebugAdapter; }
 #endif
 
 protected:
   void RunCheckForUnusedVariables();
   int HandleDeleteCacheVariables(std::string const& var);
 
-  using RegisteredGeneratorsVector =
-    std::vector<std::unique_ptr<cmGlobalGeneratorFactory>>;
+  using RegisteredGeneratorsVector = std::vector<std::unique_ptr<cmGlobalGeneratorFactory>>;
   RegisteredGeneratorsVector Generators;
-  using RegisteredExtraGeneratorsVector =
-    std::vector<cmExternalMakefileProjectGeneratorFactory*>;
+  using RegisteredExtraGeneratorsVector = std::vector<cmExternalMakefileProjectGeneratorFactory*>;
   RegisteredExtraGeneratorsVector ExtraGenerators;
   void AddScriptingCommands() const;
   void AddProjectCommands() const;
@@ -773,8 +737,9 @@ protected:
   bool GeneratorToolsetSet = false;
 
   //! read in a cmake list file to initialize the cache
-  void ReadListFile(std::vector<std::string> const& args,
-                    std::string const& path);
+  void ReadListFile(
+    std::vector<std::string> const& args,
+    std::string const& path);
   bool FindPackage(std::vector<std::string> const& args);
 
   //! Check if CMAKE_CACHEFILE_DIR is set. If it is not, delete the log file.
@@ -800,8 +765,7 @@ private:
   std::string CMakeWorkingDirectory;
   ProgressCallbackType ProgressCallback;
   WorkingMode CurrentWorkingMode = NORMAL_MODE;
-  CommandFailureAction CurrentCommandFailureAction =
-    CommandFailureAction::FATAL_ERROR;
+  CommandFailureAction CurrentCommandFailureAction = CommandFailureAction::FATAL_ERROR;
   bool DebugOutput = false;
   bool DebugFindOutput = false;
   bool Trace = false;
@@ -841,10 +805,8 @@ private:
   std::string GraphVizFile;
   InstalledFilesMap InstalledFiles;
 #ifndef CMAKE_BOOTSTRAP
-  std::map<std::string, cm::optional<cmCMakePresetsGraph::CacheVariable>>
-    UnprocessedPresetVariables;
-  std::map<std::string, cm::optional<std::string>>
-    UnprocessedPresetEnvironment;
+  std::map<std::string, cm::optional<cmCMakePresetsGraph::CacheVariable>> UnprocessedPresetVariables;
+  std::map<std::string, cm::optional<std::string>> UnprocessedPresetEnvironment;
 #endif
 
 #if !defined(CMAKE_BOOTSTRAP)
@@ -888,7 +850,9 @@ private:
   template <typename T>
   T const* FindPresetForWorkflow(
     cm::static_string_view type,
-    std::map<std::string, cmCMakePresetsGraph::PresetPair<T>> const& presets,
+    std::map<
+      std::string,
+      cmCMakePresetsGraph::PresetPair<T>> const& presets,
     cmCMakePresetsGraph::WorkflowPreset::WorkflowStep const& step);
 
   std::function<int()> BuildWorkflowStep(std::vector<std::string> const& args);
@@ -917,110 +881,110 @@ public:
 
 #define FOR_EACH_C90_FEATURE(F) F(c_function_prototypes)
 
-#define FOR_EACH_C99_FEATURE(F)                                               \
-  F(c_restrict)                                                               \
+#define FOR_EACH_C99_FEATURE(F)                                                                                        \
+  F(c_restrict)                                                                                                        \
   F(c_variadic_macros)
 
 #define FOR_EACH_C11_FEATURE(F) F(c_static_assert)
 
-#define FOR_EACH_C_FEATURE(F)                                                 \
-  F(c_std_90)                                                                 \
-  F(c_std_99)                                                                 \
-  F(c_std_11)                                                                 \
-  F(c_std_17)                                                                 \
-  F(c_std_23)                                                                 \
-  FOR_EACH_C90_FEATURE(F)                                                     \
-  FOR_EACH_C99_FEATURE(F)                                                     \
+#define FOR_EACH_C_FEATURE(F)                                                                                          \
+  F(c_std_90)                                                                                                          \
+  F(c_std_99)                                                                                                          \
+  F(c_std_11)                                                                                                          \
+  F(c_std_17)                                                                                                          \
+  F(c_std_23)                                                                                                          \
+  FOR_EACH_C90_FEATURE(F)                                                                                              \
+  FOR_EACH_C99_FEATURE(F)                                                                                              \
   FOR_EACH_C11_FEATURE(F)
 
 #define FOR_EACH_CXX98_FEATURE(F) F(cxx_template_template_parameters)
 
-#define FOR_EACH_CXX11_FEATURE(F)                                             \
-  F(cxx_alias_templates)                                                      \
-  F(cxx_alignas)                                                              \
-  F(cxx_alignof)                                                              \
-  F(cxx_attributes)                                                           \
-  F(cxx_auto_type)                                                            \
-  F(cxx_constexpr)                                                            \
-  F(cxx_decltype)                                                             \
-  F(cxx_decltype_incomplete_return_types)                                     \
-  F(cxx_default_function_template_args)                                       \
-  F(cxx_defaulted_functions)                                                  \
-  F(cxx_defaulted_move_initializers)                                          \
-  F(cxx_delegating_constructors)                                              \
-  F(cxx_deleted_functions)                                                    \
-  F(cxx_enum_forward_declarations)                                            \
-  F(cxx_explicit_conversions)                                                 \
-  F(cxx_extended_friend_declarations)                                         \
-  F(cxx_extern_templates)                                                     \
-  F(cxx_final)                                                                \
-  F(cxx_func_identifier)                                                      \
-  F(cxx_generalized_initializers)                                             \
-  F(cxx_inheriting_constructors)                                              \
-  F(cxx_inline_namespaces)                                                    \
-  F(cxx_lambdas)                                                              \
-  F(cxx_local_type_template_args)                                             \
-  F(cxx_long_long_type)                                                       \
-  F(cxx_noexcept)                                                             \
-  F(cxx_nonstatic_member_init)                                                \
-  F(cxx_nullptr)                                                              \
-  F(cxx_override)                                                             \
-  F(cxx_range_for)                                                            \
-  F(cxx_raw_string_literals)                                                  \
-  F(cxx_reference_qualified_functions)                                        \
-  F(cxx_right_angle_brackets)                                                 \
-  F(cxx_rvalue_references)                                                    \
-  F(cxx_sizeof_member)                                                        \
-  F(cxx_static_assert)                                                        \
-  F(cxx_strong_enums)                                                         \
-  F(cxx_thread_local)                                                         \
-  F(cxx_trailing_return_types)                                                \
-  F(cxx_unicode_literals)                                                     \
-  F(cxx_uniform_initialization)                                               \
-  F(cxx_unrestricted_unions)                                                  \
-  F(cxx_user_literals)                                                        \
-  F(cxx_variadic_macros)                                                      \
+#define FOR_EACH_CXX11_FEATURE(F)                                                                                      \
+  F(cxx_alias_templates)                                                                                               \
+  F(cxx_alignas)                                                                                                       \
+  F(cxx_alignof)                                                                                                       \
+  F(cxx_attributes)                                                                                                    \
+  F(cxx_auto_type)                                                                                                     \
+  F(cxx_constexpr)                                                                                                     \
+  F(cxx_decltype)                                                                                                      \
+  F(cxx_decltype_incomplete_return_types)                                                                              \
+  F(cxx_default_function_template_args)                                                                                \
+  F(cxx_defaulted_functions)                                                                                           \
+  F(cxx_defaulted_move_initializers)                                                                                   \
+  F(cxx_delegating_constructors)                                                                                       \
+  F(cxx_deleted_functions)                                                                                             \
+  F(cxx_enum_forward_declarations)                                                                                     \
+  F(cxx_explicit_conversions)                                                                                          \
+  F(cxx_extended_friend_declarations)                                                                                  \
+  F(cxx_extern_templates)                                                                                              \
+  F(cxx_final)                                                                                                         \
+  F(cxx_func_identifier)                                                                                               \
+  F(cxx_generalized_initializers)                                                                                      \
+  F(cxx_inheriting_constructors)                                                                                       \
+  F(cxx_inline_namespaces)                                                                                             \
+  F(cxx_lambdas)                                                                                                       \
+  F(cxx_local_type_template_args)                                                                                      \
+  F(cxx_long_long_type)                                                                                                \
+  F(cxx_noexcept)                                                                                                      \
+  F(cxx_nonstatic_member_init)                                                                                         \
+  F(cxx_nullptr)                                                                                                       \
+  F(cxx_override)                                                                                                      \
+  F(cxx_range_for)                                                                                                     \
+  F(cxx_raw_string_literals)                                                                                           \
+  F(cxx_reference_qualified_functions)                                                                                 \
+  F(cxx_right_angle_brackets)                                                                                          \
+  F(cxx_rvalue_references)                                                                                             \
+  F(cxx_sizeof_member)                                                                                                 \
+  F(cxx_static_assert)                                                                                                 \
+  F(cxx_strong_enums)                                                                                                  \
+  F(cxx_thread_local)                                                                                                  \
+  F(cxx_trailing_return_types)                                                                                         \
+  F(cxx_unicode_literals)                                                                                              \
+  F(cxx_uniform_initialization)                                                                                        \
+  F(cxx_unrestricted_unions)                                                                                           \
+  F(cxx_user_literals)                                                                                                 \
+  F(cxx_variadic_macros)                                                                                               \
   F(cxx_variadic_templates)
 
-#define FOR_EACH_CXX14_FEATURE(F)                                             \
-  F(cxx_aggregate_default_initializers)                                       \
-  F(cxx_attribute_deprecated)                                                 \
-  F(cxx_binary_literals)                                                      \
-  F(cxx_contextual_conversions)                                               \
-  F(cxx_decltype_auto)                                                        \
-  F(cxx_digit_separators)                                                     \
-  F(cxx_generic_lambdas)                                                      \
-  F(cxx_lambda_init_captures)                                                 \
-  F(cxx_relaxed_constexpr)                                                    \
-  F(cxx_return_type_deduction)                                                \
+#define FOR_EACH_CXX14_FEATURE(F)                                                                                      \
+  F(cxx_aggregate_default_initializers)                                                                                \
+  F(cxx_attribute_deprecated)                                                                                          \
+  F(cxx_binary_literals)                                                                                               \
+  F(cxx_contextual_conversions)                                                                                        \
+  F(cxx_decltype_auto)                                                                                                 \
+  F(cxx_digit_separators)                                                                                              \
+  F(cxx_generic_lambdas)                                                                                               \
+  F(cxx_lambda_init_captures)                                                                                          \
+  F(cxx_relaxed_constexpr)                                                                                             \
+  F(cxx_return_type_deduction)                                                                                         \
   F(cxx_variable_templates)
 
-#define FOR_EACH_CXX_FEATURE(F)                                               \
-  F(cxx_std_98)                                                               \
-  F(cxx_std_11)                                                               \
-  F(cxx_std_14)                                                               \
-  F(cxx_std_17)                                                               \
-  F(cxx_std_20)                                                               \
-  F(cxx_std_23)                                                               \
-  F(cxx_std_26)                                                               \
-  FOR_EACH_CXX98_FEATURE(F)                                                   \
-  FOR_EACH_CXX11_FEATURE(F)                                                   \
+#define FOR_EACH_CXX_FEATURE(F)                                                                                        \
+  F(cxx_std_98)                                                                                                        \
+  F(cxx_std_11)                                                                                                        \
+  F(cxx_std_14)                                                                                                        \
+  F(cxx_std_17)                                                                                                        \
+  F(cxx_std_20)                                                                                                        \
+  F(cxx_std_23)                                                                                                        \
+  F(cxx_std_26)                                                                                                        \
+  FOR_EACH_CXX98_FEATURE(F)                                                                                            \
+  FOR_EACH_CXX11_FEATURE(F)                                                                                            \
   FOR_EACH_CXX14_FEATURE(F)
 
-#define FOR_EACH_CUDA_FEATURE(F)                                              \
-  F(cuda_std_03)                                                              \
-  F(cuda_std_11)                                                              \
-  F(cuda_std_14)                                                              \
-  F(cuda_std_17)                                                              \
-  F(cuda_std_20)                                                              \
-  F(cuda_std_23)                                                              \
+#define FOR_EACH_CUDA_FEATURE(F)                                                                                       \
+  F(cuda_std_03)                                                                                                       \
+  F(cuda_std_11)                                                                                                       \
+  F(cuda_std_14)                                                                                                       \
+  F(cuda_std_17)                                                                                                       \
+  F(cuda_std_20)                                                                                                       \
+  F(cuda_std_23)                                                                                                       \
   F(cuda_std_26)
 
-#define FOR_EACH_HIP_FEATURE(F)                                               \
-  F(hip_std_98)                                                               \
-  F(hip_std_11)                                                               \
-  F(hip_std_14)                                                               \
-  F(hip_std_17)                                                               \
-  F(hip_std_20)                                                               \
-  F(hip_std_23)                                                               \
+#define FOR_EACH_HIP_FEATURE(F)                                                                                        \
+  F(hip_std_98)                                                                                                        \
+  F(hip_std_11)                                                                                                        \
+  F(hip_std_14)                                                                                                        \
+  F(hip_std_17)                                                                                                        \
+  F(hip_std_20)                                                                                                        \
+  F(hip_std_23)                                                                                                        \
   F(hip_std_26)
