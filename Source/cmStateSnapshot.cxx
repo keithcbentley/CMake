@@ -27,7 +27,7 @@
 #endif
 
 cmStateSnapshot::cmStateSnapshot(cmState* state)
-  : m_state(state)
+  : m_pState(state)
 {
 }
 
@@ -38,7 +38,7 @@ std::vector<cmStateSnapshot> cmStateSnapshot::GetChildren()
 
 cmStateSnapshot::cmStateSnapshot(cmState* state,
                                  cmStateDetail::PositionType position)
-  : m_state(state)
+  : m_pState(state)
   , Position(position)
 {
 }
@@ -60,25 +60,25 @@ std::string const& cmStateSnapshot::GetExecutionListFile() const
 
 bool cmStateSnapshot::IsValid() const
 {
-  return this->m_state && this->Position.IsValid()
-    ? this->Position != this->m_state->SnapshotData.Root()
+  return this->m_pState && this->Position.IsValid()
+    ? this->Position != this->m_pState->SnapshotData.Root()
     : false;
 }
 
 cmStateSnapshot cmStateSnapshot::GetBuildsystemDirectory() const
 {
-  return { this->m_state, this->Position->BuildSystemDirectory->CurrentScope };
+  return { this->m_pState, this->Position->BuildSystemDirectory->CurrentScope };
 }
 
 cmStateSnapshot cmStateSnapshot::GetBuildsystemDirectoryParent() const
 {
   cmStateSnapshot snapshot;
-  if (!this->m_state || this->Position == this->m_state->SnapshotData.Root()) {
+  if (!this->m_pState || this->Position == this->m_pState->SnapshotData.Root()) {
     return snapshot;
   }
   cmStateDetail::PositionType parentPos = this->Position->DirectoryParent;
-  if (parentPos != this->m_state->SnapshotData.Root()) {
-    snapshot = cmStateSnapshot(this->m_state,
+  if (parentPos != this->m_pState->SnapshotData.Root()) {
+    snapshot = cmStateSnapshot(this->m_pState,
                                parentPos->BuildSystemDirectory->CurrentScope);
   }
 
@@ -87,8 +87,8 @@ cmStateSnapshot cmStateSnapshot::GetBuildsystemDirectoryParent() const
 
 cmStateSnapshot cmStateSnapshot::GetCallStackParent() const
 {
-  assert(this->m_state);
-  assert(this->Position != this->m_state->SnapshotData.Root());
+  assert(this->m_pState);
+  assert(this->Position != this->m_pState->SnapshotData.Root());
 
   cmStateSnapshot snapshot;
   cmStateDetail::PositionType parentPos = this->Position;
@@ -107,32 +107,32 @@ cmStateSnapshot cmStateSnapshot::GetCallStackParent() const
     ++parentPos;
   }
 
-  if (parentPos == this->m_state->SnapshotData.Root()) {
+  if (parentPos == this->m_pState->SnapshotData.Root()) {
     return snapshot;
   }
 
-  snapshot = cmStateSnapshot(this->m_state, parentPos);
+  snapshot = cmStateSnapshot(this->m_pState, parentPos);
   return snapshot;
 }
 
 cmStateSnapshot cmStateSnapshot::GetCallStackBottom() const
 {
-  assert(this->m_state);
-  assert(this->Position != this->m_state->SnapshotData.Root());
+  assert(this->m_pState);
+  assert(this->Position != this->m_pState->SnapshotData.Root());
 
   cmStateDetail::PositionType pos = this->Position;
   while (pos->SnapshotType != cmStateEnums::BaseType &&
          pos->SnapshotType != cmStateEnums::BuildsystemDirectoryType &&
-         pos != this->m_state->SnapshotData.Root()) {
+         pos != this->m_pState->SnapshotData.Root()) {
     ++pos;
   }
-  return { this->m_state, pos };
+  return { this->m_pState, pos };
 }
 
 void cmStateSnapshot::PushPolicy(cmPolicies::PolicyMap const& entry, bool weak)
 {
   cmStateDetail::PositionType pos = this->Position;
-  pos->Policies = this->m_state->PolicyStack.Push(
+  pos->Policies = this->m_pState->PolicyStack.Push(
     pos->Policies, cmStateDetail::PolicyStackEntry(entry, weak));
 }
 
@@ -142,7 +142,7 @@ bool cmStateSnapshot::PopPolicy()
   if (pos->Policies == pos->PolicyScope) {
     return false;
   }
-  pos->Policies = this->m_state->PolicyStack.Pop(pos->Policies);
+  pos->Policies = this->m_pState->PolicyStack.Pop(pos->Policies);
   return true;
 }
 
@@ -194,7 +194,7 @@ cmPolicies::PolicyStatus cmStateSnapshot::GetPolicy(cmPolicies::PolicyID id,
     }
     cmStateDetail::PositionType e = dir->CurrentScope;
     cmStateDetail::PositionType p = e->DirectoryParent;
-    if (p == this->m_state->SnapshotData.Root()) {
+    if (p == this->m_pState->SnapshotData.Root()) {
       break;
     }
     dir = p->BuildSystemDirectory;
@@ -351,12 +351,12 @@ void cmStateSnapshot::SetDefaultDefinitions()
 
 void cmStateSnapshot::SetDirectoryDefinitions()
 {
-  this->SetDefinition("CMAKE_SOURCE_DIR", this->m_state->GetSourceDirectory());
+  this->SetDefinition("CMAKE_SOURCE_DIR", this->m_pState->GetSourceDirectory());
   this->SetDefinition("CMAKE_CURRENT_SOURCE_DIR",
-                      this->m_state->GetSourceDirectory());
-  this->SetDefinition("CMAKE_BINARY_DIR", this->m_state->GetBinaryDirectory());
+                      this->m_pState->GetSourceDirectory());
+  this->SetDefinition("CMAKE_BINARY_DIR", this->m_pState->GetBinaryDirectory());
   this->SetDefinition("CMAKE_CURRENT_BINARY_DIR",
-                      this->m_state->GetBinaryDirectory());
+                      this->m_pState->GetBinaryDirectory());
 }
 
 void cmStateSnapshot::InitializeFromParent()
@@ -402,7 +402,7 @@ void cmStateSnapshot::InitializeFromParent()
 
 cmState* cmStateSnapshot::GetState() const
 {
-  return this->m_state;
+  return this->m_pState;
 }
 
 cmStateDirectory cmStateSnapshot::GetDirectory() const
@@ -431,8 +431,8 @@ void cmStateSnapshot::InitializeFromParent_ForSubdirsCommand()
   std::string currentSrcDir = *this->GetDefinition("CMAKE_CURRENT_SOURCE_DIR");
   std::string currentBinDir = *this->GetDefinition("CMAKE_CURRENT_BINARY_DIR");
   this->InitializeFromParent();
-  this->SetDefinition("CMAKE_SOURCE_DIR", this->m_state->GetSourceDirectory());
-  this->SetDefinition("CMAKE_BINARY_DIR", this->m_state->GetBinaryDirectory());
+  this->SetDefinition("CMAKE_SOURCE_DIR", this->m_pState->GetSourceDirectory());
+  this->SetDefinition("CMAKE_BINARY_DIR", this->m_pState->GetBinaryDirectory());
 
   this->SetDefinition("CMAKE_CURRENT_SOURCE_DIR", currentSrcDir);
   this->SetDefinition("CMAKE_CURRENT_BINARY_DIR", currentBinDir);

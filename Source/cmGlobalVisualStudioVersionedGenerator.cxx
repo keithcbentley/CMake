@@ -498,7 +498,7 @@ bool cmGlobalVisualStudioVersionedGenerator::SetGeneratorInstance(
   if (!i.empty()) {
     vsInstance = i;
     if (!this->vsSetupAPIHelper.SetVSInstance(
-          this->GeneratorInstance, this->GeneratorInstanceVersion)) {
+          this->m_generatorInstance, this->GeneratorInstanceVersion)) {
       std::ostringstream e;
       /* clang-format off */
       e <<
@@ -507,9 +507,9 @@ bool cmGlobalVisualStudioVersionedGenerator::SetGeneratorInstance(
         "could not find specified instance of Visual Studio:\n"
         "  " << i;
       /* clang-format on */
-      if (!this->GeneratorInstance.empty() &&
+      if (!this->m_generatorInstance.empty() &&
           this->GeneratorInstanceVersion.empty() &&
-          cmSystemTools::FileIsDirectory(this->GeneratorInstance)) {
+          cmSystemTools::FileIsDirectory(this->m_generatorInstance)) {
         e << "\n"
              "The directory exists, but the instance is not known to the "
              "Visual Studio Installer, and no 'version=' field was given.";
@@ -549,7 +549,7 @@ bool cmGlobalVisualStudioVersionedGenerator::SetGeneratorInstance(
 bool cmGlobalVisualStudioVersionedGenerator::ParseGeneratorInstance(
   std::string const& is, cmMakefile* mf)
 {
-  this->GeneratorInstance.clear();
+  this->m_generatorInstance.clear();
   this->GeneratorInstanceVersion.clear();
 
   std::vector<std::string> const fields =
@@ -561,7 +561,7 @@ bool cmGlobalVisualStudioVersionedGenerator::ParseGeneratorInstance(
   auto fi = fields.begin();
   // The first field may be the VS instance.
   if (fi->find('=') == fi->npos) {
-    this->GeneratorInstance = *fi;
+    this->m_generatorInstance = *fi;
     ++fi;
   }
 

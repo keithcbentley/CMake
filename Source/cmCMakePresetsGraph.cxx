@@ -490,33 +490,33 @@ ExpandMacroResult cmCMakePresetsGraphInternal::ExpandMacros(
   std::string macroNamespace;
   std::string macroName;
 
-  enum class m_state
+  enum class m_pState
   {
     Default,
     MacroNamespace,
     MacroName,
-  } state = m_state::Default;
+  } state = m_pState::Default;
 
   for (auto c : out) {
     switch (state) {
-      case m_state::Default:
+      case m_pState::Default:
         if (c == '$') {
-          state = m_state::MacroNamespace;
+          state = m_pState::MacroNamespace;
         } else {
           result += c;
         }
         break;
 
-      case m_state::MacroNamespace:
+      case m_pState::MacroNamespace:
         if (c == '{') {
           if (IsValidMacroNamespace(macroNamespace)) {
-            state = m_state::MacroName;
+            state = m_pState::MacroName;
           } else {
             result += '$';
             result += macroNamespace;
             result += '{';
             macroNamespace.clear();
-            state = m_state::Default;
+            state = m_pState::Default;
           }
         } else {
           macroNamespace += c;
@@ -524,12 +524,12 @@ ExpandMacroResult cmCMakePresetsGraphInternal::ExpandMacros(
             result += '$';
             result += macroNamespace;
             macroNamespace.clear();
-            state = m_state::Default;
+            state = m_pState::Default;
           }
         }
         break;
 
-      case m_state::MacroName:
+      case m_pState::MacroName:
         if (c == '}') {
           auto e = ExpandMacro(result, macroNamespace, macroName,
                                macroExpanders, version);
@@ -538,7 +538,7 @@ ExpandMacroResult cmCMakePresetsGraphInternal::ExpandMacros(
           }
           macroNamespace.clear();
           macroName.clear();
-          state = m_state::Default;
+          state = m_pState::Default;
         } else {
           macroName += c;
         }
@@ -547,13 +547,13 @@ ExpandMacroResult cmCMakePresetsGraphInternal::ExpandMacros(
   }
 
   switch (state) {
-    case m_state::Default:
+    case m_pState::Default:
       break;
-    case m_state::MacroNamespace:
+    case m_pState::MacroNamespace:
       result += '$';
       result += macroNamespace;
       break;
-    case m_state::MacroName:
+    case m_pState::MacroName:
       return ExpandMacroResult::Error;
   }
 

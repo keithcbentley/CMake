@@ -21,7 +21,7 @@ namespace {
 
 class CMakeFiles
 {
-  cmFileAPI& m_fileAPI;
+  cmFileAPI& m_pFileAPI;
   unsigned long Version;
   std::string CMakeModules;
   std::string const& TopSource;
@@ -40,11 +40,11 @@ public:
 };
 
 CMakeFiles::CMakeFiles(cmFileAPI& fileAPI, unsigned long version)
-  : m_fileAPI(fileAPI)
+  : m_pFileAPI(fileAPI)
   , Version(version)
   , CMakeModules(cmSystemTools::GetCMakeRoot() + "/Modules")
-  , TopSource(this->m_fileAPI.GetCMakeInstance()->GetHomeDirectory())
-  , TopBuild(this->m_fileAPI.GetCMakeInstance()->GetHomeOutputDirectory())
+  , TopSource(this->m_pFileAPI.GetCMakeInstance()->GetHomeDirectory())
+  , TopBuild(this->m_pFileAPI.GetCMakeInstance()->GetHomeOutputDirectory())
   , OutOfSource(this->TopBuild != this->TopSource)
 {
   static_cast<void>(this->Version);
@@ -75,7 +75,7 @@ Json::Value CMakeFiles::DumpInputs()
   Json::Value inputs = Json::arrayValue;
 
   cmGlobalGenerator* gg =
-    this->m_fileAPI.GetCMakeInstance()->GetGlobalGenerator();
+    this->m_pFileAPI.GetCMakeInstance()->GetGlobalGenerator();
   for (auto const& lg : gg->GetLocalGenerators()) {
     cmMakefile const* mf = lg->GetMakefile();
     for (std::string const& file : mf->GetListFiles()) {
@@ -119,7 +119,7 @@ Json::Value CMakeFiles::DumpGlobsDependent()
 {
   Json::Value globsDependent = Json::arrayValue;
   for (cmGlobCacheEntry const& entry :
-       this->m_fileAPI.GetCMakeInstance()->GetGlobCacheEntries()) {
+       this->m_pFileAPI.GetCMakeInstance()->GetGlobCacheEntries()) {
     globsDependent.append(this->DumpGlobDependent(entry));
   }
   return globsDependent;

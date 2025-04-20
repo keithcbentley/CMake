@@ -348,7 +348,7 @@ bool cmGlobalVisualStudio10Generator::ParseGeneratorToolset(
   auto fi = fields.begin();
   // The first field may be the VS platform toolset.
   if (fi->find('=') == fi->npos) {
-    this->GeneratorToolset = *fi;
+    this->m_generatorToolset = *fi;
     ++fi;
   }
 
@@ -709,8 +709,8 @@ char const* cmGlobalVisualStudio10Generator::GetPlatformToolset() const
 std::string const& cmGlobalVisualStudio10Generator::GetPlatformToolsetString()
   const
 {
-  if (!this->GeneratorToolset.empty()) {
-    return this->GeneratorToolset;
+  if (!this->m_generatorToolset.empty()) {
+    return this->m_generatorToolset;
   }
   if (this->SystemIsAndroid) {
     if (!this->DefaultAndroidToolset.empty()) {

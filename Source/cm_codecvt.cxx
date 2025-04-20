@@ -66,7 +66,7 @@ std::codecvt_base::result codecvt::do_out(mbstate_t& state, char const* from,
   // Use a const view of the state because we should not modify it until we
   // have fully processed and consume a byte (with sufficient space in the
   // output buffer).  We call helpers to re-cast and modify the state
-  m_state const& lstate = reinterpret_cast<m_state&>(state);
+  m_pState const& lstate = reinterpret_cast<m_pState&>(state);
 
   while (from_next != from_end) {
     // Count leading ones in the bits of the next byte.
@@ -140,7 +140,7 @@ std::codecvt_base::result codecvt::do_unshift(mbstate_t& state, char* to,
     return std::codecvt_base::noconv;
   }
 #if defined(_WIN32)
-  m_state& lstate = reinterpret_cast<m_state&>(state);
+  m_pState& lstate = reinterpret_cast<m_pState&>(state);
   if (lstate.buffered != 0) {
     return this->DecodePartial(state, to_next, to_end);
   }
@@ -157,7 +157,7 @@ std::codecvt_base::result codecvt::Decode(mbstate_t& state, int size,
                                           char const*& from_next,
                                           char*& to_next, char* to_end) const
 {
-  m_state& lstate = reinterpret_cast<m_state&>(state);
+  m_pState& lstate = reinterpret_cast<m_pState&>(state);
 
   // Collect all the bytes for this codepoint.
   char buf[4];
@@ -188,7 +188,7 @@ std::codecvt_base::result codecvt::Decode(mbstate_t& state, int size,
   to_next += tlen;
 
   // Re-initialize the state for the next codepoint to start.
-  lstate = m_state();
+  lstate = m_pState();
 
   return std::codecvt_base::ok;
 }
@@ -197,7 +197,7 @@ std::codecvt_base::result codecvt::DecodePartial(mbstate_t& state,
                                                  char*& to_next,
                                                  char* to_end) const
 {
-  m_state& lstate = reinterpret_cast<m_state&>(state);
+  m_pState& lstate = reinterpret_cast<m_pState&>(state);
 
   // Try converting the partial codepoint.
   wchar_t wbuf[2];
@@ -220,7 +220,7 @@ std::codecvt_base::result codecvt::DecodePartial(mbstate_t& state,
   to_next += tlen;
 
   // Re-initialize the state for the next codepoint to start.
-  lstate = m_state();
+  lstate = m_pState();
 
   return std::codecvt_base::ok;
 }
@@ -228,7 +228,7 @@ std::codecvt_base::result codecvt::DecodePartial(mbstate_t& state,
 void codecvt::BufferPartial(mbstate_t& state, int size,
                             char const*& from_next) const
 {
-  m_state& lstate = reinterpret_cast<m_state&>(state);
+  m_pState& lstate = reinterpret_cast<m_pState&>(state);
 
   // Save the byte in our buffer for later.
   lstate.partial[lstate.buffered++] = *from_next;

@@ -575,7 +575,7 @@ static const yytype_uint8 yyrline[] =
 #endif
 
 /** Accessing symbol of state STATE.  */
-#define YY_ACCESSING_SYMBOL(m_state) YY_CAST (yysymbol_kind_t, yystos[m_state])
+#define YY_ACCESSING_SYMBOL(m_pState) YY_CAST (yysymbol_kind_t, yystos[m_pState])
 
 #if 1
 /* The user-facing name of the symbol whose (internal) number is

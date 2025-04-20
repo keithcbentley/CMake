@@ -33,13 +33,13 @@ enum class NestingStateEnum
 
 struct NestingState
 {
-  NestingStateEnum m_state;
+  NestingStateEnum m_pState;
   cmListFileContext Context;
 };
 
 bool TopIs(std::vector<NestingState>& stack, NestingStateEnum state)
 {
-  return !stack.empty() && stack.back().m_state == state;
+  return !stack.empty() && stack.back().m_pState == state;
 }
 
 class cmListFileParser
@@ -72,7 +72,7 @@ private:
 
   cmListFile* ListFile;
   cmListFileBacktrace Backtrace;
-  cmMessenger* m_messenger;
+  cmMessenger* m_pMessenger;
   char const* FileName = nullptr;
   std::unique_ptr<cmListFileLexer, void (*)(cmListFileLexer*)> Lexer;
   std::string FunctionName;
@@ -85,14 +85,14 @@ cmListFileParser::cmListFileParser(cmListFile* lf, cmListFileBacktrace lfbt,
                                    cmMessenger* messenger)
   : ListFile(lf)
   , Backtrace(std::move(lfbt))
-  , m_messenger(messenger)
+  , m_pMessenger(messenger)
   , Lexer(cmListFileLexer_New(), cmListFileLexer_Delete)
 {
 }
 
 void cmListFileParser::IssueFileOpenError(std::string const& text) const
 {
-  this->m_messenger->IssueMessage(MessageType::FATAL_ERROR, text,
+  this->m_pMessenger->IssueMessage(MessageType::FATAL_ERROR, text,
                                 this->Backtrace);
 }
 
@@ -103,7 +103,7 @@ void cmListFileParser::IssueError(std::string const& text) const
   lfc.Line = cmListFileLexer_GetCurrentLine(this->Lexer.get());
   cmListFileBacktrace lfbt = this->Backtrace;
   lfbt = lfbt.Push(lfc);
-  this->m_messenger->IssueMessage(MessageType::FATAL_ERROR, text, lfbt);
+  this->m_pMessenger->IssueMessage(MessageType::FATAL_ERROR, text, lfbt);
   cmSystemTools::SetFatalErrorOccurred();
 }
 
@@ -197,7 +197,7 @@ bool cmListFileParser::Parse()
 
   // Check if all functions are nested properly.
   if (auto badNesting = this->CheckNesting()) {
-    this->m_messenger->IssueMessage(
+    this->m_pMessenger->IssueMessage(
       MessageType::FATAL_ERROR,
       "Flow control statements are not properly nested.",
       this->Backtrace.Push(*badNesting));
@@ -294,7 +294,7 @@ bool cmListFileParser::ParseFunction(char const* name, long line)
   lfc.Line = line;
   cmListFileBacktrace lfbt = this->Backtrace;
   lfbt = lfbt.Push(lfc);
-  this->m_messenger->IssueMessage(
+  this->m_pMessenger->IssueMessage(
     MessageType::FATAL_ERROR,
     "Parse error.  Function missing ending \")\".  "
     "End of file reached.",
@@ -322,10 +322,10 @@ bool cmListFileParser::AddArgument(cmListFileLexer_Token* token,
              "\n"
              "Argument not separated from preceding token by whitespace.");
   if (isError) {
-    this->m_messenger->IssueMessage(MessageType::FATAL_ERROR, msg, lfbt);
+    this->m_pMessenger->IssueMessage(MessageType::FATAL_ERROR, msg, lfbt);
     return false;
   }
-  this->m_messenger->IssueMessage(MessageType::AUTHOR_WARNING, msg, lfbt);
+  this->m_pMessenger->IssueMessage(MessageType::AUTHOR_WARNING, msg, lfbt);
   return true;
 }
 

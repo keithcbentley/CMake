@@ -110,10 +110,10 @@ std::string cmVisualStudioSlnParser::ParsedLine::GetValueVerbatim(
   return BadString;
 }
 
-class cmVisualStudioSlnParser::m_state
+class cmVisualStudioSlnParser::m_pState
 {
 public:
-  explicit m_state(DataGroupSet requestedData);
+  explicit m_pState(DataGroupSet requestedData);
 
   size_t GetCurrentLine() const { return this->CurrentLine; }
   bool ReadLine(std::istream& input, std::string& line);
@@ -147,7 +147,7 @@ private:
   void IgnoreUntilTag(std::string const& endTag);
 };
 
-cmVisualStudioSlnParser::m_state::m_state(DataGroupSet requestedData)
+cmVisualStudioSlnParser::m_pState::m_pState(DataGroupSet requestedData)
   : RequestedData(requestedData)
 {
   if (this->RequestedData.test(DataGroupProjectDependenciesBit)) {
@@ -156,14 +156,14 @@ cmVisualStudioSlnParser::m_state::m_state(DataGroupSet requestedData)
   this->Stack.push(FileStateStart);
 }
 
-bool cmVisualStudioSlnParser::m_state::ReadLine(std::istream& input,
+bool cmVisualStudioSlnParser::m_pState::ReadLine(std::istream& input,
                                               std::string& line)
 {
   ++this->CurrentLine;
   return !std::getline(input, line).fail();
 }
 
-LineFormat cmVisualStudioSlnParser::m_state::NextLineFormat() const
+LineFormat cmVisualStudioSlnParser::m_pState::NextLineFormat() const
 {
   switch (this->Stack.top()) {
     case FileStateStart:
@@ -187,7 +187,7 @@ LineFormat cmVisualStudioSlnParser::m_state::NextLineFormat() const
   }
 }
 
-bool cmVisualStudioSlnParser::m_state::Process(
+bool cmVisualStudioSlnParser::m_pState::Process(
   cmVisualStudioSlnParser::ParsedLine const& line, cmSlnData& output,
   cmVisualStudioSlnParser::ResultData& result)
 {
@@ -372,7 +372,7 @@ bool cmVisualStudioSlnParser::m_state::Process(
   return true;
 }
 
-bool cmVisualStudioSlnParser::m_state::Finished(
+bool cmVisualStudioSlnParser::m_pState::Finished(
   cmVisualStudioSlnParser::ResultData& result)
 {
   if (this->Stack.top() != FileStateTopLevel) {
@@ -383,7 +383,7 @@ bool cmVisualStudioSlnParser::m_state::Finished(
   return true;
 }
 
-void cmVisualStudioSlnParser::m_state::IgnoreUntilTag(std::string const& endTag)
+void cmVisualStudioSlnParser::m_pState::IgnoreUntilTag(std::string const& endTag)
 {
   this->Stack.push(FileStateIgnore);
   this->EndIgnoreTag = endTag;
@@ -438,7 +438,7 @@ bool cmVisualStudioSlnParser::Parse(std::istream& input, cmSlnData& output,
     this->LastResult.SetError(ResultErrorUnsupportedDataGroup, 0);
     return false;
   }
-  m_state state(dataGroups);
+  m_pState state(dataGroups);
   return this->ParseImpl(input, output, state);
 }
 
@@ -456,7 +456,7 @@ bool cmVisualStudioSlnParser::ParseFile(std::string const& file,
     this->LastResult.SetError(ResultErrorOpeningInput, 0);
     return false;
   }
-  m_state state(dataGroups);
+  m_pState state(dataGroups);
   return this->ParseImpl(f, output, state);
 }
 
@@ -483,7 +483,7 @@ bool cmVisualStudioSlnParser::IsDataGroupSetSupported(
 }
 
 bool cmVisualStudioSlnParser::ParseImpl(std::istream& input, cmSlnData& output,
-                                        m_state& state)
+                                        m_pState& state)
 {
   std::string line;
   // Does the .sln start with a Byte Order Mark?
@@ -527,7 +527,7 @@ bool cmVisualStudioSlnParser::ParseImpl(std::istream& input, cmSlnData& output,
 }
 
 bool cmVisualStudioSlnParser::ParseBOM(std::istream& input, std::string& line,
-                                       m_state& state)
+                                       m_pState& state)
 {
   char bom[4];
   if (!input.get(bom, 4)) {
@@ -548,7 +548,7 @@ bool cmVisualStudioSlnParser::ParseBOM(std::istream& input, std::string& line,
 
 bool cmVisualStudioSlnParser::ParseMultiValueTag(std::string const& line,
                                                  ParsedLine& parsedLine,
-                                                 m_state& state)
+                                                 m_pState& state)
 {
   size_t idxEqualSign = line.find('=');
   auto fullTag = cm::string_view(line).substr(0, idxEqualSign);
@@ -595,7 +595,7 @@ bool cmVisualStudioSlnParser::ParseMultiValueTag(std::string const& line,
 
 bool cmVisualStudioSlnParser::ParseSingleValueTag(std::string const& line,
                                                   ParsedLine& parsedLine,
-                                                  m_state& state)
+                                                  m_pState& state)
 {
   size_t idxEqualSign = line.find('=');
   auto fullTag = cm::string_view(line).substr(0, idxEqualSign);
@@ -612,7 +612,7 @@ bool cmVisualStudioSlnParser::ParseSingleValueTag(std::string const& line,
 
 bool cmVisualStudioSlnParser::ParseKeyValuePair(std::string const& line,
                                                 ParsedLine& parsedLine,
-                                                m_state& /*state*/)
+                                                m_pState& /*state*/)
 {
   size_t idxEqualSign = line.find('=');
   if (idxEqualSign == std::string::npos) {
@@ -627,7 +627,7 @@ bool cmVisualStudioSlnParser::ParseKeyValuePair(std::string const& line,
 }
 
 bool cmVisualStudioSlnParser::ParseTag(cm::string_view fullTag,
-                                       ParsedLine& parsedLine, m_state& state)
+                                       ParsedLine& parsedLine, m_pState& state)
 {
   size_t idxLeftParen = fullTag.find('(');
   if (idxLeftParen == cm::string_view::npos) {

@@ -23,7 +23,7 @@ public:
     ImportPackageInfo,
     ExportPackageInfo,
     ExportBuildDatabase,
-    m_instrumentation,
+    m_pInstrumentation,
 
     Sentinel,
   };

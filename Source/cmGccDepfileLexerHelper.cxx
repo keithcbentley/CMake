@@ -38,19 +38,19 @@ bool cmGccDepfileLexerHelper::readFile(char const* filePath)
   cmGccDepfile_yylex_destroy(scanner);
   this->sanitizeContent();
   fclose(file);
-  return this->HelperState != m_state::Failed;
+  return this->HelperState != m_pState::Failed;
 }
 
 void cmGccDepfileLexerHelper::newEntry()
 {
-  if (this->HelperState == m_state::Rule && !this->Content.empty()) {
+  if (this->HelperState == m_pState::Rule && !this->Content.empty()) {
     if (!this->Content.back().rules.empty() &&
         !this->Content.back().rules.back().empty()) {
-      this->HelperState = m_state::Failed;
+      this->HelperState = m_pState::Failed;
     }
     return;
   }
-  this->HelperState = m_state::Rule;
+  this->HelperState = m_pState::Rule;
   this->Content.emplace_back();
   this->newRule();
 }
@@ -65,10 +65,10 @@ void cmGccDepfileLexerHelper::newRule()
 
 void cmGccDepfileLexerHelper::newDependency()
 {
-  if (this->HelperState == m_state::Failed) {
+  if (this->HelperState == m_pState::Failed) {
     return;
   }
-  this->HelperState = m_state::Dependency;
+  this->HelperState = m_pState::Dependency;
   auto& entry = this->Content.back();
   if (entry.paths.empty() || !entry.paths.back().empty()) {
     entry.paths.emplace_back();
@@ -77,9 +77,9 @@ void cmGccDepfileLexerHelper::newDependency()
 
 void cmGccDepfileLexerHelper::newRuleOrDependency()
 {
-  if (this->HelperState == m_state::Rule) {
+  if (this->HelperState == m_pState::Rule) {
     this->newRule();
-  } else if (this->HelperState == m_state::Dependency) {
+  } else if (this->HelperState == m_pState::Dependency) {
     this->newDependency();
   }
 }
@@ -92,19 +92,19 @@ void cmGccDepfileLexerHelper::addToCurrentPath(char const* s)
   cmGccStyleDependency* dep = &this->Content.back();
   std::string* dst = nullptr;
   switch (this->HelperState) {
-    case m_state::Rule: {
+    case m_pState::Rule: {
       if (dep->rules.empty()) {
         return;
       }
       dst = &dep->rules.back();
     } break;
-    case m_state::Dependency: {
+    case m_pState::Dependency: {
       if (dep->paths.empty()) {
         return;
       }
       dst = &dep->paths.back();
     } break;
-    case m_state::Failed:
+    case m_pState::Failed:
       return;
   }
   dst->append(s);

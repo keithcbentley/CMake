@@ -82,7 +82,7 @@ private:
 
   void InitializeFromParent();
 
-  cmState* m_state;
+  cmState* m_pState;
   cmStateDetail::PositionType Position;
 };
 

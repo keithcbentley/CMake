@@ -380,7 +380,7 @@ private:
   std::string ObjectDirArchDefault;
   std::string ObjectDirArch;
   std::string SystemName;
-  std::string GeneratorToolset;
+  std::string m_generatorToolset;
   std::vector<std::string> EnabledLangs;
   std::map<cmGeneratorTarget const*, std::set<cmSourceFile const*>>
     CommandsVisited;

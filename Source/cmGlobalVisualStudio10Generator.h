@@ -225,7 +225,7 @@ protected:
                                       std::string const& defaultName,
                                       std::string const& table) const;
 
-  std::string GeneratorToolset;
+  std::string m_generatorToolset;
   std::string GeneratorToolsetVersionProps;
   std::string GeneratorToolsetHostArchitecture;
   std::string GeneratorToolsetCustomVCTargetsDir;

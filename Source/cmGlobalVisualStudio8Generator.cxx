@@ -118,7 +118,7 @@ bool cmGlobalVisualStudio8Generator::SetGeneratorPlatform(std::string const& p,
 bool cmGlobalVisualStudio8Generator::ParseGeneratorPlatform(
   std::string const& p, cmMakefile* mf)
 {
-  this->GeneratorPlatform.clear();
+  this->m_generatorPlatform.clear();
 
   std::vector<std::string> const fields =
     cmTokenize(p, ',', cmTokenizerMode::New);
@@ -129,7 +129,7 @@ bool cmGlobalVisualStudio8Generator::ParseGeneratorPlatform(
   auto fi = fields.begin();
   // The first field may be the VS platform.
   if (fi->find('=') == fi->npos) {
-    this->GeneratorPlatform = *fi;
+    this->m_generatorPlatform = *fi;
     ++fi;
   }
 

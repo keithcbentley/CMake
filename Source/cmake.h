@@ -284,22 +284,22 @@ public:
   //! Set the name of the selected generator-specific instance.
   void SetGeneratorInstance(std::string const& instance)
   {
-    this->GeneratorInstance = instance;
-    this->GeneratorInstanceSet = true;
+    this->m_generatorInstance = instance;
+    this->m_generatorInstanceSet = true;
   }
 
   //! Set the name of the selected generator-specific platform.
   void SetGeneratorPlatform(std::string const& ts)
   {
-    this->GeneratorPlatform = ts;
-    this->GeneratorPlatformSet = true;
+    this->m_generatorPlatform = ts;
+    this->m_generatorPlatformSet = true;
   }
 
   //! Set the name of the selected generator-specific toolset.
   void SetGeneratorToolset(std::string const& ts)
   {
-    this->GeneratorToolset = ts;
-    this->GeneratorToolsetSet = true;
+    this->m_generatorToolset = ts;
+    this->m_generatorToolsetSet = true;
   }
 
   //! Set the name of the graphviz file.
@@ -414,7 +414,7 @@ public:
 
 #if !defined(CMAKE_BOOTSTRAP)
   //! Get the variable watch object
-  cmVariableWatch* GetVariableWatch() { return this->m_variableWatch.get(); }
+  cmVariableWatch* GetVariableWatch() { return this->m_pVariableWatch.get(); }
 #endif
 
   std::vector<cmDocumentationEntry> GetGeneratorsDocumentation();
@@ -565,7 +565,7 @@ public:
   void SetCMakeEditCommand(std::string const& s) { this->m_cmakeEditCommand = s; }
   std::string const& GetCMakeEditCommand() const { return this->m_cmakeEditCommand; }
 
-  cmMessenger* GetMessenger() const { return this->m_messenger.get(); }
+  cmMessenger* GetMessenger() const { return this->m_pMessenger.get(); }
 
 #ifndef CMAKE_BOOTSTRAP
   /// Get the SARIF file path if set manually for this run
@@ -669,11 +669,11 @@ public:
   void WatchUnusedCli(std::string const& var);
 
 #if !defined(CMAKE_BOOTSTRAP)
-  cmFileAPI* GetFileAPI() const { return this->m_fileAPI.get(); }
-  cmInstrumentation* GetInstrumentation() const { return this->m_instrumentation.get(); }
+  cmFileAPI* GetFileAPI() const { return this->m_pFileAPI.get(); }
+  cmInstrumentation* GetInstrumentation() const { return this->m_pInstrumentation.get(); }
 #endif
 
-  cmState* GetState() const { return this->m_state.get(); }
+  cmState* GetState() const { return this->m_pState.get(); }
   void SetCurrentSnapshot(cmStateSnapshot const& snapshot) { this->m_currentSnapshot = snapshot; }
   cmStateSnapshot GetCurrentSnapshot() const { return this->m_currentSnapshot; }
 
@@ -729,13 +729,13 @@ protected:
   void AddDefaultGenerators();
   void AddDefaultExtraGenerators();
 
-  std::map<std::string, DiagLevel> DiagLevels;
-  std::string GeneratorInstance;
-  std::string GeneratorPlatform;
-  std::string GeneratorToolset;
-  bool GeneratorInstanceSet = false;
-  bool GeneratorPlatformSet = false;
-  bool GeneratorToolsetSet = false;
+  std::map<std::string, DiagLevel> m_diagLevels;
+  std::string m_generatorInstance;
+  std::string m_generatorPlatform;
+  std::string m_generatorToolset;
+  bool m_generatorInstanceSet = false;
+  bool m_generatorPlatformSet = false;
+  bool m_generatorToolsetSet = false;
 
   //! read in a cmake list file to initialize the cache
   void ReadListFile(
@@ -811,14 +811,14 @@ private:
 #endif
 
 #if !defined(CMAKE_BOOTSTRAP)
-  std::unique_ptr<cmVariableWatch> m_variableWatch;
-  std::unique_ptr<cmFileAPI> m_fileAPI;
-  std::unique_ptr<cmInstrumentation> m_instrumentation;
+  std::unique_ptr<cmVariableWatch> m_pVariableWatch;
+  std::unique_ptr<cmFileAPI> m_pFileAPI;
+  std::unique_ptr<cmInstrumentation> m_pInstrumentation;
 #endif
 
-  std::unique_ptr<cmState> m_state;
+  std::unique_ptr<cmState> m_pState;
   cmStateSnapshot m_currentSnapshot;
-  std::unique_ptr<cmMessenger> m_messenger;
+  std::unique_ptr<cmMessenger> m_pMessenger;
 
 #ifndef CMAKE_BOOTSTRAP
   bool m_SarifFileOutput = false;

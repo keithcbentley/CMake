@@ -94,7 +94,7 @@ private:
   bool ParseGeneratorInstance(std::string const& is, cmMakefile* mf);
   void SetVSVersionVar(cmMakefile* mf);
 
-  std::string GeneratorInstance;
+  std::string m_generatorInstance;
   std::string GeneratorInstanceVersion;
   cm::optional<std::string> LastGeneratorInstanceString;
 };

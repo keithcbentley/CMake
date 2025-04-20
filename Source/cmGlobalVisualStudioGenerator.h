@@ -192,7 +192,7 @@ protected:
   VSVersion Version;
   bool ExpressEdition;
 
-  std::string GeneratorPlatform;
+  std::string m_generatorPlatform;
   std::string DefaultPlatformName;
 
 private:

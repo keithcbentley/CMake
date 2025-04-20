@@ -98,8 +98,8 @@ cmValue cmGlobalVisualStudioGenerator::GetDebuggerWorkingDirectory(
 
 std::string const& cmGlobalVisualStudioGenerator::GetPlatformName() const
 {
-  if (!this->GeneratorPlatform.empty()) {
-    return this->GeneratorPlatform;
+  if (!this->m_generatorPlatform.empty()) {
+    return this->m_generatorPlatform;
   }
   return this->DefaultPlatformName;
 }

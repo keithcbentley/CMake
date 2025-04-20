@@ -12,7 +12,7 @@ namespace {
 
 class m_configureLog
 {
-  cmFileAPI& m_fileAPI;
+  cmFileAPI& m_pFileAPI;
   unsigned long Version;
 
   Json::Value DumpPath();
@@ -24,7 +24,7 @@ public:
 };
 
 m_configureLog::m_configureLog(cmFileAPI& fileAPI, unsigned long version)
-  : m_fileAPI(fileAPI)
+  : m_pFileAPI(fileAPI)
   , Version(version)
 {
   static_cast<void>(this->Version);
@@ -40,7 +40,7 @@ Json::Value m_configureLog::Dump()
 
 Json::Value m_configureLog::DumpPath()
 {
-  return cmStrCat(this->m_fileAPI.GetCMakeInstance()->GetHomeOutputDirectory(),
+  return cmStrCat(this->m_pFileAPI.GetCMakeInstance()->GetHomeOutputDirectory(),
                   "/CMakeFiles/CMakeConfigureLog.yaml");
 }
 

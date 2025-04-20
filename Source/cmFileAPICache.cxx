@@ -18,9 +18,9 @@ namespace {
 
 class Cache
 {
-  cmFileAPI& m_fileAPI;
+  cmFileAPI& m_pFileAPI;
   unsigned long Version;
-  cmState* m_state;
+  cmState* m_pState;
 
   Json::Value DumpEntries();
   Json::Value DumpEntry(std::string const& name);
@@ -34,9 +34,9 @@ public:
 };
 
 Cache::Cache(cmFileAPI& fileAPI, unsigned long version)
-  : m_fileAPI(fileAPI)
+  : m_pFileAPI(fileAPI)
   , Version(version)
-  , m_state(this->m_fileAPI.GetCMakeInstance()->GetState())
+  , m_pState(this->m_pFileAPI.GetCMakeInstance()->GetState())
 {
   static_cast<void>(this->Version);
 }
@@ -52,7 +52,7 @@ Json::Value Cache::DumpEntries()
 {
   Json::Value entries = Json::arrayValue;
 
-  std::vector<std::string> names = this->m_state->GetCacheEntryKeys();
+  std::vector<std::string> names = this->m_pState->GetCacheEntryKeys();
   std::sort(names.begin(), names.end());
 
   for (std::string const& name : names) {
@@ -67,8 +67,8 @@ Json::Value Cache::DumpEntry(std::string const& name)
   Json::Value entry = Json::objectValue;
   entry["name"] = name;
   entry["type"] =
-    cmState::CacheEntryTypeToString(this->m_state->GetCacheEntryType(name));
-  entry["value"] = this->m_state->GetSafeCacheEntryValue(name);
+    cmState::CacheEntryTypeToString(this->m_pState->GetCacheEntryType(name));
+  entry["value"] = this->m_pState->GetSafeCacheEntryValue(name);
 
   Json::Value properties = this->DumpEntryProperties(name);
   if (!properties.empty()) {
@@ -82,7 +82,7 @@ Json::Value Cache::DumpEntryProperties(std::string const& name)
 {
   Json::Value properties = Json::arrayValue;
   std::vector<std::string> props =
-    this->m_state->GetCacheEntryPropertyList(name);
+    this->m_pState->GetCacheEntryPropertyList(name);
   std::sort(props.begin(), props.end());
   for (std::string const& prop : props) {
     properties.append(this->DumpEntryProperty(name, prop));
@@ -95,7 +95,7 @@ Json::Value Cache::DumpEntryProperty(std::string const& name,
 {
   Json::Value property = Json::objectValue;
   property["name"] = prop;
-  cmValue p = this->m_state->GetCacheEntryProperty(name, prop);
+  cmValue p = this->m_pState->GetCacheEntryProperty(name, prop);
   property["value"] = p ? *p : "";
   return property;
 }

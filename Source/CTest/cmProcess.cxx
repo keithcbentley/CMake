@@ -52,7 +52,7 @@ void cmProcess::SetWorkingDirectory(std::string const& dir)
 
 bool cmProcess::StartProcess(uv_loop_t& loop, std::vector<size_t>* affinity)
 {
-  this->ProcessState = cmProcess::m_state::Error;
+  this->ProcessState = cmProcess::m_pState::Error;
   if (this->Command.empty()) {
     return false;
   }
@@ -152,7 +152,7 @@ bool cmProcess::StartProcess(uv_loop_t& loop, std::vector<size_t>* affinity)
 
   this->StartTimer();
 
-  this->ProcessState = cmProcess::m_state::Executing;
+  this->ProcessState = cmProcess::m_pState::Executing;
   return true;
 }
 
@@ -282,8 +282,8 @@ void cmProcess::OnTimeoutCB(uv_timer_t* timer)
 
 void cmProcess::OnTimeout()
 {
-  bool const wasExecuting = this->ProcessState == cmProcess::m_state::Executing;
-  this->ProcessState = cmProcess::m_state::Expired;
+  bool const wasExecuting = this->ProcessState == cmProcess::m_pState::Executing;
+  this->ProcessState = cmProcess::m_pState::Expired;
 
   // If the test process is still executing normally, and we timed out because
   // the test timeout was reached, send the custom timeout signal, if any.
@@ -330,7 +330,7 @@ void cmProcess::OnExitCB(uv_process_t* process, int64_t exit_status,
 
 void cmProcess::OnExit(int64_t exit_status, int term_signal)
 {
-  if (this->ProcessState != cmProcess::m_state::Expired) {
+  if (this->ProcessState != cmProcess::m_pState::Expired) {
     if (
 #if defined(_WIN32)
       ((DWORD)exit_status & 0xF0000000) == 0xC0000000
@@ -338,9 +338,9 @@ void cmProcess::OnExit(int64_t exit_status, int term_signal)
       term_signal != 0
 #endif
     ) {
-      this->ProcessState = cmProcess::m_state::Exception;
+      this->ProcessState = cmProcess::m_pState::Exception;
     } else {
-      this->ProcessState = cmProcess::m_state::Exited;
+      this->ProcessState = cmProcess::m_pState::Exited;
     }
   }
 
@@ -368,7 +368,7 @@ void cmProcess::Finish()
   this->Runner->FinalizeTest();
 }
 
-cmProcess::m_state cmProcess::GetProcessStatus()
+cmProcess::m_pState cmProcess::GetProcessStatus()
 {
   return this->ProcessState;
 }
