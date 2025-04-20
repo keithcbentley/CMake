@@ -219,7 +219,7 @@ public:
   /**
    * Handle a command line invocation of cmake.
    */
-  int Run(std::vector<std::string> const& args) { return this->Run(args, false); }
+  int Run(std::vector<std::string> const& args) { return Run(args, false); }
   int Run(
     std::vector<std::string> const& args,
     bool noconfigure);
@@ -335,7 +335,7 @@ public:
     std::string const& helpString,
     int type)
   {
-    this->AddCacheEntry(key, cmValue{ value }, cmValue{ helpString }, type);
+    AddCacheEntry(key, cmValue{ value }, cmValue{ helpString }, type);
   }
   void AddCacheEntry(
     std::string const& key,
@@ -343,7 +343,7 @@ public:
     std::string const& helpString,
     int type)
   {
-    this->AddCacheEntry(key, value, cmValue{ helpString }, type);
+    AddCacheEntry(key, value, cmValue{ helpString }, type);
   }
   void AddCacheEntry(
     std::string const& key,
@@ -423,13 +423,13 @@ public:
     std::string const& prop,
     std::nullptr_t)
   {
-    this->SetProperty(prop, cmValue{ nullptr });
+    SetProperty(prop, cmValue{ nullptr });
   }
   void SetProperty(
     std::string const& prop,
     std::string const& value)
   {
-    this->SetProperty(prop, cmValue(value));
+    SetProperty(prop, cmValue(value));
   }
   void AppendProperty(
     std::string const& prop,
@@ -683,7 +683,7 @@ public:
     std::string const& category,
     std::string const& name)
   {
-    return this->CreateProfilingEntry(category, name, []() -> cm::nullopt_t { return cm::nullopt; });
+    return CreateProfilingEntry(category, name, []() -> cm::nullopt_t { return cm::nullopt; });
   }
 
   template <typename ArgsFunc>
@@ -692,8 +692,8 @@ public:
     std::string const& name,
     ArgsFunc&& argsFunc)
   {
-    if (this->IsProfilingEnabled()) {
-      return cm::make_optional<cmMakefileProfilingData::RAII>(this->GetProfilingOutput(), category, name, argsFunc());
+    if (IsProfilingEnabled()) {
+      return cm::make_optional<cmMakefileProfilingData::RAII>(GetProfilingOutput(), category, name, argsFunc());
     }
     return cm::nullopt;
   }
@@ -714,9 +714,9 @@ protected:
   int HandleDeleteCacheVariables(std::string const& var);
 
   using RegisteredGeneratorsVector = std::vector<std::unique_ptr<cmGlobalGeneratorFactory>>;
-  RegisteredGeneratorsVector Generators;
+  RegisteredGeneratorsVector m_generators;
   using RegisteredExtraGeneratorsVector = std::vector<cmExternalMakefileProjectGeneratorFactory*>;
-  RegisteredExtraGeneratorsVector ExtraGenerators;
+  RegisteredExtraGeneratorsVector m_extraGenerators;
   void AddScriptingCommands() const;
   void AddProjectCommands() const;
   void AddDefaultGenerators();
