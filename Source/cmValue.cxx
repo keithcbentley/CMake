@@ -116,7 +116,9 @@ int cmValue::Compare(cm::string_view value) const noexcept
   return cm::string_view(*this->Value).compare(value);
 }
 
-std::ostream& operator<<(std::ostream& o, cmValue v)
+std::ostream& operator<<(
+  std::ostream& o,
+  cmValue v)
 {
   o << *v;
   return o;

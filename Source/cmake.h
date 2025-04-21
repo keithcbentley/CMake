@@ -262,7 +262,6 @@ public:
    *  | `dirA dirB`       | dirB   | Ignoring dirA  |
    */
   void SetHomeDirectoryViaCommandLine(std::string const& path);
-
   void SetHomeDirectory(std::string const& dir);
   std::string const& GetHomeDirectory() const;
   void SetHomeOutputDirectory(std::string const& dir);
@@ -310,51 +309,41 @@ public:
   bool DeleteCache(std::string const& path);
   void PreLoadCMakeFiles();
 
-  //! Create a GlobalGenerator
   std::unique_ptr<cmGlobalGenerator> CreateGlobalGenerator(std::string const& name);
-
-  //! Create a GlobalGenerator and set it as our own
   bool CreateAndSetGlobalGenerator(std::string const& name);
-
-#ifndef CMAKE_BOOTSTRAP
-  //! Print list of configure presets
-  void PrintPresetList(cmCMakePresetsGraph const& graph) const;
-#endif
-
-  //! Return the global generator assigned to this instance of cmake
   cmGlobalGenerator* GetGlobalGenerator() { return m_pGlobalGenerator.get(); }
-  //! Return the global generator assigned to this instance of cmake, const
   cmGlobalGenerator const* GetGlobalGenerator() const { return m_pGlobalGenerator.get(); }
-
-  //! Return the full path to where the CMakeCache.txt file should be.
-  static std::string FindCacheFile(std::string const& binaryDir);
-
-  //! Return the global generator assigned to this instance of cmake
   void SetGlobalGenerator(std::unique_ptr<cmGlobalGenerator>);
 
-  //! Get the names of the current registered generators
   void GetRegisteredGenerators(std::vector<GeneratorInfo>& generators) const;
 
-  //! Set the name of the selected generator-specific instance.
   void SetGeneratorInstance(std::string const& instance)
   {
     m_generatorInstance = instance;
     m_generatorInstanceSet = true;
   }
 
-  //! Set the name of the selected generator-specific platform.
   void SetGeneratorPlatform(std::string const& ts)
   {
     m_generatorPlatform = ts;
     m_generatorPlatformSet = true;
   }
 
-  //! Set the name of the selected generator-specific toolset.
   void SetGeneratorToolset(std::string const& ts)
   {
     m_generatorToolset = ts;
     m_generatorToolsetSet = true;
   }
+
+
+#ifndef CMAKE_BOOTSTRAP
+  //! Print list of configure presets
+  void PrintPresetList(cmCMakePresetsGraph const& graph) const;
+#endif
+
+
+  //! Return the full path to where the CMakeCache.txt file should be.
+  static std::string FindCacheFile(std::string const& binaryDir);
 
   //! Set the name of the graphviz file.
   void SetGraphVizFile(std::string const& ts) { m_graphVizFile = ts; }

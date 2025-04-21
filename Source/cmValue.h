@@ -32,34 +32,19 @@ public:
   }
 
   std::string const* Get() const noexcept { return this->Value; }
-  char const* GetCStr() const noexcept
-  {
-    return this->Value ? this->Value->c_str() : nullptr;
-  }
+  char const* GetCStr() const noexcept { return this->Value ? this->Value->c_str() : nullptr; }
 
-  std::string const* operator->() const noexcept
-  {
-    return this->Value ? this->Value : &cmValue::Empty;
-  }
-  std::string const& operator*() const noexcept
-  {
-    return this->Value ? *this->Value : cmValue::Empty;
-  }
+  std::string const* operator->() const noexcept { return this->Value ? this->Value : &cmValue::Empty; }
+  std::string const& operator*() const noexcept { return this->Value ? *this->Value : cmValue::Empty; }
 
   explicit operator bool() const noexcept { return this->Value != nullptr; }
   operator std::string const&() const noexcept { return this->operator*(); }
-  explicit operator cm::string_view() const noexcept
-  {
-    return this->operator*();
-  }
+  explicit operator cm::string_view() const noexcept { return this->operator*(); }
 
   /**
    * Does the value indicate a true or ON value?
    */
-  bool IsOn() const noexcept
-  {
-    return this->Value && cmValue::IsOn(cm::string_view(*this->Value));
-  }
+  bool IsOn() const noexcept { return this->Value && cmValue::IsOn(cm::string_view(*this->Value)); }
   /**
    * Does the value indicate a false or off value ? Note that this is
    * not the same as !IsOn(...) because there are a number of
@@ -67,43 +52,24 @@ public:
    * IsOn and IsOff both returning false. Note that the special path
    * NOTFOUND, *-NOTFOUND or IGNORE will cause IsOff to return true.
    */
-  bool IsOff() const noexcept
-  {
-    return !this->Value || cmValue::IsOff(cm::string_view(*this->Value));
-  }
+  bool IsOff() const noexcept { return !this->Value || cmValue::IsOff(cm::string_view(*this->Value)); }
   /** Return true if value is NOTFOUND or ends in -NOTFOUND.  */
-  bool IsNOTFOUND() const noexcept
-  {
-    return this->Value && cmValue::IsNOTFOUND(cm::string_view(*this->Value));
-  }
-  bool IsEmpty() const noexcept
-  {
-    return !this->Value || this->Value->empty();
-  }
+  bool IsNOTFOUND() const noexcept { return this->Value && cmValue::IsNOTFOUND(cm::string_view(*this->Value)); }
+  bool IsEmpty() const noexcept { return !this->Value || this->Value->empty(); }
 
   /**
    * Does a string indicates that CMake/CPack/CTest internally
    *  forced this value. This is not the same as On, but this
    * may be considered as "internally switched on".
    */
-  bool IsInternallyOn() const noexcept
-  {
-    return this->Value &&
-      cmValue::IsInternallyOn(cm::string_view(*this->Value));
-  }
+  bool IsInternallyOn() const noexcept { return this->Value && cmValue::IsInternallyOn(cm::string_view(*this->Value)); }
 
-  bool IsSet() const noexcept
-  {
-    return !this->IsEmpty() && !this->IsNOTFOUND();
-  }
+  bool IsSet() const noexcept { return !this->IsEmpty() && !this->IsNOTFOUND(); }
 
   /**
    * Does a string indicate a true or ON value?
    */
-  static bool IsOn(char const* value) noexcept
-  {
-    return value && IsOn(cm::string_view(value));
-  }
+  static bool IsOn(char const* value) noexcept { return value && IsOn(cm::string_view(value)); }
   static bool IsOn(cm::string_view) noexcept;
 
   /**
@@ -119,23 +85,14 @@ public:
    * IsOn and IsOff both returning false. Note that the special path
    * NOTFOUND, *-NOTFOUND or IGNORE will cause IsOff to return true.
    */
-  static bool IsOff(char const* value) noexcept
-  {
-    return !value || IsOff(cm::string_view(value));
-  }
+  static bool IsOff(char const* value) noexcept { return !value || IsOff(cm::string_view(value)); }
   static bool IsOff(cm::string_view) noexcept;
 
   /** Return true if value is NOTFOUND or ends in -NOTFOUND.  */
-  static bool IsNOTFOUND(char const* value) noexcept
-  {
-    return !value || IsNOTFOUND(cm::string_view(value));
-  }
+  static bool IsNOTFOUND(char const* value) noexcept { return !value || IsNOTFOUND(cm::string_view(value)); }
   static bool IsNOTFOUND(cm::string_view) noexcept;
 
-  static bool IsEmpty(char const* value) noexcept
-  {
-    return !value || *value == '\0';
-  }
+  static bool IsEmpty(char const* value) noexcept { return !value || *value == '\0'; }
   static bool IsEmpty(cm::string_view value) noexcept { return value.empty(); }
 
   /**
@@ -143,10 +100,7 @@ public:
    * forced this value. This is not the same as On, but this
    * may be considered as "internally switched on".
    */
-  static bool IsInternallyOn(char const* value) noexcept
-  {
-    return value && IsInternallyOn(cm::string_view(value));
-  }
+  static bool IsInternallyOn(char const* value) noexcept { return value && IsInternallyOn(cm::string_view(value)); }
   static bool IsInternallyOn(cm::string_view) noexcept;
 
 private:
@@ -154,79 +108,117 @@ private:
   std::string const* Value = nullptr;
 };
 
-std::ostream& operator<<(std::ostream& o, cmValue v);
+std::ostream& operator<<(
+  std::ostream& o,
+  cmValue v);
 
-inline bool operator==(cmValue l, cmValue r) noexcept
+inline bool operator==(
+  cmValue l,
+  cmValue r) noexcept
 {
   return l.Compare(r) == 0;
 }
-inline bool operator!=(cmValue l, cmValue r) noexcept
+inline bool operator!=(
+  cmValue l,
+  cmValue r) noexcept
 {
   return l.Compare(r) != 0;
 }
-inline bool operator<(cmValue l, cmValue r) noexcept
+inline bool operator<(
+  cmValue l,
+  cmValue r) noexcept
 {
   return l.Compare(r) < 0;
 }
-inline bool operator<=(cmValue l, cmValue r) noexcept
+inline bool operator<=(
+  cmValue l,
+  cmValue r) noexcept
 {
   return l.Compare(r) <= 0;
 }
-inline bool operator>(cmValue l, cmValue r) noexcept
+inline bool operator>(
+  cmValue l,
+  cmValue r) noexcept
 {
   return l.Compare(r) > 0;
 }
-inline bool operator>=(cmValue l, cmValue r) noexcept
+inline bool operator>=(
+  cmValue l,
+  cmValue r) noexcept
 {
   return l.Compare(r) >= 0;
 }
 
-inline bool operator==(cmValue l, cm::string_view r) noexcept
+inline bool operator==(
+  cmValue l,
+  cm::string_view r) noexcept
 {
   return l.Compare(r) == 0;
 }
-inline bool operator!=(cmValue l, cm::string_view r) noexcept
+inline bool operator!=(
+  cmValue l,
+  cm::string_view r) noexcept
 {
   return l.Compare(r) != 0;
 }
-inline bool operator<(cmValue l, cm::string_view r) noexcept
+inline bool operator<(
+  cmValue l,
+  cm::string_view r) noexcept
 {
   return l.Compare(r) < 0;
 }
-inline bool operator<=(cmValue l, cm::string_view r) noexcept
+inline bool operator<=(
+  cmValue l,
+  cm::string_view r) noexcept
 {
   return l.Compare(r) <= 0;
 }
-inline bool operator>(cmValue l, cm::string_view r) noexcept
+inline bool operator>(
+  cmValue l,
+  cm::string_view r) noexcept
 {
   return l.Compare(r) > 0;
 }
-inline bool operator>=(cmValue l, cm::string_view r) noexcept
+inline bool operator>=(
+  cmValue l,
+  cm::string_view r) noexcept
 {
   return l.Compare(r) >= 0;
 }
 
-inline bool operator==(cmValue l, std::nullptr_t) noexcept
+inline bool operator==(
+  cmValue l,
+  std::nullptr_t) noexcept
 {
   return l.Compare(cmValue{}) == 0;
 }
-inline bool operator!=(cmValue l, std::nullptr_t) noexcept
+inline bool operator!=(
+  cmValue l,
+  std::nullptr_t) noexcept
 {
   return l.Compare(cmValue{}) != 0;
 }
-inline bool operator<(cmValue l, std::nullptr_t) noexcept
+inline bool operator<(
+  cmValue l,
+  std::nullptr_t) noexcept
 {
   return l.Compare(cmValue{}) < 0;
 }
-inline bool operator<=(cmValue l, std::nullptr_t) noexcept
+inline bool operator<=(
+  cmValue l,
+  std::nullptr_t) noexcept
 {
   return l.Compare(cmValue{}) <= 0;
 }
-inline bool operator>(cmValue l, std::nullptr_t) noexcept
+inline bool operator>(
+  cmValue l,
+  std::nullptr_t) noexcept
 {
   return l.Compare(cmValue{}) > 0;
 }
-inline bool operator>=(cmValue l, std::nullptr_t) noexcept
+inline bool operator>=(
+  cmValue l,
+  std::nullptr_t) noexcept
 {
   return l.Compare(cmValue{}) >= 0;
 }
