@@ -171,7 +171,7 @@ void cmWarnUnusedCliWarning(
 }
 #endif
 
-bool cmakeCheckStampFile(std::string const& stampName)
+bool isStampFileUpToDate(std::string const& stampName)
 {
   // The stamp file does not exist.  Use the stamp dependencies to
   // determine whether it is really out of date.  This works in
@@ -235,7 +235,7 @@ bool cmakeCheckStampFile(std::string const& stampName)
   return false;
 }
 
-bool cmakeCheckStampList(std::string const& stampList)
+bool isGenerateStampListUpToDate(std::string const& stampList)
 {
   // If the stamp list does not exist CMake must rerun to generate it.
   if (!cmSystemTools::FileExists(stampList)) {
@@ -253,7 +253,7 @@ bool cmakeCheckStampList(std::string const& stampList)
   // Check each stamp.
   std::string stampName;
   while (cmSystemTools::GetLineFromStream(fin, stampName)) {
-    if (!cmakeCheckStampFile(stampName)) {
+    if (!isStampFileUpToDate(stampName)) {
       return false;
     }
   }
@@ -2707,12 +2707,12 @@ int CMake::Run(
   }
 
   // If we are given a stamp list file check if it is really out of date.
-  if (!m_checkStampList.empty() && cmakeCheckStampList(m_checkStampList)) {
+  if (!m_checkStampList.empty() && isGenerateStampListUpToDate(m_checkStampList)) {
     return 0;
   }
 
   // If we are given a stamp file check if it is really out of date.
-  if (!m_checkStampFile.empty() && cmakeCheckStampFile(m_checkStampFile)) {
+  if (!m_checkStampFile.empty() && isStampFileUpToDate(m_checkStampFile)) {
     return 0;
   }
 
@@ -3707,7 +3707,7 @@ int CMake::Build(
 
     AddScriptingCommands();
 
-    if (!cmakeCheckStampList(stampList)) {
+    if (!isGenerateStampListUpToDate(stampList)) {
       // Correctly initialize the home (=source) and home output (=binary)
       // directories, which is required for running the generation step.
       std::string homeOrig = GetHomeDirectory();
