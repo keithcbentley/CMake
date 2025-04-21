@@ -27,8 +27,8 @@ struct cmTryCompileResult
   cm::optional<std::string> LogDescription;
   std::map<std::string, std::string> CMakeVariables;
 
-  std::string SourceDirectory;
-  std::string BinaryDirectory;
+  std::string m_sourceDirectory;
+  std::string m_binaryDirectory;
 
   bool VariableCached = true;
   std::string Variable;
@@ -68,7 +68,7 @@ public:
     };
 
     cm::optional<std::string> CompileResultVariable;
-    cm::optional<std::string> BinaryDirectory;
+    cm::optional<std::string> m_binaryDirectory;
     cm::optional<std::string> SourceDirectoryOrFile;
     cm::optional<std::string> ProjectName;
     cm::optional<std::string> TargetName;
@@ -151,7 +151,7 @@ public:
   static void WriteTryCompileEventFields(
     cmConfigureLog& log, cmTryCompileResult const& compileResult);
 
-  std::string BinaryDirectory;
+  std::string m_binaryDirectory;
   std::string OutputFile;
   std::string FindErrorMessage;
   bool SrcFileSignature = false;

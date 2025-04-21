@@ -341,7 +341,7 @@ std::string cmCTestP4::GetWorkingRevision()
   p4_identify.emplace_back("1");
   p4_identify.emplace_back("-t");
 
-  std::string source = this->SourceDirectory + "/...#have";
+  std::string source = this->m_sourceDirectory + "/...#have";
   p4_identify.push_back(source);
 
   std::string rev;
@@ -388,7 +388,7 @@ bool cmCTestP4::LoadRevisions()
   this->SetP4Options(p4_changes);
 
   // Use 'p4 changes ...@old,new' to get a list of changelists
-  std::string range = this->SourceDirectory + "/...";
+  std::string range = this->m_sourceDirectory + "/...";
 
   // If any revision is unknown it means we couldn't contact the server.
   // Do not process updates
@@ -441,7 +441,7 @@ bool cmCTestP4::LoadModifications()
 
   // Ideally we would use -Od but not all clients support it
   p4_diff.emplace_back("-dn");
-  std::string source = this->SourceDirectory + "/...";
+  std::string source = this->m_sourceDirectory + "/...";
   p4_diff.push_back(source);
 
   DiffParser out(this, "p4_diff-out> ");
@@ -492,7 +492,7 @@ bool cmCTestP4::UpdateImpl()
   std::vector<std::string> args = cmSystemTools::ParseArguments(opts);
   cm::append(p4_sync, args);
 
-  std::string source = this->SourceDirectory + "/...";
+  std::string source = this->m_sourceDirectory + "/...";
 
   // Specify the start time for nightly testing.
   if (this->CTest->GetTestModel() == cmCTest::NIGHTLY) {

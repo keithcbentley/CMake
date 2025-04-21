@@ -109,7 +109,7 @@ std::string cmCTestGIT::FindGitDir()
   // Git reports a relative path only when the .git directory is in
   // the current directory.
   if (git_dir[0] == '.') {
-    git_dir = this->SourceDirectory + "/" + git_dir;
+    git_dir = this->m_sourceDirectory + "/" + git_dir;
   }
 #if defined(_WIN32) && !defined(__CYGWIN__)
   else if (git_dir[0] == '/') {
@@ -133,7 +133,7 @@ std::string cmCTestGIT::FindGitDir()
 
 std::string cmCTestGIT::FindTopDir()
 {
-  std::string top_dir = this->SourceDirectory;
+  std::string top_dir = this->m_sourceDirectory;
 
   // Run "git rev-parse --show-cdup" to locate the top of the tree.
   std::string git = this->CommandLineTool;
@@ -615,7 +615,7 @@ bool cmCTestGIT::LoadRevisions()
   cmUVProcessChainBuilder builder;
   builder.AddCommand(git_rev_list)
     .AddCommand(git_diff_tree)
-    .SetWorkingDirectory(this->SourceDirectory);
+    .SetWorkingDirectory(this->m_sourceDirectory);
 
   CommitParser out(this, "dt-out> ");
   OutputLogger err(this->Log, "dt-err> ");

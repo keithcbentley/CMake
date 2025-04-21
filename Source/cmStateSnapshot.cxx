@@ -61,7 +61,7 @@ std::string const& cmStateSnapshot::GetExecutionListFile() const
 bool cmStateSnapshot::IsValid() const
 {
   return this->m_pState && this->Position.IsValid()
-    ? this->Position != this->m_pState->SnapshotData.Root()
+    ? this->Position != this->m_pState->m_snapshotData.Root()
     : false;
 }
 
@@ -73,11 +73,11 @@ cmStateSnapshot cmStateSnapshot::GetBuildsystemDirectory() const
 cmStateSnapshot cmStateSnapshot::GetBuildsystemDirectoryParent() const
 {
   cmStateSnapshot snapshot;
-  if (!this->m_pState || this->Position == this->m_pState->SnapshotData.Root()) {
+  if (!this->m_pState || this->Position == this->m_pState->m_snapshotData.Root()) {
     return snapshot;
   }
   cmStateDetail::PositionType parentPos = this->Position->DirectoryParent;
-  if (parentPos != this->m_pState->SnapshotData.Root()) {
+  if (parentPos != this->m_pState->m_snapshotData.Root()) {
     snapshot = cmStateSnapshot(this->m_pState,
                                parentPos->BuildSystemDirectory->CurrentScope);
   }
@@ -88,7 +88,7 @@ cmStateSnapshot cmStateSnapshot::GetBuildsystemDirectoryParent() const
 cmStateSnapshot cmStateSnapshot::GetCallStackParent() const
 {
   assert(this->m_pState);
-  assert(this->Position != this->m_pState->SnapshotData.Root());
+  assert(this->Position != this->m_pState->m_snapshotData.Root());
 
   cmStateSnapshot snapshot;
   cmStateDetail::PositionType parentPos = this->Position;
@@ -107,7 +107,7 @@ cmStateSnapshot cmStateSnapshot::GetCallStackParent() const
     ++parentPos;
   }
 
-  if (parentPos == this->m_pState->SnapshotData.Root()) {
+  if (parentPos == this->m_pState->m_snapshotData.Root()) {
     return snapshot;
   }
 
@@ -118,12 +118,12 @@ cmStateSnapshot cmStateSnapshot::GetCallStackParent() const
 cmStateSnapshot cmStateSnapshot::GetCallStackBottom() const
 {
   assert(this->m_pState);
-  assert(this->Position != this->m_pState->SnapshotData.Root());
+  assert(this->Position != this->m_pState->m_snapshotData.Root());
 
   cmStateDetail::PositionType pos = this->Position;
   while (pos->SnapshotType != cmStateEnums::BaseType &&
          pos->SnapshotType != cmStateEnums::BuildsystemDirectoryType &&
-         pos != this->m_pState->SnapshotData.Root()) {
+         pos != this->m_pState->m_snapshotData.Root()) {
     ++pos;
   }
   return { this->m_pState, pos };
@@ -132,7 +132,7 @@ cmStateSnapshot cmStateSnapshot::GetCallStackBottom() const
 void cmStateSnapshot::PushPolicy(cmPolicies::PolicyMap const& entry, bool weak)
 {
   cmStateDetail::PositionType pos = this->Position;
-  pos->Policies = this->m_pState->PolicyStack.Push(
+  pos->Policies = this->m_pState->m_policyStack.Push(
     pos->Policies, cmStateDetail::PolicyStackEntry(entry, weak));
 }
 
@@ -142,7 +142,7 @@ bool cmStateSnapshot::PopPolicy()
   if (pos->Policies == pos->PolicyScope) {
     return false;
   }
-  pos->Policies = this->m_pState->PolicyStack.Pop(pos->Policies);
+  pos->Policies = this->m_pState->m_policyStack.Pop(pos->Policies);
   return true;
 }
 
@@ -194,7 +194,7 @@ cmPolicies::PolicyStatus cmStateSnapshot::GetPolicy(cmPolicies::PolicyID id,
     }
     cmStateDetail::PositionType e = dir->CurrentScope;
     cmStateDetail::PositionType p = e->DirectoryParent;
-    if (p == this->m_pState->SnapshotData.Root()) {
+    if (p == this->m_pState->m_snapshotData.Root()) {
       break;
     }
     dir = p->BuildSystemDirectory;

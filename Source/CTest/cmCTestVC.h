@@ -136,7 +136,7 @@ protected:
 
   // Basic information about the working tree.
   std::string CommandLineTool;
-  std::string SourceDirectory;
+  std::string m_sourceDirectory;
 
   // Record update command info.
   std::string UpdateCommandLine;

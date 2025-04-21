@@ -508,10 +508,10 @@ private:
   {
     // Get local path relative to the source directory
     std::string local_path;
-    if (path.size() > this->SVN->SourceDirectory.size() &&
-        strncmp(path.c_str(), this->SVN->SourceDirectory.c_str(),
-                this->SVN->SourceDirectory.size()) == 0) {
-      local_path = path.substr(this->SVN->SourceDirectory.size() + 1);
+    if (path.size() > this->SVN->m_sourceDirectory.size() &&
+        strncmp(path.c_str(), this->SVN->m_sourceDirectory.c_str(),
+                this->SVN->m_sourceDirectory.size()) == 0) {
+      local_path = path.substr(this->SVN->m_sourceDirectory.size() + 1);
     } else {
       local_path = path;
     }

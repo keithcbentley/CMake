@@ -205,7 +205,7 @@ auto const TryCompileBaseProjectArgParser =
   cmArgumentParser<Arguments>{ TryCompileBaseArgParser }
     .Bind("PROJECT"_s, &Arguments::ProjectName)
     .Bind("SOURCE_DIR"_s, &Arguments::SourceDirectoryOrFile)
-    .Bind("BINARY_DIR"_s, &Arguments::BinaryDirectory)
+    .Bind("BINARY_DIR"_s, &Arguments::m_binaryDirectory)
     .Bind("TARGET"_s, &Arguments::TargetName)
   /* keep semicolon on own line */;
 
@@ -217,7 +217,7 @@ auto const TryCompileSourcesArgParser =
 
 auto const TryCompileOldArgParser =
   makeTryCompileParser(TryCompileBaseSourcesArgParser)
-    .Bind(1, &Arguments::BinaryDirectory)
+    .Bind(1, &Arguments::m_binaryDirectory)
     .Bind(2, &Arguments::SourceDirectoryOrFile)
     .Bind(3, &Arguments::ProjectName)
     .Bind(4, &Arguments::TargetName)
@@ -283,8 +283,8 @@ Arguments cmCoreTryCompile::ParseArgs(
     // New PROJECT signature (try_compile only).
     auto arguments =
       this->ParseArgs(args, TryCompileProjectArgParser, unparsedArguments);
-    if (!arguments.BinaryDirectory) {
-      arguments.BinaryDirectory = unique_binary_directory;
+    if (!arguments.m_binaryDirectory) {
+      arguments.m_binaryDirectory = unique_binary_directory;
     }
     return arguments;
   }
@@ -294,7 +294,7 @@ Arguments cmCoreTryCompile::ParseArgs(
     auto arguments = this->ParseArgs(
       args, isTryRun ? TryRunSourcesArgParser : TryCompileSourcesArgParser,
       unparsedArguments);
-    arguments.BinaryDirectory = unique_binary_directory;
+    arguments.m_binaryDirectory = unique_binary_directory;
     return arguments;
   }
 
@@ -365,29 +365,29 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
     targetName = targetNameBuf;
   }
 
-  if (!arguments.BinaryDirectory || arguments.BinaryDirectory->empty()) {
+  if (!arguments.m_binaryDirectory || arguments.m_binaryDirectory->empty()) {
     this->Makefile->IssueMessage(MessageType::FATAL_ERROR,
                                  "No <bindir> specified.");
     return cm::nullopt;
   }
-  if (*arguments.BinaryDirectory == unique_binary_directory) {
+  if (*arguments.m_binaryDirectory == unique_binary_directory) {
     // leave empty until we're ready to create it, so we don't try to remove
     // a non-existing directory if we abort due to e.g. bad arguments
-    this->BinaryDirectory.clear();
+    this->m_binaryDirectory.clear();
     useUniqueBinaryDirectory = true;
   } else {
-    if (!cmSystemTools::FileIsFullPath(*arguments.BinaryDirectory)) {
+    if (!cmSystemTools::FileIsFullPath(*arguments.m_binaryDirectory)) {
       this->Makefile->IssueMessage(
         MessageType::FATAL_ERROR,
         cmStrCat("<bindir> is not an absolute path:\n '",
-                 *arguments.BinaryDirectory, '\''));
+                 *arguments.m_binaryDirectory, '\''));
       return cm::nullopt;
     }
-    this->BinaryDirectory = *arguments.BinaryDirectory;
+    this->m_binaryDirectory = *arguments.m_binaryDirectory;
     // compute the binary dir when TRY_COMPILE is called with a src file
     // signature
     if (this->SrcFileSignature) {
-      this->BinaryDirectory += "/CMakeFiles/CMakeTmp";
+      this->m_binaryDirectory += "/CMakeFiles/CMakeTmp";
     }
   }
 
@@ -499,30 +499,30 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
 
   // make sure the binary directory exists
   if (useUniqueBinaryDirectory) {
-    this->BinaryDirectory =
+    this->m_binaryDirectory =
       cmStrCat(this->Makefile->GetHomeOutputDirectory(),
                "/CMakeFiles/CMakeScratch/TryCompile-XXXXXX");
-    cmSystemTools::MakeTempDirectory(this->BinaryDirectory);
+    cmSystemTools::MakeTempDirectory(this->m_binaryDirectory);
   } else {
-    cmSystemTools::MakeDirectory(this->BinaryDirectory);
+    cmSystemTools::MakeDirectory(this->m_binaryDirectory);
   }
 
   // do not allow recursive try Compiles
-  if (this->BinaryDirectory == this->Makefile->GetHomeOutputDirectory()) {
+  if (this->m_binaryDirectory == this->Makefile->GetHomeOutputDirectory()) {
     std::ostringstream e;
     e << "Attempt at a recursive or nested TRY_COMPILE in directory\n"
-      << "  " << this->BinaryDirectory << "\n";
+      << "  " << this->m_binaryDirectory << "\n";
     this->Makefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
     return cm::nullopt;
   }
 
   std::map<std::string, std::string> cmakeVariables;
 
-  std::string outFileName = cmStrCat(this->BinaryDirectory, "/CMakeLists.txt");
+  std::string outFileName = cmStrCat(this->m_binaryDirectory, "/CMakeLists.txt");
   // which signature are we using? If we are using var srcfile bindir
   if (this->SrcFileSignature) {
     // remove any CMakeCache.txt files so we will have a clean test
-    std::string ccFile = cmStrCat(this->BinaryDirectory, "/CMakeCache.txt");
+    std::string ccFile = cmStrCat(this->m_binaryDirectory, "/CMakeCache.txt");
     cmSystemTools::RemoveFile(ccFile);
 
     // Choose sources.
@@ -573,7 +573,7 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
           return cm::nullopt;
         }
 
-        auto dstPath = cmStrCat(this->BinaryDirectory, '/', dst);
+        auto dstPath = cmStrCat(this->m_binaryDirectory, '/', dst);
         auto const result = cmSystemTools::CopyFileAlways(src, dstPath);
         if (!result.IsSuccess()) {
           auto const& msg = cmStrCat("SOURCE_FROM_FILE failed to copy \"", src,
@@ -626,7 +626,7 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
 
     // we need to create a directory and CMakeLists file etc...
     // first create the directories
-    sourceDirectory = this->BinaryDirectory;
+    sourceDirectory = this->m_binaryDirectory;
 
     // now create a CMakeLists.txt file in that directory
     FILE* fout = cmsys::SystemTools::Fopen(outFileName, "w");
@@ -821,7 +821,7 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
       std::string fname = cmStrCat('/', targetName, "Targets.cmake");
       cmExportTryCompileFileGenerator tcfg(gg, targets, this->Makefile,
                                            testLangs);
-      tcfg.SetExportFile(cmStrCat(this->BinaryDirectory, fname).c_str());
+      tcfg.SetExportFile(cmStrCat(this->m_binaryDirectory, fname).c_str());
       tcfg.SetConfig(tcConfig);
 
       if (!tcfg.GenerateImportFile()) {
@@ -895,14 +895,14 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
     if (targetType == cmStateEnums::EXECUTABLE) {
       /* Put the executable at a known location (for COPY_FILE).  */
       fprintf(fout, "set(CMAKE_RUNTIME_OUTPUT_DIRECTORY \"%s\")\n",
-              this->BinaryDirectory.c_str());
+              this->m_binaryDirectory.c_str());
       /* Create the actual executable.  */
       fprintf(fout, "add_executable(%s)\n", targetName.c_str());
     } else // if (targetType == cmStateEnums::STATIC_LIBRARY)
     {
       /* Put the static library at a known location (for COPY_FILE).  */
       fprintf(fout, "set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY \"%s\")\n",
-              this->BinaryDirectory.c_str());
+              this->m_binaryDirectory.c_str());
       /* Create the actual static library.  */
       fprintf(fout, "add_library(%s STATIC)\n", targetName.c_str());
     }
@@ -1236,7 +1236,7 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
   if (this->Makefile->GetCMakeInstance()->GetDebugTryCompile()) {
     auto msg =
       cmStrCat("Executing try_compile (", *arguments.CompileResultVariable,
-               ") in:\n  ", this->BinaryDirectory);
+               ") in:\n  ", this->m_binaryDirectory);
     this->Makefile->IssueMessage(MessageType::LOG, msg);
   }
 
@@ -1245,7 +1245,7 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
   std::string output;
   // actually do the try compile now that everything is setup
   int res = this->Makefile->TryCompile(
-    sourceDirectory, this->BinaryDirectory, projectName, targetName,
+    sourceDirectory, this->m_binaryDirectory, projectName, targetName,
     this->SrcFileSignature, CMake::NO_BUILD_PARALLEL_LEVEL,
     &arguments.CMakeFlags, output);
   if (erroroc) {
@@ -1315,8 +1315,8 @@ cm::optional<cmTryCompileResult> cmCoreTryCompile::TryCompileCode(
     result.LogDescription = *arguments.LogDescription;
   }
   result.CMakeVariables = std::move(cmakeVariables);
-  result.SourceDirectory = sourceDirectory;
-  result.BinaryDirectory = this->BinaryDirectory;
+  result.m_sourceDirectory = sourceDirectory;
+  result.m_binaryDirectory = this->m_binaryDirectory;
   result.Variable = *arguments.CompileResultVariable;
   result.VariableCached = !arguments.NoCache;
   result.Output = std::move(output);
@@ -1408,7 +1408,7 @@ void cmCoreTryCompile::FindOutputFile(std::string const& targetName)
   }
   tmpOutputFile += "_loc";
 
-  std::string command = cmStrCat(this->BinaryDirectory, tmpOutputFile);
+  std::string command = cmStrCat(this->m_binaryDirectory, tmpOutputFile);
   if (!cmSystemTools::FileExists(command)) {
     std::ostringstream emsg;
     emsg << "Unable to find the recorded try_compile output location:\n";
@@ -1442,7 +1442,7 @@ std::string cmCoreTryCompile::WriteSource(std::string const& filename,
     return {};
   }
 
-  auto filepath = cmStrCat(this->BinaryDirectory, '/', filename);
+  auto filepath = cmStrCat(this->m_binaryDirectory, '/', filename);
   cmsys::ofstream file{ filepath.c_str(), std::ios::out };
   if (!file) {
     auto const& msg =
@@ -1470,8 +1470,8 @@ void cmCoreTryCompile::WriteTryCompileEventFields(
     log.WriteValue("description"_s, *compileResult.LogDescription);
   }
   log.BeginObject("directories"_s);
-  log.WriteValue("source"_s, compileResult.SourceDirectory);
-  log.WriteValue("binary"_s, compileResult.BinaryDirectory);
+  log.WriteValue("source"_s, compileResult.m_sourceDirectory);
+  log.WriteValue("binary"_s, compileResult.m_binaryDirectory);
   log.EndObject();
   if (!compileResult.CMakeVariables.empty()) {
     log.WriteValue("cmakeVariables"_s, compileResult.CMakeVariables);

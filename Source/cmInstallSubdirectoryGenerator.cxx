@@ -20,7 +20,7 @@ cmInstallSubdirectoryGenerator::cmInstallSubdirectoryGenerator(
   : cmInstallGenerator("", std::vector<std::string>(), "", MessageDefault,
                        false, false, std::move(backtrace))
   , Makefile(makefile)
-  , BinaryDirectory(std::move(binaryDirectory))
+  , m_binaryDirectory(std::move(binaryDirectory))
 {
 }
 
@@ -65,7 +65,7 @@ void cmInstallSubdirectoryGenerator::GenerateScript(std::ostream& os)
 
       case cmPolicies::NEW: {
         Indent indent;
-        std::string odir = this->BinaryDirectory;
+        std::string odir = this->m_binaryDirectory;
         cmSystemTools::ConvertToUnixSlashes(odir);
         os << indent << "if(NOT CMAKE_INSTALL_LOCAL_ONLY)\n"
            << indent.Next()

@@ -255,7 +255,7 @@ bool TryRunCommandImpl::TryRunCode(std::vector<std::string> const& argv)
 
   // if we created a directory etc, then cleanup after ourselves
   if (!this->Makefile->GetCMakeInstance()->GetDebugTryCompile()) {
-    this->CleanupFiles(this->BinaryDirectory);
+    this->CleanupFiles(this->m_binaryDirectory);
   }
   return true;
 }

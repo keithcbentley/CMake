@@ -35,7 +35,7 @@ void cmCTestVC::SetCommandLineTool(std::string const& tool)
 
 void cmCTestVC::SetSourceDirectory(std::string const& dir)
 {
-  this->SourceDirectory = dir;
+  this->m_sourceDirectory = dir;
 }
 
 bool cmCTestVC::InitialCheckout(std::string const& command)
@@ -44,7 +44,7 @@ bool cmCTestVC::InitialCheckout(std::string const& command)
              "   First perform the initial checkout: " << command << "\n");
 
   // Make the parent directory in which to perform the checkout.
-  std::string parent = cmSystemTools::GetFilenamePath(this->SourceDirectory);
+  std::string parent = cmSystemTools::GetFilenamePath(this->m_sourceDirectory);
   cmCTestLog(this->CTest, HANDLER_OUTPUT,
              "   Perform checkout in directory: " << parent << "\n");
   if (!cmSystemTools::MakeDirectory(parent)) {
@@ -77,7 +77,7 @@ bool cmCTestVC::RunChild(std::vector<std::string> const& cmd,
 
   cmUVProcessChainBuilder builder;
   if (workDir.empty()) {
-    workDir = this->SourceDirectory;
+    workDir = this->m_sourceDirectory;
   }
   builder.AddCommand(cmd).SetWorkingDirectory(workDir);
   auto status = cmCTestVC::RunProcess(builder, out, err, encoding);

@@ -194,7 +194,7 @@ private:
 std::string cmCTestCVS::ComputeBranchFlag(std::string const& dir)
 {
   // Compute the tag file location for this directory.
-  std::string tagFile = this->SourceDirectory;
+  std::string tagFile = this->m_sourceDirectory;
   if (!dir.empty()) {
     tagFile += "/";
     tagFile += dir;
