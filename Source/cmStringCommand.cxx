@@ -110,16 +110,16 @@ bool HandleAsciiCommand(std::vector<std::string> const& args,
     status.SetError("No output variable specified");
     return false;
   }
-  std::string::size_type cc;
+  std::string::size_type m_pCustomCommand;
   std::string const& outvar = args.back();
   std::string output;
-  for (cc = 1; cc < args.size() - 1; cc++) {
-    int ch = atoi(args[cc].c_str());
+  for (m_pCustomCommand = 1; m_pCustomCommand < args.size() - 1; m_pCustomCommand++) {
+    int ch = atoi(args[m_pCustomCommand].c_str());
     if (ch > 0 && ch < 256) {
       output += static_cast<char>(ch);
     } else {
       std::string error =
-        cmStrCat("Character with code ", args[cc], " does not exist.");
+        cmStrCat("Character with code ", args[m_pCustomCommand], " does not exist.");
       status.SetError(error);
       return false;
     }
@@ -658,13 +658,13 @@ bool HandleStripCommand(std::vector<std::string> const& args,
   size_t startPos = inStringLength + 1;
   size_t endPos = 0;
   char const* ptr = stringValue.c_str();
-  size_t cc;
-  for (cc = 0; cc < inStringLength; ++cc) {
+  size_t m_pCustomCommand;
+  for (m_pCustomCommand = 0; m_pCustomCommand < inStringLength; ++m_pCustomCommand) {
     if (!cmIsSpace(*ptr)) {
       if (startPos > inStringLength) {
-        startPos = cc;
+        startPos = m_pCustomCommand;
       }
-      endPos = cc;
+      endPos = m_pCustomCommand;
     }
     ++ptr;
   }
@@ -798,7 +798,7 @@ bool HandleRandomCommand(std::vector<std::string> const& args,
   }
 
   char const* alphaPtr = alphabet.c_str();
-  for (int cc = 0; cc < length; cc++) {
+  for (int m_pCustomCommand = 0; m_pCustomCommand < length; m_pCustomCommand++) {
     int idx = static_cast<int>(sizeofAlphabet * rand() / (RAND_MAX + 1.0));
     result.push_back(*(alphaPtr + idx));
   }

@@ -26,7 +26,7 @@ cmTargetTraceDependencies::cmTargetTraceDependencies(cmGeneratorTarget* target)
   : GeneratorTarget(target)
 {
   // Convenience.
-  this->Makefile = target->Target->GetMakefile();
+  this->m_pMakefile = target->Target->GetMakefile();
   this->LocalGenerator = target->GetLocalGenerator();
   this->m_pGlobalGenerator = this->LocalGenerator->GetGlobalGenerator();
   this->CurrentEntry = nullptr;
@@ -34,7 +34,7 @@ cmTargetTraceDependencies::cmTargetTraceDependencies(cmGeneratorTarget* target)
   // Queue all the source files already specified for the target.
   std::set<cmSourceFile*> emitted;
   std::vector<std::string> const& configs =
-    this->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+    this->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
   for (std::string const& c : configs) {
     std::vector<cmSourceFile*> sources;
     this->GeneratorTarget->GetSourceFiles(sources, c);
@@ -89,8 +89,8 @@ void cmTargetTraceDependencies::m_trace()
     this->FollowNames(sf->GetDepends());
 
     // Queue custom command dependencies.
-    if (cmCustomCommand const* cc = sf->GetCustomCommand()) {
-      this->CheckCustomCommand(*cc);
+    if (cmCustomCommand const* m_pCustomCommand = sf->GetCustomCommand()) {
+      this->CheckCustomCommand(*m_pCustomCommand);
     }
   }
   this->CurrentEntry = nullptr;
@@ -123,9 +123,9 @@ void cmTargetTraceDependencies::FollowName(std::string const& name)
     if (!sources.Target && !sources.Source &&
         !cmSystemTools::FileIsFullPath(name)) {
       auto fullname =
-        cmStrCat(this->Makefile->GetCurrentBinaryDirectory(), '/', name);
+        cmStrCat(this->m_pMakefile->GetCurrentBinaryDirectory(), '/', name);
       fullname = cmSystemTools::CollapseFullPath(
-        fullname, this->Makefile->GetHomeOutputDirectory());
+        fullname, this->m_pMakefile->GetHomeOutputDirectory());
       sources = this->LocalGenerator->GetSourcesWithOutput(fullname);
     }
     i = this->NameMap.emplace_hint(i, name, sources);
@@ -206,14 +206,14 @@ bool cmTargetTraceDependencies::IsUtility(std::string const& dep)
   return false;
 }
 
-void cmTargetTraceDependencies::CheckCustomCommand(cmCustomCommand const& cc)
+void cmTargetTraceDependencies::CheckCustomCommand(cmCustomCommand const& m_pCustomCommand)
 {
   // Collect dependencies referenced by all configurations.
   std::set<std::string> depends;
   for (std::string const& config :
-       this->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig)) {
+       this->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig)) {
     for (cmCustomCommandGenerator const& ccg :
-         this->LocalGenerator->MakeCustomCommandGenerators(cc, config)) {
+         this->LocalGenerator->MakeCustomCommandGenerators(m_pCustomCommand, config)) {
       // Collect target-level dependencies referenced in command lines.
       for (auto const& util : ccg.GetUtilities()) {
         this->GeneratorTarget->Target->AddUtility(util);

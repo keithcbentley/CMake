@@ -142,7 +142,7 @@ public:
   static FortranPreprocess GetFortranPreprocess(cm::string_view value);
 
 protected:
-  cmStateSnapshot StateSnapshot;
+  cmStateSnapshot m_stateSnapshot;
 
 private:
   cmState* GetState() const;

@@ -313,7 +313,7 @@ bool ExpandMacros(cmCMakePresetsGraph const& graph, BuildPreset const& preset,
                   cm::optional<BuildPreset>& out,
                   MacroExpanderVector const& macroExpanders)
 {
-  for (auto& target : out->Targets) {
+  for (auto& target : out->m_targets) {
     CHECK_EXPAND(out, target, macroExpanders, graph.GetVersion(preset));
   }
 
@@ -849,7 +849,7 @@ bool cmCMakePresetsGraph::BuildPreset::VisitPresetInherit(
   InheritOptionalValue(preset.InheritConfigureEnvironment,
                        parent.InheritConfigureEnvironment);
   InheritOptionalValue(preset.Jobs, parent.Jobs);
-  InheritVector(preset.Targets, parent.Targets);
+  InheritVector(preset.m_targets, parent.m_targets);
   InheritString(preset.Configuration, parent.Configuration);
   InheritOptionalValue(preset.CleanFirst, parent.CleanFirst);
   InheritOptionalValue(preset.Verbose, parent.Verbose);

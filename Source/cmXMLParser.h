@@ -87,7 +87,7 @@ protected:
   virtual void ReportXmlParseError();
 
   /** Called by ReportXmlParseError with basic error info.  */
-  virtual void ReportError(int line, int column, char const* msg);
+  virtual void m_reportError(int line, int column, char const* msg);
 
   //! Send the given buffer to the XML parser.
   virtual int ParseBuffer(char const* buffer, std::string::size_type length);

@@ -121,12 +121,12 @@ bool cmExportFileGenerator::PopulateInterfaceProperties(
   if (!this->PopulateCxxModuleExportProperties(
         target, properties, preprocessRule, includesDestinationDirs,
         errorMessage)) {
-    this->ReportError(errorMessage);
+    this->m_reportError(errorMessage);
     return false;
   }
 
   if (!this->PopulateExportProperties(target, properties, errorMessage)) {
-    this->ReportError(errorMessage);
+    this->m_reportError(errorMessage);
     return false;
   }
   this->PopulateCompatibleInterfaceProperties(target, properties);
@@ -516,7 +516,7 @@ void cmExportFileGenerator::SetImportDetailProperties(
   cmGeneratorTarget const* target, ImportPropertyMap& properties)
 {
   // Get the makefile in which to lookup target information.
-  cmMakefile* mf = target->Makefile;
+  cmMakefile* mf = target->m_pMakefile;
 
   // Add the soname for unix shared libraries.
   if (target->GetType() == cmStateEnums::SHARED_LIBRARY ||

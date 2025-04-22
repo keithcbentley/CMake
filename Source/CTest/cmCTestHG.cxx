@@ -143,9 +143,9 @@ bool cmCTestHG::UpdateImpl()
   hg_update.emplace_back("-v");
 
   // Add user-specified update options.
-  std::string opts = this->Makefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
+  std::string opts = this->m_pMakefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
   if (opts.empty()) {
-    opts = this->Makefile->GetSafeDefinition("CTEST_HG_UPDATE_OPTIONS");
+    opts = this->m_pMakefile->GetSafeDefinition("CTEST_HG_UPDATE_OPTIONS");
   }
   std::vector<std::string> args = cmSystemTools::ParseArguments(opts);
   cm::append(hg_update, args);
@@ -228,14 +228,14 @@ private:
       std::string added_paths(this->CData.begin(), this->CData.end());
       for (Change& change : this->Changes) {
         if (added_paths.find(change.Path) != std::string::npos) {
-          change.Action = 'A';
+          change.m_action = 'A';
         }
       }
     } else if (!this->CData.empty() && name == "file_dels") {
       std::string added_paths(this->CData.begin(), this->CData.end());
       for (Change& change : this->Changes) {
         if (added_paths.find(change.Path) != std::string::npos) {
-          change.Action = 'D';
+          change.m_action = 'D';
         }
       }
     }
@@ -258,7 +258,7 @@ private:
     return output;
   }
 
-  void ReportError(int /*line*/, int /*column*/, char const* msg) override
+  void m_reportError(int /*line*/, int /*column*/, char const* msg) override
   {
     this->HG->Log << "Error parsing hg log xml: " << msg << "\n";
   }

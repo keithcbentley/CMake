@@ -60,12 +60,12 @@ void AddObjectEntries(cmGeneratorTarget const* headTarget,
           headTarget->GetGlobalGenerator()->IndexGeneratorTargetUniquely(
             lib.Target);
         std::string genex = "$<TARGET_OBJECTS:" + std::move(uniqueName) + ">";
-        cmGeneratorExpression ge(*headTarget->Makefile->GetCMakeInstance(),
-                                 lib.Backtrace);
+        cmGeneratorExpression ge(*headTarget->m_pMakefile->GetCMakeInstance(),
+                                 lib.m_backtrace);
         std::unique_ptr<cmCompiledGeneratorExpression> cge = ge.Parse(genex);
         cge->SetEvaluateForBuildsystem(true);
 
-        EvaluatedTargetPropertyEntry ee(lib, lib.Backtrace);
+        EvaluatedTargetPropertyEntry ee(lib, lib.m_backtrace);
         cmExpandList(cge->Evaluate(headTarget->GetLocalGenerator(), config,
                                    headTarget, dagChecker),
                      ee.Values);
@@ -102,7 +102,7 @@ void addFileSetEntry(cmGeneratorTarget const* headTarget,
       EvaluateTargetPropertyEntry(headTarget, config, "", dagChecker, *tpe));
     EvaluatedTargetPropertyEntry const& entry = entries.Entries.back();
     for (auto const& file : entry.Values) {
-      auto* sf = headTarget->Makefile->GetOrCreateSource(file);
+      auto* sf = headTarget->m_pMakefile->GetOrCreateSource(file);
       if (fileSet->GetType() == "HEADERS"_s) {
         sf->SetProperty("HEADER_FILE_ONLY", "TRUE");
       }
@@ -112,16 +112,16 @@ void addFileSetEntry(cmGeneratorTarget const* headTarget,
       std::string w;
       auto path = sf->ResolveFullPath(&e, &w);
       if (!w.empty()) {
-        cm->IssueMessage(MessageType::AUTHOR_WARNING, w, entry.Backtrace);
+        cm->IssueMessage(MessageType::AUTHOR_WARNING, w, entry.m_backtrace);
       }
       if (path.empty()) {
         if (!e.empty()) {
-          cm->IssueMessage(MessageType::FATAL_ERROR, e, entry.Backtrace);
+          cm->IssueMessage(MessageType::FATAL_ERROR, e, entry.m_backtrace);
         }
         return;
       }
       bool found = false;
-      for (auto const& sg : headTarget->Makefile->GetSourceGroups()) {
+      for (auto const& sg : headTarget->m_pMakefile->GetSourceGroups()) {
         if (sg.MatchChildrenFiles(path)) {
           found = true;
           break;
@@ -129,7 +129,7 @@ void addFileSetEntry(cmGeneratorTarget const* headTarget,
       }
       if (!found) {
         if (fileSet->GetType() == "HEADERS"_s) {
-          headTarget->Makefile->GetOrCreateSourceGroup("Header Files")
+          headTarget->m_pMakefile->GetOrCreateSourceGroup("Header Files")
             ->AddGroupFile(path);
         }
       }
@@ -182,11 +182,11 @@ bool processSources(cmGeneratorTarget const* tgt,
       std::string fullPath = sf->ResolveFullPath(&e, &w);
       CMake* cm = tgt->GetLocalGenerator()->GetCMakeInstance();
       if (!w.empty()) {
-        cm->IssueMessage(MessageType::AUTHOR_WARNING, w, entry.Backtrace);
+        cm->IssueMessage(MessageType::AUTHOR_WARNING, w, entry.m_backtrace);
       }
       if (fullPath.empty()) {
         if (!e.empty()) {
-          cm->IssueMessage(MessageType::FATAL_ERROR, e, entry.Backtrace);
+          cm->IssueMessage(MessageType::FATAL_ERROR, e, entry.m_backtrace);
         }
         return contextDependent;
       }
@@ -210,7 +210,7 @@ bool processSources(cmGeneratorTarget const* tgt,
     std::string usedSources;
     for (std::string const& src : entry.Values) {
       if (uniqueSrcs.insert(src).second) {
-        srcs.emplace_back(src, entry.Backtrace);
+        srcs.emplace_back(src, entry.m_backtrace);
         if (debugSources) {
           usedSources += " * " + src + "\n";
         }
@@ -221,7 +221,7 @@ bool processSources(cmGeneratorTarget const* tgt,
         MessageType::LOG,
         std::string("Used sources for target ") + tgt->GetName() + ":\n" +
           usedSources,
-        entry.Backtrace);
+        entry.m_backtrace);
     }
   }
   return contextDependent;
@@ -233,7 +233,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetSourceFilePaths(
 {
   std::vector<BT<std::string>> files;
 
-  cmList debugProperties{ this->Makefile->GetDefinition(
+  cmList debugProperties{ this->m_pMakefile->GetDefinition(
     "CMAKE_DEBUG_TARGET_PROPERTIES") };
   bool debugSources =
     !this->DebugSourcesDone && cm::contains(debugProperties, "SOURCES");
@@ -382,7 +382,7 @@ void cmGeneratorTarget::ComputeKindedSources(KindedSources& files,
   std::set<cmSourceFile*> emitted;
   for (BT<std::string> const& s : srcs) {
     // Create each source at most once.
-    cmSourceFile* sf = this->Makefile->GetOrCreateSource(s.Value);
+    cmSourceFile* sf = this->m_pMakefile->GetOrCreateSource(s.Value);
     if (!emitted.insert(sf).second) {
       continue;
     }
@@ -443,7 +443,7 @@ void cmGeneratorTarget::ComputeKindedSources(KindedSources& files,
     }
 
     // Save this classified source file in the result vector.
-    files.Sources.push_back({ BT<cmSourceFile*>(sf, s.Backtrace), kind });
+    files.Sources.push_back({ BT<cmSourceFile*>(sf, s.m_backtrace), kind });
   }
 
   if (!badObjLib.empty()) {
@@ -471,7 +471,7 @@ cmGeneratorTarget::GetAllConfigSources() const
 void cmGeneratorTarget::ComputeAllConfigSources() const
 {
   std::vector<std::string> configs =
-    this->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+    this->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
 
   std::map<cmSourceFile const*, size_t> index;
 

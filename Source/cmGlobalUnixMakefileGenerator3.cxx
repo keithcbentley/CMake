@@ -376,7 +376,7 @@ void cmGlobalUnixMakefileGenerator3::WriteDirectoryRule2(
   // The directory-level rule should depend on the target-level rules
   // for all targets in the directory.
   std::vector<std::string> depends;
-  for (DirectoryTarget::Target const& t : dt.Targets) {
+  for (DirectoryTarget::Target const& t : dt.m_targets) {
     // Add this to the list of depends rules in this directory.
     if ((!check_all || t.ExcludedFromAllInConfigs.empty()) &&
         (!check_relink ||

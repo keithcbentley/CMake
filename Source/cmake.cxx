@@ -318,6 +318,7 @@ CMake::CMake(
 
   AddDefaultGenerators();
   AddDefaultExtraGenerators();
+  //    TODO: does this really need to be conditional? Can't we just add and load everything?
   if (role == RoleScript || role == RoleProject) {
     AddScriptingCommands();
   }
@@ -334,6 +335,7 @@ CMake::CMake(
 
   // Set up a list of source and header extensions.
   // These are used to find files when the extension is not given.
+  //    TODO: does this really need a lambda in the middle of this code?
   {
     auto setupExts = [](FileExtensions& exts, std::initializer_list<cm::string_view> extList) {
       // Fill ordered vector
@@ -346,6 +348,7 @@ CMake::CMake(
     };
 
     // The "c" extension MUST precede the "C" extension.
+    //  TODO: why?
     setupExts(
       m_CLikeSourceFileExtensions,
       { "c", "C", "c++", "cc", "cpp", "cxx", "cu", "mpp", "m", "M", "mm", "ixx", "cppm", "ccm", "cxxm", "c++m" });
@@ -557,15 +560,16 @@ bool CMake::SetCacheArgs(std::vector<std::string> const& args)
     }
   }
 
-  auto DefineLambda = [](std::string const& entry, CMake* state) -> bool {
+  //    TODO: What's with all the f'ing lambdas?
+  auto DefineLambda = [](std::string const& entry, CMake* pCMake) -> bool {
     std::string var;
     std::string value;
     cmStateEnums::CacheEntryType type = cmStateEnums::UNINITIALIZED;
     if (cmState::ParseCacheEntry(entry, var, value, type)) {
 #ifndef CMAKE_BOOTSTRAP
-      state->m_unprocessedPresetVariables.erase(var);
+      pCMake->m_unprocessedPresetVariables.erase(var);
 #endif
-      state->ProcessCacheArg(var, value, type);
+      pCMake->ProcessCacheArg(var, value, type);
     } else {
       cmSystemTools::Error(cmStrCat("Parse error in command line argument: ", entry, "\n Should be: VAR:type=value\n"));
       return false;
@@ -573,7 +577,7 @@ bool CMake::SetCacheArgs(std::vector<std::string> const& args)
     return true;
   };
 
-  auto WarningLambda = [](cm::string_view entry, CMake* state) -> bool {
+  auto WarningLambda = [](cm::string_view entry, CMake* pCMake) -> bool {
     bool foundNo = false;
     bool foundError = false;
 
@@ -595,33 +599,33 @@ bool CMake::SetCacheArgs(std::vector<std::string> const& args)
     std::string const name = std::string(entry);
     if (!foundNo && !foundError) {
       // -W<name>
-      state->m_diagLevels[name] = std::max(state->m_diagLevels[name], DIAG_WARN);
+      pCMake->m_diagLevels[name] = std::max(pCMake->m_diagLevels[name], DIAG_WARN);
     } else if (foundNo && !foundError) {
       // -Wno<name>
-      state->m_diagLevels[name] = DIAG_IGNORE;
+      pCMake->m_diagLevels[name] = DIAG_IGNORE;
     } else if (!foundNo && foundError) {
       // -Werror=<name>
-      state->m_diagLevels[name] = DIAG_ERROR;
+      pCMake->m_diagLevels[name] = DIAG_ERROR;
     } else {
       // -Wno-error=<name>
       // This can downgrade an error to a warning, but should not enable
       // or disable a warning in the first place.
-      auto dli = state->m_diagLevels.find(name);
-      if (dli != state->m_diagLevels.end()) {
+      auto dli = pCMake->m_diagLevels.find(name);
+      if (dli != pCMake->m_diagLevels.end()) {
         dli->second = std::min(dli->second, DIAG_WARN);
       }
     }
     return true;
   };
 
-  auto UnSetLambda = [](std::string const& entryPattern, CMake* state) -> bool {
+  auto UnSetLambda = [](std::string const& entryPattern, CMake* pCMake) -> bool {
     cmsys::RegularExpression regex(cmsys::Glob::PatternToRegex(entryPattern, true, true));
     // go through all cache entries and collect the vars which will be
     // removed
     std::vector<std::string> entriesToDelete;
-    std::vector<std::string> cacheKeys = state->m_pState->GetCacheEntryKeys();
+    std::vector<std::string> cacheKeys = pCMake->m_pState->GetCacheEntryKeys();
     for (std::string const& ck : cacheKeys) {
-      cmStateEnums::CacheEntryType t = state->m_pState->GetCacheEntryType(ck);
+      cmStateEnums::CacheEntryType t = pCMake->m_pState->GetCacheEntryType(ck);
       if (t != cmStateEnums::STATIC) {
         if (regex.find(ck)) {
           entriesToDelete.push_back(ck);
@@ -632,57 +636,59 @@ bool CMake::SetCacheArgs(std::vector<std::string> const& args)
     // now remove them from the cache
     for (std::string const& currentEntry : entriesToDelete) {
 #ifndef CMAKE_BOOTSTRAP
-      state->m_unprocessedPresetVariables.erase(currentEntry);
+      pCMake->m_unprocessedPresetVariables.erase(currentEntry);
 #endif
-      state->m_pState->RemoveCacheEntry(currentEntry);
+      pCMake->m_pState->RemoveCacheEntry(currentEntry);
     }
     return true;
   };
 
-  auto ScriptLambda = [&](std::string const& path, CMake* state) -> bool {
+  auto ScriptLambda = [&](std::string const& path, CMake* pCMake) -> bool {
 #ifdef CMake_ENABLE_DEBUGGER
     // Script mode doesn't hit the usual code path in cmake::Run() that starts
     // the debugger, so start it manually here instead.
+    //    TODO: So maybe fix it to start the debugger properly?
     if (!StartDebuggerIfEnabled()) {
       return false;
     }
 #endif
     // Register fake project commands that hint misuse in script mode.
-    GetProjectCommandsInScriptMode(state->GetState());
+    GetProjectCommandsInScriptMode(pCMake->GetState());
     // Documented behavior of CMAKE{,_CURRENT}_{SOURCE,BINARY}_DIR is to be
     // set to $PWD for -P mode.
-    state->SetWorkingMode(SCRIPT_MODE, CMake::CommandFailureAction::FATAL_ERROR);
-    state->SetHomeDirectory(cmSystemTools::GetLogicalWorkingDirectory());
-    state->SetHomeOutputDirectory(cmSystemTools::GetLogicalWorkingDirectory());
-    state->ReadListFile(args, path);
+    pCMake->SetWorkingMode(SCRIPT_MODE, CMake::CommandFailureAction::FATAL_ERROR);
+    pCMake->SetHomeDirectory(cmSystemTools::GetLogicalWorkingDirectory());
+    pCMake->SetHomeOutputDirectory(cmSystemTools::GetLogicalWorkingDirectory());
+    pCMake->ReadListFile(args, path);
     return true;
   };
 
-  auto PrefixLambda = [&](std::string const& path, CMake* state) -> bool {
+  auto PrefixLambda = [&](std::string const& path, CMake* pCMake) -> bool {
     std::string const var = "CMAKE_INSTALL_PREFIX";
     cmStateEnums::CacheEntryType type = cmStateEnums::PATH;
     cmCMakePath absolutePath(path);
     if (absolutePath.IsAbsolute()) {
 #ifndef CMAKE_BOOTSTRAP
-      state->m_unprocessedPresetVariables.erase(var);
+      pCMake->m_unprocessedPresetVariables.erase(var);
 #endif
-      state->ProcessCacheArg(var, path, type);
+      pCMake->ProcessCacheArg(var, path, type);
       return true;
     }
     cmSystemTools::Error("Absolute paths are required for --install-prefix");
     return false;
   };
 
-  auto ToolchainLambda = [&](std::string const& path, CMake* state) -> bool {
+  auto ToolchainLambda = [&](std::string const& path, CMake* pCMake) -> bool {
     std::string const var = "CMAKE_TOOLCHAIN_FILE";
     cmStateEnums::CacheEntryType type = cmStateEnums::FILEPATH;
 #ifndef CMAKE_BOOTSTRAP
-    state->m_unprocessedPresetVariables.erase(var);
+    pCMake->m_unprocessedPresetVariables.erase(var);
 #endif
-    state->ProcessCacheArg(var, path, type);
+    pCMake->ProcessCacheArg(var, path, type);
     return true;
   };
 
+  //    TODO: Why is this in the middle of this function?
   std::vector<CommandArgument> arguments = {
     CommandArgument{ "-D", "-D must be followed with VAR=VALUE.", CommandArgument::Values::One,
                      CommandArgument::RequiresSeparator::No, DefineLambda },
@@ -1525,14 +1531,14 @@ void CMake::SetArgs(std::vector<std::string> const& args)
 
     if (
       !expandedPreset->ArchitectureStrategy ||
-      expandedPreset->ArchitectureStrategy == cmCMakePresetsGraph::ArchToolsetStrategy::Set) {
+      expandedPreset->ArchitectureStrategy == cmCMakePresetsGraph::ArchToolsetStrategy::m_set) {
       if (!m_generatorPlatformSet && !expandedPreset->Architecture.empty()) {
         SetGeneratorPlatform(expandedPreset->Architecture);
       }
     }
     if (
       !expandedPreset->ToolsetStrategy ||
-      expandedPreset->ToolsetStrategy == cmCMakePresetsGraph::ArchToolsetStrategy::Set) {
+      expandedPreset->ToolsetStrategy == cmCMakePresetsGraph::ArchToolsetStrategy::m_set) {
       if (!m_generatorToolsetSet && !expandedPreset->Toolset.empty()) {
         SetGeneratorToolset(expandedPreset->Toolset);
       }
@@ -3614,7 +3620,7 @@ int CMake::Build(
     }
 
     if (targets.empty()) {
-      targets.insert(targets.begin(), expandedPreset->Targets.begin(), expandedPreset->Targets.end());
+      targets.insert(targets.begin(), expandedPreset->m_targets.begin(), expandedPreset->m_targets.end());
     }
 
     if (config.empty()) {
@@ -3922,7 +3928,7 @@ int CMake::Workflow(
     int StepNumber;
     cm::static_string_view Type;
     std::string Name;
-    std::function<int()> Action;
+    std::function<int()> m_action;
 
     CalculatedStep(
       int stepNumber,
@@ -3932,7 +3938,7 @@ int CMake::Workflow(
       : StepNumber(stepNumber)
       , Type(type)
       , Name(std::move(name))
-      , Action(std::move(action))
+      , m_action(std::move(action))
     {
     }
   };
@@ -3993,7 +3999,7 @@ int CMake::Workflow(
     std::cout << "Executing workflow step " << step.StepNumber << " of " << steps.size() << ": " << step.Type
               << " preset \"" << step.Name << "\"\n\n"
               << std::flush;
-    if ((stepResult = step.Action()) != 0) {
+    if ((stepResult = step.m_action()) != 0) {
       return stepResult;
     }
     first = false;

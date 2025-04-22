@@ -526,7 +526,7 @@ std::string cmStandardLevelResolver::GetCompileOptionDef(
     return std::string{};
   }
 
-  return mapping->second.GetCompileOptionDef(this->Makefile, target, config);
+  return mapping->second.GetCompileOptionDef(this->m_pMakefile, target, config);
 }
 
 std::string cmStandardLevelResolver::GetEffectiveStandard(
@@ -538,7 +538,7 @@ std::string cmStandardLevelResolver::GetEffectiveStandard(
     return std::string{};
   }
 
-  return mapping->second.GetEffectiveStandard(this->Makefile, target, config);
+  return mapping->second.GetEffectiveStandard(this->m_pMakefile, target, config);
 }
 
 std::string cmStandardLevelResolver::GetLevelString(
@@ -561,7 +561,7 @@ bool cmStandardLevelResolver::AddRequiredTargetFeature(
 {
   if (cmGeneratorExpression::Find(feature) != std::string::npos) {
     target->AppendProperty("COMPILE_FEATURES", feature,
-                           this->Makefile->GetBacktrace());
+                           this->m_pMakefile->GetBacktrace());
     return true;
   }
 
@@ -572,7 +572,7 @@ bool cmStandardLevelResolver::AddRequiredTargetFeature(
   }
 
   target->AppendProperty("COMPILE_FEATURES", feature,
-                         this->Makefile->GetBacktrace());
+                         this->m_pMakefile->GetBacktrace());
 
   // FIXME: Add a policy to avoid updating the <LANG>_STANDARD target
   // property due to COMPILE_FEATURES.  The language standard selection
@@ -599,7 +599,7 @@ bool cmStandardLevelResolver::CheckCompileFeaturesAvailable(
     return false;
   }
 
-  if (!this->Makefile->GetGlobalGenerator()->GetLanguageEnabled(lang)) {
+  if (!this->m_pMakefile->GetGlobalGenerator()->GetLanguageEnabled(lang)) {
     return true;
   }
 
@@ -613,16 +613,16 @@ bool cmStandardLevelResolver::CheckCompileFeaturesAvailable(
     std::ostringstream e;
     e << "The compiler feature \"" << feature << "\" is not known to " << lang
       << " compiler\n\""
-      << this->Makefile->GetSafeDefinition(
+      << this->m_pMakefile->GetSafeDefinition(
            cmStrCat("CMAKE_", lang, "_COMPILER_ID"))
       << "\"\nversion "
-      << this->Makefile->GetSafeDefinition(
+      << this->m_pMakefile->GetSafeDefinition(
            cmStrCat("CMAKE_", lang, "_COMPILER_VERSION"))
       << '.';
     if (error) {
       *error = e.str();
     } else {
-      this->Makefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
+      this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
     }
     return false;
   }
@@ -677,7 +677,7 @@ bool cmStandardLevelResolver::CompileFeatureKnown(
   if (error) {
     *error = e.str();
   } else {
-    this->Makefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
+    this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
   }
   return false;
 }
@@ -690,7 +690,7 @@ cmStandardLevelResolver::CompileFeatureStandardLevel(
   if (mapping == cm::cend(StandardComputerMapping)) {
     return cm::nullopt;
   }
-  return mapping->second.CompileFeatureStandardLevel(this->Makefile, feature);
+  return mapping->second.CompileFeatureStandardLevel(this->m_pMakefile, feature);
 }
 
 cm::optional<cmStandardLevel> cmStandardLevelResolver::LanguageStandardLevel(
@@ -706,7 +706,7 @@ cm::optional<cmStandardLevel> cmStandardLevelResolver::LanguageStandardLevel(
 cmValue cmStandardLevelResolver::CompileFeaturesAvailable(
   std::string const& lang, std::string* error) const
 {
-  if (!this->Makefile->GetGlobalGenerator()->GetLanguageEnabled(lang)) {
+  if (!this->m_pMakefile->GetGlobalGenerator()->GetLanguageEnabled(lang)) {
     std::ostringstream e;
     if (error) {
       e << "cannot";
@@ -717,12 +717,12 @@ cmValue cmStandardLevelResolver::CompileFeaturesAvailable(
     if (error) {
       *error = e.str();
     } else {
-      this->Makefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
+      this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
     }
     return nullptr;
   }
 
-  cmValue featuresKnown = this->Makefile->GetDefinition(
+  cmValue featuresKnown = this->m_pMakefile->GetDefinition(
     cmStrCat("CMAKE_", lang, "_COMPILE_FEATURES"));
 
   if (!cmNonempty(featuresKnown)) {
@@ -733,16 +733,16 @@ cmValue cmStandardLevelResolver::CompileFeaturesAvailable(
       e << "No";
     }
     e << " known features for " << lang << " compiler\n\""
-      << this->Makefile->GetSafeDefinition(
+      << this->m_pMakefile->GetSafeDefinition(
            cmStrCat("CMAKE_", lang, "_COMPILER_ID"))
       << "\"\nversion "
-      << this->Makefile->GetSafeDefinition(
+      << this->m_pMakefile->GetSafeDefinition(
            cmStrCat("CMAKE_", lang, "_COMPILER_VERSION"))
       << '.';
     if (error) {
       *error = e.str();
     } else {
-      this->Makefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
+      this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
     }
     return nullptr;
   }
@@ -765,7 +765,7 @@ bool cmStandardLevelResolver::GetNewRequiredStandard(
   auto mapping = StandardComputerMapping.find(lang);
   if (mapping != cm::cend(StandardComputerMapping)) {
     return mapping->second.GetNewRequiredStandard(
-      this->Makefile, targetName, featureLevel, currentLangStandardValue,
+      this->m_pMakefile, targetName, featureLevel, currentLangStandardValue,
       newRequiredStandard, error);
   }
   return false;
@@ -777,7 +777,7 @@ bool cmStandardLevelResolver::HaveStandardAvailable(
 {
   auto mapping = StandardComputerMapping.find(lang);
   if (mapping != cm::cend(StandardComputerMapping)) {
-    return mapping->second.HaveStandardAvailable(this->Makefile, target,
+    return mapping->second.HaveStandardAvailable(this->m_pMakefile, target,
                                                  config, feature);
   }
   return false;

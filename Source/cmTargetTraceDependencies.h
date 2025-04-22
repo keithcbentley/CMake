@@ -26,7 +26,7 @@ public:
 
 private:
   cmGeneratorTarget* GeneratorTarget;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmLocalGenerator* LocalGenerator;
   cmGlobalGenerator const* m_pGlobalGenerator;
   using SourceEntry = cmGeneratorTarget::SourceEntry;
@@ -41,6 +41,6 @@ private:
   void FollowName(std::string const& name);
   void FollowNames(std::vector<std::string> const& names);
   bool IsUtility(std::string const& dep);
-  void CheckCustomCommand(cmCustomCommand const& cc);
+  void CheckCustomCommand(cmCustomCommand const& m_pCustomCommand);
   void CheckCustomCommands(std::vector<cmCustomCommand> const& commands);
 };

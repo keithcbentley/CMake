@@ -399,7 +399,7 @@ public:
   std::string GetEffectiveFolderName() const;
 
   cmTarget* Target;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmLocalGenerator* LocalGenerator;
   cmGlobalGenerator const* m_pGlobalGenerator;
 

@@ -79,7 +79,7 @@ void processLinkDirectories(cmGeneratorTarget const* tgt,
       // in case projects set the LINK_DIRECTORIES property directly.
       cmSystemTools::ConvertToUnixSlashes(entryDirectory);
       if (uniqueDirectories.insert(entryDirectory).second) {
-        directories.emplace_back(entryDirectory, entry.Backtrace);
+        directories.emplace_back(entryDirectory, entry.m_backtrace);
         if (debugDirectories) {
           usedDirectories += " * " + entryDirectory + "\n";
         }
@@ -90,7 +90,7 @@ void processLinkDirectories(cmGeneratorTarget const* tgt,
         MessageType::LOG,
         std::string("Used link directories for target ") + tgt->GetName() +
           ":\n" + usedDirectories,
-        entry.Backtrace);
+        entry.m_backtrace);
     }
   }
 }
@@ -126,7 +126,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetLinkDirectories(
     this, "LINK_DIRECTORIES", nullptr, nullptr, this->LocalGenerator, config,
   };
 
-  cmList debugProperties{ this->Makefile->GetDefinition(
+  cmList debugProperties{ this->m_pMakefile->GetDefinition(
     "CMAKE_DEBUG_TARGET_PROPERTIES") };
   bool debugDirectories = !this->DebugLinkDirectoriesDone &&
     cm::contains(debugProperties, "LINK_DIRECTORIES");

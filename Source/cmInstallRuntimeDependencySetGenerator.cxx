@@ -69,7 +69,7 @@ void cmInstallRuntimeDependencySetGenerator::GenerateScriptForConfig(
           MessageType::FATAL_ERROR,
           "INSTALL_NAME_DIR argument must not evaluate to an "
           "empty string",
-          this->Backtrace);
+          this->m_backtrace);
         return;
       }
       if (installNameDir.back() != '/') {

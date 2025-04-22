@@ -19,7 +19,7 @@ public:
 private:
   void HandleMissingTarget(std::string const& name) override
   {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Cannot specify compile definitions for target \"", name,
                "\" which is not built by this project."));
@@ -30,7 +30,7 @@ private:
                            bool /*prepend*/, bool /*system*/) override
   {
     tgt->AppendProperty("COMPILE_DEFINITIONS", this->Join(content),
-                        this->Makefile->GetBacktrace());
+                        this->m_pMakefile->GetBacktrace());
     return true; // Successfully handled.
   }
 

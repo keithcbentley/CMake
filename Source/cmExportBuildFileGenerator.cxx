@@ -65,7 +65,7 @@ void cmExportBuildFileGenerator::SetImportLocationProperty(
   cmGeneratorTarget* target, ImportPropertyMap& properties)
 {
   // Get the makefile in which to lookup target information.
-  cmMakefile* mf = target->Makefile;
+  cmMakefile* mf = target->m_pMakefile;
 
   if (target->GetType() == cmStateEnums::OBJECT_LIBRARY) {
     std::string prop = cmStrCat("IMPORTED_OBJECTS", suffix);
@@ -171,7 +171,7 @@ void cmExportBuildFileGenerator::GetTargets(
     }
     return;
   }
-  targets = this->Targets;
+  targets = this->m_targets;
 }
 
 cmExportFileGenerator::ExportInfo cmExportBuildFileGenerator::FindExportInfo(
@@ -231,7 +231,7 @@ void cmExportBuildFileGenerator::ComplainAboutMissingTarget(
       << dependee->GetName() << "\" target to a single export.";
   }
 
-  this->ReportError(e.str());
+  this->m_reportError(e.str());
 }
 
 void cmExportBuildFileGenerator::ComplainAboutDuplicateTarget(
@@ -239,10 +239,10 @@ void cmExportBuildFileGenerator::ComplainAboutDuplicateTarget(
 {
   std::ostringstream e;
   e << "given target \"" << targetName << "\" more than once.";
-  this->ReportError(e.str());
+  this->m_reportError(e.str());
 }
 
-void cmExportBuildFileGenerator::ReportError(
+void cmExportBuildFileGenerator::m_reportError(
   std::string const& errorMessage) const
 {
   this->LG->GetGlobalGenerator()->GetCMakeInstance()->IssueMessage(

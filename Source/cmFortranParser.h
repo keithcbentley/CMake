@@ -133,7 +133,7 @@ struct cmFortranFile
 
 struct cmFortranCompiler
 {
-  std::string Id;
+  std::string m_id;
   std::string SModSep;
   std::string SModExt;
 };

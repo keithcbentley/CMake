@@ -21,7 +21,7 @@ public:
 private:
   void HandleMissingTarget(std::string const& name) override
   {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Cannot specify compile options for target \"", name,
                "\" which is not built by this project."));
@@ -32,12 +32,12 @@ private:
                            bool prepend, bool /*system*/) override
   {
     cmPolicies::PolicyStatus policyStatus =
-      this->Makefile->GetPolicyStatus(cmPolicies::CMP0101);
+      this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0101);
     if (policyStatus == cmPolicies::OLD || policyStatus == cmPolicies::WARN) {
       prepend = false;
     }
 
-    cmListFileBacktrace lfbt = this->Makefile->GetBacktrace();
+    cmListFileBacktrace lfbt = this->m_pMakefile->GetBacktrace();
     tgt->InsertCompileOption(BT<std::string>(this->Join(content), lfbt),
                              prepend);
     return true; // Successfully handled.

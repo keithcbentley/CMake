@@ -922,7 +922,7 @@ void cmCTestRunTest::SetupResourcesEnvironment(std::vector<std::string>* log)
           var += ';';
         }
         firstName = false;
-        var += cmStrCat("id:", it2.Id, ",slots:", it2.Slots);
+        var += cmStrCat("id:", it2.m_id, ",slots:", it2.Slots);
       }
       cmSystemTools::PutEnv(var);
       if (log) {

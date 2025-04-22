@@ -239,7 +239,7 @@ private:
   std::vector<std::string> Configurations;
   std::vector<TargetsFileAndConfigs> TargetsFileAndConfigsVec;
   cmGeneratorTarget* const GeneratorTarget;
-  cmMakefile* const Makefile;
+  cmMakefile* const m_pMakefile;
   std::string const Platform;
   std::string const Name;
   std::string const GUID;

@@ -9,7 +9,7 @@ bool cmCTestBinPackerAllocation::operator==(
   cmCTestBinPackerAllocation const& other) const
 {
   return this->ProcessIndex == other.ProcessIndex &&
-    this->SlotsNeeded == other.SlotsNeeded && this->Id == other.Id;
+    this->SlotsNeeded == other.SlotsNeeded && this->m_id == other.m_id;
 }
 
 bool cmCTestBinPackerAllocation::operator!=(
@@ -46,7 +46,7 @@ bool AllocateCTestResources(
     if (resource.Free() >=
         static_cast<unsigned int>(allocations[currentIndex]->SlotsNeeded)) {
       // Preemptively allocate the resource
-      allocations[currentIndex]->Id = resourcesSorted[resourceIndex];
+      allocations[currentIndex]->m_id = resourcesSorted[resourceIndex];
       if (currentIndex + 1 >= allocations.size()) {
         // We have a solution
         return true;
@@ -68,7 +68,7 @@ bool AllocateCTestResources(
     }
 
     // No solution found here, deallocate the resource and try the next one
-    allocations[currentIndex]->Id.clear();
+    allocations[currentIndex]->m_id.clear();
     auto freeSlots = resources.at(resourcesSorted.at(resourceIndex)).Free();
     do {
       ++resourceIndex;

@@ -129,7 +129,7 @@ cmFileSet::CompileFileEntries() const
 
   for (auto const& entry : this->FileEntries) {
     for (auto const& ex : cmList{ entry.Value }) {
-      cmGeneratorExpression ge(this->CMakeInstance, entry.Backtrace);
+      cmGeneratorExpression ge(this->CMakeInstance, entry.m_backtrace);
       auto cge = ge.Parse(ex);
       result.push_back(std::move(cge));
     }
@@ -145,7 +145,7 @@ cmFileSet::CompileDirectoryEntries() const
 
   for (auto const& entry : this->DirectoryEntries) {
     for (auto const& ex : cmList{ entry.Value }) {
-      cmGeneratorExpression ge(this->CMakeInstance, entry.Backtrace);
+      cmGeneratorExpression ge(this->CMakeInstance, entry.m_backtrace);
       auto cge = ge.Parse(ex);
       result.push_back(std::move(cge));
     }

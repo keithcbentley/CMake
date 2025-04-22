@@ -56,7 +56,7 @@ int testCommandLineArguments1(int argc, char* argv[])
   char** newArgv = nullptr;
   int newArgc = 0;
   arg.GetUnusedArguments(&newArgc, &newArgv);
-  int cc;
+  int m_pCustomCommand;
   char const* valid_unused_args[9] = { nullptr,
                                        "--ignored",
                                        "--second-ignored",
@@ -70,17 +70,17 @@ int testCommandLineArguments1(int argc, char* argv[])
     std::cerr << "Bad number of unused arguments: " << newArgc << std::endl;
     res = 1;
   }
-  for (cc = 0; cc < newArgc; ++cc) {
-    assert(newArgv[cc]); /* Quiet Clang scan-build. */
-    std::cout << "Unused argument[" << cc << "] = [" << newArgv[cc] << "]"
+  for (m_pCustomCommand = 0; m_pCustomCommand < newArgc; ++m_pCustomCommand) {
+    assert(newArgv[m_pCustomCommand]); /* Quiet Clang scan-build. */
+    std::cout << "Unused argument[" << m_pCustomCommand << "] = [" << newArgv[m_pCustomCommand] << "]"
               << std::endl;
-    if (cc >= 9) {
-      std::cerr << "Too many unused arguments: " << cc << std::endl;
+    if (m_pCustomCommand >= 9) {
+      std::cerr << "Too many unused arguments: " << m_pCustomCommand << std::endl;
       res = 1;
-    } else if (valid_unused_args[cc] &&
-               strcmp(valid_unused_args[cc], newArgv[cc]) != 0) {
-      std::cerr << "Bad unused argument [" << cc << "] \"" << newArgv[cc]
-                << "\" should be: \"" << valid_unused_args[cc] << "\""
+    } else if (valid_unused_args[m_pCustomCommand] &&
+               strcmp(valid_unused_args[m_pCustomCommand], newArgv[m_pCustomCommand]) != 0) {
+      std::cerr << "Bad unused argument [" << m_pCustomCommand << "] \"" << newArgv[m_pCustomCommand]
+                << "\" should be: \"" << valid_unused_args[m_pCustomCommand] << "\""
                 << std::endl;
       res = 1;
     }

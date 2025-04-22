@@ -54,16 +54,16 @@ std::array<cm::static_string_view, 1> InvalidDeferCommands{
   } // clang-format on
 };
 
-struct Defer
+struct m_defer
 {
-  std::string Id;
+  std::string m_id;
   std::string IdVar;
   cmMakefile* Directory = nullptr;
 };
 
 bool cmCMakeLanguageCommandCALL(std::vector<cmListFileArgument> const& args,
                                 std::string const& callCommand,
-                                size_t startArg, cm::optional<Defer> defer,
+                                size_t startArg, cm::optional<m_defer> defer,
                                 cmExecutionStatus& status)
 {
   // ensure specified command is valid
@@ -95,15 +95,15 @@ bool cmCMakeLanguageCommandCALL(std::vector<cmListFileArgument> const& args,
                            std::move(funcArgs) };
 
   if (defer) {
-    if (defer->Id.empty()) {
-      defer->Id = makefile.NewDeferId();
+    if (defer->m_id.empty()) {
+      defer->m_id = makefile.NewDeferId();
     }
     if (!defer->IdVar.empty()) {
-      makefile.AddDefinition(defer->IdVar, defer->Id);
+      makefile.AddDefinition(defer->IdVar, defer->m_id);
     }
     cmMakefile* deferMakefile =
       defer->Directory ? defer->Directory : &makefile;
-    if (!deferMakefile->DeferCall(defer->Id, context.FilePath, func)) {
+    if (!deferMakefile->DeferCall(defer->m_id, context.m_filePath, func)) {
       return FatalError(
         status,
         cmStrCat("DEFER CALL may not be scheduled in directory:\n  "_s,
@@ -115,7 +115,7 @@ bool cmCMakeLanguageCommandCALL(std::vector<cmListFileArgument> const& args,
   return makefile.ExecuteCommand(func, status);
 }
 
-bool cmCMakeLanguageCommandDEFER(Defer const& defer,
+bool cmCMakeLanguageCommandDEFER(m_defer const& defer,
                                  std::vector<std::string> const& args,
                                  size_t arg, cmExecutionStatus& status)
 {
@@ -220,7 +220,7 @@ bool cmCMakeLanguageCommandEVAL(std::vector<cmListFileArgument> const& args,
   std::string const code =
     cmJoin(cmMakeRange(expandedArgs.begin() + 2, expandedArgs.end()), " ");
   return makefile.ReadListFileAsString(
-    code, cmStrCat(context.FilePath, ":", context.Line, ":EVAL"));
+    code, cmStrCat(context.m_filePath, ":", context.Line, ":EVAL"));
 }
 
 bool cmCMakeLanguageCommandSET_DEPENDENCY_PROVIDER(
@@ -238,13 +238,13 @@ bool cmCMakeLanguageCommandSET_DEPENDENCY_PROVIDER(
 
   struct SetProviderArgs
   {
-    std::string Command;
+    std::string m_command;
     ArgumentParser::NonEmpty<std::vector<std::string>> Methods;
   };
 
   auto const ArgsParser =
     cmArgumentParser<SetProviderArgs>()
-      .Bind("SET_DEPENDENCY_PROVIDER"_s, &SetProviderArgs::Command)
+      .Bind("SET_DEPENDENCY_PROVIDER"_s, &SetProviderArgs::m_command)
       .Bind("SUPPORTED_METHODS"_s, &SetProviderArgs::Methods);
 
   std::vector<std::string> unparsed;
@@ -262,7 +262,7 @@ bool cmCMakeLanguageCommandSET_DEPENDENCY_PROVIDER(
   // require us to define a new internal command or sub-command.
   std::string fcmasProperty = "__FETCHCONTENT_MAKEAVAILABLE_SERIAL_PROVIDER";
 
-  if (parsedArgs.Command.empty()) {
+  if (parsedArgs.m_command.empty()) {
     if (!parsedArgs.Methods.empty()) {
       return FatalError(status,
                         "Must specify a non-empty command name when provider "
@@ -273,10 +273,10 @@ bool cmCMakeLanguageCommandSET_DEPENDENCY_PROVIDER(
     return true;
   }
 
-  cmState::Command command = state->GetCommand(parsedArgs.Command);
+  cmState::m_command command = state->GetCommand(parsedArgs.m_command);
   if (!command) {
     return FatalError(status,
-                      cmStrCat("Command \"", parsedArgs.Command,
+                      cmStrCat("Command \"", parsedArgs.m_command,
                                "\" is not a defined command"));
   }
 
@@ -300,10 +300,10 @@ bool cmCMakeLanguageCommandSET_DEPENDENCY_PROVIDER(
     }
   }
 
-  state->SetDependencyProvider({ parsedArgs.Command, methods });
+  state->SetDependencyProvider({ parsedArgs.m_command, methods });
   state->SetGlobalProperty(
     fcmasProperty,
-    supportsFetchContentMakeAvailableSerial ? parsedArgs.Command : "");
+    supportsFetchContentMakeAvailableSerial ? parsedArgs.m_command : "");
 
   return true;
 }
@@ -421,7 +421,7 @@ bool cmCMakeLanguageCommand(std::vector<cmListFileArgument> const& args,
     return cmCMakeLanguageCommandSET_DEPENDENCY_PROVIDER(expArgs, status);
   }
 
-  cm::optional<Defer> maybeDefer;
+  cm::optional<m_defer> maybeDefer;
   if (expArgs[expArg] == "DEFER"_s) {
     ++expArg; // Consume "DEFER".
 
@@ -429,7 +429,7 @@ bool cmCMakeLanguageCommand(std::vector<cmListFileArgument> const& args,
       return FatalError(status, "DEFER requires at least one argument");
     }
 
-    Defer defer;
+    m_defer defer;
 
     // Process optional arguments.
     while (moreArgs()) {
@@ -439,7 +439,7 @@ bool cmCMakeLanguageCommand(std::vector<cmListFileArgument> const& args,
       if (expArgs[expArg] == "CANCEL_CALL"_s ||
           expArgs[expArg] == "GET_CALL_IDS"_s ||
           expArgs[expArg] == "GET_CALL"_s) {
-        if (!defer.Id.empty() || !defer.IdVar.empty()) {
+        if (!defer.m_id.empty() || !defer.IdVar.empty()) {
           return FatalError(status,
                             cmStrCat("DEFER "_s, expArgs[expArg],
                                      " does not accept ID or ID_VAR."_s));
@@ -472,17 +472,17 @@ bool cmCMakeLanguageCommand(std::vector<cmListFileArgument> const& args,
         }
       } else if (expArgs[expArg] == "ID"_s) {
         ++expArg; // Consume "ID".
-        if (!defer.Id.empty()) {
+        if (!defer.m_id.empty()) {
           return FatalError(status, "DEFER given multiple ID arguments");
         }
         if (!moreArgs()) {
           return FatalError(status, "DEFER ID missing value");
         }
-        defer.Id = expArgs[expArg++];
-        if (defer.Id.empty()) {
+        defer.m_id = expArgs[expArg++];
+        if (defer.m_id.empty()) {
           return FatalError(status, "DEFER ID may not be empty");
         }
-        if (defer.Id[0] >= 'A' && defer.Id[0] <= 'Z') {
+        if (defer.m_id[0] >= 'A' && defer.m_id[0] <= 'Z') {
           return FatalError(status, "DEFER ID may not start in A-Z.");
         }
       } else if (expArgs[expArg] == "ID_VAR"_s) {

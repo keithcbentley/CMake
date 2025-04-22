@@ -20,7 +20,7 @@ public:
 private:
   void HandleMissingTarget(std::string const& name) override
   {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Cannot specify link options for target \"", name,
                "\" which is not built by this project."));
@@ -30,7 +30,7 @@ private:
                            std::vector<std::string> const& content,
                            bool prepend, bool /*system*/) override
   {
-    cmListFileBacktrace lfbt = this->Makefile->GetBacktrace();
+    cmListFileBacktrace lfbt = this->m_pMakefile->GetBacktrace();
     tgt->InsertLinkOption(BT<std::string>(this->Join(content), lfbt), prepend);
     return true; // Successfully handled.
   }

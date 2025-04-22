@@ -216,8 +216,8 @@ public:
 
 cmConditionEvaluator::cmConditionEvaluator(cmMakefile& makefile,
                                            cmListFileBacktrace bt)
-  : Makefile(makefile)
-  , Backtrace(std::move(bt))
+  : m_pMakefile(makefile)
+  , m_backtrace(std::move(bt))
   , Policy139Status(makefile.GetPolicyStatus(cmPolicies::CMP0139))
 {
 }
@@ -298,7 +298,7 @@ cmValue cmConditionEvaluator::GetDefinitionIfUnquoted(
     return nullptr;
   }
 
-  return this->Makefile.GetDefinition(argument.GetValue());
+  return this->m_pMakefile.GetDefinition(argument.GetValue());
 }
 
 //=========================================================================
@@ -473,7 +473,7 @@ bool cmConditionEvaluator::HandleLevel1(cmArgumentList& newArgs, std::string&,
     else if (this->IsKeyword(keyCOMMAND, *args.current)) {
       newArgs.ReduceOneArg(
         static_cast<bool>(
-          this->Makefile.GetState()->GetCommand(args.next->GetValue())),
+          this->m_pMakefile.GetState()->GetCommand(args.next->GetValue())),
         args);
     }
     // does a policy exist
@@ -484,7 +484,7 @@ bool cmConditionEvaluator::HandleLevel1(cmArgumentList& newArgs, std::string&,
     }
     // does a target exist
     else if (this->IsKeyword(keyTARGET, *args.current)) {
-      newArgs.ReduceOneArg(static_cast<bool>(this->Makefile.FindTargetToUse(
+      newArgs.ReduceOneArg(static_cast<bool>(this->m_pMakefile.FindTargetToUse(
                              args.next->GetValue())),
                            args);
     }
@@ -502,18 +502,18 @@ bool cmConditionEvaluator::HandleLevel1(cmArgumentList& newArgs, std::string&,
       else if (looksLikeSpecialVariable(var, "CACHE"_s, varNameLen)) {
         auto const cache = args.next->GetValue().substr(6, varNameLen - 7);
         result = static_cast<bool>(
-          this->Makefile.GetState()->GetCacheEntryValue(cache));
+          this->m_pMakefile.GetState()->GetCacheEntryValue(cache));
       }
 
       else {
-        result = this->Makefile.IsDefinitionSet(args.next->GetValue());
+        result = this->m_pMakefile.IsDefinitionSet(args.next->GetValue());
       }
       newArgs.ReduceOneArg(result, args);
     }
     // does a test exist
     else if (this->IsKeyword(keyTEST, *args.current)) {
       newArgs.ReduceOneArg(
-        static_cast<bool>(this->Makefile.GetTest(args.next->GetValue())),
+        static_cast<bool>(this->m_pMakefile.GetTest(args.next->GetValue())),
         args);
     }
   }
@@ -558,7 +558,7 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
         def = cmValue(def_buf);
       }
 
-      this->Makefile.ClearMatches();
+      this->m_pMakefile.ClearMatches();
 
       auto const& rex = args.nextnext->GetValue();
       cmsys::RegularExpression regEntry;
@@ -572,7 +572,7 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
 
       auto const match = regEntry.find(*def);
       if (match) {
-        this->Makefile.StoreMatches(regEntry);
+        this->m_pMakefile.StoreMatches(regEntry);
       }
       newArgs.ReduceTwoArgs(match, args);
     }
@@ -640,7 +640,7 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
 
     else if (this->IsKeyword(keyIN_LIST, *args.next)) {
       cmValue lhs = this->GetVariableOrString(*args.current);
-      cmValue rhs = this->Makefile.GetDefinition(args.nextnext->GetValue());
+      cmValue rhs = this->m_pMakefile.GetDefinition(args.nextnext->GetValue());
 
       newArgs.ReduceTwoArgs(
         rhs && cm::contains(cmList{ *rhs, cmList::EmptyElements::Yes }, *lhs),
@@ -666,7 +666,7 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
              "when the policy is set to NEW.  "
              "Since the policy is not set the OLD behavior will be used.";
 
-        this->Makefile.IssueMessage(MessageType::AUTHOR_WARNING, e.str());
+        this->m_pMakefile.IssueMessage(MessageType::AUTHOR_WARNING, e.str());
       }
     }
   }

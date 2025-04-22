@@ -86,7 +86,7 @@ bool cmExportPackageInfoGenerator::CheckDefaultTargets() const
 
   for (auto const& name : this->DefaultTargets) {
     if (!cm::contains(exportedTargetNames, name)) {
-      this->ReportError(
+      this->m_reportError(
         cmStrCat("Package \"", this->GetPackageName(),
                  "\" specifies DEFAULT_TARGETS \"", name,
                  "\", which is not a target in the export set \"",
@@ -220,7 +220,7 @@ bool ForbidGeneratorExpressions(
   evaluatedValue = cmGeneratorExpression::Collect(propertyValue, allowList);
   if (evaluatedValue != propertyValue &&
       allowList.size() > allowedExpressions) {
-    target->Makefile->IssueMessage(
+    target->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Property \"", propertyName, "\" of target \"",
                target->GetName(),
@@ -231,7 +231,7 @@ bool ForbidGeneratorExpressions(
   for (auto const& genexp : allowList) {
     for (auto const& value : genexp.second) {
       if (value.find("$<") != std::string::npos) {
-        target->Makefile->IssueMessage(
+        target->m_pMakefile->IssueMessage(
           MessageType::FATAL_ERROR,
           cmStrCat(
             "$<", genexp.first, ":...> expression in \"", propertyName,
@@ -278,7 +278,7 @@ bool cmExportPackageInfoGenerator::NoteLinkedTarget(
     }();
 
     if (pkgName.empty()) {
-      target->Makefile->IssueMessage(
+      target->m_pMakefile->IssueMessage(
         MessageType::FATAL_ERROR,
         cmStrCat("Target \"", target->GetName(),
                  "\" references imported target \"", linkedName,
@@ -288,7 +288,7 @@ bool cmExportPackageInfoGenerator::NoteLinkedTarget(
 
     auto const& prefix = cmStrCat(pkgName, "::");
     if (!cmHasPrefix(linkedName, prefix)) {
-      target->Makefile->IssueMessage(
+      target->m_pMakefile->IssueMessage(
         MessageType::FATAL_ERROR,
         cmStrCat("Target \"", target->GetName(), "\" references target \"",
                  linkedName, "\", which comes from the \"", pkgName,
@@ -309,7 +309,7 @@ bool cmExportPackageInfoGenerator::NoteLinkedTarget(
   if (exportInfo.Namespaces.size() == 1 && exportInfo.Sets.size() == 1) {
     auto const& linkNamespace = *exportInfo.Namespaces.begin();
     if (!cmHasSuffix(linkNamespace, "::")) {
-      target->Makefile->IssueMessage(
+      target->m_pMakefile->IssueMessage(
         MessageType::FATAL_ERROR,
         cmStrCat("Target \"", target->GetName(), "\" references target \"",
                  linkedName,

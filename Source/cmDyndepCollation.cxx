@@ -67,7 +67,7 @@ TdiSourceInfo CollationInformationSources(cmGeneratorTarget const* gt,
                                           CompileType type) {
       auto full_path = sf->GetFullPath();
       if (full_path.empty()) {
-        gt->Makefile->IssueMessage(
+        gt->m_pMakefile->IssueMessage(
           MessageType::INTERNAL_ERROR,
           cmStrCat("Target \"", tgt->GetName(),
                    "\" has a full path-less source file."));
@@ -92,7 +92,7 @@ TdiSourceInfo CollationInformationSources(cmGeneratorTarget const* gt,
   for (auto const& file_set_name : all_file_sets) {
     auto const* file_set = tgt->GetFileSet(file_set_name);
     if (!file_set) {
-      gt->Makefile->IssueMessage(MessageType::INTERNAL_ERROR,
+      gt->m_pMakefile->IssueMessage(MessageType::INTERNAL_ERROR,
                                  cmStrCat("Target \"", tgt->GetName(),
                                           "\" is tracked to have file set \"",
                                           file_set_name,
@@ -117,7 +117,7 @@ TdiSourceInfo CollationInformationSources(cmGeneratorTarget const* gt,
     }
 
     Json::Value fs_dest = Json::nullValue;
-    for (auto const& ig : gt->Makefile->GetInstallGenerators()) {
+    for (auto const& ig : gt->m_pMakefile->GetInstallGenerators()) {
       if (auto const* fsg =
             dynamic_cast<cmInstallFileSetGenerator const*>(ig.get())) {
         if (fsg->GetTarget() == gt && fsg->GetFileSet() == file_set) {
@@ -137,14 +137,14 @@ TdiSourceInfo CollationInformationSources(cmGeneratorTarget const* gt,
         if (lookup == sf_map.end()) {
           if (visited_sources.count(full_file)) {
             // Duplicate source; raise an author warning.
-            gt->Makefile->IssueMessage(
+            gt->m_pMakefile->IssueMessage(
               MessageType::AUTHOR_WARNING,
               cmStrCat(
                 "Target \"", tgt->GetName(), "\" has source file\n  ", file,
                 "\nin a \"FILE_SET TYPE CXX_MODULES\" multiple times."));
             continue;
           }
-          gt->Makefile->IssueMessage(
+          gt->m_pMakefile->IssueMessage(
             MessageType::FATAL_ERROR,
             cmStrCat("Target \"", tgt->GetName(), "\" has source file\n  ",
                      file,
@@ -160,7 +160,7 @@ TdiSourceInfo CollationInformationSources(cmGeneratorTarget const* gt,
         sf_map.erase(lookup);
 
         if (!sf) {
-          gt->Makefile->IssueMessage(
+          gt->m_pMakefile->IssueMessage(
             MessageType::INTERNAL_ERROR,
             cmStrCat("Target \"", tgt->GetName(), "\" has source file \"",
                      file, "\" which has not been tracked properly."));
@@ -225,7 +225,7 @@ Json::Value CollationInformationBmiInstallation(cmGeneratorTarget const* gt,
                                                 std::string const& config)
 {
   cmInstallCxxModuleBmiGenerator const* bmi_gen = nullptr;
-  for (auto const& ig : gt->Makefile->GetInstallGenerators()) {
+  for (auto const& ig : gt->m_pMakefile->GetInstallGenerators()) {
     if (auto const* bmig =
           dynamic_cast<cmInstallCxxModuleBmiGenerator const*>(ig.get())) {
       if (bmig->GetTarget() == gt) {

@@ -8,11 +8,11 @@
 #include "cmValue.h"
 
 cmTest::cmTest(cmMakefile* mf)
-  : Backtrace(mf->GetBacktrace())
+  : m_backtrace(mf->GetBacktrace())
   , PolicyStatusCMP0158(mf->GetPolicyStatus(cmPolicies::CMP0158))
   , PolicyStatusCMP0178(mf->GetPolicyStatus(cmPolicies::CMP0178))
 {
-  this->Makefile = mf;
+  this->m_pMakefile = mf;
   this->OldStyle = true;
 }
 
@@ -20,7 +20,7 @@ cmTest::~cmTest() = default;
 
 cmListFileBacktrace const& cmTest::GetBacktrace() const
 {
-  return this->Backtrace;
+  return this->m_backtrace;
 }
 
 void cmTest::SetName(std::string const& name)
@@ -30,7 +30,7 @@ void cmTest::SetName(std::string const& name)
 
 void cmTest::SetCommand(std::vector<std::string> const& command)
 {
-  this->Command = command;
+  this->m_command = command;
 }
 
 cmValue cmTest::GetProperty(std::string const& prop) const
@@ -38,9 +38,9 @@ cmValue cmTest::GetProperty(std::string const& prop) const
   cmValue retVal = this->Properties.GetPropertyValue(prop);
   if (!retVal) {
     bool const chain =
-      this->Makefile->GetState()->IsPropertyChained(prop, cmProperty::TEST);
+      this->m_pMakefile->GetState()->IsPropertyChained(prop, cmProperty::TEST);
     if (chain) {
-      if (cmValue p = this->Makefile->GetProperty(prop, chain)) {
+      if (cmValue p = this->m_pMakefile->GetProperty(prop, chain)) {
         return p;
       }
     }

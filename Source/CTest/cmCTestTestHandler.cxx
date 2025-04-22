@@ -2072,9 +2072,9 @@ void cmCTestTestHandler::RecordCustomTestMeasurements(cmXMLWriter& xml,
             xml.Attribute("type", parser.MeasurementType);
             xml.Attribute("encoding", "base64");
             std::ostringstream ostr;
-            for (size_t cc = 0; cc < rlen; cc++) {
-              ostr << encoded_buffer[cc];
-              if (cc % 60 == 0 && cc) {
+            for (size_t m_pCustomCommand = 0; m_pCustomCommand < rlen; m_pCustomCommand++) {
+              ostr << encoded_buffer[m_pCustomCommand];
+              if (m_pCustomCommand % 60 == 0 && m_pCustomCommand) {
                 ostr << std::endl;
               }
             }
@@ -2203,20 +2203,20 @@ bool cmCTestTestHandler::SetTestsProperties(
             // Ensure we have complete triples otherwise the data is corrupt.
             if (triples.size() % 3 == 0) {
               cmState state(cmState::Unknown);
-              rt.Backtrace = cmListFileBacktrace();
+              rt.m_backtrace = cmListFileBacktrace();
 
               // the first entry represents the top of the trace so we need to
               // reconstruct the backtrace in reverse
               for (auto i = triples.size(); i >= 3; i -= 3) {
                 cmListFileContext fc;
-                fc.FilePath = triples[i - 3];
+                fc.m_filePath = triples[i - 3];
                 long line = 0;
                 if (!cmStrToLong(triples[i - 2], &line)) {
                   line = 0;
                 }
                 fc.Line = line;
                 fc.Name = triples[i - 1];
-                rt.Backtrace = rt.Backtrace.Push(fc);
+                rt.m_backtrace = rt.m_backtrace.Push(fc);
               }
             }
           } else if (key == "WILL_FAIL"_s) {

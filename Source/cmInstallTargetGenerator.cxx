@@ -330,7 +330,7 @@ cmInstallTargetGenerator::Files cmInstallTargetGenerator::GetFiles(
       this->Target->GetLibraryNames(config);
     if (this->ImportLibrary) {
       // There is a bug in cmInstallCommand if this fails.
-      assert(this->Target->Makefile->PlatformSupportsAppleTextStubs() ||
+      assert(this->Target->m_pMakefile->PlatformSupportsAppleTextStubs() ||
              this->ImportlinkMode == NamelinkModeNone);
 
       auto GNUToMS = [this, &config, &files,

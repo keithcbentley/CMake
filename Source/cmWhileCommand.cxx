@@ -38,21 +38,21 @@ public:
               cmExecutionStatus& inStatus) override;
 
 private:
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   std::vector<cmListFileArgument> Args;
 };
 
 cmWhileFunctionBlocker::cmWhileFunctionBlocker(
   cmMakefile* const mf, std::vector<cmListFileArgument> args)
-  : Makefile{ mf }
+  : m_pMakefile{ mf }
   , Args{ std::move(args) }
 {
-  this->Makefile->PushLoopBlock();
+  this->m_pMakefile->PushLoopBlock();
 }
 
 cmWhileFunctionBlocker::~cmWhileFunctionBlocker()
 {
-  this->Makefile->PopLoopBlock();
+  this->m_pMakefile->PopLoopBlock();
 }
 
 bool cmWhileFunctionBlocker::ArgumentsMatch(cmListFileFunction const& lff,

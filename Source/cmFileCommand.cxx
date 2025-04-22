@@ -1761,7 +1761,7 @@ class cURLProgressHelper
 {
 public:
   cURLProgressHelper(cmMakefile* mf, char const* text)
-    : Makefile(mf)
+    : m_pMakefile(mf)
     , Text(text)
   {
   }
@@ -1790,11 +1790,11 @@ public:
     return updated;
   }
 
-  cmMakefile* GetMakefile() { return this->Makefile; }
+  cmMakefile* GetMakefile() { return this->m_pMakefile; }
 
 private:
   long CurrentPercentage = -1;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   std::string Text;
 };
 

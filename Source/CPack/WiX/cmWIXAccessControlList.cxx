@@ -32,7 +32,7 @@ void cmWIXAccessControlList::CreatePermissionElement(std::string const& entry)
 {
   std::string::size_type pos = entry.find('=');
   if (pos == std::string::npos) {
-    this->ReportError(entry, "Did not find mandatory '='");
+    this->m_reportError(entry, "Did not find mandatory '='");
     return;
   }
 
@@ -62,7 +62,7 @@ void cmWIXAccessControlList::CreatePermissionElement(std::string const& entry)
   this->SourceWriter.EndElement("Permission");
 }
 
-void cmWIXAccessControlList::ReportError(std::string const& entry,
+void cmWIXAccessControlList::m_reportError(std::string const& entry,
                                          std::string const& message)
 {
   cmCPackLogger(cmCPackLog::LOG_ERROR,
@@ -118,7 +118,7 @@ void cmWIXAccessControlList::EmitBooleanAttribute(std::string const& entry,
                                                   std::string const& name)
 {
   if (!this->IsBooleanAttribute(name)) {
-    this->ReportError(entry,
+    this->m_reportError(entry,
                       cmStrCat("Unknown boolean attribute '", name, '\''));
   }
 

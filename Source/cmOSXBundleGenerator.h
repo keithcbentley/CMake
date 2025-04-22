@@ -62,7 +62,7 @@ private:
   bool MustSkip();
 
   cmGeneratorTarget* GT;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmLocalGenerator* LocalGenerator;
   std::set<std::string>* MacContentFolders = nullptr;
 };

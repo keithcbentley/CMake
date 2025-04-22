@@ -32,7 +32,7 @@ void cmExportInstallAndroidMKGenerator::ReportDuplicateTarget(
     << "\" ...) "
     << "includes target \"" << targetName
     << "\" more than once in the export set.";
-  this->ReportError(e.str());
+  this->m_reportError(e.str());
 }
 
 bool cmExportInstallAndroidMKGenerator::GenerateMainFile(std::ostream& os)

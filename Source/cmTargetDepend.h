@@ -21,7 +21,7 @@ class cmTargetDepend
   mutable bool Link = false;
   mutable bool Util = false;
   mutable bool Cross = false;
-  mutable cmListFileBacktrace Backtrace;
+  mutable cmListFileBacktrace m_backtrace;
 
 public:
   cmTargetDepend(cmGeneratorTarget const* t)
@@ -46,12 +46,12 @@ public:
   void SetCross(bool cross) const { this->Cross = cross; }
   void SetBacktrace(cmListFileBacktrace const& bt) const
   {
-    this->Backtrace = bt;
+    this->m_backtrace = bt;
   }
   bool IsLink() const { return this->Link; }
   bool IsUtil() const { return this->Util; }
   bool IsCross() const { return this->Cross; }
-  cmListFileBacktrace const& GetBacktrace() const { return this->Backtrace; }
+  cmListFileBacktrace const& GetBacktrace() const { return this->m_backtrace; }
 };
 
 /** Unordered set of (direct) dependencies of a target. */

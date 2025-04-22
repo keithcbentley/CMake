@@ -118,7 +118,7 @@ void PrintCallStack(std::ostream& out, cmListFileBacktrace bt,
   if (bt.Empty()) {
     return;
   }
-  std::string lastFilePath = bt.Top().FilePath;
+  std::string lastFilePath = bt.Top().m_filePath;
   bt = bt.Pop();
   if (bt.Empty()) {
     return;
@@ -129,7 +129,7 @@ void PrintCallStack(std::ostream& out, cmListFileBacktrace bt,
     cmListFileContext lfc = bt.Top();
     if (lfc.Name.empty() &&
         lfc.Line != cmListFileContext::DeferPlaceholderLine &&
-        lfc.FilePath == lastFilePath) {
+        lfc.m_filePath == lastFilePath) {
       // An entry with no function name is frequently preceded (in the stack)
       // by a more specific entry.  When this happens (as verified by the
       // preceding entry referencing the same file path), skip the less
@@ -140,9 +140,9 @@ void PrintCallStack(std::ostream& out, cmListFileBacktrace bt,
       first = false;
       out << "Call Stack (most recent call first):\n";
     }
-    lastFilePath = lfc.FilePath;
+    lastFilePath = lfc.m_filePath;
     if (topSource) {
-      lfc.FilePath = cmSystemTools::RelativeIfUnder(*topSource, lfc.FilePath);
+      lfc.m_filePath = cmSystemTools::RelativeIfUnder(*topSource, lfc.m_filePath);
     }
     out << "  " << lfc << '\n';
   }
@@ -241,8 +241,8 @@ void cmMessenger::PrintBacktraceTitle(std::ostream& out,
   }
   cmListFileContext lfc = bt.Top();
   if (this->TopSource) {
-    lfc.FilePath =
-      cmSystemTools::RelativeIfUnder(*this->TopSource, lfc.FilePath);
+    lfc.m_filePath =
+      cmSystemTools::RelativeIfUnder(*this->TopSource, lfc.m_filePath);
   }
   out << (lfc.Line ? " at " : " in ") << lfc;
 }

@@ -15,7 +15,7 @@ struct cmGeneratorExpressionDAGChecker;
 EvaluatedTargetPropertyEntry::EvaluatedTargetPropertyEntry(
   cmLinkImplItem const& item, cmListFileBacktrace bt)
   : LinkImplItem(item)
-  , Backtrace(std::move(bt))
+  , m_backtrace(std::move(bt))
 {
 }
 
@@ -60,13 +60,13 @@ void addInterfaceEntry(cmGeneratorTarget const* headTarget,
 {
   for (cmLinkImplItem const& lib : libraries) {
     if (lib.Target) {
-      EvaluatedTargetPropertyEntry ee(lib, lib.Backtrace);
+      EvaluatedTargetPropertyEntry ee(lib, lib.m_backtrace);
       // Pretend $<TARGET_PROPERTY:lib.Target,prop> appeared in our
       // caller's property and hand-evaluate it as if it were compiled.
       // Create a context as cmCompiledGeneratorExpression::Evaluate does.
       cmGeneratorExpressionContext context(
         headTarget->GetLocalGenerator(), config, false, headTarget, headTarget,
-        true, lib.Backtrace, lang);
+        true, lib.m_backtrace, lang);
       cmExpandList(lib.Target->EvaluateInterfaceProperty(prop, &context,
                                                          dagChecker, usage),
                    ee.Values);

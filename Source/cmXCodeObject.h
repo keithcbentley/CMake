@@ -112,8 +112,8 @@ public:
   virtual void PrintComment(std::ostream&) {}
 
   static void PrintList(std::vector<cmXCodeObject*> const&, std::ostream& out);
-  std::string const& GetId() const { return this->Id; }
-  void SetId(std::string const& id) { this->Id = id; }
+  std::string const& GetId() const { return this->m_id; }
+  void SetId(std::string const& id) { this->m_id = id; }
   cmGeneratorTarget* GetTarget() const { return this->Target; }
   void SetTarget(cmGeneratorTarget* t) { this->Target = t; }
   std::string const& GetComment() const { return this->Comment; }
@@ -167,7 +167,7 @@ protected:
 
   cmGeneratorTarget* Target;
   Type TypeValue;
-  std::string Id;
+  std::string m_id;
   PBXType IsA;
   int Version;
   std::string Comment;

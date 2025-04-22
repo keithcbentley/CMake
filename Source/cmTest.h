@@ -33,7 +33,7 @@ public:
   std::string GetName() const { return this->Name; }
 
   void SetCommand(std::vector<std::string> const& command);
-  std::vector<std::string> const& GetCommand() const { return this->Command; }
+  std::vector<std::string> const& GetCommand() const { return this->m_command; }
 
   //! Set/Get a property of this source file
   void SetProperty(std::string const& prop, cmValue value);
@@ -52,7 +52,7 @@ public:
   cmPropertyMap& GetProperties() { return this->Properties; }
 
   /** Get the cmMakefile instance that owns this test.  */
-  cmMakefile* GetMakefile() { return this->Makefile; }
+  cmMakefile* GetMakefile() { return this->m_pMakefile; }
 
   /** Get the backtrace of the command that created this test.  */
   cmListFileBacktrace const& GetBacktrace() const;
@@ -84,13 +84,13 @@ public:
 private:
   cmPropertyMap Properties;
   std::string Name;
-  std::vector<std::string> Command;
+  std::vector<std::string> m_command;
   bool CommandExpandLists = false;
 
   bool OldStyle;
 
-  cmMakefile* Makefile;
-  cmListFileBacktrace Backtrace;
+  cmMakefile* m_pMakefile;
+  cmListFileBacktrace m_backtrace;
   cmPolicies::PolicyStatus PolicyStatusCMP0158;
   cmPolicies::PolicyStatus PolicyStatusCMP0178;
 };

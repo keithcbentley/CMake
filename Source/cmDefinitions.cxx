@@ -97,7 +97,7 @@ std::vector<std::string> cmDefinitions::ClosureKeys(StackIter begin,
   return defined;
 }
 
-void cmDefinitions::Set(std::string const& key, cm::string_view value)
+void cmDefinitions::m_set(std::string const& key, cm::string_view value)
 {
   this->Map[key] = Def(value);
 }

@@ -310,19 +310,19 @@ int cmCTestBuildHandler::ProcessHandler()
 
   // Create lists of regular expression strings for errors, error exceptions,
   // warnings and warning exceptions.
-  std::vector<std::string>::size_type cc;
-  for (cc = 0; cmCTestErrorMatches[cc]; cc++) {
-    this->CustomErrorMatches.emplace_back(cmCTestErrorMatches[cc]);
+  std::vector<std::string>::size_type m_pCustomCommand;
+  for (m_pCustomCommand = 0; cmCTestErrorMatches[m_pCustomCommand]; m_pCustomCommand++) {
+    this->CustomErrorMatches.emplace_back(cmCTestErrorMatches[m_pCustomCommand]);
   }
-  for (cc = 0; cmCTestErrorExceptions[cc]; cc++) {
-    this->CustomErrorExceptions.emplace_back(cmCTestErrorExceptions[cc]);
+  for (m_pCustomCommand = 0; cmCTestErrorExceptions[m_pCustomCommand]; m_pCustomCommand++) {
+    this->CustomErrorExceptions.emplace_back(cmCTestErrorExceptions[m_pCustomCommand]);
   }
-  for (cc = 0; cmCTestWarningMatches[cc]; cc++) {
-    this->CustomWarningMatches.emplace_back(cmCTestWarningMatches[cc]);
+  for (m_pCustomCommand = 0; cmCTestWarningMatches[m_pCustomCommand]; m_pCustomCommand++) {
+    this->CustomWarningMatches.emplace_back(cmCTestWarningMatches[m_pCustomCommand]);
   }
 
-  for (cc = 0; cmCTestWarningExceptions[cc]; cc++) {
-    this->CustomWarningExceptions.emplace_back(cmCTestWarningExceptions[cc]);
+  for (m_pCustomCommand = 0; cmCTestWarningExceptions[m_pCustomCommand]; m_pCustomCommand++) {
+    this->CustomWarningExceptions.emplace_back(cmCTestWarningExceptions[m_pCustomCommand]);
   }
 
   // Pre-compile regular expressions objects for all regular expressions
@@ -355,18 +355,18 @@ int cmCTestBuildHandler::ProcessHandler()
   if (this->CTest->GetCTestConfiguration("SourceDirectory").size() > 20) {
     std::string srcdir =
       this->CTest->GetCTestConfiguration("SourceDirectory") + "/";
-    cc = srcdir.rfind('/', srcdir.size() - 2);
-    if (cc != std::string::npos) {
-      srcdir.resize(cc + 1);
+    m_pCustomCommand = srcdir.rfind('/', srcdir.size() - 2);
+    if (m_pCustomCommand != std::string::npos) {
+      srcdir.resize(m_pCustomCommand + 1);
       this->SimplifySourceDir = std::move(srcdir);
     }
   }
   if (this->CTest->GetCTestConfiguration("BuildDirectory").size() > 20) {
     std::string bindir =
       this->CTest->GetCTestConfiguration("BuildDirectory") + "/";
-    cc = bindir.rfind('/', bindir.size() - 2);
-    if (cc != std::string::npos) {
-      bindir.resize(cc + 1);
+    m_pCustomCommand = bindir.rfind('/', bindir.size() - 2);
+    if (m_pCustomCommand != std::string::npos) {
+      bindir.resize(m_pCustomCommand + 1);
       this->SimplifyBuildDir = std::move(bindir);
     }
   }

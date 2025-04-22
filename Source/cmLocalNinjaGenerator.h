@@ -87,9 +87,9 @@ public:
                                   cmListFileBacktrace const& bt) override;
 
   std::vector<cmCustomCommandGenerator> MakeCustomCommandGenerators(
-    cmCustomCommand const& cc, std::string const& config) override;
+    cmCustomCommand const& m_pCustomCommand, std::string const& config) override;
 
-  void AddCustomCommandTarget(cmCustomCommand const* cc,
+  void AddCustomCommandTarget(cmCustomCommand const* m_pCustomCommand,
                               cmGeneratorTarget* target);
   void AppendCustomCommandLines(cmCustomCommandGenerator const& ccg,
                                 std::vector<std::string>& cmdLines);
@@ -124,7 +124,7 @@ private:
   void WritePools(std::ostream& os);
 
   void WriteCustomCommandBuildStatement(
-    cmCustomCommand const* cc, std::set<cmGeneratorTarget*> const& targets,
+    cmCustomCommand const* m_pCustomCommand, std::set<cmGeneratorTarget*> const& targets,
     std::string const& config);
 
   void WriteCustomCommandBuildStatements(std::string const& config);

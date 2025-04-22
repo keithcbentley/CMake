@@ -137,15 +137,15 @@ void cmLocalVisualStudio7Generator::FixGlobalTargets()
       std::string force = cmStrCat(this->GetCurrentBinaryDirectory(),
                                    "/CMakeFiles/", l->GetName(), "_force");
       if (cmSourceFile* sf =
-            this->Makefile->GetOrCreateGeneratedSource(force)) {
+            this->m_pMakefile->GetOrCreateGeneratedSource(force)) {
         sf->SetProperty("SYMBOLIC", "1");
       }
-      auto cc = cm::make_unique<cmCustomCommand>();
-      cc->SetOutputs(force);
-      cc->SetCommandLines(force_commands);
-      cc->SetComment(" ");
+      auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetOutputs(force);
+      m_pCustomCommand->SetCommandLines(force_commands);
+      m_pCustomCommand->SetComment(" ");
       if (cmSourceFile* file =
-            this->AddCustomCommandToOutput(std::move(cc), true)) {
+            this->AddCustomCommandToOutput(std::move(m_pCustomCommand), true)) {
         l->AddSource(file->ResolveFullPath());
       }
     }
@@ -173,7 +173,7 @@ void cmLocalVisualStudio7Generator::WriteStampFiles()
   cmsys::ofstream depFile(depName.c_str());
   depFile << "# CMake generation dependency list for this directory.\n";
 
-  std::vector<std::string> listFiles(this->Makefile->GetListFiles());
+  std::vector<std::string> listFiles(this->m_pMakefile->GetListFiles());
   CMake* cm = this->m_pGlobalGenerator->GetCMakeInstance();
   if (cm->DoWriteGlobVerifyTarget()) {
     listFiles.push_back(cm->GetGlobVerifyStamp());
@@ -231,7 +231,7 @@ cmSourceFile* cmLocalVisualStudio7Generator::CreateVCProjBuildRule()
 
   std::string makefileIn = this->GetCMakeInstance()->GetCMakeListFile(
     this->GetCurrentSourceDirectory());
-  if (cmSourceFile* file = this->Makefile->GetSource(makefileIn)) {
+  if (cmSourceFile* file = this->m_pMakefile->GetSource(makefileIn)) {
     if (file->GetCustomCommand()) {
       return file;
     }
@@ -240,7 +240,7 @@ cmSourceFile* cmLocalVisualStudio7Generator::CreateVCProjBuildRule()
     return nullptr;
   }
 
-  std::vector<std::string> listFiles = this->Makefile->GetListFiles();
+  std::vector<std::string> listFiles = this->m_pMakefile->GetListFiles();
   CMake* cm = this->m_pGlobalGenerator->GetCMakeInstance();
   if (cm->DoWriteGlobVerifyTarget()) {
     listFiles.push_back(cm->GetGlobVerifyStamp());
@@ -266,17 +266,17 @@ cmSourceFile* cmLocalVisualStudio7Generator::CreateVCProjBuildRule()
     commandLines[0].emplace_back("--link-no-warning-as-error");
   }
   std::string comment = cmStrCat("Building Custom Rule ", makefileIn);
-  auto cc = cm::make_unique<cmCustomCommand>();
-  cc->SetOutputs(stampName);
-  cc->SetMainDependency(makefileIn);
-  cc->SetDepends(listFiles);
-  cc->SetCommandLines(commandLines);
-  cc->SetComment(comment.c_str());
-  cc->SetEscapeOldStyle(false);
-  cc->SetStdPipesUTF8(true);
-  cc->SetUsesTerminal(true);
-  this->AddCustomCommandToOutput(std::move(cc), true);
-  if (cmSourceFile* file = this->Makefile->GetSource(makefileIn)) {
+  auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+  m_pCustomCommand->SetOutputs(stampName);
+  m_pCustomCommand->SetMainDependency(makefileIn);
+  m_pCustomCommand->SetDepends(listFiles);
+  m_pCustomCommand->SetCommandLines(commandLines);
+  m_pCustomCommand->SetComment(comment.c_str());
+  m_pCustomCommand->SetEscapeOldStyle(false);
+  m_pCustomCommand->SetStdPipesUTF8(true);
+  m_pCustomCommand->SetUsesTerminal(true);
+  this->AddCustomCommandToOutput(std::move(m_pCustomCommand), true);
+  if (cmSourceFile* file = this->m_pMakefile->GetSource(makefileIn)) {
     // Finalize the source file path now since we're adding this after
     // the generator validated all project-named sources.
     file->ResolveFullPath();
@@ -592,9 +592,9 @@ public:
       this->Write(command);
     }
   }
-  void Write(cmCustomCommand const& cc)
+  void Write(cmCustomCommand const& m_pCustomCommand)
   {
-    cmCustomCommandGenerator ccg(cc, this->Config, this->LG);
+    cmCustomCommandGenerator ccg(m_pCustomCommand, this->Config, this->LG);
     if (this->First) {
       if (cm::optional<std::string> comment = ccg.GetComment()) {
         this->Stream << "\nDescription=\"" << this->LG->EscapeForXML(*comment)
@@ -621,7 +621,7 @@ void cmLocalVisualStudio7Generator::WriteConfiguration(
   std::string const& libName, cmGeneratorTarget* target)
 {
   std::string mfcFlag;
-  if (cmValue p = this->Makefile->GetDefinition("CMAKE_MFC_FLAG")) {
+  if (cmValue p = this->m_pMakefile->GetDefinition("CMAKE_MFC_FLAG")) {
     mfcFlag = cmGeneratorExpression::Evaluate(*p, this, configName);
   } else {
     mfcFlag = "0";
@@ -701,7 +701,7 @@ void cmLocalVisualStudio7Generator::WriteConfiguration(
     if (target->IsIPOEnabled(linkLanguage, configName)) {
       if (this->FortranProject) {
         this->AppendCompileOptions(flags,
-                                   this->Makefile->GetSafeDefinition(
+                                   this->m_pMakefile->GetSafeDefinition(
                                      "CMAKE_Fortran_COMPILE_OPTIONS_IPO"));
       }
     }
@@ -734,7 +734,7 @@ void cmLocalVisualStudio7Generator::WriteConfiguration(
   }
 
   // Get preprocessor definitions for this directory.
-  std::string defineFlags = this->Makefile->GetDefineFlags();
+  std::string defineFlags = this->m_pMakefile->GetDefineFlags();
   Options::Tool t = Options::Compiler;
   cmVS7FlagTable const* table = cmLocalVisualStudio7GeneratorFlagTable;
   if (this->FortranProject) {
@@ -758,7 +758,7 @@ void cmLocalVisualStudio7Generator::WriteConfiguration(
     targetOptions.AddIncludes(targetIncludes);
   }
   targetOptions.SetVerboseMakefile(
-    this->Makefile->IsOn("CMAKE_VERBOSE_MAKEFILE"));
+    this->m_pMakefile->IsOn("CMAKE_VERBOSE_MAKEFILE"));
 
   // Add a definition for the configuration name.
   std::string configDefine = cmStrCat("CMAKE_INTDIR=\"", configName, '"');
@@ -1102,7 +1102,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(
       // Use the NOINHERIT macro to avoid getting VS project default
       // libraries which may be set by the user to something bad.
       fout << "\t\t\t\tAdditionalDependencies=\"$(NOINHERIT) "
-           << this->Makefile->GetSafeDefinition(standardLibsVar);
+           << this->m_pMakefile->GetSafeDefinition(standardLibsVar);
       if (this->FortranProject) {
         this->Internal->OutputObjects(fout, target, configName, " ");
       }
@@ -1116,7 +1116,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(
       this->WriteTargetVersionAttribute(fout, target);
       linkOptions.OutputFlagMap(fout, 4);
       fout << "\t\t\t\tAdditionalLibraryDirectories=\"";
-      std::string const& linkDirsString = this->Makefile->GetSafeDefinition(
+      std::string const& linkDirsString = this->m_pMakefile->GetSafeDefinition(
         cmStrCat("CMAKE_", linkLanguage, "_STANDARD_LINK_DIRECTORIES"));
       this->OutputLibraryDirectories(fout, cmList(linkDirsString),
                                      cli.GetDirectories());
@@ -1132,7 +1132,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(
         fout << "\t\t\t\tSubSystem=\"8\"\n";
       }
       std::string stackVar = cmStrCat("CMAKE_", linkLanguage, "_STACK_SIZE");
-      cmValue stackVal = this->Makefile->GetDefinition(stackVar);
+      cmValue stackVal = this->m_pMakefile->GetDefinition(stackVar);
       if (stackVal) {
         fout << "\t\t\t\tStackReserveSize=\"" << *stackVal << "\"\n";
       }
@@ -1188,7 +1188,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(
       // Use the NOINHERIT macro to avoid getting VS project default
       // libraries which may be set by the user to something bad.
       fout << "\t\t\t\tAdditionalDependencies=\"$(NOINHERIT) "
-           << this->Makefile->GetSafeDefinition(standardLibsVar);
+           << this->m_pMakefile->GetSafeDefinition(standardLibsVar);
       if (this->FortranProject) {
         this->Internal->OutputObjects(fout, target, configName, " ");
       }
@@ -1202,7 +1202,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(
       this->WriteTargetVersionAttribute(fout, target);
       linkOptions.OutputFlagMap(fout, 4);
       fout << "\t\t\t\tAdditionalLibraryDirectories=\"";
-      std::string const& linkDirsString = this->Makefile->GetSafeDefinition(
+      std::string const& linkDirsString = this->m_pMakefile->GetSafeDefinition(
         cmStrCat("CMAKE_", linkLanguage, "_STANDARD_LINK_DIRECTORIES"));
       this->OutputLibraryDirectories(fout, cmList(linkDirsString),
                                      cli.GetDirectories());
@@ -1232,7 +1232,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(
              << "\"\n";
       }
       std::string stackVar = cmStrCat("CMAKE_", linkLanguage, "_STACK_SIZE");
-      cmValue stackVal = this->Makefile->GetDefinition(stackVar);
+      cmValue stackVal = this->m_pMakefile->GetDefinition(stackVar);
       if (stackVal) {
         fout << "\t\t\t\tStackReserveSize=\"" << *stackVal << '"';
       }
@@ -1398,10 +1398,10 @@ void cmLocalVisualStudio7Generator::WriteVCProjFile(std::ostream& fout,
                                                     cmGeneratorTarget* target)
 {
   std::vector<std::string> configs =
-    this->Makefile->GetGeneratorConfigs(cmMakefile::ExcludeEmptyConfig);
+    this->m_pMakefile->GetGeneratorConfigs(cmMakefile::ExcludeEmptyConfig);
 
   // We may be modifying the source groups temporarily, so make a copy.
-  std::vector<cmSourceGroup> sourceGroups = this->Makefile->GetSourceGroups();
+  std::vector<cmSourceGroup> sourceGroups = this->m_pMakefile->GetSourceGroups();
 
   AllConfigSources sources;
   sources.Sources = target->GetAllConfigSources();
@@ -1445,7 +1445,7 @@ void cmLocalVisualStudio7Generator::WriteVCProjFile(std::ostream& fout,
     // Add the file to the list of sources.
     std::string const source = sf->GetFullPath();
     cmSourceGroup* sourceGroup =
-      this->Makefile->FindSourceGroup(source, sourceGroups);
+      this->m_pMakefile->FindSourceGroup(source, sourceGroups);
     sourceGroup->AssignSource(sf);
   }
 

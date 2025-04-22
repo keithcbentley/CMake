@@ -643,7 +643,7 @@ public:
 
   std::string MakeSilentFlag;
 
-  size_t RecursionDepth = 0;
+  size_t m_recursionDepth = 0;
 
   virtual void GetQtAutoGenConfigs(std::vector<std::string>& configs) const
   {
@@ -778,7 +778,7 @@ protected:
   std::map<std::string, cmExportBuildFileGenerator*> BuildExportSets;
   std::map<std::string, cmExportBuildFileGenerator*> BuildExportExportSets;
 
-  std::map<std::string, std::string> AliasTargets;
+  std::map<std::string, std::string> m_aliasTargets;
 
   cmTarget* FindTargetImpl(std::string const& name,
                            cmStateEnums::TargetDomainSet domains) const;

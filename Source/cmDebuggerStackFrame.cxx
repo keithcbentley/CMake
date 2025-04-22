@@ -13,10 +13,10 @@ std::atomic<int64_t> cmDebuggerStackFrame::NextId(1);
 cmDebuggerStackFrame::cmDebuggerStackFrame(cmMakefile* mf,
                                            std::string sourcePath,
                                            cmListFileFunction const& lff)
-  : Id(NextId.fetch_add(1))
+  : m_id(NextId.fetch_add(1))
   , FileName(std::move(sourcePath))
   , Function(lff)
-  , Makefile(mf)
+  , m_pMakefile(mf)
 {
 }
 

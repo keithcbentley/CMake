@@ -209,7 +209,7 @@ void cmExportInstallFileGenerator::SetImportLocationProperty(
     if (target->IsAppBundleOnApple()) {
       value += cmInstallTargetGenerator::GetInstallFilename(target, config);
       value += ".app/";
-      if (!target->Makefile->PlatformIsAppleEmbedded()) {
+      if (!target->m_pMakefile->PlatformIsAppleEmbedded()) {
         value += "Contents/MacOS/";
       }
       value += cmInstallTargetGenerator::GetInstallFilename(target, config);
@@ -321,7 +321,7 @@ void cmExportInstallFileGenerator::ComplainAboutMissingTarget(
          "Consider consolidating the exports of the \""
       << dependee->GetName() << "\" target to a single export.";
   }
-  this->ReportError(e.str());
+  this->m_reportError(e.str());
 }
 
 void cmExportInstallFileGenerator::ComplainAboutDuplicateTarget(
@@ -332,10 +332,10 @@ void cmExportInstallFileGenerator::ComplainAboutDuplicateTarget(
     << this->GetExportName() << "\" ...) "
     << "includes target \"" << targetName
     << "\" more than once in the export set.";
-  this->ReportError(e.str());
+  this->m_reportError(e.str());
 }
 
-void cmExportInstallFileGenerator::ReportError(
+void cmExportInstallFileGenerator::m_reportError(
   std::string const& errorMessage) const
 {
   this->IEGen->GetLocalGenerator()->GetCMakeInstance()->IssueMessage(
@@ -419,7 +419,7 @@ bool cmExportInstallFileGenerator::CheckInterfaceDirs(
   std::string const& prop) const
 {
   std::string const& installDir =
-    target->Makefile->GetSafeDefinition("CMAKE_INSTALL_PREFIX");
+    target->m_pMakefile->GetSafeDefinition("CMAKE_INSTALL_PREFIX");
   std::string const& topSourceDir =
     target->GetLocalGenerator()->GetSourceDirectory();
   std::string const& topBinaryDir =
@@ -532,7 +532,7 @@ void cmExportInstallFileGenerator::PopulateIncludeDirectoriesInterface(
   char const* const propName = "INTERFACE_INCLUDE_DIRECTORIES";
   cmValue input = target->GetProperty(propName);
 
-  cmGeneratorExpression ge(*target->Makefile->GetCMakeInstance());
+  cmGeneratorExpression ge(*target->m_pMakefile->GetCMakeInstance());
 
   std::string dirs = cmGeneratorExpression::Preprocess(
     cmList::to_string(target->Target->GetInstallIncludeDirectoriesEntries(te)),

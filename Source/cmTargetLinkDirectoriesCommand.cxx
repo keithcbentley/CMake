@@ -22,7 +22,7 @@ public:
 private:
   void HandleMissingTarget(std::string const& name) override
   {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Cannot specify link directories for target \"", name,
                "\" which is not built by this project."));
@@ -34,7 +34,7 @@ private:
                            std::vector<std::string> const& content,
                            bool prepend, bool /*system*/) override
   {
-    cmListFileBacktrace lfbt = this->Makefile->GetBacktrace();
+    cmListFileBacktrace lfbt = this->m_pMakefile->GetBacktrace();
     tgt->InsertLinkDirectory(BT<std::string>(this->Join(content), lfbt),
                              prepend);
     return true; // Successfully handled.
@@ -51,7 +51,7 @@ std::string TargetLinkDirectoriesImpl::Join(
     cmSystemTools::ConvertToUnixSlashes(unixPath);
     if (!cmSystemTools::FileIsFullPath(unixPath) &&
         !cmGeneratorExpression::StartsWithGeneratorExpression(unixPath)) {
-      auto tmp = this->Makefile->GetCurrentSourceDirectory();
+      auto tmp = this->m_pMakefile->GetCurrentSourceDirectory();
       tmp += "/";
       tmp += unixPath;
       unixPath = tmp;

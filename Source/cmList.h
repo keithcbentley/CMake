@@ -909,7 +909,7 @@ public:
     template <typename Type>
     static std::unique_ptr<TransformSelector> New(std::string&&);
 
-    cmMakefile* Makefile = nullptr;
+    cmMakefile* m_pMakefile = nullptr;
 
   private:
     static std::unique_ptr<TransformSelector> NewAT(

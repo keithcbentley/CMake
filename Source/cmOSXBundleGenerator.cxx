@@ -17,7 +17,7 @@ class cmSourceFile;
 
 cmOSXBundleGenerator::cmOSXBundleGenerator(cmGeneratorTarget* target)
   : GT(target)
-  , Makefile(target->Target->GetMakefile())
+  , m_pMakefile(target->Target->GetMakefile())
   , LocalGenerator(target->GetLocalGenerator())
 {
   if (this->MustSkip()) {
@@ -43,7 +43,7 @@ void cmOSXBundleGenerator::CreateAppBundle(std::string const& targetName,
     outpath, '/',
     this->GT->GetAppBundleDirectory(config, cmGeneratorTarget::FullLevel));
   cmSystemTools::MakeDirectory(out);
-  this->Makefile->AddCMakeOutputFile(out);
+  this->m_pMakefile->AddCMakeOutputFile(out);
 
   // Configure the Info.plist file.  Note that it needs the executable name
   // to be set.
@@ -52,7 +52,7 @@ void cmOSXBundleGenerator::CreateAppBundle(std::string const& targetName,
     this->GT->GetAppBundleDirectory(config, cmGeneratorTarget::ContentLevel),
     "/Info.plist");
   this->LocalGenerator->GenerateAppleInfoPList(this->GT, targetName, plist);
-  this->Makefile->AddCMakeOutputFile(plist);
+  this->m_pMakefile->AddCMakeOutputFile(plist);
   outpath = out;
 }
 
@@ -81,7 +81,7 @@ void cmOSXBundleGenerator::CreateFramework(
   if (!skipParts.InfoPlist) {
     // Configure the Info.plist file
     std::string plist = newoutpath;
-    if (!this->Makefile->PlatformIsAppleEmbedded()) {
+    if (!this->m_pMakefile->PlatformIsAppleEmbedded()) {
       // Put the Info.plist file into the Resources directory.
       this->MacContentFolders->insert("Resources");
       plist += "/Resources";
@@ -91,7 +91,7 @@ void cmOSXBundleGenerator::CreateFramework(
   }
 
   // Generate Versions directory only for MacOSX frameworks
-  if (this->Makefile->PlatformIsAppleEmbedded()) {
+  if (this->m_pMakefile->PlatformIsAppleEmbedded()) {
     return;
   }
 
@@ -112,24 +112,24 @@ void cmOSXBundleGenerator::CreateFramework(
   newName = cmStrCat(versions, "/Current");
   cmSystemTools::RemoveFile(newName);
   cmSystemTools::CreateSymlink(oldName, newName);
-  this->Makefile->AddCMakeOutputFile(newName);
+  this->m_pMakefile->AddCMakeOutputFile(newName);
 
   // foo -> Versions/Current/foo
   oldName = cmStrCat("Versions/Current/", name);
   newName = cmStrCat(contentdir, name);
   cmSystemTools::RemoveFile(newName);
   cmSystemTools::CreateSymlink(oldName, newName);
-  this->Makefile->AddCMakeOutputFile(newName);
+  this->m_pMakefile->AddCMakeOutputFile(newName);
 
   if (!skipParts.TextStubs) {
     // foo.tbd -> Versions/Current/foo.tbd
     cmValue tbdSuffix =
-      this->Makefile->GetDefinition("CMAKE_APPLE_IMPORT_FILE_SUFFIX");
+      this->m_pMakefile->GetDefinition("CMAKE_APPLE_IMPORT_FILE_SUFFIX");
     oldName = cmStrCat("Versions/Current/", name, tbdSuffix);
     newName = cmStrCat(contentdir, name, tbdSuffix);
     cmSystemTools::RemoveFile(newName);
     cmSystemTools::CreateSymlink(oldName, newName);
-    this->Makefile->AddCMakeOutputFile(newName);
+    this->m_pMakefile->AddCMakeOutputFile(newName);
   }
 
   // Resources -> Versions/Current/Resources
@@ -139,7 +139,7 @@ void cmOSXBundleGenerator::CreateFramework(
     newName = cmStrCat(contentdir, "Resources");
     cmSystemTools::RemoveFile(newName);
     cmSystemTools::CreateSymlink(oldName, newName);
-    this->Makefile->AddCMakeOutputFile(newName);
+    this->m_pMakefile->AddCMakeOutputFile(newName);
   }
 
   // Headers -> Versions/Current/Headers
@@ -149,7 +149,7 @@ void cmOSXBundleGenerator::CreateFramework(
     newName = cmStrCat(contentdir, "Headers");
     cmSystemTools::RemoveFile(newName);
     cmSystemTools::CreateSymlink(oldName, newName);
-    this->Makefile->AddCMakeOutputFile(newName);
+    this->m_pMakefile->AddCMakeOutputFile(newName);
   }
 
   // PrivateHeaders -> Versions/Current/PrivateHeaders
@@ -159,7 +159,7 @@ void cmOSXBundleGenerator::CreateFramework(
     newName = cmStrCat(contentdir, "PrivateHeaders");
     cmSystemTools::RemoveFile(newName);
     cmSystemTools::CreateSymlink(oldName, newName);
-    this->Makefile->AddCMakeOutputFile(newName);
+    this->m_pMakefile->AddCMakeOutputFile(newName);
   }
 }
 
@@ -176,7 +176,7 @@ void cmOSXBundleGenerator::CreateCFBundle(std::string const& targetName,
     root, '/',
     this->GT->GetCFBundleDirectory(config, cmGeneratorTarget::FullLevel));
   cmSystemTools::MakeDirectory(out);
-  this->Makefile->AddCMakeOutputFile(out);
+  this->m_pMakefile->AddCMakeOutputFile(out);
 
   // Configure the Info.plist file.  Note that it needs the executable name
   // to be set.
@@ -186,7 +186,7 @@ void cmOSXBundleGenerator::CreateCFBundle(std::string const& targetName,
     "/Info.plist");
   std::string name = cmSystemTools::GetFilenameName(targetName);
   this->LocalGenerator->GenerateAppleInfoPList(this->GT, name, plist);
-  this->Makefile->AddCMakeOutputFile(plist);
+  this->m_pMakefile->AddCMakeOutputFile(plist);
 }
 
 void cmOSXBundleGenerator::GenerateMacOSXContentStatements(

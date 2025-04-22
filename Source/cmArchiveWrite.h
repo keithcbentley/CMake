@@ -17,9 +17,9 @@ class cmArchiveWriteOptional
 {
 public:
   cmArchiveWriteOptional() { this->Clear(); }
-  explicit cmArchiveWriteOptional(T val) { this->Set(val); }
+  explicit cmArchiveWriteOptional(T val) { this->m_set(val); }
 
-  void Set(T val)
+  void m_set(T val)
   {
     this->IsValueSet = true;
     this->Value = val;
@@ -93,7 +93,7 @@ public:
   //! Sets the permissions of the added files/folders
   void SetPermissions(int permissions_)
   {
-    this->Permissions.Set(permissions_);
+    this->Permissions.m_set(permissions_);
   }
 
   //! Clears permissions - default is used instead
@@ -106,7 +106,7 @@ public:
   //! some of them
   void SetPermissionsMask(int permissionsMask_)
   {
-    this->PermissionsMask.Set(permissionsMask_);
+    this->PermissionsMask.m_set(permissionsMask_);
   }
 
   //! Clears permissions mask - default is used instead
@@ -115,8 +115,8 @@ public:
   //! Sets UID and GID to be used in the tar file
   void SetUIDAndGID(int uid_, int gid_)
   {
-    this->Uid.Set(uid_);
-    this->Gid.Set(gid_);
+    this->Uid.m_set(uid_);
+    this->Gid.m_set(gid_);
   }
 
   //! Clears UID and GID to be used in the tar file - default is used instead

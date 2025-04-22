@@ -69,11 +69,11 @@ cmGlobalCommonGenerator::ComputeDirectoryTargets() const
                  lg->GetStateSnapshot().GetBuildsystemDirectoryParent();
                dir.IsValid(); dir = dir.GetBuildsystemDirectoryParent()) {
             std::string d = dir.GetDirectory().GetCurrentBinary();
-            dirTargets[d].Targets.emplace_back(t);
+            dirTargets[d].m_targets.emplace_back(t);
           }
         }
       }
-      dirTarget.Targets.emplace_back(t);
+      dirTarget.m_targets.emplace_back(t);
     }
 
     // The directory-level rule should depend on the directory-level

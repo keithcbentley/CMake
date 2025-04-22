@@ -86,10 +86,10 @@ public:
   /**
    * Get the cmMakefile instance for which the source file was created.
    */
-  cmMakefile const* GetMakefile() const { return this->Makefile; }
+  cmMakefile const* GetMakefile() const { return this->m_pMakefile; }
 
 private:
-  cmMakefile const* const Makefile = nullptr;
+  cmMakefile const* const m_pMakefile = nullptr;
   bool AmbiguousDirectory = true;
   bool AmbiguousExtension = true;
   std::string Directory;

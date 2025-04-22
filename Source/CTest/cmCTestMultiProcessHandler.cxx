@@ -353,11 +353,11 @@ bool cmCTestMultiProcessHandler::AllocateResources(int index)
   for (auto const& it : allocations) {
     for (auto const& alloc : it.second) {
       bool result = this->ResourceAllocator.AllocateResource(
-        it.first, alloc.Id, alloc.SlotsNeeded);
+        it.first, alloc.m_id, alloc.SlotsNeeded);
       (void)result;
       assert(result);
       allocatedResources[alloc.ProcessIndex][it.first].push_back(
-        { alloc.Id, static_cast<unsigned int>(alloc.SlotsNeeded) });
+        { alloc.m_id, static_cast<unsigned int>(alloc.SlotsNeeded) });
     }
   }
 
@@ -419,7 +419,7 @@ void cmCTestMultiProcessHandler::DeallocateResources(int index)
         auto resourceType = it.first;
         for (auto const& it2 : it.second) {
           bool success = this->ResourceAllocator.DeallocateResource(
-            resourceType, it2.Id, it2.Slots);
+            resourceType, it2.m_id, it2.Slots);
           (void)success;
           assert(success);
         }
@@ -1277,7 +1277,7 @@ class BacktraceData
   std::unordered_map<std::string, Json::ArrayIndex> CommandMap;
   std::unordered_map<std::string, Json::ArrayIndex> FileMap;
   std::unordered_map<cmListFileContext const*, Json::ArrayIndex> NodeMap;
-  Json::Value Commands = Json::arrayValue;
+  Json::Value m_commands = Json::arrayValue;
   Json::Value Files = Json::arrayValue;
   Json::Value Nodes = Json::arrayValue;
 
@@ -1285,8 +1285,8 @@ class BacktraceData
   {
     auto i = this->CommandMap.find(command);
     if (i == this->CommandMap.end()) {
-      i = this->CommandMap.emplace(command, this->Commands.size()).first;
-      this->Commands.append(command);
+      i = this->CommandMap.emplace(command, this->m_commands.size()).first;
+      this->m_commands.append(command);
     }
     return i->second;
   }
@@ -1318,7 +1318,7 @@ bool BacktraceData::Add(cmListFileBacktrace const& bt, Json::ArrayIndex& index)
     return true;
   }
   Json::Value entry = Json::objectValue;
-  entry["file"] = this->AddFile(top->FilePath);
+  entry["file"] = this->AddFile(top->m_filePath);
   if (top->Line) {
     entry["line"] = static_cast<int>(top->Line);
   }
@@ -1340,7 +1340,7 @@ Json::Value BacktraceData::Dump()
   this->CommandMap.clear();
   this->FileMap.clear();
   this->NodeMap.clear();
-  backtraceGraph["commands"] = std::move(this->Commands);
+  backtraceGraph["commands"] = std::move(this->m_commands);
   backtraceGraph["files"] = std::move(this->Files);
   backtraceGraph["nodes"] = std::move(this->Nodes);
   return backtraceGraph;
@@ -1382,8 +1382,8 @@ static Json::Value DumpCTestInfo(
   if (!properties.empty()) {
     testInfo["properties"] = properties;
   }
-  if (!testProperties.Backtrace.Empty()) {
-    AddBacktrace(backtraceGraph, testInfo, testProperties.Backtrace);
+  if (!testProperties.m_backtrace.Empty()) {
+    AddBacktrace(backtraceGraph, testInfo, testProperties.m_backtrace);
   }
   return testInfo;
 }

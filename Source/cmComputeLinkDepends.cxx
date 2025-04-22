@@ -355,7 +355,7 @@ public:
     , Entries(entries)
     , FinalEntries(finalEntries)
   {
-    auto const* makefile = target->Makefile;
+    auto const* makefile = target->m_pMakefile;
 
     switch (target->GetPolicyStatusCMP0156()) {
       case cmPolicies::WARN:
@@ -555,7 +555,7 @@ private:
   {
     if (entry.Feature != cmComputeLinkDepends::LinkEntry::DEFAULT) {
       auto const& featureAttributes = GetLinkLibraryFeatureAttributes(
-        this->Target->Makefile, this->LinkLanguage, entry.Feature);
+        this->Target->m_pMakefile, this->LinkLanguage, entry.Feature);
       if ((!entry.Target ||
            featureAttributes.LibraryTypes.find(entry.Target->GetType()) !=
              featureAttributes.LibraryTypes.end()) &&
@@ -603,15 +603,15 @@ cmComputeLinkDepends::cmComputeLinkDepends(cmGeneratorTarget const* target,
                                            std::string const& linkLanguage,
                                            LinkLibrariesStrategy strategy)
   : Target(target)
-  , Makefile(this->Target->Target->GetMakefile())
+  , m_pMakefile(this->Target->Target->GetMakefile())
   , m_pGlobalGenerator(this->Target->GetLocalGenerator()->GetGlobalGenerator())
   , CMakeInstance(this->m_pGlobalGenerator->GetCMakeInstance())
   , Config(config)
-  , DebugMode(this->Makefile->IsOn("CMAKE_LINK_DEPENDS_DEBUG_MODE") ||
+  , DebugMode(this->m_pMakefile->IsOn("CMAKE_LINK_DEPENDS_DEBUG_MODE") ||
               this->Target->GetProperty("LINK_DEPENDS_DEBUG_MODE").IsOn())
   , LinkLanguage(linkLanguage)
   , LinkType(ComputeLinkType(
-      this->Config, this->Makefile->GetCMakeInstance()->GetDebugConfigs()))
+      this->Config, this->m_pMakefile->GetCMakeInstance()->GetDebugConfigs()))
   , Strategy(strategy)
 
 {
@@ -793,7 +793,7 @@ std::pair<size_t, bool> cmComputeLinkDepends::AddLinkEntry(
   // Initialize the item entry.
   size_t index = lei.first->second;
   LinkEntry& entry = this->EntryList[index];
-  entry.Item = BT<std::string>(item.AsStr(), item.Backtrace);
+  entry.Item = BT<std::string>(item.AsStr(), item.m_backtrace);
   entry.Target = item.Target;
   entry.Feature = item.Feature;
   if (!entry.Target && entry.Item.Value[0] == '-' &&
@@ -815,7 +815,7 @@ std::pair<size_t, bool> cmComputeLinkDepends::AddLinkEntry(
     } else {
       // Look for an old-style <item>_LIB_DEPENDS variable.
       std::string var = cmStrCat(entry.Item.Value, "_LIB_DEPENDS");
-      if (cmValue val = this->Makefile->GetDefinition(var)) {
+      if (cmValue val = this->m_pMakefile->GetDefinition(var)) {
         // The item dependencies are known.  Follow them.
         BFSEntry qe = { index, groupIndex, val->c_str() };
         this->BFSQueue.push(qe);
@@ -844,7 +844,7 @@ void cmComputeLinkDepends::AddLinkObject(cmLinkItem const& item)
   // Initialize the item entry.
   size_t index = lei.first->second;
   LinkEntry& entry = this->EntryList[index];
-  entry.Item = BT<std::string>(item.AsStr(), item.Backtrace);
+  entry.Item = BT<std::string>(item.AsStr(), item.m_backtrace);
   entry.Kind = LinkEntry::Object;
   entry.ObjectSource = item.ObjectSource;
 
@@ -922,7 +922,7 @@ void cmComputeLinkDepends::HandleSharedDependency(SharedDepEntry const& dep)
   if (lei.second) {
     // Initialize the item entry.
     LinkEntry& entry = this->EntryList[index];
-    entry.Item = BT<std::string>(dep.Item.AsStr(), dep.Item.Backtrace);
+    entry.Item = BT<std::string>(dep.Item.AsStr(), dep.Item.m_backtrace);
     entry.Target = dep.Item.Target;
 
     // This item was added specifically because it is a dependent
@@ -979,7 +979,7 @@ void cmComputeLinkDepends::AddVarLinkEntries(
       // lower.
       if (!haveLLT) {
         std::string var = cmStrCat(d, "_LINK_TYPE");
-        if (cmValue val = this->Makefile->GetDefinition(var)) {
+        if (cmValue val = this->m_pMakefile->GetDefinition(var)) {
           if (*val == "debug") {
             llt = DEBUG_LibraryType;
           } else if (*val == "optimized") {
@@ -1043,7 +1043,7 @@ void cmComputeLinkDepends::AddLinkEntries(
     if (item.Feature != LinkEntry::DEFAULT && depender_index) {
       auto const& depender = this->EntryList[*depender_index];
       if (depender.Target && depender.Target->IsImported() &&
-          !IsFeatureSupported(this->Makefile, this->LinkLanguage,
+          !IsFeatureSupported(this->m_pMakefile, this->LinkLanguage,
                               item.Feature)) {
         this->CMakeInstance->IssueMessage(
           MessageType::AUTHOR_ERROR,
@@ -1094,7 +1094,7 @@ void cmComputeLinkDepends::AddLinkEntries(
       auto const& depender = this->EntryList[*depender_index];
       auto const& groupFeature = this->EntryList[group->first].Feature;
       if (depender.Target && depender.Target->IsImported() &&
-          !IsGroupFeatureSupported(this->Makefile, this->LinkLanguage,
+          !IsGroupFeatureSupported(this->m_pMakefile, this->LinkLanguage,
                                    groupFeature)) {
         this->CMakeInstance->IssueMessage(
           MessageType::AUTHOR_ERROR,
@@ -1141,7 +1141,7 @@ void cmComputeLinkDepends::AddLinkEntries(
     // check if feature is applicable to this item
     if (itemFeature != LinkEntry::DEFAULT && entry.Target) {
       auto const& featureAttributes = GetLinkLibraryFeatureAttributes(
-        this->Makefile, this->LinkLanguage, itemFeature);
+        this->m_pMakefile, this->LinkLanguage, itemFeature);
       if (featureAttributes.LibraryTypes.find(entry.Target->GetType()) ==
           featureAttributes.LibraryTypes.end()) {
         supportedItem = false;
@@ -1190,9 +1190,9 @@ void cmComputeLinkDepends::AddLinkEntries(
         bool incompatibleFeatures = true;
         // check if an override is possible
         auto const& entryFeatureAttributes = GetLinkLibraryFeatureAttributes(
-          this->Makefile, this->LinkLanguage, entry.Feature);
+          this->m_pMakefile, this->LinkLanguage, entry.Feature);
         auto const& itemFeatureAttributes = GetLinkLibraryFeatureAttributes(
-          this->Makefile, this->LinkLanguage, itemFeature);
+          this->m_pMakefile, this->LinkLanguage, itemFeature);
         if (itemFeatureAttributes.Override.find(entry.Feature) !=
               itemFeatureAttributes.Override.end() &&
             entryFeatureAttributes.Override.find(itemFeature) !=
@@ -1632,7 +1632,7 @@ cmComputeLinkDepends::MakePendingComponent(size_t component)
   // Create an entry (in topological order) for the component.
   PendingComponent& pc =
     this->PendingComponents[this->ComponentOrder[component]];
-  pc.Id = component;
+  pc.m_id = component;
   NodeList const& nl = this->CCG->GetComponent(component);
 
   if (nl.size() == 1) {

@@ -57,7 +57,7 @@ std::string AddLangSpecificInterfaceIncludeDirectories(
   };
   switch (dagChecker.Check()) {
     case cmGeneratorExpressionDAGChecker::SELF_REFERENCE:
-      dagChecker.ReportError(
+      dagChecker.m_reportError(
         nullptr, "$<TARGET_PROPERTY:" + target->GetName() + ",propertyName");
       CM_FALLTHROUGH;
     case cmGeneratorExpressionDAGChecker::CYCLIC_REFERENCE:
@@ -121,7 +121,7 @@ void AddLangSpecificImplicitIncludeDirectories(
         }
         if (cm::contains(dependency->GetAllConfigCompileLanguages(), lang)) {
           auto* lg = dependency->GetLocalGenerator();
-          EvaluatedTargetPropertyEntry entry{ library, library.Backtrace };
+          EvaluatedTargetPropertyEntry entry{ library, library.m_backtrace };
 
           if (lang == "Swift") {
             entry.Values.emplace_back(
@@ -202,7 +202,7 @@ void processIncludeDirectories(cmGeneratorTarget const* tgt,
       }
 
       if (uniqueIncludes.insert(entryInclude).second) {
-        includes.emplace_back(entryInclude, entry.Backtrace);
+        includes.emplace_back(entryInclude, entry.m_backtrace);
         if (debugIncludes) {
           usedIncludes += " * " + entryInclude + "\n";
         }
@@ -213,7 +213,7 @@ void processIncludeDirectories(cmGeneratorTarget const* tgt,
         MessageType::LOG,
         std::string("Used includes for target ") + tgt->GetName() + ":\n" +
           usedIncludes,
-        entry.Backtrace);
+        entry.m_backtrace);
     }
   }
 }
@@ -237,7 +237,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetIncludeDirectories(
     nullptr, this->LocalGenerator,  config,
   };
 
-  cmList debugProperties{ this->Makefile->GetDefinition(
+  cmList debugProperties{ this->m_pMakefile->GetDefinition(
     "CMAKE_DEBUG_TARGET_PROPERTIES") };
   bool debugIncludes = !this->DebugIncludesDone &&
     cm::contains(debugProperties, "INCLUDE_DIRECTORIES");
@@ -285,7 +285,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetIncludeDirectories(
         std::string libDir;
         if (!lib.Target) {
           libDir = cmSystemTools::CollapseFullPath(
-            lib.AsStr(), this->Makefile->GetHomeOutputDirectory());
+            lib.AsStr(), this->m_pMakefile->GetHomeOutputDirectory());
         } else if (lib.Target->Target->IsFrameworkOnApple() ||
                    this->IsImportedFrameworkFolderOnApple(config)) {
           libDir = lib.Target->GetLocation(config);

@@ -74,7 +74,7 @@ bool cmExecuteProcessCommand(std::vector<std::string> const& args,
 
   struct Arguments : public ArgumentParser::ParseResult
   {
-    std::vector<std::vector<std::string>> Commands;
+    std::vector<std::vector<std::string>> m_commands;
     std::string OutputVariable;
     std::string ErrorVariable;
     std::string ResultVariable;
@@ -97,7 +97,7 @@ bool cmExecuteProcessCommand(std::vector<std::string> const& args,
 
   static auto const parser =
     cmArgumentParser<Arguments>{}
-      .Bind("COMMAND"_s, &Arguments::Commands)
+      .Bind("COMMAND"_s, &Arguments::m_commands)
       .Bind("COMMAND_ECHO"_s, &Arguments::CommandEcho)
       .Bind("OUTPUT_VARIABLE"_s, &Arguments::OutputVariable)
       .Bind("ERROR_VARIABLE"_s, &Arguments::ErrorVariable)
@@ -157,11 +157,11 @@ bool cmExecuteProcessCommand(std::vector<std::string> const& args,
   }
 
   // Check for commands given.
-  if (arguments.Commands.empty()) {
+  if (arguments.m_commands.empty()) {
     status.SetError(" called with no COMMAND argument.");
     return false;
   }
-  for (std::vector<std::string>& cmd : arguments.Commands) {
+  for (std::vector<std::string>& cmd : arguments.m_commands) {
     if (cmd.empty()) {
       status.SetError(" given COMMAND argument with no value.");
       return false;
@@ -202,7 +202,7 @@ bool cmExecuteProcessCommand(std::vector<std::string> const& args,
   cmUVProcessChainBuilder builder;
 
   // Set the command sequence.
-  for (std::vector<std::string> const& cmd : arguments.Commands) {
+  for (std::vector<std::string> const& cmd : arguments.m_commands) {
     builder.AddCommand(cmd);
   }
 
@@ -295,7 +295,7 @@ bool cmExecuteProcessCommand(std::vector<std::string> const& args,
   }
   if (echo_stdout || echo_stderr) {
     std::string command;
-    for (auto const& cmd : arguments.Commands) {
+    for (auto const& cmd : arguments.m_commands) {
       command += "'";
       command += cmJoin(cmd, "' '");
       command += "'";
@@ -530,13 +530,13 @@ bool cmExecuteProcessCommand(std::vector<std::string> const& args,
       status.SetError("Process terminated due to timeout");
       ret = false;
     } else {
-      auto const& lastStatus = chain.GetStatus(arguments.Commands.size() - 1);
+      auto const& lastStatus = chain.GetStatus(arguments.m_commands.size() - 1);
       auto exception = lastStatus.GetException();
       if (exception.first != cmUVProcessChain::ExceptionCode::None) {
         status.SetError(cmStrCat("Abnormal exit: ", exception.second));
         ret = false;
       } else {
-        int lastIndex = static_cast<int>(arguments.Commands.size() - 1);
+        int lastIndex = static_cast<int>(arguments.m_commands.size() - 1);
         std::string const processStatus = queryProcessStatusByIndex(lastIndex);
         if (!processStatus.empty()) {
           status.SetError("last command failed");

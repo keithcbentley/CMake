@@ -86,14 +86,14 @@ class JBT
 public:
   JBT(T v = T(), JBTIndex bt = JBTIndex())
     : Value(std::move(v))
-    , Backtrace(bt)
+    , m_backtrace(bt)
   {
   }
   T Value;
-  JBTIndex Backtrace;
+  JBTIndex m_backtrace;
   friend bool operator==(JBT<T> const& l, JBT<T> const& r)
   {
-    return l.Value == r.Value && l.Backtrace.Index == r.Backtrace.Index;
+    return l.Value == r.Value && l.m_backtrace.Index == r.m_backtrace.Index;
   }
   static bool ValueEq(JBT<T> const& l, JBT<T> const& r)
   {
@@ -143,7 +143,7 @@ class BacktraceData
   std::unordered_map<std::string, Json::ArrayIndex> CommandMap;
   std::unordered_map<std::string, Json::ArrayIndex> FileMap;
   std::unordered_map<cmListFileContext const*, Json::ArrayIndex> NodeMap;
-  Json::Value Commands = Json::arrayValue;
+  Json::Value m_commands = Json::arrayValue;
   Json::Value Files = Json::arrayValue;
   Json::Value Nodes = Json::arrayValue;
 
@@ -151,9 +151,9 @@ class BacktraceData
   {
     auto i = this->CommandMap.find(command);
     if (i == this->CommandMap.end()) {
-      auto cmdIndex = static_cast<Json::ArrayIndex>(this->Commands.size());
+      auto cmdIndex = static_cast<Json::ArrayIndex>(this->m_commands.size());
       i = this->CommandMap.emplace(command, cmdIndex).first;
-      this->Commands.append(command);
+      this->m_commands.append(command);
     }
     return i->second;
   }
@@ -193,7 +193,7 @@ JBTIndex BacktraceData::Add(cmListFileBacktrace const& bt)
     return index;
   }
   Json::Value entry = Json::objectValue;
-  entry["file"] = this->AddFile(top->FilePath);
+  entry["file"] = this->AddFile(top->m_filePath);
   if (top->Line) {
     entry["line"] = static_cast<int>(top->Line);
   }
@@ -214,7 +214,7 @@ Json::Value BacktraceData::Dump()
   this->CommandMap.clear();
   this->FileMap.clear();
   this->NodeMap.clear();
-  backtraceGraph["commands"] = std::move(this->Commands);
+  backtraceGraph["commands"] = std::move(this->m_commands);
   backtraceGraph["files"] = std::move(this->Files);
   backtraceGraph["nodes"] = std::move(this->Nodes);
   return backtraceGraph;
@@ -355,26 +355,26 @@ struct hash<CompileData>
     for (auto const& i : in.Includes) {
       result = result ^
         (hash<std::string>()(i.Path.Value) ^
-         hash<Json::ArrayIndex>()(i.Path.Backtrace.Index) ^
+         hash<Json::ArrayIndex>()(i.Path.m_backtrace.Index) ^
          (i.IsSystem ? std::numeric_limits<size_t>::max() : 0));
     }
     for (auto const& i : in.Frameworks) {
       result = result ^
         (hash<std::string>()(i.Path.Value) ^
-         hash<Json::ArrayIndex>()(i.Path.Backtrace.Index) ^
+         hash<Json::ArrayIndex>()(i.Path.m_backtrace.Index) ^
          (i.IsSystem ? std::numeric_limits<size_t>::max() : 0));
     }
     for (auto const& i : in.Flags) {
       result = result ^ hash<std::string>()(i.Value) ^
-        hash<Json::ArrayIndex>()(i.Backtrace.Index);
+        hash<Json::ArrayIndex>()(i.m_backtrace.Index);
     }
     for (auto const& i : in.Defines) {
       result = result ^ hash<std::string>()(i.Value) ^
-        hash<Json::ArrayIndex>()(i.Backtrace.Index);
+        hash<Json::ArrayIndex>()(i.m_backtrace.Index);
     }
     for (auto const& i : in.PrecompileHeaders) {
       result = result ^ hash<std::string>()(i.Value) ^
-        hash<Json::ArrayIndex>()(i.Backtrace.Index);
+        hash<Json::ArrayIndex>()(i.m_backtrace.Index);
     }
     if (!in.LanguageStandard.Value.empty()) {
       result = result ^ hash<std::string>()(in.LanguageStandard.Value);
@@ -434,7 +434,7 @@ class Target
     Json::Value SourceIndexes = Json::arrayValue;
   };
   std::unordered_map<cmSourceGroup const*, Json::ArrayIndex> SourceGroupsMap;
-  std::vector<SourceGroup> SourceGroups;
+  std::vector<SourceGroup> m_sourceGroups;
 
   struct CompileGroup
   {
@@ -449,7 +449,7 @@ class Target
   template <typename T>
   JBT<T> ToJBT(BT<T> const& bt)
   {
-    return JBT<T>(bt.Value, this->Backtraces.Add(bt.Backtrace));
+    return JBT<T>(bt.Value, this->Backtraces.Add(bt.m_backtrace));
   }
 
   template <typename T>
@@ -1186,7 +1186,7 @@ Target::Target(cmGeneratorTarget* gt, std::string const& config)
   , TopSource(gt->GetGlobalGenerator()->GetCMakeInstance()->GetHomeDirectory())
   , TopBuild(
       gt->GetGlobalGenerator()->GetCMakeInstance()->GetHomeOutputDirectory())
-  , SourceGroupsLocal(this->GT->Makefile->GetSourceGroups())
+  , SourceGroupsLocal(this->GT->m_pMakefile->GetSourceGroups())
   , Backtraces(this->TopSource)
 {
 }
@@ -1291,10 +1291,10 @@ void Target::ProcessLanguage(std::string const& lang)
   CompileData& cd = this->CompileDataMap[lang];
   cd.Language = lang;
   if (cmValue sysrootCompile =
-        this->GT->Makefile->GetDefinition("CMAKE_SYSROOT_COMPILE")) {
+        this->GT->m_pMakefile->GetDefinition("CMAKE_SYSROOT_COMPILE")) {
     cd.Sysroot = *sysrootCompile;
   } else if (cmValue sysroot =
-               this->GT->Makefile->GetDefinition("CMAKE_SYSROOT")) {
+               this->GT->m_pMakefile->GetDefinition("CMAKE_SYSROOT")) {
     cd.Sysroot = *sysroot;
   }
   cmLocalGenerator* lg = this->GT->GetLocalGenerator();
@@ -1344,13 +1344,13 @@ Json::ArrayIndex Target::AddSourceGroup(cmSourceGroup* sg, Json::ArrayIndex si)
 {
   auto i = this->SourceGroupsMap.find(sg);
   if (i == this->SourceGroupsMap.end()) {
-    auto sgIndex = static_cast<Json::ArrayIndex>(this->SourceGroups.size());
+    auto sgIndex = static_cast<Json::ArrayIndex>(this->m_sourceGroups.size());
     i = this->SourceGroupsMap.emplace(sg, sgIndex).first;
     SourceGroup g;
     g.Name = sg->GetFullName();
-    this->SourceGroups.push_back(std::move(g));
+    this->m_sourceGroups.push_back(std::move(g));
   }
-  this->SourceGroups[i->second].SourceIndexes.append(si);
+  this->m_sourceGroups[i->second].SourceIndexes.append(si);
   return i->second;
 }
 
@@ -1380,7 +1380,7 @@ CompileData Target::BuildCompileData(cmSourceFile* sf)
     // and properly escape flags.
     std::string tmp;
     lg->AppendCompileOptions(tmp, tmpOpt.Value);
-    BT<std::string> opt(tmp, tmpOpt.Backtrace);
+    BT<std::string> opt(tmp, tmpOpt.m_backtrace);
     fd.Flags.emplace_back(this->ToJBT(opt));
   }
 
@@ -1416,7 +1416,7 @@ CompileData Target::BuildCompileData(cmSourceFile* sf)
     // and properly escape flags.
     std::string tmp;
     lg->AppendCompileOptions(tmp, tmpOpt.Value);
-    BT<std::string> opt(tmp, tmpOpt.Backtrace);
+    BT<std::string> opt(tmp, tmpOpt.m_backtrace);
     fd.Flags.emplace_back(this->ToJBT(opt));
   }
 
@@ -1434,7 +1434,7 @@ CompileData Target::BuildCompileData(cmSourceFile* sf)
       for (std::string& i : tmp) {
         bool const isSystemInclude =
           this->GT->IsSystemIncludeDirectory(i, this->Config, fd.Language);
-        BT<std::string> include(i, tmpInclude.Backtrace);
+        BT<std::string> include(i, tmpInclude.m_backtrace);
         if (this->GT->IsApple() && cmSystemTools::IsPathToFramework(i)) {
           fd.Frameworks.emplace_back(this->ToJBT(include), isSystemInclude);
         } else {
@@ -1455,7 +1455,7 @@ CompileData Target::BuildCompileData(cmSourceFile* sf)
     std::set<std::string> tmp;
     lg->AppendDefines(tmp, tmpDef.Value);
     for (std::string const& i : tmp) {
-      BT<std::string> def(i, tmpDef.Backtrace);
+      BT<std::string> def(i, tmpDef.m_backtrace);
       fileDefines.insert(def);
     }
   }
@@ -1594,7 +1594,7 @@ std::pair<Json::Value, Target::FileSetDatabase> Target::DumpFileSets()
     for (auto const& fs_name : fs_names) {
       auto const* fs = tgt->GetFileSet(fs_name);
       if (!fs) {
-        this->GT->Makefile->IssueMessage(
+        this->GT->m_pMakefile->IssueMessage(
           MessageType::INTERNAL_ERROR,
           cmStrCat("Target \"", tgt->GetName(),
                    "\" is tracked to have file set \"", fs_name,
@@ -1679,7 +1679,7 @@ Json::Value Target::DumpSource(cmGeneratorTarget::SourceAndKind const& sk,
   if (sk.Source.Value->GetIsGenerated()) {
     source["isGenerated"] = true;
   }
-  this->AddBacktrace(source, sk.Source.Backtrace);
+  this->AddBacktrace(source, sk.Source.m_backtrace);
 
   auto fsit = fsdb.find(path);
   if (fsit != fsdb.end()) {
@@ -1687,7 +1687,7 @@ Json::Value Target::DumpSource(cmGeneratorTarget::SourceAndKind const& sk,
   }
 
   if (cmSourceGroup* sg =
-        this->GT->Makefile->FindSourceGroup(path, this->SourceGroupsLocal)) {
+        this->GT->m_pMakefile->FindSourceGroup(path, this->SourceGroupsLocal)) {
     source["sourceGroupIndex"] = this->AddSourceGroup(sg, si);
   }
 
@@ -1771,7 +1771,7 @@ Json::Value Target::DumpInclude(CompileData::IncludeEntry const& inc)
   if (inc.IsSystem) {
     include["isSystem"] = true;
   }
-  this->AddBacktrace(include, inc.Path.Backtrace);
+  this->AddBacktrace(include, inc.Path.m_backtrace);
   return include;
 }
 
@@ -1785,7 +1785,7 @@ Json::Value Target::DumpPrecompileHeader(JBT<std::string> const& header)
 {
   Json::Value precompileHeader = Json::objectValue;
   precompileHeader["header"] = header.Value;
-  this->AddBacktrace(precompileHeader, header.Backtrace);
+  this->AddBacktrace(precompileHeader, header.m_backtrace);
   return precompileHeader;
 }
 
@@ -1807,14 +1807,14 @@ Json::Value Target::DumpDefine(JBT<std::string> const& def)
 {
   Json::Value define = Json::objectValue;
   define["define"] = def.Value;
-  this->AddBacktrace(define, def.Backtrace);
+  this->AddBacktrace(define, def.m_backtrace);
   return define;
 }
 
 Json::Value Target::DumpSourceGroups()
 {
   Json::Value sourceGroups = Json::arrayValue;
-  for (auto& sg : this->SourceGroups) {
+  for (auto& sg : this->m_sourceGroups) {
     sourceGroups.append(this->DumpSourceGroup(sg));
   }
   return sourceGroups;
@@ -1864,7 +1864,7 @@ Json::Value Target::DumpInstallPrefix()
 {
   Json::Value prefix = Json::objectValue;
   std::string p =
-    this->GT->Makefile->GetSafeDefinition("CMAKE_INSTALL_PREFIX");
+    this->GT->m_pMakefile->GetSafeDefinition("CMAKE_INSTALL_PREFIX");
   cmSystemTools::ConvertToUnixSlashes(p);
   prefix["path"] = p;
   return prefix;
@@ -1955,10 +1955,10 @@ Json::Value Target::DumpLink()
     }
   }
   if (cmValue sysrootLink =
-        this->GT->Makefile->GetDefinition("CMAKE_SYSROOT_LINK")) {
+        this->GT->m_pMakefile->GetDefinition("CMAKE_SYSROOT_LINK")) {
     link["sysroot"] = this->DumpSysroot(*sysrootLink);
   } else if (cmValue sysroot =
-               this->GT->Makefile->GetDefinition("CMAKE_SYSROOT")) {
+               this->GT->m_pMakefile->GetDefinition("CMAKE_SYSROOT")) {
     link["sysroot"] = this->DumpSysroot(*sysroot);
   }
   if (this->GT->IsIPOEnabled(lang, this->Config)) {
@@ -2058,7 +2058,7 @@ Json::Value Target::DumpCommandFragment(JBT<std::string> const& frag,
   if (!role.empty()) {
     fragment["role"] = role;
   }
-  this->AddBacktrace(fragment, frag.Backtrace);
+  this->AddBacktrace(fragment, frag.m_backtrace);
   return fragment;
 }
 
@@ -2125,7 +2125,7 @@ Json::Value Target::DumpLaunchers()
       launchers.append(std::move(launcher));
     }
   }
-  if (this->GT->Makefile->IsOn("CMAKE_CROSSCOMPILING")) {
+  if (this->GT->m_pMakefile->IsOn("CMAKE_CROSSCOMPILING")) {
     Json::Value emulator = DumpLauncher("CROSSCOMPILING_EMULATOR", "emulator");
     if (!emulator.empty()) {
       launchers.append(std::move(emulator));

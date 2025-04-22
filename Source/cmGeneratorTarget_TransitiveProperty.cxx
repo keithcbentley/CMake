@@ -117,11 +117,11 @@ std::string cmGeneratorTarget::EvaluateInterfaceProperty(
     dagCheckerParent,
     context->LG,
     context->Config,
-    context->Backtrace,
+    context->m_backtrace,
   };
   switch (dagChecker.Check()) {
     case cmGeneratorExpressionDAGChecker::SELF_REFERENCE:
-      dagChecker.ReportError(
+      dagChecker.m_reportError(
         context, "$<TARGET_PROPERTY:" + this->GetName() + "," + prop + ">");
       return result;
     case cmGeneratorExpressionDAGChecker::CYCLIC_REFERENCE:
@@ -156,7 +156,7 @@ std::string cmGeneratorTarget::EvaluateInterfaceProperty(
         // Create a context as cmCompiledGeneratorExpression::Evaluate does.
         cmGeneratorExpressionContext libContext(
           context->LG, context->Config, context->Quiet, headTarget, this,
-          context->EvaluateForBuildsystem, context->Backtrace,
+          context->EvaluateForBuildsystem, context->m_backtrace,
           context->Language);
         std::string libResult = cmGeneratorExpression::StripEmptyListElements(
           lib.Target->EvaluateInterfaceProperty(prop, &libContext, &dagChecker,

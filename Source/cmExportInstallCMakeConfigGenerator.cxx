@@ -283,9 +283,9 @@ std::string cmExportInstallCMakeConfigGenerator::GetFileSetDirectories(
   std::vector<std::string> resultVector;
 
   auto configs =
-    gte->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+    gte->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
 
-  cmGeneratorExpression ge(*gte->Makefile->GetCMakeInstance());
+  cmGeneratorExpression ge(*gte->m_pMakefile->GetCMakeInstance());
   auto cge = ge.Parse(te->FileSetGenerators.at(fileSet)->GetDestination());
 
   for (auto const& config : configs) {
@@ -328,12 +328,12 @@ std::string cmExportInstallCMakeConfigGenerator::GetFileSetFiles(
   std::vector<std::string> resultVector;
 
   auto configs =
-    gte->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+    gte->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
 
   auto fileEntries = fileSet->CompileFileEntries();
   auto directoryEntries = fileSet->CompileDirectoryEntries();
 
-  cmGeneratorExpression destGe(*gte->Makefile->GetCMakeInstance());
+  cmGeneratorExpression destGe(*gte->m_pMakefile->GetCMakeInstance());
   auto destCge =
     destGe.Parse(te->FileSetGenerators.at(fileSet)->GetDestination());
 

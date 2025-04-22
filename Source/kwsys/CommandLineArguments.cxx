@@ -99,12 +99,12 @@ CommandLineArguments::~CommandLineArguments()
 
 void CommandLineArguments::Initialize(int argc, char const* const argv[])
 {
-  int cc;
+  int m_pCustomCommand;
 
   this->Initialize();
   this->Internals->Argv0 = argv[0];
-  for (cc = 1; cc < argc; cc++) {
-    this->ProcessArgument(argv[cc]);
+  for (m_pCustomCommand = 1; m_pCustomCommand < argc; m_pCustomCommand++) {
+    this->ProcessArgument(argv[m_pCustomCommand]);
   }
 }
 
@@ -149,15 +149,15 @@ bool CommandLineArguments::GetMatchedArguments(
 
 int CommandLineArguments::Parse()
 {
-  std::vector<std::string>::size_type cc;
+  std::vector<std::string>::size_type m_pCustomCommand;
   std::vector<std::string> matches;
   if (this->StoreUnusedArgumentsFlag) {
     this->Internals->UnusedArguments.clear();
   }
-  for (cc = 0; cc < this->Internals->Argv.size(); cc++) {
-    std::string const& arg = this->Internals->Argv[cc];
+  for (m_pCustomCommand = 0; m_pCustomCommand < this->Internals->Argv.size(); m_pCustomCommand++) {
+    std::string const& arg = this->Internals->Argv[m_pCustomCommand];
     CommandLineArguments_DEBUG("Process argument: " << arg);
-    this->Internals->LastArgument = cc;
+    this->Internals->LastArgument = m_pCustomCommand;
     if (this->GetMatchedArguments(&matches, arg)) {
       // Ok, we found one or more arguments that match what user specified.
       // Let's find the longest one.
@@ -186,19 +186,19 @@ int CommandLineArguments::Parse()
           }
           break;
         case SPACE_ARGUMENT:
-          if (cc == this->Internals->Argv.size() - 1) {
+          if (m_pCustomCommand == this->Internals->Argv.size() - 1) {
             this->Internals->LastArgument--;
             return 0;
           }
           CommandLineArguments_DEBUG("This is a space argument: "
                                      << arg << " value: "
-                                     << this->Internals->Argv[cc + 1]);
+                                     << this->Internals->Argv[m_pCustomCommand + 1]);
           // Value is the next argument
           if (!this->PopulateVariable(cs,
-                                      this->Internals->Argv[cc + 1].c_str())) {
+                                      this->Internals->Argv[m_pCustomCommand + 1].c_str())) {
             return 0;
           }
-          cc++;
+          m_pCustomCommand++;
           break;
         case EQUAL_ARGUMENT:
           if (arg.size() == sarg.size() || arg.at(sarg.size()) != '=') {
@@ -219,8 +219,8 @@ int CommandLineArguments::Parse()
         case MULTI_ARGUMENT:
           // Suck in all the rest of the arguments
           CommandLineArguments_DEBUG("This is a multi argument: " << arg);
-          for (cc++; cc < this->Internals->Argv.size(); ++cc) {
-            std::string const& marg = this->Internals->Argv[cc];
+          for (m_pCustomCommand++; m_pCustomCommand < this->Internals->Argv.size(); ++m_pCustomCommand) {
+            std::string const& marg = this->Internals->Argv[m_pCustomCommand];
             CommandLineArguments_DEBUG(
               " check multi argument value: " << marg);
             if (this->GetMatchedArguments(&matches, marg)) {
@@ -234,9 +234,9 @@ int CommandLineArguments::Parse()
               return 0;
             }
           }
-          if (cc != this->Internals->Argv.size()) {
+          if (m_pCustomCommand != this->Internals->Argv.size()) {
             CommandLineArguments_DEBUG("Again End of multi argument " << arg);
-            cc--;
+            m_pCustomCommand--;
             continue;
           }
           break;
@@ -272,7 +272,7 @@ void CommandLineArguments::GetRemainingArguments(int* argc, char*** argv)
 {
   CommandLineArguments::Internal::VectorOfStrings::size_type size =
     this->Internals->Argv.size() - this->Internals->LastArgument + 1;
-  CommandLineArguments::Internal::VectorOfStrings::size_type cc;
+  CommandLineArguments::Internal::VectorOfStrings::size_type m_pCustomCommand;
 
   // Copy Argv0 as the first argument
   char** args = new char*[size];
@@ -281,10 +281,10 @@ void CommandLineArguments::GetRemainingArguments(int* argc, char*** argv)
   int cnt = 1;
 
   // Copy everything after the LastArgument, since that was not parsed.
-  for (cc = this->Internals->LastArgument + 1;
-       cc < this->Internals->Argv.size(); cc++) {
-    args[cnt] = new char[this->Internals->Argv[cc].size() + 1];
-    strcpy(args[cnt], this->Internals->Argv[cc].c_str());
+  for (m_pCustomCommand = this->Internals->LastArgument + 1;
+       m_pCustomCommand < this->Internals->Argv.size(); m_pCustomCommand++) {
+    args[cnt] = new char[this->Internals->Argv[m_pCustomCommand].size() + 1];
+    strcpy(args[cnt], this->Internals->Argv[m_pCustomCommand].c_str());
     cnt++;
   }
   *argc = cnt;
@@ -295,7 +295,7 @@ void CommandLineArguments::GetUnusedArguments(int* argc, char*** argv)
 {
   CommandLineArguments::Internal::VectorOfStrings::size_type size =
     this->Internals->UnusedArguments.size() + 1;
-  CommandLineArguments::Internal::VectorOfStrings::size_type cc;
+  CommandLineArguments::Internal::VectorOfStrings::size_type m_pCustomCommand;
 
   // Copy Argv0 as the first argument
   char** args = new char*[size];
@@ -304,8 +304,8 @@ void CommandLineArguments::GetUnusedArguments(int* argc, char*** argv)
   int cnt = 1;
 
   // Copy everything after the LastArgument, since that was not parsed.
-  for (cc = 0; cc < this->Internals->UnusedArguments.size(); cc++) {
-    std::string& str = this->Internals->UnusedArguments[cc];
+  for (m_pCustomCommand = 0; m_pCustomCommand < this->Internals->UnusedArguments.size(); m_pCustomCommand++) {
+    std::string& str = this->Internals->UnusedArguments[m_pCustomCommand];
     args[cnt] = new char[str.size() + 1];
     strcpy(args[cnt], str.c_str());
     cnt++;
@@ -316,9 +316,9 @@ void CommandLineArguments::GetUnusedArguments(int* argc, char*** argv)
 
 void CommandLineArguments::DeleteRemainingArguments(int argc, char*** argv)
 {
-  int cc;
-  for (cc = 0; cc < argc; ++cc) {
-    delete[] (*argv)[cc];
+  int m_pCustomCommand;
+  for (m_pCustomCommand = 0; m_pCustomCommand < argc; ++m_pCustomCommand) {
+    delete[] (*argv)[m_pCustomCommand];
   }
   delete[] *argv;
 }
@@ -557,28 +557,28 @@ void CommandLineArguments::GenerateHelp()
     while (len > 0) {
       // If argument with help is longer than line length, split it on previous
       // space (or tab) and continue on the next line
-      CommandLineArguments::Internal::String::size_type cc;
-      for (cc = 0; ptr[cc]; cc++) {
+      CommandLineArguments::Internal::String::size_type m_pCustomCommand;
+      for (m_pCustomCommand = 0; ptr[m_pCustomCommand]; m_pCustomCommand++) {
         if (*ptr == ' ' || *ptr == '\t') {
           ptr++;
           len--;
         }
       }
       if (cnt > 0) {
-        for (cc = 0; cc < maxlen; cc++) {
+        for (m_pCustomCommand = 0; m_pCustomCommand < maxlen; m_pCustomCommand++) {
           str << " ";
         }
       }
       CommandLineArguments::Internal::String::size_type skip = len;
       if (skip > this->LineLength - maxlen) {
         skip = this->LineLength - maxlen;
-        for (cc = skip - 1; cc > 0; cc--) {
-          if (ptr[cc] == ' ' || ptr[cc] == '\t') {
+        for (m_pCustomCommand = skip - 1; m_pCustomCommand > 0; m_pCustomCommand--) {
+          if (ptr[m_pCustomCommand] == ' ' || ptr[m_pCustomCommand] == '\t') {
             break;
           }
         }
-        if (cc != 0) {
-          skip = cc;
+        if (m_pCustomCommand != 0) {
+          skip = m_pCustomCommand;
         }
       }
       str.write(ptr, static_cast<std::streamsize>(skip));

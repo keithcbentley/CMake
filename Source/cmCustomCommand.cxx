@@ -121,12 +121,12 @@ void cmCustomCommand::SetEscapeAllowMakeVars(bool b)
 
 cmListFileBacktrace const& cmCustomCommand::GetBacktrace() const
 {
-  return this->Backtrace;
+  return this->m_backtrace;
 }
 
 void cmCustomCommand::SetBacktrace(cmListFileBacktrace lfbt)
 {
-  this->Backtrace = std::move(lfbt);
+  this->m_backtrace = std::move(lfbt);
 }
 
 cmImplicitDependsList const& cmCustomCommand::GetImplicitDepends() const

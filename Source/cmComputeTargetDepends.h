@@ -37,7 +37,7 @@ public:
 
   std::vector<cmGeneratorTarget const*> const& GetTargets() const
   {
-    return this->Targets;
+    return this->m_targets;
   }
   void GetTargetDirectDepends(cmGeneratorTarget const* t,
                               cmTargetDependSet& deps);
@@ -83,7 +83,7 @@ private:
   bool NoCycles;
 
   // Collect all targets.
-  std::vector<cmGeneratorTarget const*> Targets;
+  std::vector<cmGeneratorTarget const*> m_targets;
   std::map<cmGeneratorTarget const*, size_t> TargetIndex;
 
   // Represent the target dependency graph.  The entry at each

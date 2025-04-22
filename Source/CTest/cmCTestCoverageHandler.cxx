@@ -414,30 +414,30 @@ int cmCTestCoverageHandler::ProcessHandler()
     int tested = 0;
     int untested = 0;
 
-    cmCTestCoverageHandlerContainer::SingleFileCoverageVector::size_type cc;
+    cmCTestCoverageHandlerContainer::SingleFileCoverageVector::size_type m_pCustomCommand;
     std::string line;
     cmCTestOptionalLog(this->CTest, HANDLER_VERBOSE_OUTPUT,
                        "Actually performing coverage for: " << fullFileName
                                                             << std::endl,
                        this->Quiet);
-    for (cc = 0; cc < fcov.size(); cc++) {
+    for (m_pCustomCommand = 0; m_pCustomCommand < fcov.size(); m_pCustomCommand++) {
       if (!cmSystemTools::GetLineFromStream(ifs, line) &&
-          cc != fcov.size() - 1) {
+          m_pCustomCommand != fcov.size() - 1) {
         std::ostringstream ostr;
         ostr << "Problem reading source file: " << fullFileName
-             << " line:" << cc << "  out total: " << fcov.size() - 1;
+             << " line:" << m_pCustomCommand << "  out total: " << fcov.size() - 1;
         errorsWhileAccumulating.push_back(ostr.str());
         error++;
         break;
       }
       covLogXML.StartElement("Line");
-      covLogXML.Attribute("Number", cc);
-      covLogXML.Attribute("Count", fcov[cc]);
+      covLogXML.Attribute("Number", m_pCustomCommand);
+      covLogXML.Attribute("Count", fcov[m_pCustomCommand]);
       covLogXML.Content(line);
       covLogXML.EndElement(); // Line
-      if (fcov[cc] == 0) {
+      if (fcov[m_pCustomCommand] == 0) {
         untested++;
-      } else if (fcov[cc] > 0) {
+      } else if (fcov[m_pCustomCommand] > 0) {
         tested++;
       }
     }

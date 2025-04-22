@@ -193,11 +193,11 @@ bool Glob::RecurseDirectory(std::string::size_type start,
     }
     return true;
   }
-  unsigned long cc;
+  unsigned long m_pCustomCommand;
   std::string realname;
   std::string fname;
-  for (cc = 0; cc < d.GetNumberOfFiles(); cc++) {
-    fname = d.GetFile(cc);
+  for (m_pCustomCommand = 0; m_pCustomCommand < d.GetNumberOfFiles(); m_pCustomCommand++) {
+    fname = d.GetFile(m_pCustomCommand);
     if (fname == "." || fname == "..") {
       continue;
     }
@@ -213,8 +213,8 @@ bool Glob::RecurseDirectory(std::string::size_type start,
     fname = kwsys::SystemTools::LowerCase(fname);
 #endif
 
-    bool isDir = d.FileIsDirectory(cc);
-    bool isSymLink = d.FileIsSymlink(cc);
+    bool isDir = d.FileIsDirectory(m_pCustomCommand);
+    bool isSymLink = d.FileIsSymlink(m_pCustomCommand);
 
     if (isDir && (!isSymLink || this->RecurseThroughSymlinks)) {
       if (isSymLink) {
@@ -300,11 +300,11 @@ void Glob::ProcessDirectory(std::string::size_type start,
   if (!d.Load(dir)) {
     return;
   }
-  unsigned long cc;
+  unsigned long m_pCustomCommand;
   std::string realname;
   std::string fname;
-  for (cc = 0; cc < d.GetNumberOfFiles(); cc++) {
-    fname = d.GetFile(cc);
+  for (m_pCustomCommand = 0; m_pCustomCommand < d.GetNumberOfFiles(); m_pCustomCommand++) {
+    fname = d.GetFile(m_pCustomCommand);
     if (fname == "." || fname == "..") {
       continue;
     }
@@ -344,7 +344,7 @@ void Glob::ProcessDirectory(std::string::size_type start,
 bool Glob::FindFiles(std::string const& inexpr, GlobMessages* messages)
 {
   std::string cexpr;
-  std::string::size_type cc;
+  std::string::size_type m_pCustomCommand;
   std::string expr = inexpr;
 
   this->Internals->Expressions.clear();
@@ -358,12 +358,12 @@ bool Glob::FindFiles(std::string const& inexpr, GlobMessages* messages)
 
   std::string::size_type skip = 0;
   std::string::size_type last_slash = 0;
-  for (cc = 0; cc < expr.size(); cc++) {
-    if (cc > 0 && expr[cc] == '/' && expr[cc - 1] != '\\') {
-      last_slash = cc;
+  for (m_pCustomCommand = 0; m_pCustomCommand < expr.size(); m_pCustomCommand++) {
+    if (m_pCustomCommand > 0 && expr[m_pCustomCommand] == '/' && expr[m_pCustomCommand - 1] != '\\') {
+      last_slash = m_pCustomCommand;
     }
-    if (cc > 0 && (expr[cc] == '[' || expr[cc] == '?' || expr[cc] == '*') &&
-        expr[cc - 1] != '\\') {
+    if (m_pCustomCommand > 0 && (expr[m_pCustomCommand] == '[' || expr[m_pCustomCommand] == '?' || expr[m_pCustomCommand] == '*') &&
+        expr[m_pCustomCommand - 1] != '\\') {
       break;
     }
   }
@@ -377,15 +377,15 @@ bool Glob::FindFiles(std::string const& inexpr, GlobMessages* messages)
     // Handle network paths
     if (expr[0] == '/' && expr[1] == '/') {
       int cnt = 0;
-      for (cc = 2; cc < expr.size(); cc++) {
-        if (expr[cc] == '/') {
+      for (m_pCustomCommand = 2; m_pCustomCommand < expr.size(); m_pCustomCommand++) {
+        if (expr[m_pCustomCommand] == '/') {
           cnt++;
           if (cnt == 2) {
             break;
           }
         }
       }
-      skip = int(cc + 1);
+      skip = int(m_pCustomCommand + 1);
     } else
 #endif
       // Handle drive letters on Windows
@@ -398,8 +398,8 @@ bool Glob::FindFiles(std::string const& inexpr, GlobMessages* messages)
     expr.erase(0, skip);
   }
 
-  for (cc = 0; cc < expr.size(); cc++) {
-    int ch = expr[cc];
+  for (m_pCustomCommand = 0; m_pCustomCommand < expr.size(); m_pCustomCommand++) {
+    int ch = expr[m_pCustomCommand];
     if (ch == '/') {
       if (!cexpr.empty()) {
         this->AddExpression(cexpr);

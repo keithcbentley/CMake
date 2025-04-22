@@ -155,16 +155,16 @@ void cmLocalUnixMakefileGenerator3::Generate()
   // Record whether some options are enabled to avoid checking many
   // times later.
   if (!this->GetGlobalGenerator()->GetCMakeInstance()->GetIsInTryCompile()) {
-    if (this->Makefile->IsSet("CMAKE_COLOR_MAKEFILE")) {
-      this->ColorMakefile = this->Makefile->IsOn("CMAKE_COLOR_MAKEFILE");
+    if (this->m_pMakefile->IsSet("CMAKE_COLOR_MAKEFILE")) {
+      this->ColorMakefile = this->m_pMakefile->IsOn("CMAKE_COLOR_MAKEFILE");
     } else {
-      this->ColorMakefile = this->Makefile->IsOn("CMAKE_COLOR_DIAGNOSTICS");
+      this->ColorMakefile = this->m_pMakefile->IsOn("CMAKE_COLOR_DIAGNOSTICS");
     }
   }
   this->SkipPreprocessedSourceRules =
-    this->Makefile->IsOn("CMAKE_SKIP_PREPROCESSED_SOURCE_RULES");
+    this->m_pMakefile->IsOn("CMAKE_SKIP_PREPROCESSED_SOURCE_RULES");
   this->SkipAssemblySourceRules =
-    this->Makefile->IsOn("CMAKE_SKIP_ASSEMBLY_SOURCE_RULES");
+    this->m_pMakefile->IsOn("CMAKE_SKIP_ASSEMBLY_SOURCE_RULES");
 
   // Generate the rule files for each target.
   cmGlobalUnixMakefileGenerator3* gg =
@@ -521,11 +521,11 @@ void cmLocalUnixMakefileGenerator3::WriteDirectoryInformationFile()
                     "this directory.\n"
                     "set(CMAKE_C_INCLUDE_REGEX_SCAN ";
   cmLocalUnixMakefileGenerator3::WriteCMakeArgument(
-    infoFileStream, this->Makefile->GetIncludeRegularExpression());
+    infoFileStream, this->m_pMakefile->GetIncludeRegularExpression());
   infoFileStream << ")\n"
                     "set(CMAKE_C_INCLUDE_REGEX_COMPLAIN ";
   cmLocalUnixMakefileGenerator3::WriteCMakeArgument(
-    infoFileStream, this->Makefile->GetComplainRegularExpression());
+    infoFileStream, this->m_pMakefile->GetComplainRegularExpression());
   infoFileStream
     << ")\n"
     << "set(CMAKE_CXX_INCLUDE_REGEX_SCAN ${CMAKE_C_INCLUDE_REGEX_SCAN})\n"
@@ -597,7 +597,7 @@ void cmLocalUnixMakefileGenerator3::WriteMakeRule(
   // Mark the rule as symbolic if requested.
   if (symbolic) {
     if (cmValue sym =
-          this->Makefile->GetDefinition("CMAKE_MAKE_SYMBOLIC_RULE")) {
+          this->m_pMakefile->GetDefinition("CMAKE_MAKE_SYMBOLIC_RULE")) {
       os << tgt << space << ": " << *sym << '\n';
     }
   }
@@ -766,7 +766,7 @@ void cmLocalUnixMakefileGenerator3::WriteSpecialTargetsTop(
                       ".ERASE\n"
                       "\n";
   }
-  if (this->Makefile->IsOn("CMAKE_VERBOSE_MAKEFILE")) {
+  if (this->m_pMakefile->IsOn("CMAKE_VERBOSE_MAKEFILE")) {
     makefileStream << "# Produce verbose output by default.\n"
                       "VERBOSE = 1\n"
                       "\n";
@@ -913,7 +913,7 @@ void cmLocalUnixMakefileGenerator3::AppendRuleDepend(
 {
   // Add a dependency on the rule file itself unless an option to skip
   // it is specifically enabled by the user or project.
-  cmValue nodep = this->Makefile->GetDefinition("CMAKE_SKIP_RULE_DEPENDENCY");
+  cmValue nodep = this->m_pMakefile->GetDefinition("CMAKE_SKIP_RULE_DEPENDENCY");
   if (nodep.IsOff()) {
     depends.emplace_back(ruleFileName);
   }
@@ -924,7 +924,7 @@ void cmLocalUnixMakefileGenerator3::AppendRuleDepends(
 {
   // Add a dependency on the rule file itself unless an option to skip
   // it is specifically enabled by the user or project.
-  if (!this->Makefile->IsOn("CMAKE_SKIP_RULE_DEPENDENCY")) {
+  if (!this->m_pMakefile->IsOn("CMAKE_SKIP_RULE_DEPENDENCY")) {
     cm::append(depends, ruleFiles);
   }
 }
@@ -932,8 +932,8 @@ void cmLocalUnixMakefileGenerator3::AppendRuleDepends(
 void cmLocalUnixMakefileGenerator3::AppendCustomDepends(
   std::vector<std::string>& depends, std::vector<cmCustomCommand> const& ccs)
 {
-  for (cmCustomCommand const& cc : ccs) {
-    cmCustomCommandGenerator ccg(cc, this->GetConfigName(), this);
+  for (cmCustomCommand const& m_pCustomCommand : ccs) {
+    cmCustomCommandGenerator ccg(m_pCustomCommand, this->GetConfigName(), this);
     this->AppendCustomDepend(depends, ccg);
   }
 }
@@ -954,8 +954,8 @@ void cmLocalUnixMakefileGenerator3::AppendCustomCommands(
   std::vector<std::string>& commands, std::vector<cmCustomCommand> const& ccs,
   cmGeneratorTarget* target, std::string const& relative)
 {
-  for (cmCustomCommand const& cc : ccs) {
-    cmCustomCommandGenerator ccg(cc, this->GetConfigName(), this);
+  for (cmCustomCommand const& m_pCustomCommand : ccs) {
+    cmCustomCommandGenerator ccg(m_pCustomCommand, this->GetConfigName(), this);
     this->AppendCustomCommand(commands, ccg, target, relative, true);
   }
 }
@@ -1028,7 +1028,7 @@ void cmLocalUnixMakefileGenerator3::AppendCustomCommand(
       // Short-circuit if there is no launcher.
       std::string val = this->GetRuleLauncher(
         target, "RULE_LAUNCH_CUSTOM",
-        this->Makefile->GetSafeDefinition("CMAKE_BUILD_TYPE"));
+        this->m_pMakefile->GetSafeDefinition("CMAKE_BUILD_TYPE"));
       if (cmNonempty(val)) {
         // Expand rule variables referenced in the given launcher command.
         cmRulePlaceholderExpander::RuleVariables vars;
@@ -1151,7 +1151,7 @@ void cmLocalUnixMakefileGenerator3::AppendCleanCommand(
     // Get the set of source languages in the target.
     std::set<std::string> languages;
     target->GetLanguages(
-      languages, this->Makefile->GetSafeDefinition("CMAKE_BUILD_TYPE"));
+      languages, this->m_pMakefile->GetSafeDefinition("CMAKE_BUILD_TYPE"));
     /* clang-format off */
     fout << "\n"
             "# Per-language clean rules from dependency scanning.\n"
@@ -1169,10 +1169,10 @@ void cmLocalUnixMakefileGenerator3::AppendDirectoryCleanCommand(
   cmList cleanFiles;
   // Look for additional files registered for cleaning in this directory.
   if (cmValue prop_value =
-        this->Makefile->GetProperty("ADDITIONAL_CLEAN_FILES")) {
+        this->m_pMakefile->GetProperty("ADDITIONAL_CLEAN_FILES")) {
     cleanFiles.assign(cmGeneratorExpression::Evaluate(
       *prop_value, this,
-      this->Makefile->GetSafeDefinition("CMAKE_BUILD_TYPE")));
+      this->m_pMakefile->GetSafeDefinition("CMAKE_BUILD_TYPE")));
   }
   if (cleanFiles.empty()) {
     return;
@@ -1366,7 +1366,7 @@ bool cmLocalUnixMakefileGenerator3::UpdateDependencies(
   std::string const& tgtInfo, bool verbose, bool color)
 {
   // read in the target info file
-  if (!this->Makefile->ReadListFile(tgtInfo) ||
+  if (!this->m_pMakefile->ReadListFile(tgtInfo) ||
       cmSystemTools::GetErrorOccurredFlag()) {
     cmSystemTools::Error("Target DependInfo.cmake file not found");
   }
@@ -1377,7 +1377,7 @@ bool cmLocalUnixMakefileGenerator3::UpdateDependencies(
   this->CheckMultipleOutputs(verbose);
 
   std::string const targetDir = cmSystemTools::GetFilenamePath(tgtInfo);
-  if (!this->Makefile->GetSafeDefinition("CMAKE_DEPENDS_LANGUAGES").empty()) {
+  if (!this->m_pMakefile->GetSafeDefinition("CMAKE_DEPENDS_LANGUAGES").empty()) {
     // dependencies are managed by CMake itself
 
     std::string const internalDependFile = targetDir + "/depend.internal";
@@ -1464,7 +1464,7 @@ bool cmLocalUnixMakefileGenerator3::UpdateDependencies(
   }
 
   auto depends =
-    this->Makefile->GetSafeDefinition("CMAKE_DEPENDS_DEPENDENCY_FILES");
+    this->m_pMakefile->GetSafeDefinition("CMAKE_DEPENDS_DEPENDENCY_FILES");
   if (!depends.empty()) {
     // dependencies are managed by compiler
     cmList depFiles{ depends, cmList::EmptyElements::Yes };
@@ -1474,7 +1474,7 @@ bool cmLocalUnixMakefileGenerator3::UpdateDependencies(
     cmDepends::DependencyMap dependencies;
     cmDependsCompiler depsManager;
     bool projectOnly = cmIsOn(
-      this->Makefile->GetSafeDefinition("CMAKE_DEPENDS_IN_PROJECT_ONLY"));
+      this->m_pMakefile->GetSafeDefinition("CMAKE_DEPENDS_IN_PROJECT_ONLY"));
 
     depsManager.SetVerbose(verbose);
     depsManager.SetLocalGenerator(this);
@@ -1534,7 +1534,7 @@ bool cmLocalUnixMakefileGenerator3::ScanDependencies(
   std::string const& internalDependFile, cmDepends::DependencyMap& validDeps)
 {
   // Read the directory information file.
-  cmMakefile* mf = this->Makefile;
+  cmMakefile* mf = this->m_pMakefile;
   bool haveDirectoryInfo = false;
   {
     std::string dirInfoFile =
@@ -1625,7 +1625,7 @@ bool cmLocalUnixMakefileGenerator3::ScanDependencies(
 
 void cmLocalUnixMakefileGenerator3::CheckMultipleOutputs(bool verbose)
 {
-  cmMakefile* mf = this->Makefile;
+  cmMakefile* mf = this->m_pMakefile;
 
   // Get the string listing the multiple output pairs.
   cmValue pairs_string = mf->GetDefinition("CMAKE_MULTIPLE_OUTPUT_PAIRS");
@@ -1809,7 +1809,7 @@ void cmLocalUnixMakefileGenerator3::WriteLocalAllRules(
   commands.clear();
   depends.clear();
   cmValue noall =
-    this->Makefile->GetDefinition("CMAKE_SKIP_INSTALL_ALL_DEPENDENCY");
+    this->m_pMakefile->GetDefinition("CMAKE_SKIP_INSTALL_ALL_DEPENDENCY");
   if (noall.IsOff()) {
     // Drive the build before installing.
     depends.emplace_back("all");
@@ -1925,7 +1925,7 @@ void cmLocalUnixMakefileGenerator3::WriteDependLanguageInfo(
   cmakefileStream << "\n"
                      "# Consider dependencies only in project.\n"
                      "set(CMAKE_DEPENDS_IN_PROJECT_ONLY "
-                  << (cmIsOn(this->Makefile->GetSafeDefinition(
+                  << (cmIsOn(this->m_pMakefile->GetSafeDefinition(
                         "CMAKE_DEPENDS_IN_PROJECT_ONLY"))
                         ? "ON"
                         : "OFF")
@@ -1975,7 +1975,7 @@ void cmLocalUnixMakefileGenerator3::WriteDependLanguageInfo(
 
       // Tell the dependency scanner what compiler is used.
       std::string cidVar = cmStrCat("CMAKE_", lang, "_COMPILER_ID");
-      cmValue cid = this->Makefile->GetDefinition(cidVar);
+      cmValue cid = this->m_pMakefile->GetDefinition(cidVar);
       if (cmNonempty(cid)) {
         cmakefileStream << "set(CMAKE_" << lang << "_COMPILER_ID \"" << *cid
                         << "\")\n";
@@ -1983,9 +1983,9 @@ void cmLocalUnixMakefileGenerator3::WriteDependLanguageInfo(
 
       if (lang == "Fortran") {
         std::string smodSep =
-          this->Makefile->GetSafeDefinition("CMAKE_Fortran_SUBMODULE_SEP");
+          this->m_pMakefile->GetSafeDefinition("CMAKE_Fortran_SUBMODULE_SEP");
         std::string smodExt =
-          this->Makefile->GetSafeDefinition("CMAKE_Fortran_SUBMODULE_EXT");
+          this->m_pMakefile->GetSafeDefinition("CMAKE_Fortran_SUBMODULE_EXT");
         cmakefileStream << "set(CMAKE_Fortran_SUBMODULE_SEP \"" << smodSep
                         << "\")\n"
                            "set(CMAKE_Fortran_SUBMODULE_EXT \""
@@ -2017,7 +2017,7 @@ void cmLocalUnixMakefileGenerator3::WriteDependLanguageInfo(
       this->GetIncludeDirectories(includes, target, lang,
                                   this->GetConfigName());
       std::string const& binaryDir = this->GetState()->GetBinaryDirectory();
-      if (this->Makefile->IsOn("CMAKE_DEPENDS_IN_PROJECT_ONLY")) {
+      if (this->m_pMakefile->IsOn("CMAKE_DEPENDS_IN_PROJECT_ONLY")) {
         std::string const& sourceDir = this->GetState()->GetSourceDirectory();
         cm::erase_if(includes, ::NotInProjectDir(sourceDir, binaryDir));
       }
@@ -2032,7 +2032,7 @@ void cmLocalUnixMakefileGenerator3::WriteDependLanguageInfo(
     // rules first because they may be overridden by later target rules.
     cmList transformRules;
     if (cmValue xform =
-          this->Makefile->GetProperty("IMPLICIT_DEPENDS_INCLUDE_TRANSFORM")) {
+          this->m_pMakefile->GetProperty("IMPLICIT_DEPENDS_INCLUDE_TRANSFORM")) {
       transformRules.assign(*xform);
     }
     if (cmValue xform =
@@ -2067,7 +2067,7 @@ void cmLocalUnixMakefileGenerator3::WriteDependLanguageInfo(
         }
       }
     } else if (compilerLang.first == "LINK"_s) {
-      auto depFormat = this->Makefile->GetDefinition(
+      auto depFormat = this->m_pMakefile->GetDefinition(
         cmStrCat("CMAKE_", target->GetLinkerLanguage(this->GetConfigName()),
                  "_LINKER_DEPFILE_FORMAT"));
       for (auto const& compilerPair : compilerPairs) {
@@ -2079,7 +2079,7 @@ void cmLocalUnixMakefileGenerator3::WriteDependLanguageInfo(
         }
       }
     } else {
-      auto depFormat = this->Makefile->GetSafeDefinition(
+      auto depFormat = this->m_pMakefile->GetSafeDefinition(
         cmStrCat("CMAKE_", compilerLang.first, "_DEPFILE_FORMAT"));
       for (auto const& compilerPair : compilerPairs) {
         for (auto const& src : compilerPair.second) {

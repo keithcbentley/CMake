@@ -18,7 +18,7 @@ public:
 private:
   void CreatePermissionElement(std::string const& entry);
 
-  void ReportError(std::string const& entry, std::string const& message);
+  void m_reportError(std::string const& entry, std::string const& message);
 
   bool IsBooleanAttribute(std::string const& name);
 

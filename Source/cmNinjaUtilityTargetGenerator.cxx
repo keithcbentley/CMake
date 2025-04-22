@@ -110,9 +110,9 @@ void cmNinjaUtilityTargetGenerator::WriteUtilBuildStatements(
     std::vector<cmSourceFile*> sources;
     genTarget->GetSourceFiles(sources, config);
     for (cmSourceFile const* source : sources) {
-      if (cmCustomCommand const* cc = source->GetCustomCommand()) {
-        cmCustomCommandGenerator ccg(*cc, config, lg);
-        lg->AddCustomCommandTarget(cc, genTarget);
+      if (cmCustomCommand const* m_pCustomCommand = source->GetCustomCommand()) {
+        cmCustomCommandGenerator ccg(*m_pCustomCommand, config, lg);
+        lg->AddCustomCommandTarget(m_pCustomCommand, genTarget);
 
         // Depend on all custom command outputs.
         std::vector<std::string> const& ccOutputs = ccg.GetOutputs();

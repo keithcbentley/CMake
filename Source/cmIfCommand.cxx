@@ -75,7 +75,7 @@ bool cmIfFunctionBlocker::Replay(std::vector<cmListFileFunction> functions,
     if (scopeDepth == 0 && func.LowerCaseName() == "else") {
       cmListFileBacktrace elseBT = mf.GetBacktrace().Push(
         cmListFileContext{ func.OriginalName(),
-                           this->GetStartingContext().FilePath, func.Line() });
+                           this->GetStartingContext().m_filePath, func.Line() });
 
       if (this->ElseSeen) {
         mf.GetCMakeInstance()->IssueMessage(
@@ -98,7 +98,7 @@ bool cmIfFunctionBlocker::Replay(std::vector<cmListFileFunction> functions,
     } else if (scopeDepth == 0 && func.LowerCaseName() == "elseif") {
       cmListFileBacktrace elseifBT = mf.GetBacktrace().Push(
         cmListFileContext{ func.OriginalName(),
-                           this->GetStartingContext().FilePath, func.Line() });
+                           this->GetStartingContext().m_filePath, func.Line() });
       if (this->ElseSeen) {
         mf.GetCMakeInstance()->IssueMessage(
           MessageType::FATAL_ERROR,

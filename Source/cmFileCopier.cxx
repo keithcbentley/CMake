@@ -30,7 +30,7 @@ using namespace cmFSPermissions;
 
 cmFileCopier::cmFileCopier(cmExecutionStatus& status, char const* name)
   : Status(status)
-  , Makefile(&status.GetMakefile())
+  , m_pMakefile(&status.GetMakefile())
   , Name(name)
 {
 }
@@ -68,7 +68,7 @@ bool cmFileCopier::SetPermissions(std::string const& toFile,
 {
   if (permissions) {
 #ifdef _WIN32
-    if (Makefile->IsOn("CMAKE_CROSSCOMPILING")) {
+    if (m_pMakefile->IsOn("CMAKE_CROSSCOMPILING")) {
       // Store the mode in an NTFS alternate stream.
       std::string mode_t_adt_filename = toFile + ":cmake_mode_t";
 
@@ -167,7 +167,7 @@ void cmFileCopier::DefaultDirectoryPermissions()
 bool cmFileCopier::GetDefaultDirectoryPermissions(mode_t** mode)
 {
   // check if default dir creation permissions were set
-  cmValue default_dir_install_permissions = this->Makefile->GetDefinition(
+  cmValue default_dir_install_permissions = this->m_pMakefile->GetDefinition(
     "CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS");
   if (cmNonempty(default_dir_install_permissions)) {
     cmList items{ *default_dir_install_permissions };
@@ -311,7 +311,7 @@ bool cmFileCopier::CheckValue(std::string const& arg)
         this->Destination = arg;
       } else {
         this->Destination =
-          cmStrCat(this->Makefile->GetCurrentBinaryDirectory(), '/', arg);
+          cmStrCat(this->m_pMakefile->GetCurrentBinaryDirectory(), '/', arg);
       }
       this->Doing = DoingNone;
       break;
@@ -320,7 +320,7 @@ bool cmFileCopier::CheckValue(std::string const& arg)
         this->FilesFromDir = arg;
       } else {
         this->FilesFromDir =
-          cmStrCat(this->Makefile->GetCurrentSourceDirectory(), '/', arg);
+          cmStrCat(this->m_pMakefile->GetCurrentSourceDirectory(), '/', arg);
       }
       cmSystemTools::ConvertToUnixSlashes(this->FilesFromDir);
       this->Doing = DoingNone;
@@ -389,7 +389,7 @@ bool cmFileCopier::Run(std::vector<std::string> const& args)
       if (!this->FilesFromDir.empty()) {
         file = this->FilesFromDir;
       } else {
-        file = this->Makefile->GetCurrentSourceDirectory();
+        file = this->m_pMakefile->GetCurrentSourceDirectory();
       }
       file += "/";
       file += f;

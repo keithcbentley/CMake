@@ -19,7 +19,7 @@ cmInstallSubdirectoryGenerator::cmInstallSubdirectoryGenerator(
   cmListFileBacktrace backtrace)
   : cmInstallGenerator("", std::vector<std::string>(), "", MessageDefault,
                        false, false, std::move(backtrace))
-  , Makefile(makefile)
+  , m_pMakefile(makefile)
   , m_binaryDirectory(std::move(binaryDirectory))
 {
 }
@@ -28,7 +28,7 @@ cmInstallSubdirectoryGenerator::~cmInstallSubdirectoryGenerator() = default;
 
 bool cmInstallSubdirectoryGenerator::HaveInstall()
 {
-  for (auto const& generator : this->Makefile->GetInstallGenerators()) {
+  for (auto const& generator : this->m_pMakefile->GetInstallGenerators()) {
     if (generator->HaveInstall()) {
       return true;
     }
@@ -53,7 +53,7 @@ bool cmInstallSubdirectoryGenerator::Compute(cmLocalGenerator* lg)
 
 void cmInstallSubdirectoryGenerator::GenerateScript(std::ostream& os)
 {
-  if (!this->Makefile->GetPropertyAsBool("EXCLUDE_FROM_ALL")) {
+  if (!this->m_pMakefile->GetPropertyAsBool("EXCLUDE_FROM_ALL")) {
     cmPolicies::PolicyStatus status =
       this->LocalGenerator->GetPolicyStatus(cmPolicies::CMP0082);
     switch (status) {

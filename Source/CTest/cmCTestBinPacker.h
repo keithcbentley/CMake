@@ -13,7 +13,7 @@ struct cmCTestBinPackerAllocation
 {
   std::size_t ProcessIndex;
   int SlotsNeeded;
-  std::string Id;
+  std::string m_id;
 
   bool operator==(cmCTestBinPackerAllocation const& other) const;
   bool operator!=(cmCTestBinPackerAllocation const& other) const;

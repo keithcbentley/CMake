@@ -33,12 +33,12 @@ cmFileInstaller::cmFileInstaller(cmExecutionStatus& status)
   }
   // Get the current manifest.
   this->Manifest =
-    this->Makefile->GetSafeDefinition("CMAKE_INSTALL_MANIFEST_FILES");
+    this->m_pMakefile->GetSafeDefinition("CMAKE_INSTALL_MANIFEST_FILES");
 }
 cmFileInstaller::~cmFileInstaller()
 {
   // Save the updated install manifest.
-  this->Makefile->AddDefinition("CMAKE_INSTALL_MANIFEST_FILES",
+  this->m_pMakefile->AddDefinition("CMAKE_INSTALL_MANIFEST_FILES",
                                 this->Manifest);
 }
 
@@ -61,7 +61,7 @@ void cmFileInstaller::ReportCopy(std::string const& toFile, Type type,
   if (!this->MessageNever && (copy || !this->MessageLazy)) {
     std::string message =
       cmStrCat((copy ? "Installing: " : "Up-to-date: "), toFile);
-    this->Makefile->DisplayStatus(message, -1);
+    this->m_pMakefile->DisplayStatus(message, -1);
   }
   if (type != TypeDir) {
     // Add the file to the manifest.
@@ -176,7 +176,7 @@ void cmFileInstaller::DefaultFilePermissions()
   switch (this->InstallType) {
     case cmInstallType_SHARED_LIBRARY:
     case cmInstallType_MODULE_LIBRARY:
-      if (this->Makefile->IsOn("CMAKE_INSTALL_SO_NO_EXE")) {
+      if (this->m_pMakefile->IsOn("CMAKE_INSTALL_SO_NO_EXE")) {
         break;
       }
       CM_FALLTHROUGH;

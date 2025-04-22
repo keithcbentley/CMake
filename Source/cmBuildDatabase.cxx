@@ -201,7 +201,7 @@ std::unique_ptr<cmBuildDatabase> cmBuildDatabase::Load(std::string const& path)
   Json::Value const& sets = mcdb["sets"];
   if (sets.isArray()) {
     for (auto const& set : sets) {
-      Set Set_;
+      m_set Set_;
 
       Json::Value const& name = set["name"];
       if (!name.isString()) {
@@ -427,7 +427,7 @@ cmBuildDatabase cmBuildDatabase::ForTarget(cmGeneratorTarget* gt,
 {
   cmBuildDatabase db;
 
-  Set set;
+  m_set set;
   set.Name = cmStrCat(gt->GetName(), '@', config);
   set.FamilyName = gt->GetFamilyName();
   if (auto* cli = gt->GetLinkInformation(config)) {

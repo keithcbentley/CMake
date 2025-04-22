@@ -163,7 +163,7 @@ bool cmFindBase::ParseArguments(std::vector<std::string> const& argsIn)
         this->SetError("missing required argument for VALIDATOR");
         return false;
       }
-      auto command = this->Makefile->GetState()->GetCommand(args[j]);
+      auto command = this->m_pMakefile->GetState()->GetCommand(args[j]);
       if (!command) {
         this->SetError(cmStrCat(
           "command specified for VALIDATOR is undefined: ", args[j], '.'));
@@ -171,7 +171,7 @@ bool cmFindBase::ParseArguments(std::vector<std::string> const& argsIn)
       }
       // ensure a macro is not specified as validator
       auto const& validatorName = args[j];
-      cmList macros{ this->Makefile->GetProperty("MACROS") };
+      cmList macros{ this->m_pMakefile->GetProperty("MACROS") };
       if (std::find_if(macros.begin(), macros.end(),
                        [&validatorName](std::string const& item) {
                          return cmSystemTools::Strucmp(validatorName.c_str(),
@@ -202,7 +202,7 @@ bool cmFindBase::ParseArguments(std::vector<std::string> const& argsIn)
   }
 
   if (!haveRequiredOrOptional) {
-    this->Required = this->Makefile->IsOn("CMAKE_FIND_REQUIRED");
+    this->Required = this->m_pMakefile->IsOn("CMAKE_FIND_REQUIRED");
   }
 
   if (this->VariableDocumentation.empty()) {
@@ -244,8 +244,8 @@ bool cmFindBase::Validate(std::string const& path) const
   }
 
   // The validator command will be executed in an isolated scope.
-  cmMakefile::ScopePushPop varScope(this->Makefile);
-  cmMakefile::PolicyPushPop polScope(this->Makefile);
+  cmMakefile::ScopePushPop varScope(this->m_pMakefile);
+  cmMakefile::PolicyPushPop polScope(this->m_pMakefile);
   static_cast<void>(varScope);
   static_cast<void>(polScope);
 
@@ -253,16 +253,16 @@ bool cmFindBase::Validate(std::string const& path) const
     cmStrCat("CMAKE_"_s, cmSystemTools::UpperCase(this->FindCommandName),
              "_VALIDATOR_STATUS"_s);
 
-  this->Makefile->AddDefinitionBool(resultName, true);
+  this->m_pMakefile->AddDefinitionBool(resultName, true);
 
   cmListFileFunction validator(
     this->ValidatorName, 0, 0,
     { cmListFileArgument(resultName, cmListFileArgument::Unquoted, 0),
       cmListFileArgument(path, cmListFileArgument::Quoted, 0) });
-  cmExecutionStatus status(*this->Makefile);
+  cmExecutionStatus status(*this->m_pMakefile);
 
-  if (this->Makefile->ExecuteCommand(validator, status)) {
-    return this->Makefile->GetDefinition(resultName).IsOn();
+  if (this->m_pMakefile->ExecuteCommand(validator, status)) {
+    return this->m_pMakefile->GetDefinition(resultName).IsOn();
   }
   return false;
 }
@@ -315,7 +315,7 @@ void cmFindBase::FillPackageRootPath()
 
   // Add the PACKAGE_ROOT_PATH from each enclosing find_package call.
   for (std::vector<std::string> const& pkgPaths :
-       cmReverseRange(this->Makefile->FindPackageRootPathStack)) {
+       cmReverseRange(this->m_pMakefile->m_findPackageRootPathStack)) {
     paths.AddPrefixPaths(pkgPaths);
   }
 
@@ -397,10 +397,10 @@ void cmFindBase::FillCMakeSystemVariablePath()
   cmSearchPath& paths = this->LabeledPaths[PathLabel::CMakeSystem];
 
   bool const install_prefix_in_list =
-    !this->Makefile->IsOn("CMAKE_FIND_NO_INSTALL_PREFIX");
+    !this->m_pMakefile->IsOn("CMAKE_FIND_NO_INSTALL_PREFIX");
   bool const remove_install_prefix = this->NoCMakeInstallPath;
   bool const add_install_prefix = !this->NoCMakeInstallPath &&
-    this->Makefile->IsDefinitionSet("CMAKE_FIND_USE_INSTALL_PREFIX");
+    this->m_pMakefile->IsDefinitionSet("CMAKE_FIND_USE_INSTALL_PREFIX");
 
   // We have 3 possible states for `CMAKE_SYSTEM_PREFIX_PATH` and
   // `CMAKE_INSTALL_PREFIX`.
@@ -413,13 +413,13 @@ void cmFindBase::FillCMakeSystemVariablePath()
   // `CMAKE_SYSTEM_PREFIX_PATH`. This ensures that if projects / toolchains
   // have removed `CMAKE_INSTALL_PREFIX` from the list, we don't remove
   // some other entry by mistake ( likewise for `CMAKE_STAGING_PREFIX` )
-  entry_to_remove install_entry("INSTALL", this->Makefile);
-  entry_to_remove staging_entry("STAGING", this->Makefile);
+  entry_to_remove install_entry("INSTALL", this->m_pMakefile);
+  entry_to_remove staging_entry("STAGING", this->m_pMakefile);
 
   if (remove_install_prefix && install_prefix_in_list &&
       (install_entry.valid() || staging_entry.valid())) {
     cmValue prefix_paths =
-      this->Makefile->GetDefinition("CMAKE_SYSTEM_PREFIX_PATH");
+      this->m_pMakefile->GetDefinition("CMAKE_SYSTEM_PREFIX_PATH");
 
     // remove entries from CMAKE_SYSTEM_PREFIX_PATH
     cmList expanded{ *prefix_paths };
@@ -427,7 +427,7 @@ void cmFindBase::FillCMakeSystemVariablePath()
     staging_entry.remove_self(expanded);
     for (std::string& p : expanded) {
       p = cmSystemTools::CollapseFullPath(
-        p, this->Makefile->GetCurrentSourceDirectory());
+        p, this->m_pMakefile->GetCurrentSourceDirectory());
     }
     paths.AddPrefixPaths(expanded);
   } else if (add_install_prefix && !install_prefix_in_list) {
@@ -472,8 +472,8 @@ void cmFindBase::FillUserGuessPath()
 
 bool cmFindBase::CheckForVariableDefined()
 {
-  if (cmValue value = this->Makefile->GetDefinition(this->VariableName)) {
-    cmState* state = this->Makefile->GetState();
+  if (cmValue value = this->m_pMakefile->GetDefinition(this->VariableName)) {
+    cmState* state = this->m_pMakefile->GetState();
     cmValue cacheEntry = state->GetCacheEntryValue(this->VariableName);
     bool found = !cmIsNOTFOUND(*value);
     bool cached = cacheEntry != nullptr;
@@ -504,17 +504,17 @@ bool cmFindBase::CheckForVariableDefined()
 
 void cmFindBase::NormalizeFindResult()
 {
-  if (this->Makefile->GetPolicyStatus(cmPolicies::CMP0125) ==
+  if (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0125) ==
       cmPolicies::NEW) {
     // ensure the path returned by find_* command is absolute
     auto const& existingValue =
-      this->Makefile->GetDefinition(this->VariableName);
+      this->m_pMakefile->GetDefinition(this->VariableName);
     std::string value;
     if (!existingValue->empty()) {
       value =
         cmCMakePath(*existingValue, cmCMakePath::auto_format)
           .Absolute(cmCMakePath(
-            this->Makefile->GetCMakeInstance()->GetCMakeWorkingDirectory()))
+            this->m_pMakefile->GetCMakeInstance()->GetCMakeWorkingDirectory()))
           .Normal()
           .GenericString();
       if (!cmSystemTools::FileExists(value, false)) {
@@ -527,24 +527,24 @@ void cmFindBase::NormalizeFindResult()
       // type we should add the type and docstring but keep the original
       // value.
       if (value != *existingValue || this->AlreadyInCacheWithoutMetaInfo) {
-        this->Makefile->GetCMakeInstance()->AddCacheEntry(
+        this->m_pMakefile->GetCMakeInstance()->AddCacheEntry(
           this->VariableName, value, this->VariableDocumentation,
           this->VariableType);
-        if (this->Makefile->GetPolicyStatus(cmPolicies::CMP0126) ==
+        if (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0126) ==
             cmPolicies::NEW) {
-          if (this->Makefile->IsNormalDefinitionSet(this->VariableName)) {
-            this->Makefile->AddDefinition(this->VariableName, value);
+          if (this->m_pMakefile->IsNormalDefinitionSet(this->VariableName)) {
+            this->m_pMakefile->AddDefinition(this->VariableName, value);
           }
         } else {
           // if there was a definition then remove it
           // This is required to ensure same behavior as
           // cmMakefile::AddCacheDefinition.
-          this->Makefile->RemoveDefinition(this->VariableName);
+          this->m_pMakefile->RemoveDefinition(this->VariableName);
         }
       }
     } else {
       // ensure a normal variable is defined.
-      this->Makefile->AddDefinition(this->VariableName, value);
+      this->m_pMakefile->AddDefinition(this->VariableName, value);
     }
   } else {
     // If the user specifies the entry on the command line without a
@@ -552,23 +552,23 @@ void cmFindBase::NormalizeFindResult()
     // value.
     if (this->StoreResultInCache) {
       if (this->AlreadyInCacheWithoutMetaInfo) {
-        this->Makefile->AddCacheDefinition(this->VariableName, "",
+        this->m_pMakefile->AddCacheDefinition(this->VariableName, "",
                                            this->VariableDocumentation,
                                            this->VariableType);
-        if (this->Makefile->GetPolicyStatus(cmPolicies::CMP0126) ==
+        if (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0126) ==
               cmPolicies::NEW &&
-            this->Makefile->IsNormalDefinitionSet(this->VariableName)) {
-          this->Makefile->AddDefinition(
+            this->m_pMakefile->IsNormalDefinitionSet(this->VariableName)) {
+          this->m_pMakefile->AddDefinition(
             this->VariableName,
-            *this->Makefile->GetCMakeInstance()->GetCacheDefinition(
+            *this->m_pMakefile->GetCMakeInstance()->GetCacheDefinition(
               this->VariableName));
         }
       }
     } else {
       // ensure a normal variable is defined.
-      this->Makefile->AddDefinition(
+      this->m_pMakefile->AddDefinition(
         this->VariableName,
-        this->Makefile->GetSafeDefinition(this->VariableName));
+        this->m_pMakefile->GetSafeDefinition(this->VariableName));
     }
   }
 }
@@ -576,21 +576,21 @@ void cmFindBase::NormalizeFindResult()
 void cmFindBase::StoreFindResult(std::string const& value)
 {
   bool force =
-    this->Makefile->GetPolicyStatus(cmPolicies::CMP0125) == cmPolicies::NEW;
+    this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0125) == cmPolicies::NEW;
   bool updateNormalVariable =
-    this->Makefile->GetPolicyStatus(cmPolicies::CMP0126) == cmPolicies::NEW;
+    this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0126) == cmPolicies::NEW;
 
   if (!value.empty()) {
     if (this->StoreResultInCache) {
-      this->Makefile->AddCacheDefinition(this->VariableName, value,
+      this->m_pMakefile->AddCacheDefinition(this->VariableName, value,
                                          this->VariableDocumentation,
                                          this->VariableType, force);
       if (updateNormalVariable &&
-          this->Makefile->IsNormalDefinitionSet(this->VariableName)) {
-        this->Makefile->AddDefinition(this->VariableName, value);
+          this->m_pMakefile->IsNormalDefinitionSet(this->VariableName)) {
+        this->m_pMakefile->AddDefinition(this->VariableName, value);
       }
     } else {
-      this->Makefile->AddDefinition(this->VariableName, value);
+      this->m_pMakefile->AddDefinition(this->VariableName, value);
     }
 
     return;
@@ -598,19 +598,19 @@ void cmFindBase::StoreFindResult(std::string const& value)
 
   auto notFound = cmStrCat(this->VariableName, "-NOTFOUND");
   if (this->StoreResultInCache) {
-    this->Makefile->AddCacheDefinition(this->VariableName, notFound,
+    this->m_pMakefile->AddCacheDefinition(this->VariableName, notFound,
                                        this->VariableDocumentation,
                                        this->VariableType, force);
     if (updateNormalVariable &&
-        this->Makefile->IsNormalDefinitionSet(this->VariableName)) {
-      this->Makefile->AddDefinition(this->VariableName, notFound);
+        this->m_pMakefile->IsNormalDefinitionSet(this->VariableName)) {
+      this->m_pMakefile->AddDefinition(this->VariableName, notFound);
     }
   } else {
-    this->Makefile->AddDefinition(this->VariableName, notFound);
+    this->m_pMakefile->AddDefinition(this->VariableName, notFound);
   }
 
   if (this->Required) {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Could not find ", this->VariableName, " using the following ",
                (this->FindCommandName == "find_file" ||

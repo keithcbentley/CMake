@@ -164,7 +164,7 @@ void cmLinkLineDeviceComputer::ComputeLinkLibraries(
             iter.Target->GetType() != cmStateEnums::INTERFACE_LIBRARY) {
           std::string libPath = iter.Target->GetLocation(cli.GetConfig());
           if (item.Value == libPath) {
-            linkLib.Backtrace = iter.Backtrace;
+            linkLib.m_backtrace = iter.m_backtrace;
             break;
           }
         }

@@ -65,7 +65,7 @@ bool cmExportCommand(std::vector<std::string> const& args,
 
   struct Arguments
   {
-    cm::optional<ArgumentParser::MaybeEmpty<std::vector<std::string>>> Targets;
+    cm::optional<ArgumentParser::MaybeEmpty<std::vector<std::string>>> m_targets;
     ArgumentParser::NonEmpty<std::string> ExportSetName;
     ArgumentParser::NonEmpty<std::string> Namespace;
     ArgumentParser::NonEmpty<std::string> Filename;
@@ -122,7 +122,7 @@ bool cmExportCommand(std::vector<std::string> const& args,
     }
     parser.Bind("TARGET"_s, &Arguments::TargetArgs);
   } else {
-    parser.Bind("TARGETS"_s, &Arguments::Targets);
+    parser.Bind("TARGETS"_s, &Arguments::m_targets);
     parser.Bind("ANDROID_MK"_s, &Arguments::AndroidMKFile);
     parser.Bind("APPEND"_s, &Arguments::Append);
     parser.Bind("EXPORT_LINK_INTERFACE_LIBRARIES"_s, &Arguments::ExportOld);
@@ -357,8 +357,8 @@ bool cmExportCommand(std::vector<std::string> const& args,
       return false;
     }
     exportSet = &it->second;
-  } else if (arguments.Targets) {
-    for (std::string const& currentTarget : *arguments.Targets) {
+  } else if (arguments.m_targets) {
+    for (std::string const& currentTarget : *arguments.m_targets) {
       if (mf.IsAlias(currentTarget)) {
         std::ostringstream e;
         e << "given ALIAS target \"" << currentTarget

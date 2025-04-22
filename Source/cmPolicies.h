@@ -690,7 +690,7 @@ public:
   struct PolicyMap
   {
     PolicyStatus Get(PolicyID id) const;
-    void Set(PolicyID id, PolicyStatus status);
+    void m_set(PolicyID id, PolicyStatus status);
     bool IsDefined(PolicyID id) const;
     bool IsEmpty() const;
 

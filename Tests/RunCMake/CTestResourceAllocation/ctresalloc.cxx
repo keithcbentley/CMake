@@ -253,7 +253,7 @@ static int doWrite(int argc, char const* const* argv)
     for (auto const& group : resources) {
       for (auto const& it : group) {
         for (auto const& it2 : it.second) {
-          fout << "dealloc " << it.first << " " << it2.Id << " " << it2.Slots
+          fout << "dealloc " << it.first << " " << it2.m_id << " " << it2.Slots
                << std::endl;
         }
       }

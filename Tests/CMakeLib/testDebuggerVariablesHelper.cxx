@@ -44,7 +44,7 @@ static dap::VariablesRequest CreateVariablesRequest(int64_t reference)
 struct Dummies
 {
   std::shared_ptr<CMake> CMake;
-  std::shared_ptr<cmMakefile> Makefile;
+  std::shared_ptr<cmMakefile> m_pMakefile;
   std::shared_ptr<cmGlobalGenerator> m_pGlobalGenerator;
 };
 
@@ -62,9 +62,9 @@ static Dummies CreateDummies(
   cmStateSnapshot snapshot = state->CreateBaseSnapshot();
   snapshot.GetDirectory().SetCurrentSource(currentSourceDirectory);
   snapshot.GetDirectory().SetCurrentBinary(currentBinaryDirectory);
-  dummies.Makefile =
+  dummies.m_pMakefile =
     std::make_shared<cmMakefile>(dummies.m_pGlobalGenerator.get(), snapshot);
-  dummies.Makefile->CreateNewTarget(targetName, cmStateEnums::EXECUTABLE);
+  dummies.m_pMakefile->CreateNewTarget(targetName, cmStateEnums::EXECUTABLE);
   return dummies;
 }
 
@@ -74,9 +74,9 @@ static bool testCreateFromPolicyMap()
     std::make_shared<cmDebugger::cmDebuggerVariablesManager>();
 
   cmPolicies::PolicyMap policyMap;
-  policyMap.Set(cmPolicies::CMP0178, cmPolicies::NEW);
-  policyMap.Set(cmPolicies::CMP0179, cmPolicies::WARN);
-  policyMap.Set(cmPolicies::CMP0180, cmPolicies::OLD);
+  policyMap.m_set(cmPolicies::CMP0178, cmPolicies::NEW);
+  policyMap.m_set(cmPolicies::CMP0179, cmPolicies::WARN);
+  policyMap.m_set(cmPolicies::CMP0180, cmPolicies::OLD);
   auto vars = cmDebugger::cmDebuggerVariablesHelper::Create(
     variablesManager, "Locals", true, policyMap);
 
@@ -183,7 +183,7 @@ static bool testCreateFromTarget()
   auto dummies = CreateDummies("Foo");
 
   auto vars = cmDebugger::cmDebuggerVariablesHelper::CreateIfAny(
-    variablesManager, "Locals", true, dummies.Makefile->GetOrderedTargets());
+    variablesManager, "Locals", true, dummies.m_pMakefile->GetOrderedTargets());
 
   dap::array<dap::Variable> variables =
     variablesManager->HandleVariablesRequest(
@@ -207,11 +207,11 @@ static bool testCreateFromTarget()
   ASSERT_VARIABLE(variables[8], "IsImportedGloballyVisible", "FALSE", "bool");
   ASSERT_VARIABLE(variables[9], "IsPerConfig", "TRUE", "bool");
   ASSERT_VARIABLE(variables[10], "Makefile",
-                  dummies.Makefile->GetDirectoryId().String, "collection");
+                  dummies.m_pMakefile->GetDirectoryId().String, "collection");
   ASSERT_VARIABLE(variables[11], "Name", "Foo", "string");
   ASSERT_VARIABLE(variables[12], "PolicyMap", "", "collection");
   ASSERT_VARIABLE(variables[13], "Properties",
-                  std::to_string(dummies.Makefile->GetOrderedTargets()[0]
+                  std::to_string(dummies.m_pMakefile->GetOrderedTargets()[0]
                                    ->GetProperties()
                                    .GetList()
                                    .size()),
@@ -267,13 +267,13 @@ static bool testCreateFromTests()
     std::make_shared<cmDebugger::cmDebuggerVariablesManager>();
 
   auto dummies = CreateDummies("Foo");
-  cmTest test1 = cmTest(dummies.Makefile.get());
+  cmTest test1 = cmTest(dummies.m_pMakefile.get());
   test1.SetName("Test1");
   test1.SetOldStyle(false);
   test1.SetCommandExpandLists(true);
   test1.SetCommand(std::vector<std::string>{ "Foo1", "arg1" });
   test1.SetProperty("Prop1", "Prop1");
-  cmTest test2 = cmTest(dummies.Makefile.get());
+  cmTest test2 = cmTest(dummies.m_pMakefile.get());
   test2.SetName("Test2");
   test2.SetOldStyle(false);
   test2.SetCommandExpandLists(false);
@@ -369,12 +369,12 @@ static bool testCreateFromMakefile()
     std::make_shared<cmDebugger::cmDebuggerVariablesManager>();
 
   auto dummies = CreateDummies("Foo");
-  auto snapshot = dummies.Makefile->GetStateSnapshot();
-  auto state = dummies.Makefile->GetState();
+  auto snapshot = dummies.m_pMakefile->GetStateSnapshot();
+  auto state = dummies.m_pMakefile->GetState();
   state->SetSourceDirectory("c:/HomeDirectory");
   state->SetBinaryDirectory("c:/HomeOutputDirectory");
   auto vars = cmDebugger::cmDebuggerVariablesHelper::CreateIfAny(
-    variablesManager, "Locals", true, dummies.Makefile.get());
+    variablesManager, "Locals", true, dummies.m_pMakefile.get());
 
   dap::array<dap::Variable> variables =
     variablesManager->HandleVariablesRequest(
@@ -388,7 +388,7 @@ static bool testCreateFromMakefile()
                   snapshot.GetDirectory().GetCurrentSource(), "string");
   ASSERT_VARIABLE(variables[3], "DefineFlags", " ", "string");
   ASSERT_VARIABLE(variables[4], "DirectoryId",
-                  dummies.Makefile->GetDirectoryId().String, "string");
+                  dummies.m_pMakefile->GetDirectoryId().String, "string");
   ASSERT_VARIABLE(variables[5], "HomeDirectory", state->GetSourceDirectory(),
                   "string");
   ASSERT_VARIABLE(variables[6], "HomeOutputDirectory",
@@ -415,7 +415,7 @@ static bool testCreateFromStackFrame()
 
   cmListFileFunction lff = cmListFileFunction("set", 99, 99, {});
   auto frame = std::make_shared<cmDebugger::cmDebuggerStackFrame>(
-    dummies.Makefile.get(), "c:/CMakeLists.txt", lff);
+    dummies.m_pMakefile.get(), "c:/CMakeLists.txt", lff);
 
   dummies.CMake->AddCacheEntry("CMAKE_BUILD_TYPE", "Debug", "Build Type",
                                cmStateEnums::CacheEntryType::STRING);
@@ -448,11 +448,11 @@ static bool testCreateFromStackFrame()
   ASSERT_TRUE(directoriesVariables.size() == 2);
   ASSERT_VARIABLE(
     directoriesVariables[0], "CMAKE_CURRENT_BINARY_DIR",
-    dummies.Makefile->GetStateSnapshot().GetDirectory().GetCurrentBinary(),
+    dummies.m_pMakefile->GetStateSnapshot().GetDirectory().GetCurrentBinary(),
     "string");
   ASSERT_VARIABLE(
     directoriesVariables[1], "CMAKE_CURRENT_SOURCE_DIR",
-    dummies.Makefile->GetStateSnapshot().GetDirectory().GetCurrentSource(),
+    dummies.m_pMakefile->GetStateSnapshot().GetDirectory().GetCurrentSource(),
     "string");
 
   dap::array<dap::Variable> propertiesVariables =

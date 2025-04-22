@@ -70,7 +70,7 @@ private:
   bool DetermineIfIntegrityApp();
   cmGeneratorTarget* GeneratorTarget;
   cmLocalGhsMultiGenerator* LocalGenerator;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   std::map<std::string, std::string> FlagsByLanguage;
   std::map<std::string, std::string> DefinesByLanguage;
 

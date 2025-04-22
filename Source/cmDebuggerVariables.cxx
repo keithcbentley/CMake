@@ -30,13 +30,13 @@ std::atomic<int64_t> cmDebuggerVariables::NextId(1);
 cmDebuggerVariables::cmDebuggerVariables(
   std::shared_ptr<cmDebuggerVariablesManager> variablesManager,
   std::string name, bool supportsVariableType)
-  : Id(NextId.fetch_add(1))
+  : m_id(NextId.fetch_add(1))
   , Name(std::move(name))
   , SupportsVariableType(supportsVariableType)
   , VariablesManager(std::move(variablesManager))
 {
   VariablesManager->RegisterHandler(
-    Id, [this](dap::VariablesRequest const& request) {
+    m_id, [this](dap::VariablesRequest const& request) {
       (void)request;
       return this->HandleVariablesRequest();
     });
@@ -46,14 +46,14 @@ cmDebuggerVariables::cmDebuggerVariables(
   std::shared_ptr<cmDebuggerVariablesManager> variablesManager,
   std::string name, bool supportsVariableType,
   std::function<std::vector<cmDebuggerVariableEntry>()> getKeyValuesFunction)
-  : Id(NextId.fetch_add(1))
+  : m_id(NextId.fetch_add(1))
   , Name(std::move(name))
   , GetKeyValuesFunction(std::move(getKeyValuesFunction))
   , SupportsVariableType(supportsVariableType)
   , VariablesManager(std::move(variablesManager))
 {
   VariablesManager->RegisterHandler(
-    Id, [this](dap::VariablesRequest const& request) {
+    m_id, [this](dap::VariablesRequest const& request) {
       (void)request;
       return this->HandleVariablesRequest();
     });
@@ -128,7 +128,7 @@ void cmDebuggerVariables::ClearSubVariables()
 cmDebuggerVariables::~cmDebuggerVariables()
 {
   ClearSubVariables();
-  VariablesManager->UnregisterHandler(Id);
+  VariablesManager->UnregisterHandler(m_id);
 }
 
 } // namespace cmDebugger

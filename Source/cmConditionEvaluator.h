@@ -64,7 +64,7 @@ private:
   bool HandleLevel4(cmArgumentList& newArgs, std::string& errorString,
                     MessageType& status);
 
-  cmMakefile& Makefile;
-  cmListFileBacktrace Backtrace;
+  cmMakefile& m_pMakefile;
+  cmListFileBacktrace m_backtrace;
   cmPolicies::PolicyStatus Policy139Status;
 };

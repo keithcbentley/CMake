@@ -147,14 +147,14 @@ static void setcharorrange(unsigned char **pp, unsigned char *charset)
 
   charset[c] = 1;
   if(ISALNUM(c) && *p++ == '-') {
-    char_class cc = charclass(c);
+    char_class m_pCustomCommand = charclass(c);
     unsigned char endrange = *p++;
 
     if(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
+    if(endrange >= c && charclass(endrange) == m_pCustomCommand) {
       while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+        if(charclass(c) == m_pCustomCommand)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }

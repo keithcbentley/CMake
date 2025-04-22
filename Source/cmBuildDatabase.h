@@ -29,7 +29,7 @@ public:
     bool Private = false;
   };
 
-  struct Set
+  struct m_set
   {
     std::string Name;
     std::string FamilyName;
@@ -57,5 +57,5 @@ public:
                                    std::string const& config);
 
 private:
-  std::vector<Set> Sets;
+  std::vector<m_set> Sets;
 };

@@ -147,7 +147,7 @@ public:
   struct SetupT
   {
     std::string WorkingDirectory;
-    std::vector<std::string> Command;
+    std::vector<std::string> m_command;
     cmWorkerPool::ProcessResultT* Result = nullptr;
     bool MergedOutput = false;
   };
@@ -194,7 +194,7 @@ void cmUVReadOnlyProcess::setup(cmWorkerPool::ProcessResultT* result,
 {
   cmSystemTools::MaybePrependCmdExe(command);
   this->Setup_.WorkingDirectory = workingDirectory;
-  this->Setup_.Command = std::move(command);
+  this->Setup_.m_command = std::move(command);
   this->Setup_.Result = result;
   this->Setup_.MergedOutput = mergedOutput;
 }
@@ -210,9 +210,9 @@ bool cmUVReadOnlyProcess::start(uv_loop_t* uv_loop,
   this->Result()->reset();
 
   // Fill command string pointers
-  if (!this->Setup().Command.empty()) {
-    this->CommandPtr_.reserve(this->Setup().Command.size() + 1);
-    for (std::string const& arg : this->Setup().Command) {
+  if (!this->Setup().m_command.empty()) {
+    this->CommandPtr_.reserve(this->Setup().m_command.size() + 1);
+    for (std::string const& arg : this->Setup().m_command) {
       this->CommandPtr_.push_back(arg.c_str());
     }
     this->CommandPtr_.push_back(nullptr);

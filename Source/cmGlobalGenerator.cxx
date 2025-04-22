@@ -361,14 +361,14 @@ bool cmGlobalGenerator::CheckTargetsForType() const
   for (auto const& generator : this->LocalGenerators) {
     for (auto const& target : generator->GetGeneratorTargets()) {
       std::string systemName =
-        target->Makefile->GetSafeDefinition("CMAKE_SYSTEM_NAME");
+        target->m_pMakefile->GetSafeDefinition("CMAKE_SYSTEM_NAME");
       if (systemName.find("Windows") == std::string::npos) {
         continue;
       }
 
       if (target->GetType() == cmStateEnums::EXECUTABLE) {
         std::vector<std::string> const& configs =
-          target->Makefile->GetGeneratorConfigs(
+          target->m_pMakefile->GetGeneratorConfigs(
             cmMakefile::IncludeEmptyConfig);
         for (std::string const& config : configs) {
           if (target->IsWin32Executable(config) &&
@@ -1304,7 +1304,7 @@ void cmGlobalGenerator::Configure()
   auto dirMfu = cm::make_unique<cmMakefile>(this, snapshot);
   auto* dirMf = dirMfu.get();
   this->Makefiles.push_back(std::move(dirMfu));
-  dirMf->SetRecursionDepth(this->RecursionDepth);
+  dirMf->SetRecursionDepth(this->m_recursionDepth);
   this->IndexMakefile(dirMf);
 
   this->BinaryDirectories.insert(
@@ -1806,7 +1806,7 @@ bool cmGlobalGenerator::DiscoverSyntheticTargets()
 
     for (auto* tgt : genTargets) {
       std::vector<std::string> const& configs =
-        tgt->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+        tgt->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
 
       for (auto const& config : configs) {
         if (!tgt->DiscoverSyntheticTargets(cache, config)) {
@@ -1987,7 +1987,7 @@ void cmGlobalGenerator::ClearGeneratorMembers()
 
   this->LocalGenerators.clear();
 
-  this->AliasTargets.clear();
+  this->m_aliasTargets.clear();
   this->ExportSets.clear();
   this->InstallComponents.clear();
   this->TargetDependencies.clear();
@@ -2512,12 +2512,12 @@ cmLocalGenerator* cmGlobalGenerator::FindLocalGenerator(
 void cmGlobalGenerator::AddAlias(std::string const& name,
                                  std::string const& tgtName)
 {
-  this->AliasTargets[name] = tgtName;
+  this->m_aliasTargets[name] = tgtName;
 }
 
 bool cmGlobalGenerator::IsAlias(std::string const& name) const
 {
-  return cm::contains(this->AliasTargets, name);
+  return cm::contains(this->m_aliasTargets, name);
 }
 
 void cmGlobalGenerator::IndexTarget(cmTarget* t)
@@ -2608,8 +2608,8 @@ cmTarget* cmGlobalGenerator::FindTarget(
   std::string const& name, cmStateEnums::TargetDomainSet domains) const
 {
   if (domains.contains(cmStateEnums::TargetDomain::ALIAS)) {
-    auto const ai = this->AliasTargets.find(name);
-    if (ai != this->AliasTargets.end()) {
+    auto const ai = this->m_aliasTargets.find(name);
+    if (ai != this->m_aliasTargets.end()) {
       return this->FindTargetImpl(ai->second, domains);
     }
   }
@@ -2619,8 +2619,8 @@ cmTarget* cmGlobalGenerator::FindTarget(
 cmGeneratorTarget* cmGlobalGenerator::FindGeneratorTarget(
   std::string const& name) const
 {
-  auto const ai = this->AliasTargets.find(name);
-  if (ai != this->AliasTargets.end()) {
+  auto const ai = this->m_aliasTargets.find(name);
+  if (ai != this->m_aliasTargets.end()) {
     return this->FindGeneratorTargetImpl(ai->second);
   }
   return this->FindGeneratorTargetImpl(name);
@@ -3101,7 +3101,7 @@ public:
   {
   }
   void operator()(cmLocalGenerator& lg, cmListFileBacktrace const& lfbt,
-                  std::unique_ptr<cmCustomCommand> cc);
+                  std::unique_ptr<cmCustomCommand> m_pCustomCommand);
 
 private:
   std::string const Output;
@@ -3110,7 +3110,7 @@ private:
 
 void ModuleCompilationDatabaseCommandAction::operator()(
   cmLocalGenerator& lg, cmListFileBacktrace const& lfbt,
-  std::unique_ptr<cmCustomCommand> cc)
+  std::unique_ptr<cmCustomCommand> m_pCustomCommand)
 {
   auto inputs = this->Inputs();
 
@@ -3129,17 +3129,17 @@ void ModuleCompilationDatabaseCommandAction::operator()(
   }
   command_lines.emplace_back(std::move(command_line));
 
-  cc->SetBacktrace(lfbt);
-  cc->SetCommandLines(command_lines);
-  cc->SetWorkingDirectory(lg.GetBinaryDirectory().c_str());
-  cc->SetDependsExplicitOnly(true);
-  cc->SetOutputs(this->Output);
+  m_pCustomCommand->SetBacktrace(lfbt);
+  m_pCustomCommand->SetCommandLines(command_lines);
+  m_pCustomCommand->SetWorkingDirectory(lg.GetBinaryDirectory().c_str());
+  m_pCustomCommand->SetDependsExplicitOnly(true);
+  m_pCustomCommand->SetOutputs(this->Output);
   if (!inputs.empty()) {
-    cc->SetMainDependency(inputs[0]);
+    m_pCustomCommand->SetMainDependency(inputs[0]);
   }
-  cc->SetDepends(inputs);
+  m_pCustomCommand->SetDepends(inputs);
   detail::AddCustomCommandToOutput(lg, cmCommandOrigin::Generator,
-                                   std::move(cc), false);
+                                   std::move(m_pCustomCommand), false);
 }
 
 class ModuleCompilationDatabaseTargetAction
@@ -3151,7 +3151,7 @@ public:
   {
   }
   void operator()(cmLocalGenerator& lg, cmListFileBacktrace const& lfbt,
-                  std::unique_ptr<cmCustomCommand> cc);
+                  std::unique_ptr<cmCustomCommand> m_pCustomCommand);
 
 private:
   std::string const Output;
@@ -3160,15 +3160,15 @@ private:
 
 void ModuleCompilationDatabaseTargetAction::operator()(
   cmLocalGenerator& lg, cmListFileBacktrace const& lfbt,
-  std::unique_ptr<cmCustomCommand> cc)
+  std::unique_ptr<cmCustomCommand> m_pCustomCommand)
 {
-  cc->SetBacktrace(lfbt);
-  cc->SetWorkingDirectory(lg.GetBinaryDirectory().c_str());
+  m_pCustomCommand->SetBacktrace(lfbt);
+  m_pCustomCommand->SetWorkingDirectory(lg.GetBinaryDirectory().c_str());
   std::vector<std::string> target_inputs;
   target_inputs.emplace_back(this->Output);
-  cc->SetDepends(target_inputs);
+  m_pCustomCommand->SetDepends(target_inputs);
   detail::AddUtilityCommand(lg, cmCommandOrigin::Generator, this->Target,
-                            std::move(cc));
+                            std::move(m_pCustomCommand));
 }
 
 void cmGlobalGenerator::AddBuildDatabaseFile(std::string const& lang,
@@ -3222,10 +3222,10 @@ bool cmGlobalGenerator::AddBuildDatabaseTargets()
       {
         ModuleCompilationDatabaseCommandAction action{ output,
                                                        std::move(inputs) };
-        auto cc = cm::make_unique<cmCustomCommand>();
-        cc->SetComment(comment);
+        auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+        m_pCustomCommand->SetComment(comment);
         mf->AddGeneratorAction(
-          std::move(cc), action,
+          std::move(m_pCustomCommand), action,
           cmMakefile::GeneratorActionWhen::AfterGeneratorTargets);
       }
 
@@ -3233,8 +3233,8 @@ bool cmGlobalGenerator::AddBuildDatabaseTargets()
       {
         cmTarget* target = mf->AddNewUtilityTarget(name, true);
         ModuleCompilationDatabaseTargetAction action{ output, target };
-        auto cc = cm::make_unique<cmCustomCommand>();
-        mf->AddGeneratorAction(std::move(cc), action);
+        auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+        mf->AddGeneratorAction(std::move(m_pCustomCommand), action);
       }
     };
 
@@ -3334,13 +3334,13 @@ void cmGlobalGenerator::CreateGlobalTarget(GlobalTargetInfo const& gti,
   target.SetProperty("EXCLUDE_FROM_ALL", "TRUE");
 
   // Store the custom command in the target.
-  cmCustomCommand cc;
-  cc.SetCommandLines(gti.CommandLines);
-  cc.SetWorkingDirectory(gti.WorkingDir.c_str());
-  cc.SetStdPipesUTF8(gti.StdPipesUTF8);
-  cc.SetUsesTerminal(gti.UsesTerminal);
-  cc.SetRole(gti.Role);
-  target.AddPostBuildCommand(std::move(cc));
+  cmCustomCommand m_pCustomCommand;
+  m_pCustomCommand.SetCommandLines(gti.CommandLines);
+  m_pCustomCommand.SetWorkingDirectory(gti.WorkingDir.c_str());
+  m_pCustomCommand.SetStdPipesUTF8(gti.StdPipesUTF8);
+  m_pCustomCommand.SetUsesTerminal(gti.UsesTerminal);
+  m_pCustomCommand.SetRole(gti.Role);
+  target.AddPostBuildCommand(std::move(m_pCustomCommand));
   if (!gti.Message.empty()) {
     target.SetProperty("EchoString", gti.Message);
   }

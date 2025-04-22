@@ -163,7 +163,7 @@ std::string cmExportInstallPackageInfoGenerator::GenerateImportPrefix() const
       }
       expDest = expDest.substr(n);
     } else {
-      this->ReportError(
+      this->m_reportError(
         cmStrCat("install(PACKAGE_INFO \"", this->GetExportName(),
                  "\" ...) specifies DESTINATION \"", expDest,
                  "\" which is not a subdirectory of the install prefix."));

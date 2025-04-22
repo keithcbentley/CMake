@@ -202,7 +202,7 @@ struct kwsysProcess_s
   int m_pState;
 
   /* The command lines to execute.  */
-  wchar_t** Commands;
+  wchar_t** m_commands;
   int NumberOfCommands;
 
   /* The exit code of each command.  */
@@ -533,12 +533,12 @@ int kwsysProcess_SetCommand(kwsysProcess* cp, char const* const* command)
     return 0;
   }
   for (i = 0; i < cp->NumberOfCommands; ++i) {
-    free(cp->Commands[i]);
+    free(cp->m_commands[i]);
   }
   cp->NumberOfCommands = 0;
-  if (cp->Commands) {
-    free(cp->Commands);
-    cp->Commands = 0;
+  if (cp->m_commands) {
+    free(cp->m_commands);
+    cp->m_commands = 0;
   }
   if (command) {
     return kwsysProcess_AddCommand(cp, command);
@@ -568,7 +568,7 @@ int kwsysProcess_AddCommand(kwsysProcess* cp, char const* const* command)
   {
     int i;
     for (i = 0; i < cp->NumberOfCommands; ++i) {
-      newCommands[i] = cp->Commands[i];
+      newCommands[i] = cp->m_commands[i];
     }
   }
 
@@ -635,8 +635,8 @@ int kwsysProcess_AddCommand(kwsysProcess* cp, char const* const* command)
   }
 
   /* Save the new array of commands.  */
-  free(cp->Commands);
-  cp->Commands = newCommands;
+  free(cp->m_commands);
+  cp->m_commands = newCommands;
   cp->NumberOfCommands = newNumberOfCommands;
   return 1;
 }
@@ -1713,7 +1713,7 @@ DWORD kwsysProcessCreate(kwsysProcess* cp, int index,
     (error = kwsysProcessCreateChildHandle(&si->StartupInfo.hStdError,
                                            si->hStdError, 0)) ||
     /* Create the process.  */
-    (!CreateProcessW(0, cp->Commands[index], 0, 0, TRUE, creationFlags, 0, 0,
+    (!CreateProcessW(0, cp->m_commands[index], 0, 0, TRUE, creationFlags, 0, 0,
                      &si->StartupInfo, &cp->ProcessInformation[index]) &&
      (error = GetLastError()));
 

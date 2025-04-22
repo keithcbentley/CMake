@@ -75,7 +75,7 @@ struct cmDebuggerVariableEntry
 class cmDebuggerVariables
 {
   static std::atomic<int64_t> NextId;
-  int64_t Id;
+  int64_t m_id;
   std::string Name;
   std::string Value;
 
@@ -102,7 +102,7 @@ public:
     std::shared_ptr<cmDebuggerVariablesManager> variablesManager,
     std::string name, bool supportsVariableType,
     std::function<std::vector<cmDebuggerVariableEntry>()> getKeyValuesFunc);
-  int64_t GetId() const noexcept { return this->Id; }
+  int64_t GetId() const noexcept { return this->m_id; }
   std::string GetName() const noexcept { return this->Name; }
   std::string GetValue() const noexcept { return this->Value; }
   void SetValue(std::string const& value) noexcept { this->Value = value; }

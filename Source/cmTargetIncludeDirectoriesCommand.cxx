@@ -23,7 +23,7 @@ public:
 private:
   void HandleMissingTarget(std::string const& name) override
   {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Cannot specify include directories for target \"", name,
                "\" which is not built by this project."));
@@ -45,7 +45,7 @@ std::string TargetIncludeDirectoriesImpl::Join(
 {
   std::string dirs;
   std::string sep;
-  std::string prefix = this->Makefile->GetCurrentSourceDirectory() + "/";
+  std::string prefix = this->m_pMakefile->GetCurrentSourceDirectory() + "/";
   for (std::string const& it : content) {
     if (cmSystemTools::FileIsFullPath(it) ||
         cmGeneratorExpression::Find(it) == 0) {
@@ -62,10 +62,10 @@ bool TargetIncludeDirectoriesImpl::HandleDirectContent(
   cmTarget* tgt, std::vector<std::string> const& content, bool prepend,
   bool system)
 {
-  cmListFileBacktrace lfbt = this->Makefile->GetBacktrace();
+  cmListFileBacktrace lfbt = this->m_pMakefile->GetBacktrace();
   tgt->InsertInclude(BT<std::string>(this->Join(content), lfbt), prepend);
   if (system) {
-    std::string prefix = this->Makefile->GetCurrentSourceDirectory() + "/";
+    std::string prefix = this->m_pMakefile->GetCurrentSourceDirectory() + "/";
     std::set<std::string> sdirs;
     for (std::string const& it : content) {
       if (cmSystemTools::FileIsFullPath(it) ||
@@ -89,7 +89,7 @@ void TargetIncludeDirectoriesImpl::HandleInterfaceContent(
   if (system) {
     std::string joined = this->Join(content);
     tgt->AppendProperty("INTERFACE_SYSTEM_INCLUDE_DIRECTORIES", joined,
-                        this->Makefile->GetBacktrace());
+                        this->m_pMakefile->GetBacktrace());
   }
 }
 

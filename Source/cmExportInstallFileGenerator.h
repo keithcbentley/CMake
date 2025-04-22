@@ -95,7 +95,7 @@ protected:
 
   ExportInfo FindExportInfo(cmGeneratorTarget const* target) const override;
 
-  void ReportError(std::string const& errorMessage) const override;
+  void m_reportError(std::string const& errorMessage) const override;
 
   /** Generate a per-configuration file for the targets.  */
   virtual bool GenerateImportFileConfig(std::string const& config);

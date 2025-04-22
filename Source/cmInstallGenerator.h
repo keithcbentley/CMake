@@ -70,7 +70,7 @@ public:
   bool GetExcludeFromAll() const { return this->ExcludeFromAll; }
   bool GetAllComponentsFlag() const { return this->AllComponents; }
 
-  cmListFileBacktrace const& GetBacktrace() const { return this->Backtrace; }
+  cmListFileBacktrace const& GetBacktrace() const { return this->m_backtrace; }
 
   static std::string GetDestDirPath(std::string const& file);
 
@@ -98,5 +98,5 @@ protected:
   MessageLevel const Message;
   bool const ExcludeFromAll;
   bool const AllComponents;
-  cmListFileBacktrace const Backtrace;
+  cmListFileBacktrace const m_backtrace;
 };

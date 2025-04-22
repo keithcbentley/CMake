@@ -32,7 +32,7 @@ public:
       cmGeneratorTarget const* GT = nullptr;
       std::vector<std::string> ExcludedFromAllInConfigs;
     };
-    std::vector<Target> Targets;
+    std::vector<Target> m_targets;
     struct Dir
     {
       std::string Path;

@@ -940,9 +940,9 @@ bool cmCTest::RunMakeCommand(std::string const& command, std::string& output,
      &ofs](std::vector<char> data) {
       std::string strdata;
       processOutput.DecodeText(data.data(), data.size(), strdata);
-      for (char& cc : strdata) {
-        if (cc == 0) {
-          cc = '\n';
+      for (char& m_pCustomCommand : strdata) {
+        if (m_pCustomCommand == 0) {
+          m_pCustomCommand = '\n';
         }
       }
       output.append(strdata);

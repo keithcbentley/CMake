@@ -154,6 +154,6 @@ protected:
   bool SearchAppBundleOnly;
   bool SearchAppBundleLast;
 
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmExecutionStatus& Status;
 };

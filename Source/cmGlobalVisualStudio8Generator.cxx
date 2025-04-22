@@ -238,9 +238,9 @@ bool cmGlobalVisualStudio8Generator::AddCheckTarget()
   auto& lg =
     cm::static_reference_cast<cmLocalVisualStudio7Generator>(generators[0]);
 
-  auto cc = cm::make_unique<cmCustomCommand>();
+  auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
   cmTarget* tgt = lg.AddUtilityCommand(CMAKE_CHECK_BUILD_SYSTEM_TARGET, false,
-                                       std::move(cc));
+                                       std::move(m_pCustomCommand));
 
   // Collect the input files used to generate all targets in this
   // project.
@@ -294,14 +294,14 @@ bool cmGlobalVisualStudio8Generator::AddCheckTarget()
       std::vector<std::string> byproducts;
       byproducts.push_back(cm->GetGlobVerifyStamp());
 
-      cc = cm::make_unique<cmCustomCommand>();
-      cc->SetByproducts(byproducts);
-      cc->SetCommandLines(verifyCommandLines);
-      cc->SetComment("Checking File Globs");
-      cc->SetStdPipesUTF8(stdPipesUTF8);
+      m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetByproducts(byproducts);
+      m_pCustomCommand->SetCommandLines(verifyCommandLines);
+      m_pCustomCommand->SetComment("Checking File Globs");
+      m_pCustomCommand->SetStdPipesUTF8(stdPipesUTF8);
       lg.AddCustomCommandToTarget(CMAKE_CHECK_BUILD_SYSTEM_TARGET,
                                   cmCustomCommandType::PRE_BUILD,
-                                  std::move(cc));
+                                  std::move(m_pCustomCommand));
 
       // Ensure ZERO_CHECK always runs in Visual Studio using MSBuild,
       // otherwise the prebuild command will not be run.
@@ -328,15 +328,15 @@ bool cmGlobalVisualStudio8Generator::AddCheckTarget()
     // file as the main dependency because it would get
     // overwritten by the CreateVCProjBuildRule.
     // (this could be avoided with per-target source files)
-    cc = cm::make_unique<cmCustomCommand>();
-    cc->SetOutputs(stamps);
-    cc->SetDepends(listFiles);
-    cc->SetCommandLines(commandLines);
-    cc->SetComment("Checking Build System");
-    cc->SetEscapeOldStyle(false);
-    cc->SetStdPipesUTF8(stdPipesUTF8);
+    m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+    m_pCustomCommand->SetOutputs(stamps);
+    m_pCustomCommand->SetDepends(listFiles);
+    m_pCustomCommand->SetCommandLines(commandLines);
+    m_pCustomCommand->SetComment("Checking Build System");
+    m_pCustomCommand->SetEscapeOldStyle(false);
+    m_pCustomCommand->SetStdPipesUTF8(stdPipesUTF8);
     if (cmSourceFile* file =
-          lg.AddCustomCommandToOutput(std::move(cc), true)) {
+          lg.AddCustomCommandToOutput(std::move(m_pCustomCommand), true)) {
       gt->AddSource(file->ResolveFullPath());
     } else {
       cmSystemTools::Error(cmStrCat("Error adding rule for ", stamps[0]));

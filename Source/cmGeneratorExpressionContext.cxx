@@ -9,7 +9,7 @@ cmGeneratorExpressionContext::cmGeneratorExpressionContext(
   cmGeneratorTarget const* headTarget, cmGeneratorTarget const* currentTarget,
   bool evaluateForBuildsystem, cmListFileBacktrace backtrace,
   std::string language)
-  : Backtrace(std::move(backtrace))
+  : m_backtrace(std::move(backtrace))
   , LG(lg)
   , Config(std::move(config))
   , Language(std::move(language))

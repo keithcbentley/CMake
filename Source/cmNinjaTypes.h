@@ -28,7 +28,7 @@ public:
   }
 
   std::string Name;
-  std::string Command;
+  std::string m_command;
   std::string Description;
   std::string Comment;
   std::string DepFile;

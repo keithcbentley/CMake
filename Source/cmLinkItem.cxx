@@ -18,7 +18,7 @@ cmLinkItem::cmLinkItem(std::string n, bool c, cmListFileBacktrace bt,
   : String(std::move(n))
   , Feature(std::move(feature))
   , Cross(c)
-  , Backtrace(std::move(bt))
+  , m_backtrace(std::move(bt))
 {
 }
 
@@ -27,7 +27,7 @@ cmLinkItem::cmLinkItem(cmGeneratorTarget const* t, bool c,
   : Target(t)
   , Feature(std::move(feature))
   , Cross(c)
-  , Backtrace(std::move(bt))
+  , m_backtrace(std::move(bt))
 {
 }
 

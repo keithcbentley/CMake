@@ -88,7 +88,7 @@ public:
 private:
   // Context information.
   cmGeneratorTarget const* Target = nullptr;
-  cmMakefile* Makefile = nullptr;
+  cmMakefile* m_pMakefile = nullptr;
   cmGlobalGenerator const* m_pGlobalGenerator = nullptr;
   CMake* CMakeInstance;
   std::string Config;
@@ -183,7 +183,7 @@ private:
   {
     // The real component id.  Needed because the map is indexed by
     // component topological index.
-    size_t Id;
+    size_t m_id;
 
     // The number of times the component needs to be seen.  This is
     // always 1 for trivial components and is initially 2 for

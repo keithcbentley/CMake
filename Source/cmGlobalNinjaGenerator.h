@@ -324,9 +324,9 @@ public:
 
   /// Called when we have seen the given custom command.  Returns true
   /// if we has seen it before.
-  bool SeenCustomCommand(cmCustomCommand const* cc, std::string const& config)
+  bool SeenCustomCommand(cmCustomCommand const* m_pCustomCommand, std::string const& config)
   {
-    return !this->Configs[config].CustomCommands.insert(cc).second;
+    return !this->Configs[config].CustomCommands.insert(m_pCustomCommand).second;
   }
 
   /// Called when we have seen the given custom command output.

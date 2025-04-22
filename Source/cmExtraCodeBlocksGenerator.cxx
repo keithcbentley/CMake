@@ -395,7 +395,7 @@ void cmExtraCodeBlocksGenerator::CreateNewProjectFile(
             }
 
             CbpUnit& cbpUnit = allFiles[fullPath];
-            cbpUnit.Targets.push_back(target.get());
+            cbpUnit.m_targets.push_back(target.get());
           }
         } break;
         default:
@@ -428,7 +428,7 @@ void cmExtraCodeBlocksGenerator::CreateNewProjectFile(
       }
 
       if (cmSystemTools::FileExists(hname)) {
-        allFiles[hname].Targets = allFiles[fileName].Targets;
+        allFiles[hname].m_targets = allFiles[fileName].m_targets;
         break;
       }
     }
@@ -442,7 +442,7 @@ void cmExtraCodeBlocksGenerator::CreateNewProjectFile(
     xml.StartElement("Unit");
     xml.Attribute("filename", unitFilename);
 
-    for (cmGeneratorTarget const* tgt : unit.Targets) {
+    for (cmGeneratorTarget const* tgt : unit.m_targets) {
       xml.StartElement("Option");
       xml.Attribute("target", tgt->GetName());
       xml.EndElement();
@@ -700,7 +700,7 @@ int cmExtraCodeBlocksGenerator::GetCBTargetType(cmGeneratorTarget* target)
   switch (target->GetType()) {
     case cmStateEnums::EXECUTABLE:
       if ((target->IsWin32Executable(
-            target->Makefile->GetSafeDefinition("CMAKE_BUILD_TYPE"))) ||
+            target->m_pMakefile->GetSafeDefinition("CMAKE_BUILD_TYPE"))) ||
           (target->GetPropertyAsBool("MACOSX_BUNDLE"))) {
         return 0;
       }

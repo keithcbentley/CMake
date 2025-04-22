@@ -20,7 +20,7 @@ struct cmGeneratorExpressionContext
                                cmListFileBacktrace backtrace,
                                std::string language);
 
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
   std::set<cmGeneratorTarget*> DependTargets;
   std::set<cmGeneratorTarget const*> AllTargets;
   std::set<std::string> SeenTargetProperties;

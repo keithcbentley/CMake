@@ -33,7 +33,7 @@ public:
 protected:
   void GenerateScript(std::ostream& os) override;
 
-  cmMakefile* const Makefile;
+  cmMakefile* const m_pMakefile;
   std::string const m_binaryDirectory;
   cmLocalGenerator* LocalGenerator;
 };

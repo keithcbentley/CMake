@@ -223,7 +223,7 @@ protected:
   void AppendCustomDepends(std::vector<std::string>& depends,
                            std::vector<cmCustomCommand> const& ccs);
   void AppendCustomDepend(std::vector<std::string>& depends,
-                          cmCustomCommandGenerator const& cc);
+                          cmCustomCommandGenerator const& m_pCustomCommand);
   void AppendCustomCommands(std::vector<std::string>& commands,
                             std::vector<cmCustomCommand> const& ccs,
                             cmGeneratorTarget* target,

@@ -51,25 +51,25 @@ bool cmFindLibraryCommand::InitialPass(std::vector<std::string> const& argsIn)
 
   // add custom lib<qual> paths instead of using fixed lib32, lib64 or
   // libx32
-  if (cmValue customLib = this->Makefile->GetDefinition(
+  if (cmValue customLib = this->m_pMakefile->GetDefinition(
         "CMAKE_FIND_LIBRARY_CUSTOM_LIB_SUFFIX")) {
     this->AddArchitecturePaths(customLib->c_str());
   }
   // add special 32 bit paths if this is a 32 bit compile.
-  else if (this->Makefile->PlatformIs32Bit() &&
-           this->Makefile->GetState()->GetGlobalPropertyAsBool(
+  else if (this->m_pMakefile->PlatformIs32Bit() &&
+           this->m_pMakefile->GetState()->GetGlobalPropertyAsBool(
              "FIND_LIBRARY_USE_LIB32_PATHS")) {
     this->AddArchitecturePaths("32");
   }
   // add special 64 bit paths if this is a 64 bit compile.
-  else if (this->Makefile->PlatformIs64Bit() &&
-           this->Makefile->GetState()->GetGlobalPropertyAsBool(
+  else if (this->m_pMakefile->PlatformIs64Bit() &&
+           this->m_pMakefile->GetState()->GetGlobalPropertyAsBool(
              "FIND_LIBRARY_USE_LIB64_PATHS")) {
     this->AddArchitecturePaths("64");
   }
   // add special 32 bit paths if this is an x32 compile.
-  else if (this->Makefile->PlatformIsx32() &&
-           this->Makefile->GetState()->GetGlobalPropertyAsBool(
+  else if (this->m_pMakefile->PlatformIsx32() &&
+           this->m_pMakefile->GetState()->GetGlobalPropertyAsBool(
              "FIND_LIBRARY_USE_LIBX32_PATHS")) {
     this->AddArchitecturePaths("x32");
   }
@@ -195,7 +195,7 @@ struct cmFindLibraryHelper
                       cmFindBase const* findBase);
 
   // Context information.
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmFindBase const* FindBase;
   cmGlobalGenerator* GG;
 
@@ -308,16 +308,16 @@ std::string const& get_suffixes(cmMakefile* mf)
 }
 cmFindLibraryHelper::cmFindLibraryHelper(std::string debugName, cmMakefile* mf,
                                          cmFindBase const* base)
-  : Makefile(mf)
+  : m_pMakefile(mf)
   , FindBase(base)
   , DebugMode(base->DebugModeEnabled())
   , DebugSearches(std::move(debugName), base)
 {
-  this->GG = this->Makefile->GetGlobalGenerator();
+  this->GG = this->m_pMakefile->GetGlobalGenerator();
 
   // Collect the list of library name prefixes/suffixes to try.
-  std::string const& prefixes_list = get_prefixes(this->Makefile);
-  std::string const& suffixes_list = get_suffixes(this->Makefile);
+  std::string const& prefixes_list = get_prefixes(this->m_pMakefile);
+  std::string const& suffixes_list = get_suffixes(this->m_pMakefile);
 
   this->Prefixes.assign(prefixes_list, cmList::EmptyElements::Yes);
   this->Suffixes.assign(suffixes_list, cmList::EmptyElements::Yes);
@@ -331,7 +331,7 @@ cmFindLibraryHelper::cmFindLibraryHelper(std::string debugName, cmMakefile* mf,
                       cmSystemTools::DirCase::Insensitive);
 
   // Check whether to use OpenBSD-style library version comparisons.
-  this->IsOpenBSD = this->Makefile->GetState()->GetGlobalPropertyAsBool(
+  this->IsOpenBSD = this->m_pMakefile->GetState()->GetGlobalPropertyAsBool(
     "FIND_LIBRARY_USE_OPENBSD_VERSIONING");
 }
 
@@ -540,7 +540,7 @@ std::string cmFindLibraryCommand::FindNormalLibrary()
 std::string cmFindLibraryCommand::FindNormalLibraryNamesPerDir()
 {
   // Search for all names in each directory.
-  cmFindLibraryHelper helper(this->FindCommandName, this->Makefile, this);
+  cmFindLibraryHelper helper(this->FindCommandName, this->m_pMakefile, this);
   for (std::string const& n : this->Names) {
     helper.AddName(n);
   }
@@ -557,7 +557,7 @@ std::string cmFindLibraryCommand::FindNormalLibraryNamesPerDir()
 std::string cmFindLibraryCommand::FindNormalLibraryDirsPerName()
 {
   // Search the entire path for each name.
-  cmFindLibraryHelper helper(this->FindCommandName, this->Makefile, this);
+  cmFindLibraryHelper helper(this->FindCommandName, this->m_pMakefile, this);
   for (std::string const& n : this->Names) {
     // Switch to searching for this name.
     helper.SetName(n);

@@ -54,7 +54,7 @@ void cmCTestGlobalVC::DoRevision(Revision const& revision,
       File& file = this->Dirs[dir][name];
       file.PriorRev = file.Rev ? file.Rev : &this->PriorRev;
       file.Rev = &rev;
-      this->Log << "  " << c.Action << " " << local << " "
+      this->Log << "  " << c.m_action << " " << local << " "
                 << "\n";
     }
   }

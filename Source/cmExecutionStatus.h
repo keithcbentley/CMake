@@ -20,12 +20,12 @@ class cmExecutionStatus
 {
 public:
   cmExecutionStatus(cmMakefile& makefile)
-    : Makefile(makefile)
+    : m_pMakefile(makefile)
     , Error("unknown error.")
   {
   }
 
-  cmMakefile& GetMakefile() { return this->Makefile; }
+  cmMakefile& GetMakefile() { return this->m_pMakefile; }
 
   void SetError(std::string const& e) { this->Error = e; }
   std::string const& GetError() const { return this->Error; }
@@ -61,7 +61,7 @@ public:
   int GetExitCode() const noexcept { return this->ExitCode.value_or(-1); }
 
 private:
-  cmMakefile& Makefile;
+  cmMakefile& m_pMakefile;
   std::string Error;
   bool ReturnInvoked = false;
   bool BreakInvoked = false;

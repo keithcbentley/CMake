@@ -22,7 +22,7 @@ public:
     : Dest(n)
     , Strong(s)
     , Cross(c)
-    , Backtrace(std::move(bt))
+    , m_backtrace(std::move(bt))
   {
   }
   operator size_t() const { return this->Dest; }
@@ -31,13 +31,13 @@ public:
 
   bool IsCross() const { return this->Cross; }
 
-  cmListFileBacktrace const& GetBacktrace() const { return this->Backtrace; }
+  cmListFileBacktrace const& GetBacktrace() const { return this->m_backtrace; }
 
 private:
   size_t Dest;
   bool Strong;
   bool Cross;
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
 };
 struct cmGraphEdgeList : public std::vector<cmGraphEdge>
 {

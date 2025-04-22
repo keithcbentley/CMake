@@ -24,7 +24,7 @@ namespace cmDebugger {
 
 struct cmDebuggerException
 {
-  std::string Id;
+  std::string m_id;
   std::string Description;
 };
 

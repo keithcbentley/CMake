@@ -25,7 +25,7 @@ cmLocalCommonGenerator::cmLocalCommonGenerator(cmGlobalGenerator* gg,
   // per-directory config to preserve behavior.
   this->ConfigNames = (gg->IsMultiConfig() && !gg->GetMakefiles().empty()
                          ? gg->GetMakefiles().front().get()
-                         : this->Makefile)
+                         : this->m_pMakefile)
                         ->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
 }
 
@@ -33,7 +33,7 @@ cmLocalCommonGenerator::~cmLocalCommonGenerator() = default;
 
 std::string const& cmLocalCommonGenerator::GetWorkingDirectory() const
 {
-  return this->StateSnapshot.GetDirectory().GetCurrentBinary();
+  return this->m_stateSnapshot.GetDirectory().GetCurrentBinary();
 }
 
 std::string cmLocalCommonGenerator::GetTargetFortranFlags(
@@ -43,7 +43,7 @@ std::string cmLocalCommonGenerator::GetTargetFortranFlags(
 
   // Enable module output if necessary.
   this->AppendFlags(
-    flags, this->Makefile->GetSafeDefinition("CMAKE_Fortran_MODOUT_FLAG"));
+    flags, this->m_pMakefile->GetSafeDefinition("CMAKE_Fortran_MODOUT_FLAG"));
 
   // Add a module output directory flag if necessary.
   std::string mod_dir =
@@ -53,18 +53,18 @@ std::string cmLocalCommonGenerator::GetTargetFortranFlags(
       this->MaybeRelativeToWorkDir(mod_dir), cmOutputConverter::SHELL);
   } else {
     mod_dir =
-      this->Makefile->GetSafeDefinition("CMAKE_Fortran_MODDIR_DEFAULT");
+      this->m_pMakefile->GetSafeDefinition("CMAKE_Fortran_MODDIR_DEFAULT");
   }
   if (!mod_dir.empty()) {
     std::string modflag = cmStrCat(
-      this->Makefile->GetRequiredDefinition("CMAKE_Fortran_MODDIR_FLAG"),
+      this->m_pMakefile->GetRequiredDefinition("CMAKE_Fortran_MODDIR_FLAG"),
       mod_dir);
     this->AppendFlags(flags, modflag);
     // Some compilers do not search their own module output directory
     // for using other modules.  Add an include directory explicitly
     // for consistency with compilers that do search it.
     std::string incflag =
-      this->Makefile->GetSafeDefinition("CMAKE_Fortran_MODDIR_INCLUDE_FLAG");
+      this->m_pMakefile->GetSafeDefinition("CMAKE_Fortran_MODDIR_INCLUDE_FLAG");
     if (!incflag.empty()) {
       incflag = cmStrCat(incflag, mod_dir);
       this->AppendFlags(flags, incflag);
@@ -75,7 +75,7 @@ std::string cmLocalCommonGenerator::GetTargetFortranFlags(
   // include path with it.  This compiler does not search the include
   // path for modules.
   if (cmValue modpath_flag =
-        this->Makefile->GetDefinition("CMAKE_Fortran_MODPATH_FLAG")) {
+        this->m_pMakefile->GetDefinition("CMAKE_Fortran_MODPATH_FLAG")) {
     std::vector<std::string> includes;
     this->GetIncludeDirectories(includes, target, "C", config);
     for (std::string const& id : includes) {

@@ -311,8 +311,8 @@ cmStateSnapshot cmState::Reset()
     pos->Parent = m_varTree.Root();
     pos->Root = m_varTree.Root();
 
-    pos->Vars->Set("CMAKE_SOURCE_DIR", srcDir);
-    pos->Vars->Set("CMAKE_BINARY_DIR", binDir);
+    pos->Vars->m_set("CMAKE_SOURCE_DIR", srcDir);
+    pos->Vars->m_set("CMAKE_BINARY_DIR", binDir);
   }
 
   DefineProperty("RULE_LAUNCH_COMPILE", cmProperty::DIRECTORY, "", "", true);
@@ -394,7 +394,7 @@ void cmState::SetIsGeneratorMultiConfig(bool b)
 
 void cmState::AddBuiltinCommand(
   std::string const& name,
-  Command command)
+  m_command command)
 {
   assert(name == cmSystemTools::LowerCase(name));
   assert(m_builtinCommands.find(name) == m_builtinCommands.end());
@@ -427,7 +427,7 @@ void cmState::AddBuiltinCommand(
 
 void cmState::AddFlowControlCommand(
   std::string const& name,
-  Command command)
+  m_command command)
 {
   m_flowControlCommands.insert(name);
   AddBuiltinCommand(name, std::move(command));
@@ -506,7 +506,7 @@ void cmState::AddUnexpectedFlowControlCommand(
 
 bool cmState::AddScriptedCommand(
   std::string const& name,
-  BT<Command> command,
+  BT<m_command> command,
   cmMakefile& mf)
 {
   std::string sName = cmSystemTools::LowerCase(name);
@@ -514,13 +514,13 @@ bool cmState::AddScriptedCommand(
   if (m_flowControlCommands.count(sName)) {
     mf.GetCMakeInstance()->IssueMessage(
       MessageType::FATAL_ERROR, cmStrCat("Built-in flow control command \"", sName, "\" cannot be overridden."),
-      command.Backtrace);
+      command.m_backtrace);
     cmSystemTools::SetFatalErrorOccurred();
     return false;
   }
 
   // if the command already exists, give a new name to the old command.
-  if (Command oldCmd = GetCommandByExactName(sName)) {
+  if (m_command oldCmd = GetCommandByExactName(sName)) {
     m_scriptedCommands["_" + sName] = oldCmd;
   }
 
@@ -528,12 +528,12 @@ bool cmState::AddScriptedCommand(
   return true;
 }
 
-cmState::Command cmState::GetCommand(std::string const& name) const
+cmState::m_command cmState::GetCommand(std::string const& name) const
 {
   return GetCommandByExactName(cmSystemTools::LowerCase(name));
 }
 
-cmState::Command cmState::GetCommandByExactName(std::string const& name) const
+cmState::m_command cmState::GetCommandByExactName(std::string const& name) const
 {
   auto pos = m_scriptedCommands.find(name);
   if (pos != m_scriptedCommands.end()) {
@@ -1080,9 +1080,9 @@ bool cmState::ParseCacheEntry(
   return flag;
 }
 
-cmState::Command cmState::GetDependencyProviderCommand(cmDependencyProvider::Method method) const
+cmState::m_command cmState::GetDependencyProviderCommand(cmDependencyProvider::Method method) const
 {
   return (m_dependencyProvider && m_dependencyProvider->SupportsMethod(method))
     ? GetCommand(m_dependencyProvider->GetCommand())
-    : Command{};
+    : m_command{};
 }

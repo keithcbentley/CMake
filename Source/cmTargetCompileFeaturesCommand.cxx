@@ -21,7 +21,7 @@ public:
 private:
   void HandleMissingTarget(std::string const& name) override
   {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Cannot specify compile features for target \"", name,
                "\" which is not built by this project."));
@@ -31,7 +31,7 @@ private:
                            std::vector<std::string> const& content,
                            bool /*prepend*/, bool /*system*/) override
   {
-    cmStandardLevelResolver standardResolver(this->Makefile);
+    cmStandardLevelResolver standardResolver(this->m_pMakefile);
     for (std::string const& it : content) {
       std::string error;
       if (!standardResolver.AddRequiredTargetFeature(tgt, it, &error)) {

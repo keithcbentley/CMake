@@ -159,7 +159,7 @@ void cmStateSnapshot::SetPolicy(cmPolicies::PolicyID id,
   for (cmLinkedTree<cmStateDetail::PolicyStackEntry>::iterator psi =
          this->Position->Policies;
        previous_was_weak && psi != this->Position->PolicyRoot; ++psi) {
-    psi->Set(id, status);
+    psi->m_set(id, status);
     previous_was_weak = psi->Weak;
   }
 }
@@ -217,7 +217,7 @@ bool cmStateSnapshot::IsInitialized(std::string const& name) const
 void cmStateSnapshot::SetDefinition(std::string const& name,
                                     cm::string_view value)
 {
-  this->Position->Vars->Set(name, value);
+  this->Position->Vars->m_set(name, value);
 }
 
 void cmStateSnapshot::RemoveDefinition(std::string const& name)
@@ -253,7 +253,7 @@ bool cmStateSnapshot::RaiseScope(std::string const& var, char const* varDef)
 
   // Now update the definition in the parent scope.
   if (varDef) {
-    this->Position->Parent->Set(var, varDef);
+    this->Position->Parent->m_set(var, varDef);
   } else {
     this->Position->Parent->Unset(var);
   }

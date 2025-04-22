@@ -103,7 +103,7 @@ public:
   bool IsRootMakefile() const;
 
   //! Get the makefile for this generator
-  cmMakefile* GetMakefile() const { return this->Makefile; }
+  cmMakefile* GetMakefile() const { return this->m_pMakefile; }
 
   //! Get the GlobalGenerator this is associated with
   cmGlobalGenerator* GetGlobalGenerator() { return this->m_pGlobalGenerator; }
@@ -346,13 +346,13 @@ public:
    */
   cmTarget* AddCustomCommandToTarget(
     std::string const& target, cmCustomCommandType type,
-    std::unique_ptr<cmCustomCommand> cc,
+    std::unique_ptr<cmCustomCommand> m_pCustomCommand,
     cmObjectLibraryCommands objLibCommands = cmObjectLibraryCommands::Reject);
 
   /**
    * Add a custom command to a source file.
    */
-  cmSourceFile* AddCustomCommandToOutput(std::unique_ptr<cmCustomCommand> cc,
+  cmSourceFile* AddCustomCommandToOutput(std::unique_ptr<cmCustomCommand> m_pCustomCommand,
                                          bool replace = false);
 
   /**
@@ -361,14 +361,14 @@ public:
    */
   cmTarget* AddUtilityCommand(std::string const& utilityName,
                               bool excludeFromAll,
-                              std::unique_ptr<cmCustomCommand> cc);
+                              std::unique_ptr<cmCustomCommand> m_pCustomCommand);
 
   virtual std::string CreateUtilityOutput(
     std::string const& targetName, std::vector<std::string> const& byproducts,
     cmListFileBacktrace const& bt);
 
   virtual std::vector<cmCustomCommandGenerator> MakeCustomCommandGenerators(
-    cmCustomCommand const& cc, std::string const& config);
+    cmCustomCommand const& m_pCustomCommand, std::string const& config);
 
   std::vector<std::string> ExpandCustomCommandOutputPaths(
     cmCompiledGeneratorExpression const& cge, std::string const& config);
@@ -568,7 +568,7 @@ protected:
       definition.  Issues a warning.  */
   virtual bool CheckDefinition(std::string const& define) const;
 
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmListFileBacktrace DirectoryBacktrace;
   cmGlobalGenerator* m_pGlobalGenerator;
   std::map<std::string, std::string> UniqueObjectNamesMap;
@@ -584,7 +584,7 @@ protected:
 
   GeneratorTargetMap ImportedGeneratorTargets;
   GeneratorTargetVector OwnedImportedGeneratorTargets;
-  std::map<std::string, std::string> AliasTargets;
+  std::map<std::string, std::string> m_aliasTargets;
 
   std::map<std::string, std::string> Compilers;
   std::map<std::string, std::string> VariableMappings;
@@ -698,11 +698,11 @@ private:
 namespace detail {
 void AddCustomCommandToTarget(cmLocalGenerator& lg, cmCommandOrigin origin,
                               cmTarget* target, cmCustomCommandType type,
-                              std::unique_ptr<cmCustomCommand> cc);
+                              std::unique_ptr<cmCustomCommand> m_pCustomCommand);
 
 cmSourceFile* AddCustomCommandToOutput(cmLocalGenerator& lg,
                                        cmCommandOrigin origin,
-                                       std::unique_ptr<cmCustomCommand> cc,
+                                       std::unique_ptr<cmCustomCommand> m_pCustomCommand,
                                        bool replace);
 
 void AppendCustomCommandToOutput(cmLocalGenerator& lg,
@@ -713,7 +713,7 @@ void AppendCustomCommandToOutput(cmLocalGenerator& lg,
                                  cmCustomCommandLines const& commandLines);
 
 void AddUtilityCommand(cmLocalGenerator& lg, cmCommandOrigin origin,
-                       cmTarget* target, std::unique_ptr<cmCustomCommand> cc);
+                       cmTarget* target, std::unique_ptr<cmCustomCommand> m_pCustomCommand);
 
 std::vector<std::string> ComputeISPCObjectSuffixes(cmGeneratorTarget* target);
 std::vector<std::string> ComputeISPCExtraObjects(

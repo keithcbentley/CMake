@@ -268,7 +268,7 @@ bool cmNinjaNormalTargetGenerator::CheckUseResponseFileForLibraries(
     "CMAKE_" + l + "_USE_RESPONSE_FILE_FOR_LIBRARIES";
 
   // If the option is defined, read it's value
-  if (cmValue val = this->Makefile->GetDefinition(responseVar)) {
+  if (cmValue val = this->m_pMakefile->GetDefinition(responseVar)) {
     return val.IsOn();
   }
 
@@ -370,7 +370,7 @@ void cmNinjaNormalTargetGenerator::WriteNvidiaDeviceLinkRule(
     // If there is no ranlib the command will be ":".  Skip it.
     cm::erase_if(linkCmds, cmNinjaRemoveNoOpCommands());
 
-    rule.Command =
+    rule.m_command =
       this->GetLocalGenerator()->BuildCommandLine(linkCmds, config, config);
 
     // Write the linker rule with response file if needed.
@@ -392,7 +392,7 @@ void cmNinjaNormalTargetGenerator::WriteDeviceLinkRules(
   cmMakefile const* mf = this->GetMakefile();
 
   cmNinjaRule rule(this->LanguageLinkerCudaDeviceRule(config));
-  rule.Command = this->GetLocalGenerator()->BuildCommandLine(
+  rule.m_command = this->GetLocalGenerator()->BuildCommandLine(
     { cmStrCat(mf->GetRequiredDefinition("CMAKE_CUDA_DEVICE_LINKER"),
                " -arch=$ARCH $REGISTER -o=$out $in") },
     config, config);
@@ -430,14 +430,14 @@ void cmNinjaNormalTargetGenerator::WriteDeviceLinkRules(
                                                compileCmd, vars);
 
   rule.Name = this->LanguageLinkerCudaDeviceCompileRule(config);
-  rule.Command = this->GetLocalGenerator()->BuildCommandLine({ compileCmd },
+  rule.m_command = this->GetLocalGenerator()->BuildCommandLine({ compileCmd },
                                                              config, config);
   rule.Comment = "Rule for compiling CUDA device stubs.";
   rule.Description = "Compiling CUDA device stub $out";
   this->GetGlobalGenerator()->AddRule(rule);
 
   rule.Name = this->LanguageLinkerCudaFatbinaryRule(config);
-  rule.Command = this->GetLocalGenerator()->BuildCommandLine(
+  rule.m_command = this->GetLocalGenerator()->BuildCommandLine(
     { cmStrCat(mf->GetRequiredDefinition("CMAKE_CUDA_FATBINARY"),
                " -64 -cmdline=--compile-only -compress-all -link "
                "--embedded-fatbin=$out $PROFILES") },
@@ -600,7 +600,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkRule(
 
     linkCmds.insert(linkCmds.begin(), "$PRE_LINK");
     linkCmds.emplace_back("$POST_BUILD");
-    rule.Command =
+    rule.m_command =
       this->GetLocalGenerator()->BuildCommandLine(linkCmds, config, config);
 
     // Write the linker rule with response file if needed.
@@ -636,7 +636,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkRule(
         std::vector<std::string> cmd;
         cmd.push_back(cmakeCommand + " -E cmake_symlink_executable $in $out");
         cmd.emplace_back("$POST_BUILD");
-        rule.Command =
+        rule.m_command =
           this->GetLocalGenerator()->BuildCommandLine(cmd, config, config);
       }
       rule.Description = "Creating executable symlink $out";
@@ -649,7 +649,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkRule(
         cmd.push_back(cmakeCommand +
                       " -E cmake_symlink_library $in $SONAME $out");
         cmd.emplace_back("$POST_BUILD");
-        rule.Command =
+        rule.m_command =
           this->GetLocalGenerator()->BuildCommandLine(cmd, config, config);
       }
       rule.Description = "Creating library symlink $out";
@@ -675,7 +675,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkRule(
     rulePlaceholderExpander->ExpandRuleVariables(this->GetLocalGenerator(),
                                                  cmd, vars);
 
-    rule.Command =
+    rule.m_command =
       this->GetLocalGenerator()->BuildCommandLine({ cmd }, config, config);
     this->GetGlobalGenerator()->AddRule(rule);
 
@@ -688,7 +688,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkRule(
             cmSystemTools::GetCMakeCommand(), cmOutputConverter::SHELL);
         std::string slCmd =
           cmStrCat(cmakeCommand, " -E cmake_symlink_library $in $SONAME $out");
-        slRule.Command = this->GetLocalGenerator()->BuildCommandLine(
+        slRule.m_command = this->GetLocalGenerator()->BuildCommandLine(
           { slCmd }, config, config);
       }
       slRule.Description = "Creating import library symlink $out";
@@ -740,7 +740,7 @@ std::vector<std::string> cmNinjaNormalTargetGenerator::ComputeLinkCmd(
         std::string ruleVar =
           cmStrCat("CMAKE_", this->GeneratorTarget->GetLinkerLanguage(config),
                    "_GNUtoMS_RULE");
-        if (cmValue rule = this->Makefile->GetDefinition(ruleVar)) {
+        if (cmValue rule = this->m_pMakefile->GetDefinition(ruleVar)) {
           linkCmdStr += *rule;
         }
       }
@@ -841,7 +841,7 @@ void cmNinjaNormalTargetGenerator::WriteDeviceLinkStatement(
   // First and very important step is to make sure while inside this
   // step our link language is set to CUDA
   std::string const& objExt =
-    this->Makefile->GetSafeDefinition("CMAKE_CUDA_OUTPUT_EXTENSION");
+    this->m_pMakefile->GetSafeDefinition("CMAKE_CUDA_OUTPUT_EXTENSION");
 
   std::string targetOutputDir =
     cmStrCat(this->GetLocalGenerator()->GetTargetDirectory(genTarget),
@@ -863,12 +863,12 @@ void cmNinjaNormalTargetGenerator::WriteDeviceLinkStatement(
     << cmState::GetTargetTypeName(genTarget->GetType()) << " target "
     << this->GetTargetName() << "\n\n";
 
-  if (this->Makefile->GetSafeDefinition("CMAKE_CUDA_COMPILER_ID") == "Clang") {
+  if (this->m_pMakefile->GetSafeDefinition("CMAKE_CUDA_COMPILER_ID") == "Clang") {
     std::string architecturesStr =
       this->GeneratorTarget->GetSafeProperty("CUDA_ARCHITECTURES");
 
     if (cmIsOff(architecturesStr)) {
-      this->Makefile->IssueMessage(MessageType::FATAL_ERROR,
+      this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR,
                                    "CUDA_SEPARABLE_COMPILATION on Clang "
                                    "requires CUDA_ARCHITECTURES to be set.");
       return;
@@ -1426,15 +1426,15 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement(
   cmGeneratorExpression ge(*this->GetLocalGenerator()->GetCMakeInstance());
 
   for (unsigned i = 0; i != 3; ++i) {
-    for (cmCustomCommand const& cc : *cmdLists[i]) {
+    for (cmCustomCommand const& m_pCustomCommand : *cmdLists[i]) {
       if (config == fileConfig ||
-          this->GetLocalGenerator()->HasUniqueByproducts(cc.GetByproducts(),
-                                                         cc.GetBacktrace())) {
-        cmCustomCommandGenerator ccg(cc, fileConfig, this->GetLocalGenerator(),
+          this->GetLocalGenerator()->HasUniqueByproducts(m_pCustomCommand.GetByproducts(),
+                                                         m_pCustomCommand.GetBacktrace())) {
+        cmCustomCommandGenerator ccg(m_pCustomCommand, fileConfig, this->GetLocalGenerator(),
                                      true, config);
         localGen.AppendCustomCommandLines(ccg, *cmdLineLists[i]);
-        if (cc.GetComment()) {
-          auto cge = ge.Parse(cc.GetComment());
+        if (m_pCustomCommand.GetComment()) {
+          auto cge = ge.Parse(m_pCustomCommand.GetComment());
           cmdComments[i]->emplace_back(
             cge->Evaluate(this->GetLocalGenerator(), config));
         }

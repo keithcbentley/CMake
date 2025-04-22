@@ -328,7 +328,7 @@ void cmGlobalNinjaGenerator::WriteBuild(std::ostream& os,
 void cmGlobalNinjaGenerator::AddCustomCommandRule()
 {
   cmNinjaRule rule("CUSTOM_COMMAND");
-  rule.Command = "$COMMAND";
+  rule.m_command = "$COMMAND";
   rule.Description = "$DESC";
   rule.Comment = "Rule for running custom commands.";
   this->AddRule(rule);
@@ -415,14 +415,14 @@ void cmGlobalNinjaGenerator::AddMacOSXContentRule()
 {
   {
     cmNinjaRule rule("COPY_OSX_CONTENT_FILE");
-    rule.Command = cmStrCat(this->CMakeCmd(), " -E copy $in $out");
+    rule.m_command = cmStrCat(this->CMakeCmd(), " -E copy $in $out");
     rule.Description = "Copying OS X Content $out";
     rule.Comment = "Rule for copying OS X bundle content file, with style.";
     this->AddRule(rule);
   }
   {
     cmNinjaRule rule("COPY_OSX_CONTENT_DIR");
-    rule.Command = cmStrCat(this->CMakeCmd(), " -E copy_directory $in $out");
+    rule.m_command = cmStrCat(this->CMakeCmd(), " -E copy_directory $in $out");
     rule.Description = "Copying OS X Content $out";
     rule.Comment = "Rule for copying OS X bundle content dir, with style.";
     this->AddRule(rule);
@@ -455,7 +455,7 @@ void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
   }
 
   // Make sure a command is given.
-  if (rule.Command.empty()) {
+  if (rule.m_command.empty()) {
     cmSystemTools::Error(cmStrCat(
       "No command given for WriteRule! called with comment: ", rule.Comment));
     return;
@@ -485,7 +485,7 @@ void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
 
   writeKV("depfile", rule.DepFile);
   writeKV("deps", rule.DepType);
-  writeKV("command", rule.Command);
+  writeKV("command", rule.m_command);
   writeKV("description", rule.Description);
   if (!rule.RspFile.empty()) {
     writeKV("rspfile", rule.RspFile);
@@ -1036,7 +1036,7 @@ void cmGlobalNinjaGenerator::AddRule(cmNinjaRule const& rule)
     return;
   }
   // Store command length
-  this->RuleCmdLength[rule.Name] = static_cast<int>(rule.Command.size());
+  this->RuleCmdLength[rule.Name] = static_cast<int>(rule.m_command.size());
   // Write rule
   cmGlobalNinjaGenerator::WriteRule(*this->RulesFileStream, rule);
 }
@@ -1628,16 +1628,16 @@ void cmGlobalNinjaGenerator::WriteFolderTargets(std::ostream& os)
         build.Outputs.front() =
           this->BuildAlias(buildDirCodegenTarget, config);
 
-        for (DirectoryTarget::Target const& t : dt.Targets) {
+        for (DirectoryTarget::Target const& t : dt.m_targets) {
           if (this->IsExcludedFromAllInConfig(t, config)) {
             continue;
           }
           std::vector<cmSourceFile const*> customCommandSources;
           t.GT->GetCustomCommands(customCommandSources, config);
           for (cmSourceFile const* sf : customCommandSources) {
-            cmCustomCommand const* cc = sf->GetCustomCommand();
-            if (cc->GetCodegen()) {
-              auto const& outputs = cc->GetOutputs();
+            cmCustomCommand const* m_pCustomCommand = sf->GetCustomCommand();
+            if (m_pCustomCommand->GetCodegen()) {
+              auto const& outputs = m_pCustomCommand->GetOutputs();
 
               std::transform(outputs.begin(), outputs.end(),
                              std::back_inserter(build.ExplicitDeps),
@@ -1712,7 +1712,7 @@ void cmGlobalNinjaGenerator::WriteFolderTargets(std::ostream& os)
     for (auto const& config : configs) {
       build.ExplicitDeps.clear();
       build.Outputs.front() = this->BuildAlias(buildDirAllTarget, config);
-      for (DirectoryTarget::Target const& t : dt.Targets) {
+      for (DirectoryTarget::Target const& t : dt.m_targets) {
         if (!this->IsExcludedFromAllInConfig(t, config)) {
           this->AppendTargetOutputs(t.GT, build.ExplicitDeps, config,
                                     DependOnTargetArtifact);
@@ -1827,7 +1827,7 @@ void cmGlobalNinjaGenerator::WriteTargetRebuildManifest(std::ostream& os)
 
   {
     cmNinjaRule rule("RERUN_CMAKE");
-    rule.Command = cmStrCat(
+    rule.m_command = cmStrCat(
       this->CMakeCmd(), " --regenerate-during-build",
       cm->GetIgnoreCompileWarningAsError() ? " --compile-no-warning-as-error"
                                            : "",
@@ -1873,7 +1873,7 @@ void cmGlobalNinjaGenerator::WriteTargetRebuildManifest(std::ostream& os)
   if (this->SupportsManifestRestat() && cm->DoWriteGlobVerifyTarget()) {
     {
       cmNinjaRule rule("VERIFY_GLOBS");
-      rule.Command =
+      rule.m_command =
         cmStrCat(this->CMakeCmd(), " -P ",
                  lg->ConvertToOutputFormat(cm->GetGlobVerifyScript(),
                                            cmOutputConverter::SHELL));
@@ -2039,7 +2039,7 @@ bool cmGlobalNinjaGenerator::WriteTargetCleanAdditional(std::ostream& os)
   // Write rule
   {
     cmNinjaRule rule("CLEAN_ADDITIONAL");
-    rule.Command = cmStrCat(
+    rule.m_command = cmStrCat(
       this->CMakeCmd(), " -DCONFIG=$CONFIG -P ",
       lgr->ConvertToOutputFormat(this->NinjaOutputPath(cleanScriptRel),
                                  cmOutputConverter::SHELL));
@@ -2079,7 +2079,7 @@ void cmGlobalNinjaGenerator::WriteTargetClean(std::ostream& os)
   // Write rule
   {
     cmNinjaRule rule("CLEAN");
-    rule.Command = cmStrCat(this->NinjaCmd(), " $FILE_ARG -t clean $TARGETS");
+    rule.m_command = cmStrCat(this->NinjaCmd(), " $FILE_ARG -t clean $TARGETS");
     rule.Description = "Cleaning all built files...";
     rule.Comment = "Rule for cleaning all built files.";
     WriteRule(*this->RulesFileStream, rule);
@@ -2196,7 +2196,7 @@ void cmGlobalNinjaGenerator::WriteTargetHelp(std::ostream& os)
 {
   {
     cmNinjaRule rule("HELP");
-    rule.Command = cmStrCat(this->NinjaCmd(), " -t targets");
+    rule.m_command = cmStrCat(this->NinjaCmd(), " -t targets");
     rule.Description = "All primary targets available:";
     rule.Comment = "Rule for printing all primary targets available.";
     WriteRule(*this->RulesFileStream, rule);
@@ -2522,7 +2522,7 @@ cm::optional<cmSourceInfo> cmcmd_cmake_ninja_depends_fortran(
     }
 
     Json::Value const& tdi_compiler_id = tdi["compiler-id"];
-    fc.Id = tdi_compiler_id.asString();
+    fc.m_id = tdi_compiler_id.asString();
 
     Json::Value const& tdi_submodule_sep = tdi["submodule-sep"];
     fc.SModSep = tdi_submodule_sep.asString();

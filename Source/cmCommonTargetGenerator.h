@@ -34,7 +34,7 @@ protected:
   cmValue GetFeature(std::string const& feature, std::string const& config);
 
   cmGeneratorTarget* GeneratorTarget;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmLocalCommonGenerator* LocalCommonGenerator;
   cmGlobalCommonGenerator* GlobalCommonGenerator;
   std::vector<std::string> ConfigNames;

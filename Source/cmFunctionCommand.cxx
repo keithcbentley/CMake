@@ -46,7 +46,7 @@ public:
   std::vector<std::string> Args;
   std::vector<cmListFileFunction> Functions;
   cmPolicies::PolicyMap Policies;
-  std::string FilePath;
+  std::string m_filePath;
   long Line;
 };
 
@@ -70,7 +70,7 @@ bool cmFunctionHelperCommand::operator()(
     return false;
   }
 
-  cmMakefile::FunctionPushPop functionScope(&makefile, this->FilePath,
+  cmMakefile::FunctionPushPop functionScope(&makefile, this->m_filePath,
                                             this->Policies);
 
   // set the value of argc
@@ -101,10 +101,10 @@ bool cmFunctionHelperCommand::operator()(
 
   makefile.AddDefinition(CMAKE_CURRENT_FUNCTION, this->Args.front());
   makefile.MarkVariableAsUsed(CMAKE_CURRENT_FUNCTION);
-  makefile.AddDefinition(CMAKE_CURRENT_FUNCTION_LIST_FILE, this->FilePath);
+  makefile.AddDefinition(CMAKE_CURRENT_FUNCTION_LIST_FILE, this->m_filePath);
   makefile.MarkVariableAsUsed(CMAKE_CURRENT_FUNCTION_LIST_FILE);
   makefile.AddDefinition(CMAKE_CURRENT_FUNCTION_LIST_DIR,
-                         cmSystemTools::GetFilenamePath(this->FilePath));
+                         cmSystemTools::GetFilenamePath(this->m_filePath));
   makefile.MarkVariableAsUsed(CMAKE_CURRENT_FUNCTION_LIST_DIR);
   makefile.AddDefinition(CMAKE_CURRENT_FUNCTION_LIST_LINE,
                          std::to_string(this->Line));
@@ -167,12 +167,12 @@ bool cmFunctionFunctionBlocker::Replay(
   cmFunctionHelperCommand f;
   f.Args = this->Args;
   f.Functions = std::move(functions);
-  f.FilePath = this->GetStartingContext().FilePath;
+  f.m_filePath = this->GetStartingContext().m_filePath;
   f.Line = this->GetStartingContext().Line;
   mf.RecordPolicies(f.Policies);
   return mf.GetState()->AddScriptedCommand(
     this->Args.front(),
-    BT<cmState::Command>(std::move(f),
+    BT<cmState::m_command>(std::move(f),
                          mf.GetBacktrace().Push(this->GetStartingContext())),
     mf);
 }

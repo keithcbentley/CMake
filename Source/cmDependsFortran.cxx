@@ -116,7 +116,7 @@ bool cmDependsFortran::WriteDependencies(std::set<std::string> const& sources,
   }
 
   cmFortranCompiler fc;
-  fc.Id = this->CompilerId;
+  fc.m_id = this->CompilerId;
   fc.SModSep = this->SModSep;
   fc.SModExt = this->SModExt;
 

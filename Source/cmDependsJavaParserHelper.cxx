@@ -90,9 +90,9 @@ void cmDependsJavaParserHelper::SafePrintMissing(char const* str, int line,
 {
   if (str) {
     std::cout << line << " String " << cnt << " exists: ";
-    unsigned int cc;
-    for (cc = 0; cc < strlen(str); cc++) {
-      unsigned char ch = str[cc];
+    unsigned int m_pCustomCommand;
+    for (m_pCustomCommand = 0; m_pCustomCommand < strlen(str); m_pCustomCommand++) {
+      unsigned char ch = str[m_pCustomCommand];
       if (ch >= 32 && ch <= 126) {
         std::cout << static_cast<char>(ch);
       } else {
@@ -143,11 +143,11 @@ void cmDependsJavaParserHelper::CombineUnions(char** out, char const* in1,
 void cmDependsJavaParserHelper::CheckEmpty(
   int line, int cnt, cmDependsJavaParserHelper::ParserType* pt)
 {
-  int cc;
+  int m_pCustomCommand;
   int kk = -cnt + 1;
-  for (cc = 1; cc <= cnt; cc++) {
+  for (m_pCustomCommand = 1; m_pCustomCommand <= cnt; m_pCustomCommand++) {
     cmDependsJavaParserHelper::ParserType* cpt = pt + kk;
-    this->SafePrintMissing(cpt->str, line, cc);
+    this->SafePrintMissing(cpt->str, line, m_pCustomCommand);
     kk++;
   }
 }

@@ -28,7 +28,7 @@ struct EvaluatedTargetPropertyEntry
     EvaluatedTargetPropertyEntry const&) = delete;
 
   cmLinkImplItem const& LinkImplItem;
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
   std::vector<std::string> Values;
   bool ContextDependent = false;
 };

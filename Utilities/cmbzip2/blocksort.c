@@ -217,7 +217,7 @@ void fallbackSort ( UInt32* fmap,
 {
    Int32 ftab[257];
    Int32 ftabCopy[256];
-   Int32 H, i, j, k, l, r, cc, cc1;
+   Int32 H, i, j, k, l, r, m_pCustomCommand, cc1;
    Int32 nNotDone;
    Int32 nBhtab;
    UChar* eclass8 = (UChar*)eclass;
@@ -297,10 +297,10 @@ void fallbackSort ( UInt32* fmap,
             fallbackQSort3 ( fmap, eclass, l, r );
 
             /*-- scan bucket and generate header bits-- */
-            cc = -1;
+            m_pCustomCommand = -1;
             for (i = l; i <= r; i++) {
                cc1 = eclass[fmap[i]];
-               if (cc != cc1) { SET_BH(i); cc = cc1; };
+               if (m_pCustomCommand != cc1) { SET_BH(i); m_pCustomCommand = cc1; };
             }
          }
       }

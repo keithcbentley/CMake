@@ -228,7 +228,7 @@ bool cmGeneratorTarget::ComputeLinkClosure(std::string const& config,
     for (std::string const& lang : languages) {
       std::string propagates =
         "CMAKE_" + lang + "_LINKER_PREFERENCE_PROPAGATES";
-      if (this->Makefile->IsOn(propagates)) {
+      if (this->m_pMakefile->IsOn(propagates)) {
         tsl.Consider(lang);
       }
     }
@@ -375,7 +375,7 @@ void cmGeneratorTarget::CheckLinkLibraries() const
   // Evaluate the link interface of this target if needed for extra checks.
   if (linkLibrariesOnlyTargets) {
     std::vector<std::string> const& configs =
-      this->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+      this->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
     for (std::string const& config : configs) {
       this->GetLinkInterfaceLibraries(config, this, UseTo::Link);
     }
@@ -453,7 +453,7 @@ bool cmGeneratorTarget::VerifyLinkItemColons(LinkItemRole role,
   e =
     cmStrCat(e, ":\n  ", item.AsStr(), "\n", "but the target was not found.  ",
              missingTargetPossibleReasons);
-  cmListFileBacktrace backtrace = item.Backtrace;
+  cmListFileBacktrace backtrace = item.m_backtrace;
   if (backtrace.Empty()) {
     backtrace = this->GetBacktrace();
   }
@@ -484,7 +484,7 @@ bool cmGeneratorTarget::VerifyLinkItemIsTarget(LinkItemRole role,
                              : "its link interface contains",
                            ":\n  ", item.AsStr(), "\nwhich is not a target.  ",
                            missingTargetPossibleReasons);
-  cmListFileBacktrace backtrace = item.Backtrace;
+  cmListFileBacktrace backtrace = item.m_backtrace;
   if (backtrace.Empty()) {
     backtrace = this->GetBacktrace();
   }
@@ -563,7 +563,7 @@ void cmGeneratorTarget::ExpandLinkItems(std::string const& prop,
   LookupLinkItemScope scope{ this->LocalGenerator };
   for (BT<std::string> const& entry : entries) {
     cmGeneratorExpression ge(*this->LocalGenerator->GetCMakeInstance(),
-                             entry.Backtrace);
+                             entry.m_backtrace);
     std::unique_ptr<cmCompiledGeneratorExpression> cge = ge.Parse(entry.Value);
     cge->SetEvaluateForBuildsystem(true);
     cmList libs{ cge->Evaluate(this->LocalGenerator, config, headTarget,
@@ -845,7 +845,7 @@ std::vector<ValueType> computeImplicitLanguageTargets(
 
   std::string const& runtimeLibrary =
     currentTarget->GetRuntimeLinkLibrary(lang, config);
-  if (cmValue runtimeLinkOptions = currentTarget->Makefile->GetDefinition(
+  if (cmValue runtimeLinkOptions = currentTarget->m_pMakefile->GetDefinition(
         "CMAKE_" + lang + "_RUNTIME_LIBRARIES_" + runtimeLibrary)) {
     cmList libsList{ *runtimeLinkOptions };
     result.reserve(libsList.size());
@@ -1165,7 +1165,7 @@ void cmGeneratorTarget::ComputeLinkImplementationLibraries(
       }
     }
     cmGeneratorExpression ge(*this->LocalGenerator->GetCMakeInstance(),
-                             entry.Backtrace);
+                             entry.m_backtrace);
     std::unique_ptr<cmCompiledGeneratorExpression> const cge =
       ge.Parse(entry.Value);
     cge->SetEvaluateForBuildsystem(true);
@@ -1198,7 +1198,7 @@ void cmGeneratorTarget::ComputeLinkImplementationLibraries(
       std::string name = this->CheckCMP0004(lib);
       if (this->GetPolicyStatusCMP0108() == cmPolicies::NEW) {
         // resolve alias name
-        auto* target = this->Makefile->FindTargetToUse(
+        auto* target = this->m_pMakefile->FindTargetToUse(
           name, cmStateEnums::AllTargetDomains);
         if (target) {
           name = target->GetName();
@@ -1217,12 +1217,12 @@ void cmGeneratorTarget::ComputeLinkImplementationLibraries(
 
       // The entry is meant for this configuration.
       cmLinkItem item = this->ResolveLinkItem(
-        BT<std::string>(name, entry.Backtrace), lg, linkFeature);
+        BT<std::string>(name, entry.m_backtrace), lg, linkFeature);
       if (item.Target) {
         auto depsForTarget = synthTargetsForConfig.find(item.Target);
         if (depsForTarget != synthTargetsForConfig.end()) {
           for (auto const* depForTarget : depsForTarget->second) {
-            cmLinkItem synthItem(depForTarget, item.Cross, item.Backtrace);
+            cmLinkItem synthItem(depForTarget, item.Cross, item.m_backtrace);
             impl.Libraries.emplace_back(std::move(synthItem));
           }
         }
@@ -1257,7 +1257,7 @@ void cmGeneratorTarget::ComputeLinkImplementationLibraries(
 
   // Get the list of configurations considered to be DEBUG.
   std::vector<std::string> debugConfigs =
-    this->Makefile->GetCMakeInstance()->GetDebugConfigs();
+    this->m_pMakefile->GetCMakeInstance()->GetDebugConfigs();
 
   cmTargetLinkLibraryType linkType = ComputeLinkType(config, debugConfigs);
   cmTarget::LinkLibraryVectorType const& oldllibs =
@@ -1309,7 +1309,7 @@ cmLinkItem cmGeneratorTarget::ResolveLinkItem(
   BT<std::string> const& name, cmLocalGenerator const* lg,
   std::string const& linkFeature) const
 {
-  auto bt = name.Backtrace;
+  auto bt = name.m_backtrace;
   TargetOrString resolved = this->ResolveTargetReference(name.Value, lg);
 
   if (!resolved.Target) {

@@ -163,7 +163,7 @@ int testCommandLineArguments(int argc, char* argv[])
     std::cerr << "Problem setting string variable" << std::endl;
     res = 1;
   }
-  size_t cc;
+  size_t m_pCustomCommand;
 #define CompareTwoLists(list1, list_valid, lsize)                             \
   do {                                                                        \
     if (list1.size() != lsize) {                                              \
@@ -172,11 +172,11 @@ int testCommandLineArguments(int argc, char* argv[])
       res = 1;                                                                \
     } else {                                                                  \
       std::cout << #list1 " argument set:";                                   \
-      for (cc = 0; cc < lsize; ++cc) {                                        \
-        std::cout << " " << list1[cc];                                        \
-        if (!CompareTwoItemsOnList(list1[cc], list_valid[cc])) {              \
-          std::cerr << "Problem setting " #list1 ". Value of " << cc          \
-                    << " is: [" << list1[cc] << "] <> [" << list_valid[cc]    \
+      for (m_pCustomCommand = 0; m_pCustomCommand < lsize; ++m_pCustomCommand) {                                        \
+        std::cout << " " << list1[m_pCustomCommand];                                        \
+        if (!CompareTwoItemsOnList(list1[m_pCustomCommand], list_valid[m_pCustomCommand])) {              \
+          std::cerr << "Problem setting " #list1 ". Value of " << m_pCustomCommand          \
+                    << " is: [" << list1[m_pCustomCommand] << "] <> [" << list_valid[m_pCustomCommand]    \
                     << "]" << std::endl;                                      \
           res = 1;                                                            \
           break;                                                              \
@@ -201,9 +201,9 @@ int testCommandLineArguments(int argc, char* argv[])
   std::cout << "bool_arg2 variable was set to: " << bool_arg2 << std::endl;
   std::cout << std::endl;
 
-  for (cc = 0; cc < strings_argument.size(); ++cc) {
-    delete[] strings_argument[cc];
-    strings_argument[cc] = nullptr;
+  for (m_pCustomCommand = 0; m_pCustomCommand < strings_argument.size(); ++m_pCustomCommand) {
+    delete[] strings_argument[m_pCustomCommand];
+    strings_argument[m_pCustomCommand] = nullptr;
   }
   return res;
 }

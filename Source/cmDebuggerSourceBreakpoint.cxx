@@ -6,7 +6,7 @@ namespace cmDebugger {
 
 cmDebuggerSourceBreakpoint::cmDebuggerSourceBreakpoint(int64_t id,
                                                        int64_t line)
-  : Id(id)
+  : m_id(id)
   , Line(line)
 {
 }

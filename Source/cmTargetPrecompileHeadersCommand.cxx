@@ -48,10 +48,10 @@ private:
                            std::vector<std::string> const& content,
                            bool /*prepend*/, bool /*system*/) override
   {
-    std::string const& base = this->Makefile->GetCurrentSourceDirectory();
+    std::string const& base = this->m_pMakefile->GetCurrentSourceDirectory();
     tgt->AppendProperty("PRECOMPILE_HEADERS",
                         this->Join(ConvertToAbsoluteContent(content, base)),
-                        this->Makefile->GetBacktrace());
+                        this->m_pMakefile->GetBacktrace());
     return true;
   }
 
@@ -59,14 +59,14 @@ private:
                               std::vector<std::string> const& content,
                               bool prepend, bool system) override
   {
-    std::string const& base = this->Makefile->GetCurrentSourceDirectory();
+    std::string const& base = this->m_pMakefile->GetCurrentSourceDirectory();
     this->cmTargetPropCommandBase::HandleInterfaceContent(
       tgt, ConvertToAbsoluteContent(content, base), prepend, system);
   }
 
   void HandleMissingTarget(std::string const& name) override
   {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Cannot specify precompile headers for target \"", name,
                "\" which is not built by this project."));

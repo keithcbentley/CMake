@@ -67,7 +67,7 @@ protected:
 private:
   void HandleMissingTarget(std::string const& name) override
   {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("Cannot specify sources for target \"", name,
                "\" which is not built by this project."));
@@ -80,7 +80,7 @@ private:
     tgt->AppendProperty("SOURCES",
                         this->Join(this->ConvertToAbsoluteContent(
                           tgt, content, IsInterface::No, CheckCMP0076::Yes)),
-                        this->Makefile->GetBacktrace());
+                        this->m_pMakefile->GetBacktrace());
     return true; // Successfully handled.
   }
 
@@ -126,7 +126,7 @@ std::vector<std::string> TargetSourcesImpl::ConvertToAbsoluteContent(
 {
   // Skip conversion in case old behavior has been explicitly requested
   if (checkCmp0076 == CheckCMP0076::Yes &&
-      this->Makefile->GetPolicyStatus(cmPolicies::CMP0076) ==
+      this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0076) ==
         cmPolicies::OLD) {
     return content;
   }
@@ -139,13 +139,13 @@ std::vector<std::string> TargetSourcesImpl::ConvertToAbsoluteContent(
     if (cmSystemTools::FileIsFullPath(src) ||
         cmGeneratorExpression::Find(src) == 0 ||
         (isInterfaceContent == IsInterface::No &&
-         (this->Makefile->GetCurrentSourceDirectory() ==
+         (this->m_pMakefile->GetCurrentSourceDirectory() ==
           tgt->GetMakefile()->GetCurrentSourceDirectory()))) {
       absoluteSrc = src;
     } else {
       changedPath = true;
       absoluteSrc =
-        cmStrCat(this->Makefile->GetCurrentSourceDirectory(), '/', src);
+        cmStrCat(this->m_pMakefile->GetCurrentSourceDirectory(), '/', src);
     }
     absoluteContent.push_back(absoluteSrc);
   }
@@ -158,7 +158,7 @@ std::vector<std::string> TargetSourcesImpl::ConvertToAbsoluteContent(
   bool useAbsoluteContent = false;
   std::ostringstream e;
   if (checkCmp0076 == CheckCMP0076::Yes) {
-    switch (this->Makefile->GetPolicyStatus(cmPolicies::CMP0076)) {
+    switch (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0076)) {
       case cmPolicies::WARN:
         e << cmPolicies::GetPolicyWarning(cmPolicies::CMP0076) << "\n";
         break;
@@ -184,7 +184,7 @@ std::vector<std::string> TargetSourcesImpl::ConvertToAbsoluteContent(
       e << "A private source from a directory other than that of target \""
         << tgt->GetName() << "\" has a relative path.";
     }
-    this->Makefile->IssueMessage(MessageType::AUTHOR_WARNING, e.str());
+    this->m_pMakefile->IssueMessage(MessageType::AUTHOR_WARNING, e.str());
   }
 
   return useAbsoluteContent ? absoluteContent : content;
@@ -236,7 +236,7 @@ bool TargetSourcesImpl::HandleOneFileSet(
   std::string type = isDefault ? args.FileSet : args.Type;
 
   cmFileSetVisibility visibility =
-    cmFileSetVisibilityFromName(scope, this->Makefile);
+    cmFileSetVisibilityFromName(scope, this->m_pMakefile);
 
   auto fileSet =
     this->Target->GetOrCreateFileSet(args.FileSet, type, visibility);
@@ -282,7 +282,7 @@ bool TargetSourcesImpl::HandleOneFileSet(
     }
 
     if (args.BaseDirs.empty()) {
-      args.BaseDirs.emplace_back(this->Makefile->GetCurrentSourceDirectory());
+      args.BaseDirs.emplace_back(this->m_pMakefile->GetCurrentSourceDirectory());
     }
   } else {
     type = fileSet.first->GetType();
@@ -306,14 +306,14 @@ bool TargetSourcesImpl::HandleOneFileSet(
     this->Target, args.Files, IsInterface::Yes, CheckCMP0076::No));
   if (!files.empty()) {
     fileSet.first->AddFileEntry(
-      BT<std::string>(files, this->Makefile->GetBacktrace()));
+      BT<std::string>(files, this->m_pMakefile->GetBacktrace()));
   }
 
   auto baseDirectories = this->Join(this->ConvertToAbsoluteContent(
     this->Target, args.BaseDirs, IsInterface::Yes, CheckCMP0076::No));
   if (!baseDirectories.empty()) {
     fileSet.first->AddDirectoryEntry(
-      BT<std::string>(baseDirectories, this->Makefile->GetBacktrace()));
+      BT<std::string>(baseDirectories, this->m_pMakefile->GetBacktrace()));
     if (type == "HEADERS"_s) {
       for (auto const& dir : cmList{ baseDirectories }) {
         auto interfaceDirectoriesGenex =
@@ -321,12 +321,12 @@ bool TargetSourcesImpl::HandleOneFileSet(
         if (cmFileSetVisibilityIsForSelf(visibility)) {
           this->Target->AppendProperty("INCLUDE_DIRECTORIES",
                                        interfaceDirectoriesGenex,
-                                       this->Makefile->GetBacktrace());
+                                       this->m_pMakefile->GetBacktrace());
         }
         if (cmFileSetVisibilityIsForInterface(visibility)) {
           this->Target->AppendProperty("INTERFACE_INCLUDE_DIRECTORIES",
                                        interfaceDirectoriesGenex,
-                                       this->Makefile->GetBacktrace());
+                                       this->m_pMakefile->GetBacktrace());
         }
       }
     }

@@ -93,7 +93,7 @@ struct Result
 struct Rule
 {
   /// @brief The ID of the rule. Required by SARIF
-  std::string Id;
+  std::string m_id;
 
   /// @brief The end-user name of the rule (optional)
   cm::optional<std::string> Name;
@@ -117,7 +117,7 @@ class RuleBuilder
 {
 public:
   /// @brief Construct a new rule builder for a rule with the given ID
-  RuleBuilder(char const* id) { this->NewRule.Id = id; }
+  RuleBuilder(char const* id) { this->NewRule.m_id = id; }
 
   /// @brief Set the name of the rule
   RuleBuilder& Name(std::string name)
@@ -143,7 +143,7 @@ public:
   /// @brief Build the rule
   std::pair<std::string, Rule> Build() const
   {
-    return std::make_pair(this->NewRule.Id, this->NewRule);
+    return std::make_pair(this->NewRule.m_id, this->NewRule);
   }
 
 private:
@@ -272,14 +272,14 @@ public:
   void SetPath(cm::filesystem::path const& path,
                bool createParentDirectories = false)
   {
-    this->FilePath = path;
+    this->m_filePath = path;
     this->CreateDirectories = createParentDirectories;
   }
 
 private:
   ResultsLog const& Log;
   std::function<bool()> WriteCondition;
-  cm::filesystem::path FilePath;
+  cm::filesystem::path m_filePath;
   bool CreateDirectories = false;
   bool FileWritten = false;
 };

@@ -230,7 +230,7 @@ private:
     else if (name == "modified" || name == "renamed" ||
              name == "kind-changed") {
       this->CurChange = Change();
-      this->CurChange.Action = 'M';
+      this->CurChange.m_action = 'M';
     } else if (name == "added") {
       this->CurChange = Change();
       this->CurChange = 'A';
@@ -278,7 +278,7 @@ private:
     this->CData.clear();
   }
 
-  void ReportError(int /*line*/, int /*column*/, char const* msg) override
+  void m_reportError(int /*line*/, int /*column*/, char const* msg) override
   {
     this->BZR->Log << "Error parsing bzr log xml: " << msg << "\n";
   }
@@ -364,9 +364,9 @@ private:
 bool cmCTestBZR::UpdateImpl()
 {
   // Get user-specified update options.
-  std::string opts = this->Makefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
+  std::string opts = this->m_pMakefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
   if (opts.empty()) {
-    opts = this->Makefile->GetSafeDefinition("CTEST_BZR_UPDATE_OPTIONS");
+    opts = this->m_pMakefile->GetSafeDefinition("CTEST_BZR_UPDATE_OPTIONS");
   }
   std::vector<std::string> args = cmSystemTools::ParseArguments(opts);
 

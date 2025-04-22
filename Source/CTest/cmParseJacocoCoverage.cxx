@@ -31,7 +31,7 @@ protected:
       this->PackageName = atts[1];
       this->PackagePath.clear();
     } else if (name == "sourcefile") {
-      this->FilePath.clear();
+      this->m_filePath.clear();
       std::string fileName = atts[1];
 
       if (this->PackagePath.empty()) {
@@ -48,16 +48,16 @@ protected:
                          "Reading file: " << fileName << std::endl,
                          this->Coverage.Quiet);
 
-      this->FilePath = this->PackagePath + "/" + fileName;
-      cmsys::ifstream fin(this->FilePath.c_str());
+      this->m_filePath = this->PackagePath + "/" + fileName;
+      cmsys::ifstream fin(this->m_filePath.c_str());
       if (!fin) {
         cmCTestLog(this->CTest, ERROR_MESSAGE,
-                   "Jacoco Coverage: Error opening " << this->FilePath
+                   "Jacoco Coverage: Error opening " << this->m_filePath
                                                      << std::endl);
       }
       std::string line;
       FileLinesType& curFileLines =
-        this->Coverage.TotalCoverage[this->FilePath];
+        this->Coverage.TotalCoverage[this->m_filePath];
       if (fin) {
         curFileLines.push_back(-1);
       }
@@ -76,7 +76,7 @@ protected:
         }
         if (ci > -1 && nr > 0) {
           FileLinesType& curFileLines =
-            this->Coverage.TotalCoverage[this->FilePath];
+            this->Coverage.TotalCoverage[this->m_filePath];
           if (!curFileLines.empty()) {
             curFileLines[nr - 1] = ci;
           }
@@ -131,7 +131,7 @@ protected:
   }
 
 private:
-  std::string FilePath;
+  std::string m_filePath;
   std::string PackagePath;
   std::string PackageName;
   using FileLinesType =

@@ -72,20 +72,20 @@ private:
   InvokeResult invoke(std::vector<cmListFileFunction> const& functions,
                       cmExecutionStatus& inStatus, cmMakefile& mf);
 
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   std::size_t IterationVarsCount = 0u;
   bool ZipLists = false;
 };
 
 cmForEachFunctionBlocker::cmForEachFunctionBlocker(cmMakefile* mf)
-  : Makefile(mf)
+  : m_pMakefile(mf)
 {
-  this->Makefile->PushLoopBlock();
+  this->m_pMakefile->PushLoopBlock();
 }
 
 cmForEachFunctionBlocker::~cmForEachFunctionBlocker()
 {
-  this->Makefile->PopLoopBlock();
+  this->m_pMakefile->PopLoopBlock();
 }
 
 bool cmForEachFunctionBlocker::ArgumentsMatch(cmListFileFunction const& lff,
@@ -464,10 +464,10 @@ bool cmForEachCommand(std::vector<std::string> const& args,
         static_cast<int>(start > stop) * (start - stop) / std::abs(step);
       fb->Args.resize(iter_cnt);
       fb->Args.front() = args.front();
-      auto cc = start;
-      auto generator = [&cc, step]() -> std::string {
-        auto result = std::to_string(cc);
-        cc += step;
+      auto m_pCustomCommand = start;
+      auto generator = [&m_pCustomCommand, step]() -> std::string {
+        auto result = std::to_string(m_pCustomCommand);
+        m_pCustomCommand += step;
         return result;
       };
       // Fill the `range` vector w/ generated string values

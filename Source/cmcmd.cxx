@@ -582,7 +582,7 @@ std::array<CoCompiler, 6> const CoCompilers = { { // Table of options and handle
 
 struct CoCompileJob
 {
-  std::string Command;
+  std::string m_command;
   CoCompileHandler Handler;
 };
 }
@@ -608,15 +608,15 @@ int cmcmd::HandleCoCompileCommands(std::vector<std::string> const& args)
       doing_options = false;
     } else if (doing_options) {
       bool optionFound = false;
-      for (CoCompiler const& cc : CoCompilers) {
-        size_t optionLen = strlen(cc.Option);
-        if (arg.compare(0, optionLen, cc.Option) == 0) {
+      for (CoCompiler const& m_pCustomCommand : CoCompilers) {
+        size_t optionLen = strlen(m_pCustomCommand.Option);
+        if (arg.compare(0, optionLen, m_pCustomCommand.Option) == 0) {
           optionFound = true;
           CoCompileJob job;
-          job.Command = arg.substr(optionLen);
-          job.Handler = cc.Handler;
+          job.m_command = arg.substr(optionLen);
+          job.Handler = m_pCustomCommand.Handler;
           jobs.push_back(std::move(job));
-          if (cc.NoOriginalCommand) {
+          if (m_pCustomCommand.NoOriginalCommand) {
             runOriginalCmd = false;
           }
         }
@@ -639,8 +639,8 @@ int cmcmd::HandleCoCompileCommands(std::vector<std::string> const& args)
   if (jobs.empty()) {
     std::cerr << "__run_co_compile missing command to run. "
                  "Looking for one or more of the following:\n";
-    for (CoCompiler const& cc : CoCompilers) {
-      std::cerr << cc.Option << '\n';
+    for (CoCompiler const& m_pCustomCommand : CoCompilers) {
+      std::cerr << m_pCustomCommand.Option << '\n';
     }
     return 1;
   }
@@ -652,7 +652,7 @@ int cmcmd::HandleCoCompileCommands(std::vector<std::string> const& args)
 
   for (CoCompileJob const& job : jobs) {
     // call the command handler here
-    int ret = job.Handler(job.Command, sourceFile, orig_cmd);
+    int ret = job.Handler(job.m_command, sourceFile, orig_cmd);
 
     // if the command returns non-zero then return and fail.
     // for commands that do not want to break the build, they should return

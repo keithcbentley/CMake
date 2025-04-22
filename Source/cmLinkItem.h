@@ -41,7 +41,7 @@ public:
   cmSourceFile const* ObjectSource = nullptr;
   std::string Feature;
   bool Cross = false;
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
   friend bool operator<(cmLinkItem const& l, cmLinkItem const& r);
   friend bool operator==(cmLinkItem const& l, cmLinkItem const& r);
   friend std::ostream& operator<<(std::ostream& os, cmLinkItem const& item);

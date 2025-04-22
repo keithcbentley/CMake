@@ -160,22 +160,22 @@ std::string EvaluateComment(char const* comment,
 }
 
 cmCustomCommandGenerator::cmCustomCommandGenerator(
-  cmCustomCommand const& cc, std::string config, cmLocalGenerator* lg,
+  cmCustomCommand const& m_pCustomCommand, std::string config, cmLocalGenerator* lg,
   bool transformDepfile, cm::optional<std::string> crossConfig,
   std::function<std::string(std::string const&, std::string const&)>
     computeInternalDepfile)
-  : CC(&cc)
+  : CC(&m_pCustomCommand)
   , OutputConfig(crossConfig ? *crossConfig : config)
   , CommandConfig(std::move(config))
-  , Target(cc.GetTarget())
+  , Target(m_pCustomCommand.GetTarget())
   , LG(lg)
-  , OldStyle(cc.GetEscapeOldStyle())
-  , MakeVars(cc.GetEscapeAllowMakeVars())
-  , EmulatorsWithArguments(cc.GetCommandLines().size())
+  , OldStyle(m_pCustomCommand.GetEscapeOldStyle())
+  , MakeVars(m_pCustomCommand.GetEscapeAllowMakeVars())
+  , EmulatorsWithArguments(m_pCustomCommand.GetCommandLines().size())
   , ComputeInternalDepfile(std::move(computeInternalDepfile))
 {
 
-  cmGeneratorExpression ge(*lg->GetCMakeInstance(), cc.GetBacktrace());
+  cmGeneratorExpression ge(*lg->GetCMakeInstance(), m_pCustomCommand.GetBacktrace());
   cmGeneratorTarget const* target{ lg->FindGeneratorTargetToUse(
     this->Target) };
 
@@ -210,7 +210,7 @@ cmCustomCommandGenerator::cmCustomCommandGenerator(
         // GetArgv0Location uses the command config, so use a cross-dependency.
         bool const cross = true;
         this->Utilities.emplace(BT<std::pair<std::string, bool>>(
-          { gt->GetName(), cross }, cc.GetBacktrace()));
+          { gt->GetName(), cross }, m_pCustomCommand.GetBacktrace()));
       }
     } else {
       // Later code assumes at least one entry exists, but expanding
@@ -223,7 +223,7 @@ cmCustomCommandGenerator::cmCustomCommandGenerator(
   }
 
   if (transformDepfile && !this->CommandLines.empty() &&
-      !cc.GetDepfile().empty() &&
+      !m_pCustomCommand.GetDepfile().empty() &&
       this->LG->GetGlobalGenerator()->DepfileFormat()) {
     cmCustomCommandLine argv;
     argv.push_back(cmSystemTools::GetCMakeCommand());
@@ -252,10 +252,10 @@ cmCustomCommandGenerator::cmCustomCommandGenerator(
   }
 
   this->Outputs =
-    EvaluateOutputs(cc.GetOutputs(), ge, this->LG, this->OutputConfig);
+    EvaluateOutputs(m_pCustomCommand.GetOutputs(), ge, this->LG, this->OutputConfig);
   this->Byproducts =
-    EvaluateOutputs(cc.GetByproducts(), ge, this->LG, this->OutputConfig);
-  this->Depends = EvaluateDepends(cc.GetDepends(), ge, this->LG,
+    EvaluateOutputs(m_pCustomCommand.GetByproducts(), ge, this->LG, this->OutputConfig);
+  this->Depends = EvaluateDepends(m_pCustomCommand.GetDepends(), ge, this->LG,
                                   this->OutputConfig, this->CommandConfig);
 
   std::string const& workingdirectory = this->CC->GetWorkingDirectory();

@@ -2109,13 +2109,13 @@ bool cmSystemTools::UnsetEnv(char const* value)
 std::vector<std::string> cmSystemTools::GetEnvironmentVariables()
 {
   std::vector<std::string> env;
-  int cc;
+  int m_pCustomCommand;
 #  ifdef _WIN32
   // if program starts with main, _wenviron is initially NULL, call to
   // _wgetenv and create wide-character string environment
   _wgetenv(L"");
-  for (cc = 0; _wenviron[cc]; ++cc) {
-    env.emplace_back(cmsys::Encoding::ToNarrow(_wenviron[cc]));
+  for (m_pCustomCommand = 0; _wenviron[m_pCustomCommand]; ++m_pCustomCommand) {
+    env.emplace_back(cmsys::Encoding::ToNarrow(_wenviron[m_pCustomCommand]));
   }
 #  else
   for (cc = 0; environ[cc]; ++cc) {

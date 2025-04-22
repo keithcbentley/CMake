@@ -331,10 +331,10 @@ void ZLIB_INTERNAL _tr_stored_block(deflate_state *s, charf *buf,
 
 #ifdef LIT_MEM
 # define _tr_tally_lit(s, c, flush) \
-  { uch cc = (c); \
+  { uch m_pCustomCommand = (c); \
     s->d_buf[s->sym_next] = 0; \
-    s->l_buf[s->sym_next++] = cc; \
-    s->dyn_ltree[cc].Freq++; \
+    s->l_buf[s->sym_next++] = m_pCustomCommand; \
+    s->dyn_ltree[m_pCustomCommand].Freq++; \
     flush = (s->sym_next == s->sym_end); \
    }
 # define _tr_tally_dist(s, distance, length, flush) \
@@ -349,11 +349,11 @@ void ZLIB_INTERNAL _tr_stored_block(deflate_state *s, charf *buf,
   }
 #else
 # define _tr_tally_lit(s, c, flush) \
-  { uch cc = (c); \
+  { uch m_pCustomCommand = (c); \
     s->sym_buf[s->sym_next++] = 0; \
     s->sym_buf[s->sym_next++] = 0; \
-    s->sym_buf[s->sym_next++] = cc; \
-    s->dyn_ltree[cc].Freq++; \
+    s->sym_buf[s->sym_next++] = m_pCustomCommand; \
+    s->dyn_ltree[m_pCustomCommand].Freq++; \
     flush = (s->sym_next == s->sym_end); \
    }
 # define _tr_tally_dist(s, distance, length, flush) \

@@ -186,7 +186,7 @@ public:
     std::string DepFile;
     std::string DepFileRuleName;
     std::vector<std::string> HeaderExtensions;
-    std::vector<std::string> ListFiles;
+    std::vector<std::string> m_listFiles;
   };
 
   /** Shared common variables.  */
@@ -2264,10 +2264,10 @@ std::vector<std::string>
 cmQtAutoMocUicT::JobDepFilesMergeT::initialDependencies() const
 {
   std::vector<std::string> dependencies;
-  dependencies.reserve(this->BaseConst().ListFiles.size() +
+  dependencies.reserve(this->BaseConst().m_listFiles.size() +
                        this->BaseEval().Headers.size() +
                        this->BaseEval().Sources.size());
-  cm::append(dependencies, this->BaseConst().ListFiles);
+  cm::append(dependencies, this->BaseConst().m_listFiles);
   auto append_file_path =
     [&dependencies](SourceFileMapT::value_type const& p) {
       dependencies.push_back(p.first);
@@ -2401,7 +2401,7 @@ bool cmQtAutoMocUicT::InitFromInfo(InfoT const& info)
       !info.GetStringConfig("PARSE_CACHE_FILE",
                             this->BaseConst_.ParseCacheFile, true) ||
       !info.GetStringConfig("SETTINGS_FILE", this->SettingsFile_, true) ||
-      !info.GetArray("CMAKE_LIST_FILES", this->BaseConst_.ListFiles, true) ||
+      !info.GetArray("CMAKE_LIST_FILES", this->BaseConst_.m_listFiles, true) ||
       !info.GetArray("HEADER_EXTENSIONS", this->BaseConst_.HeaderExtensions,
                      true)) {
     return false;

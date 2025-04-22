@@ -130,7 +130,7 @@ protected:
     cmGeneratorExpression::PreprocessContext preprocessRule,
     ImportPropertyMap& properties);
 
-  virtual void ReportError(std::string const& errorMessage) const = 0;
+  virtual void m_reportError(std::string const& errorMessage) const = 0;
 
   struct ExportInfo
   {

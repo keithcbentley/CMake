@@ -28,7 +28,7 @@ struct cmFindProgramHelper
   cmFindProgramHelper(std::string debugName, cmMakefile* makefile,
                       cmFindBase const* base)
     : DebugSearches(std::move(debugName), base)
-    , Makefile(makefile)
+    , m_pMakefile(makefile)
     , FindBase(base)
     , PolicyCMP0109(makefile->GetPolicyStatus(cmPolicies::CMP0109))
   {
@@ -52,7 +52,7 @@ struct cmFindProgramHelper
 
   // Debug state
   cmFindBaseDebugState DebugSearches;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmFindBase const* FindBase;
 
   cmPolicies::PolicyStatus PolicyCMP0109;
@@ -137,7 +137,7 @@ struct cmFindProgramHelper
       return isExeNew;
     }
     if (isExeNew) {
-      this->Makefile->IssueMessage(
+      this->m_pMakefile->IssueMessage(
         MessageType::AUTHOR_WARNING,
         cmStrCat(cmPolicies::GetPolicyWarning(cmPolicies::CMP0109),
                  "\n"
@@ -148,7 +148,7 @@ struct cmFindProgramHelper
                  "is executable but not readable.  "
                  "CMake is ignoring it for compatibility."));
     } else {
-      this->Makefile->IssueMessage(
+      this->m_pMakefile->IssueMessage(
         MessageType::AUTHOR_WARNING,
         cmStrCat(cmPolicies::GetPolicyWarning(cmPolicies::CMP0109),
                  "\n"
@@ -171,9 +171,9 @@ cmFindProgramCommand::cmFindProgramCommand(cmExecutionStatus& status)
   this->VariableType = cmStateEnums::FILEPATH;
   // Windows Registry views
   // When policy CMP0134 is not NEW, rely on previous behavior:
-  if (this->Makefile->GetPolicyStatus(cmPolicies::CMP0134) !=
+  if (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0134) !=
       cmPolicies::NEW) {
-    if (this->Makefile->GetDefinition("CMAKE_SIZEOF_VOID_P") == "8") {
+    if (this->m_pMakefile->GetDefinition("CMAKE_SIZEOF_VOID_P") == "8") {
       this->RegistryView = cmWindowsRegistry::View::Reg64_32;
     } else {
       this->RegistryView = cmWindowsRegistry::View::Reg32_64;
@@ -233,7 +233,7 @@ std::string cmFindProgramCommand::FindNormalProgram()
 std::string cmFindProgramCommand::FindNormalProgramNamesPerDir()
 {
   // Search for all names in each directory.
-  cmFindProgramHelper helper(this->FindCommandName, this->Makefile, this);
+  cmFindProgramHelper helper(this->FindCommandName, this->m_pMakefile, this);
   for (std::string const& n : this->Names) {
     helper.AddName(n);
   }
@@ -256,7 +256,7 @@ std::string cmFindProgramCommand::FindNormalProgramNamesPerDir()
 std::string cmFindProgramCommand::FindNormalProgramDirsPerName()
 {
   // Search the entire path for each name.
-  cmFindProgramHelper helper(this->FindCommandName, this->Makefile, this);
+  cmFindProgramHelper helper(this->FindCommandName, this->m_pMakefile, this);
   for (std::string const& n : this->Names) {
     // Switch to searching for this name.
     helper.SetName(n);

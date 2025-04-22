@@ -524,7 +524,7 @@ public:
   {
     TransformAction::Initialize(selector);
     this->ReplaceHelper = cm::make_unique<cmStringReplaceHelper>(
-      regex, replace, selector->Makefile);
+      regex, replace, selector->m_pMakefile);
 
     if (!this->ReplaceHelper->IsRegularExpressionValid()) {
       throw transform_error(
@@ -571,22 +571,22 @@ private:
 struct ActionDescriptor
 {
   ActionDescriptor(cmList::TransformAction action)
-    : Action(action)
+    : m_action(action)
   {
   }
   ActionDescriptor(cmList::TransformAction action, std::string name,
                    std::size_t arity,
                    std::unique_ptr<TransformAction> transform)
-    : Action(action)
+    : m_action(action)
     , Name(std::move(name))
     , Arity(arity)
     , Transform(std::move(transform))
   {
   }
 
-  operator cmList::TransformAction() const { return this->Action; }
+  operator cmList::TransformAction() const { return this->m_action; }
 
-  cmList::TransformAction Action;
+  cmList::TransformAction m_action;
   std::string Name;
   std::size_t Arity = 0;
   std::unique_ptr<TransformAction> Transform;

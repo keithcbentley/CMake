@@ -293,7 +293,7 @@ private:
                                   std::set<cmSourceFile const*>& visited);
   cmXCodeObject* CreateRunScriptBuildPhase(cmSourceFile const* sf,
                                            cmGeneratorTarget const* gt,
-                                           cmCustomCommand const& cc);
+                                           cmCustomCommand const& m_pCustomCommand);
   cmXCodeObject* CreateRunScriptBuildPhase(
     std::string const& name, cmGeneratorTarget const* gt,
     std::vector<cmCustomCommand> const& commands,

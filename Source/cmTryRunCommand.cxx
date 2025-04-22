@@ -183,8 +183,8 @@ bool TryRunCommandImpl::TryRunCode(std::vector<std::string> const& argv)
       std::string runOutputContents;
       std::string runOutputStdOutContents;
       std::string runOutputStdErrContents;
-      if (this->Makefile->IsOn("CMAKE_CROSSCOMPILING") &&
-          !this->Makefile->IsDefinitionSet("CMAKE_CROSSCOMPILING_EMULATOR")) {
+      if (this->m_pMakefile->IsOn("CMAKE_CROSSCOMPILING") &&
+          !this->m_pMakefile->IsDefinitionSet("CMAKE_CROSSCOMPILING_EMULATOR")) {
         // We only require the stdout/stderr cache entries if the project
         // actually asked for the values, not just for logging.
         bool const stdOutErrRequired = (arguments.RunOutputStdOutVariable ||
@@ -212,21 +212,21 @@ bool TryRunCommandImpl::TryRunCode(std::vector<std::string> const& argv)
       }
 
       if (cmValue ec =
-            this->Makefile->GetDefinition(this->RunResultVariable)) {
+            this->m_pMakefile->GetDefinition(this->RunResultVariable)) {
         runResult.ExitCode = *ec;
       }
 
       // now put the output into the variables
       if (arguments.RunOutputVariable) {
-        this->Makefile->AddDefinition(*arguments.RunOutputVariable,
+        this->m_pMakefile->AddDefinition(*arguments.RunOutputVariable,
                                       runOutputContents);
       }
       if (arguments.RunOutputStdOutVariable) {
-        this->Makefile->AddDefinition(*arguments.RunOutputStdOutVariable,
+        this->m_pMakefile->AddDefinition(*arguments.RunOutputStdOutVariable,
                                       runOutputStdOutContents);
       }
       if (arguments.RunOutputStdErrVariable) {
-        this->Makefile->AddDefinition(*arguments.RunOutputStdErrVariable,
+        this->m_pMakefile->AddDefinition(*arguments.RunOutputStdErrVariable,
                                       runOutputStdErrContents);
       }
 
@@ -234,11 +234,11 @@ bool TryRunCommandImpl::TryRunCode(std::vector<std::string> const& argv)
         // if the TryCompileCore saved output in this outputVariable then
         // prepend that output to this output
         cmValue compileOutput =
-          this->Makefile->GetDefinition(*arguments.OutputVariable);
+          this->m_pMakefile->GetDefinition(*arguments.OutputVariable);
         if (compileOutput) {
           runOutputContents = *compileOutput + runOutputContents;
         }
-        this->Makefile->AddDefinition(*arguments.OutputVariable,
+        this->m_pMakefile->AddDefinition(*arguments.OutputVariable,
                                       runOutputContents);
       }
     }
@@ -246,7 +246,7 @@ bool TryRunCommandImpl::TryRunCode(std::vector<std::string> const& argv)
 
 #ifndef CMAKE_BOOTSTRAP
   if (compileResult && !arguments.NoLog) {
-    cmMakefile const& mf = *(this->Makefile);
+    cmMakefile const& mf = *(this->m_pMakefile);
     if (cmConfigureLog* log = mf.GetCMakeInstance()->GetConfigureLog()) {
       WriteTryRunEvent(*log, mf, *compileResult, runResult);
     }
@@ -254,7 +254,7 @@ bool TryRunCommandImpl::TryRunCode(std::vector<std::string> const& argv)
 #endif
 
   // if we created a directory etc, then cleanup after ourselves
-  if (!this->Makefile->GetCMakeInstance()->GetDebugTryCompile()) {
+  if (!this->m_pMakefile->GetCMakeInstance()->GetDebugTryCompile()) {
     this->CleanupFiles(this->m_binaryDirectory);
   }
   return true;
@@ -269,7 +269,7 @@ void TryRunCommandImpl::RunExecutable(std::string const& runArgs,
 
   std::string finalCommand;
   std::string const& emulator =
-    this->Makefile->GetSafeDefinition("CMAKE_CROSSCOMPILING_EMULATOR");
+    this->m_pMakefile->GetSafeDefinition("CMAKE_CROSSCOMPILING_EMULATOR");
   if (!emulator.empty()) {
     cmList emulatorWithArgs{ emulator };
     finalCommand += cmStrCat(
@@ -288,9 +288,9 @@ void TryRunCommandImpl::RunExecutable(std::string const& runArgs,
   // set the run var
   std::string retStr = worked ? std::to_string(retVal) : "FAILED_TO_RUN";
   if (this->NoCache) {
-    this->Makefile->AddDefinition(this->RunResultVariable, retStr);
+    this->m_pMakefile->AddDefinition(this->RunResultVariable, retStr);
   } else {
-    this->Makefile->AddCacheDefinition(this->RunResultVariable, retStr,
+    this->m_pMakefile->AddCacheDefinition(this->RunResultVariable, retStr,
                                        "Result of try_run()",
                                        cmStateEnums::INTERNAL);
   }
@@ -309,14 +309,14 @@ void TryRunCommandImpl::DoNotRunExecutable(
   // removed at the end of try_run() and the user can run it manually
   // on the target platform.
   std::string copyDest =
-    cmStrCat(this->Makefile->GetHomeOutputDirectory(), "/CMakeFiles/",
+    cmStrCat(this->m_pMakefile->GetHomeOutputDirectory(), "/CMakeFiles/",
              cmSystemTools::GetFilenameWithoutExtension(this->OutputFile), '-',
              this->RunResultVariable,
              cmSystemTools::GetFilenameExtension(this->OutputFile));
   cmSystemTools::CopyFileAlways(this->OutputFile, copyDest);
 
   std::string resultFileName =
-    cmStrCat(this->Makefile->GetHomeOutputDirectory(), "/TryRunResults.cmake");
+    cmStrCat(this->m_pMakefile->GetHomeOutputDirectory(), "/TryRunResults.cmake");
 
   std::string detailsString = cmStrCat("For details see ", resultFileName);
 
@@ -328,18 +328,18 @@ void TryRunCommandImpl::DoNotRunExecutable(
     this->RunResultVariable + "__TRYRUN_OUTPUT_STDERR";
   bool error = false;
 
-  if (!this->Makefile->GetDefinition(this->RunResultVariable)) {
+  if (!this->m_pMakefile->GetDefinition(this->RunResultVariable)) {
     // if the variables doesn't exist, create it with a helpful error text
     // and mark it as advanced
     std::string comment =
       cmStrCat("Run result of try_run(), indicates whether the executable "
                "would have been able to run on its target platform.\n",
                detailsString);
-    this->Makefile->AddCacheDefinition(this->RunResultVariable,
+    this->m_pMakefile->AddCacheDefinition(this->RunResultVariable,
                                        "PLEASE_FILL_OUT-FAILED_TO_RUN",
                                        comment, cmStateEnums::STRING);
 
-    cmState* state = this->Makefile->GetState();
+    cmState* state = this->m_pMakefile->GetState();
     cmValue existingValue = state->GetCacheEntryValue(this->RunResultVariable);
     if (existingValue) {
       state->SetCacheEntryProperty(this->RunResultVariable, "ADVANCED", "1");
@@ -350,7 +350,7 @@ void TryRunCommandImpl::DoNotRunExecutable(
 
   // is the output from the executable used ?
   if (stdOutErrRequired) {
-    if (!this->Makefile->GetDefinition(internalRunOutputStdOutName)) {
+    if (!this->m_pMakefile->GetDefinition(internalRunOutputStdOutName)) {
       // if the variables doesn't exist, create it with a helpful error text
       // and mark it as advanced
       std::string comment = cmStrCat(
@@ -358,10 +358,10 @@ void TryRunCommandImpl::DoNotRunExecutable(
         "would have printed on stdout on its target platform.\n",
         detailsString);
 
-      this->Makefile->AddCacheDefinition(internalRunOutputStdOutName,
+      this->m_pMakefile->AddCacheDefinition(internalRunOutputStdOutName,
                                          "PLEASE_FILL_OUT-NOTFOUND", comment,
                                          cmStateEnums::STRING);
-      cmState* state = this->Makefile->GetState();
+      cmState* state = this->m_pMakefile->GetState();
       cmValue existing =
         state->GetCacheEntryValue(internalRunOutputStdOutName);
       if (existing) {
@@ -372,7 +372,7 @@ void TryRunCommandImpl::DoNotRunExecutable(
       error = true;
     }
 
-    if (!this->Makefile->GetDefinition(internalRunOutputStdErrName)) {
+    if (!this->m_pMakefile->GetDefinition(internalRunOutputStdErrName)) {
       // if the variables doesn't exist, create it with a helpful error text
       // and mark it as advanced
       std::string comment = cmStrCat(
@@ -380,10 +380,10 @@ void TryRunCommandImpl::DoNotRunExecutable(
         "would have printed on stderr on its target platform.\n",
         detailsString);
 
-      this->Makefile->AddCacheDefinition(internalRunOutputStdErrName,
+      this->m_pMakefile->AddCacheDefinition(internalRunOutputStdErrName,
                                          "PLEASE_FILL_OUT-NOTFOUND", comment,
                                          cmStateEnums::STRING);
-      cmState* state = this->Makefile->GetState();
+      cmState* state = this->m_pMakefile->GetState();
       cmValue existing =
         state->GetCacheEntryValue(internalRunOutputStdErrName);
       if (existing) {
@@ -394,7 +394,7 @@ void TryRunCommandImpl::DoNotRunExecutable(
       error = true;
     }
   } else if (out) {
-    if (!this->Makefile->GetDefinition(internalRunOutputName)) {
+    if (!this->m_pMakefile->GetDefinition(internalRunOutputName)) {
       // if the variables doesn't exist, create it with a helpful error text
       // and mark it as advanced
       std::string comment = cmStrCat(
@@ -402,10 +402,10 @@ void TryRunCommandImpl::DoNotRunExecutable(
         "would have printed on stdout and stderr on its target platform.\n",
         detailsString);
 
-      this->Makefile->AddCacheDefinition(internalRunOutputName,
+      this->m_pMakefile->AddCacheDefinition(internalRunOutputName,
                                          "PLEASE_FILL_OUT-NOTFOUND", comment,
                                          cmStateEnums::STRING);
-      cmState* state = this->Makefile->GetState();
+      cmState* state = this->m_pMakefile->GetState();
       cmValue existing = state->GetCacheEntryValue(internalRunOutputName);
       if (existing) {
         state->SetCacheEntryProperty(internalRunOutputName, "ADVANCED", "1");
@@ -494,17 +494,17 @@ void TryRunCommandImpl::DoNotRunExecutable(
                           runArgs,
                           "\n"
                           "   Called from: ",
-                          this->Makefile->FormatListFileStack());
+                          this->m_pMakefile->FormatListFileStack());
       cmsys::SystemTools::ReplaceString(comment, "\n", "\n# ");
       file << comment << "\n\n";
 
       file << "set( " << this->RunResultVariable << " \n     \""
-           << this->Makefile->GetSafeDefinition(this->RunResultVariable)
+           << this->m_pMakefile->GetSafeDefinition(this->RunResultVariable)
            << "\"\n     CACHE STRING \"Result from try_run\" FORCE)\n\n";
 
       if (out) {
         file << "set( " << internalRunOutputName << " \n     \""
-             << this->Makefile->GetSafeDefinition(internalRunOutputName)
+             << this->m_pMakefile->GetSafeDefinition(internalRunOutputName)
              << "\"\n     CACHE STRING \"Output from try_run\" FORCE)\n\n";
       }
       file.close();
@@ -526,13 +526,13 @@ void TryRunCommandImpl::DoNotRunExecutable(
 
   if (stdOut || stdErr) {
     if (stdOut) {
-      (*stdOut) = *this->Makefile->GetDefinition(internalRunOutputStdOutName);
+      (*stdOut) = *this->m_pMakefile->GetDefinition(internalRunOutputStdOutName);
     }
     if (stdErr) {
-      (*stdErr) = *this->Makefile->GetDefinition(internalRunOutputStdErrName);
+      (*stdErr) = *this->m_pMakefile->GetDefinition(internalRunOutputStdErrName);
     }
   } else if (out) {
-    (*out) = *this->Makefile->GetDefinition(internalRunOutputName);
+    (*out) = *this->m_pMakefile->GetDefinition(internalRunOutputName);
   }
 }
 }

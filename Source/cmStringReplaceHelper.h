@@ -61,5 +61,5 @@ private:
   bool ValidReplaceExpression = true;
   std::string ReplaceExpression;
   std::vector<RegexReplacement> Replacements;
-  cmMakefile* Makefile = nullptr;
+  cmMakefile* m_pMakefile = nullptr;
 };

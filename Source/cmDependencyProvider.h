@@ -19,12 +19,12 @@ public:
   };
 
   cmDependencyProvider(std::string command, std::vector<Method> methods)
-    : Command(std::move(command))
+    : m_command(std::move(command))
     , Methods(std::move(methods))
   {
   }
 
-  std::string const& GetCommand() const { return this->Command; }
+  std::string const& GetCommand() const { return this->m_command; }
   std::vector<Method> const& GetMethods() const { return this->Methods; }
   bool SupportsMethod(Method method) const
   {
@@ -33,6 +33,6 @@ public:
   }
 
 private:
-  std::string Command;
+  std::string m_command;
   std::vector<Method> Methods;
 };

@@ -71,7 +71,7 @@ private:
   } Separation;
 
   cmListFile* ListFile;
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
   cmMessenger* m_pMessenger;
   char const* FileName = nullptr;
   std::unique_ptr<cmListFileLexer, void (*)(cmListFileLexer*)> Lexer;
@@ -84,7 +84,7 @@ private:
 cmListFileParser::cmListFileParser(cmListFile* lf, cmListFileBacktrace lfbt,
                                    cmMessenger* messenger)
   : ListFile(lf)
-  , Backtrace(std::move(lfbt))
+  , m_backtrace(std::move(lfbt))
   , m_pMessenger(messenger)
   , Lexer(cmListFileLexer_New(), cmListFileLexer_Delete)
 {
@@ -93,15 +93,15 @@ cmListFileParser::cmListFileParser(cmListFile* lf, cmListFileBacktrace lfbt,
 void cmListFileParser::IssueFileOpenError(std::string const& text) const
 {
   this->m_pMessenger->IssueMessage(MessageType::FATAL_ERROR, text,
-                                this->Backtrace);
+                                this->m_backtrace);
 }
 
 void cmListFileParser::IssueError(std::string const& text) const
 {
   cmListFileContext lfc;
-  lfc.FilePath = this->FileName;
+  lfc.m_filePath = this->FileName;
   lfc.Line = cmListFileLexer_GetCurrentLine(this->Lexer.get());
-  cmListFileBacktrace lfbt = this->Backtrace;
+  cmListFileBacktrace lfbt = this->m_backtrace;
   lfbt = lfbt.Push(lfc);
   this->m_pMessenger->IssueMessage(MessageType::FATAL_ERROR, text, lfbt);
   cmSystemTools::SetFatalErrorOccurred();
@@ -200,7 +200,7 @@ bool cmListFileParser::Parse()
     this->m_pMessenger->IssueMessage(
       MessageType::FATAL_ERROR,
       "Flow control statements are not properly nested.",
-      this->Backtrace.Push(*badNesting));
+      this->m_backtrace.Push(*badNesting));
     cmSystemTools::SetFatalErrorOccurred();
     return false;
   }
@@ -290,9 +290,9 @@ bool cmListFileParser::ParseFunction(char const* name, long line)
   }
 
   cmListFileContext lfc;
-  lfc.FilePath = this->FileName;
+  lfc.m_filePath = this->FileName;
   lfc.Line = line;
-  cmListFileBacktrace lfbt = this->Backtrace;
+  cmListFileBacktrace lfbt = this->m_backtrace;
   lfbt = lfbt.Push(lfc);
   this->m_pMessenger->IssueMessage(
     MessageType::FATAL_ERROR,
@@ -312,9 +312,9 @@ bool cmListFileParser::AddArgument(cmListFileLexer_Token* token,
   bool isError = (this->Separation == SeparationError ||
                   delim == cmListFileArgument::Bracket);
   cmListFileContext lfc;
-  lfc.FilePath = this->FileName;
+  lfc.m_filePath = this->FileName;
   lfc.Line = token->line;
-  cmListFileBacktrace lfbt = this->Backtrace;
+  cmListFileBacktrace lfbt = this->m_backtrace;
   lfbt = lfbt.Push(lfc);
   auto msg =
     cmStrCat("Syntax ", (isError ? "Error" : "Warning"),
@@ -461,7 +461,7 @@ template class cmConstStack<cmListFileContext, cmListFileBacktrace>;
 
 std::ostream& operator<<(std::ostream& os, cmListFileContext const& lfc)
 {
-  os << lfc.FilePath;
+  os << lfc.m_filePath;
   if (lfc.Line > 0) {
     os << ':' << lfc.Line;
     if (!lfc.Name.empty()) {
@@ -478,12 +478,12 @@ bool operator<(cmListFileContext const& lhs, cmListFileContext const& rhs)
   if (lhs.Line != rhs.Line) {
     return lhs.Line < rhs.Line;
   }
-  return lhs.FilePath < rhs.FilePath;
+  return lhs.m_filePath < rhs.m_filePath;
 }
 
 bool operator==(cmListFileContext const& lhs, cmListFileContext const& rhs)
 {
-  return lhs.Line == rhs.Line && lhs.FilePath == rhs.FilePath;
+  return lhs.Line == rhs.Line && lhs.m_filePath == rhs.m_filePath;
 }
 
 bool operator!=(cmListFileContext const& lhs, cmListFileContext const& rhs)

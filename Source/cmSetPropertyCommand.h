@@ -56,12 +56,12 @@ void MakeSourceFilePathsAbsoluteIfNeeded(
 enum class PropertyOp
 {
   Remove,
-  Set,
+  m_set,
   Append,
   AppendAsString
 };
 
 bool HandleAndValidateSourceFilePropertyGENERATED(
   cmSourceFile* sf, std::string const& propertyValue,
-  PropertyOp op = PropertyOp::Set);
+  PropertyOp op = PropertyOp::m_set);
 }

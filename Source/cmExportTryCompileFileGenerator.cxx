@@ -33,7 +33,7 @@ cmExportTryCompileFileGenerator::cmExportTryCompileFileGenerator(
   gg->CreateImportedGenerationObjects(mf, targets, this->Exports);
 }
 
-void cmExportTryCompileFileGenerator::ReportError(
+void cmExportTryCompileFileGenerator::m_reportError(
   std::string const& errorMessage) const
 {
   cmSystemTools::Error(errorMessage);
@@ -76,7 +76,7 @@ std::string cmExportTryCompileFileGenerator::FindTargets(
     return std::string();
   }
 
-  cmGeneratorExpression ge(*tgt->Makefile->GetCMakeInstance());
+  cmGeneratorExpression ge(*tgt->m_pMakefile->GetCMakeInstance());
 
   std::unique_ptr<cmGeneratorExpressionDAGChecker> parentDagChecker;
   if (propName == "INTERFACE_LINK_OPTIONS") {

@@ -375,7 +375,7 @@ bool HandleAndValidateSourceFilePropertyGENERATED(
     case PropertyOp::Remove:
       sf->RemoveProperty("GENERATED");
       break;
-    case PropertyOp::Set:
+    case PropertyOp::m_set:
       sf->SetProperty("GENERATED", propertyValue);
       break;
   }
@@ -715,7 +715,7 @@ bool HandleSource(cmSourceFile* sf, std::string const& propertyName,
       ? SetPropertyCommand::PropertyOp::Remove
       : (appendAsString) ? SetPropertyCommand::PropertyOp::AppendAsString
       : (appendMode)     ? SetPropertyCommand::PropertyOp::Append
-                         : SetPropertyCommand::PropertyOp::Set;
+                         : SetPropertyCommand::PropertyOp::m_set;
     return SetPropertyCommand::HandleAndValidateSourceFilePropertyGENERATED(
       sf, propertyValue, op);
   }

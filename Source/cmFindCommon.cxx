@@ -31,7 +31,7 @@ cmFindCommon::PathLabel cmFindCommon::PathLabel::CMakeSystem("CMAKE_SYSTEM");
 cmFindCommon::PathLabel cmFindCommon::PathLabel::Guess("GUESS");
 
 cmFindCommon::cmFindCommon(cmExecutionStatus& status)
-  : Makefile(&status.GetMakefile())
+  : m_pMakefile(&status.GetMakefile())
   , Status(status)
 {
   this->FindRootPathMode = RootPathModeBoth;
@@ -63,9 +63,9 @@ cmFindCommon::cmFindCommon(cmExecutionStatus& status)
 
   // Windows Registry views
   // When policy CMP0134 is not NEW, rely on previous behavior:
-  if (this->Makefile->GetPolicyStatus(cmPolicies::CMP0134) !=
+  if (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0134) !=
       cmPolicies::NEW) {
-    if (this->Makefile->GetDefinition("CMAKE_SIZEOF_VOID_P") == "8") {
+    if (this->m_pMakefile->GetDefinition("CMAKE_SIZEOF_VOID_P") == "8") {
       this->RegistryView = cmWindowsRegistry::View::Reg64;
     } else {
       this->RegistryView = cmWindowsRegistry::View::Reg32;
@@ -80,22 +80,22 @@ void cmFindCommon::SetError(std::string const& e)
 
 void cmFindCommon::DebugMessage(std::string const& msg) const
 {
-  if (this->Makefile) {
-    this->Makefile->IssueMessage(MessageType::LOG, msg);
+  if (this->m_pMakefile) {
+    this->m_pMakefile->IssueMessage(MessageType::LOG, msg);
   }
 }
 
 bool cmFindCommon::ComputeIfDebugModeWanted()
 {
-  return this->Makefile->GetDebugFindPkgMode() ||
-    this->Makefile->IsOn("CMAKE_FIND_DEBUG_MODE") ||
-    this->Makefile->GetCMakeInstance()->GetDebugFindOutput();
+  return this->m_pMakefile->GetDebugFindPkgMode() ||
+    this->m_pMakefile->IsOn("CMAKE_FIND_DEBUG_MODE") ||
+    this->m_pMakefile->GetCMakeInstance()->GetDebugFindOutput();
 }
 
 bool cmFindCommon::ComputeIfDebugModeWanted(std::string const& var)
 {
   return this->ComputeIfDebugModeWanted() ||
-    this->Makefile->GetCMakeInstance()->GetDebugFindOutput(var);
+    this->m_pMakefile->GetCMakeInstance()->GetDebugFindOutput(var);
 }
 
 void cmFindCommon::InitializeSearchPathGroups()
@@ -133,7 +133,7 @@ void cmFindCommon::SelectDefaultRootPathMode()
   std::string findRootPathVar =
     cmStrCat("CMAKE_FIND_ROOT_PATH_MODE_", this->CMakePathName);
   std::string rootPathMode =
-    this->Makefile->GetSafeDefinition(findRootPathVar);
+    this->m_pMakefile->GetSafeDefinition(findRootPathVar);
   if (rootPathMode == "NEVER") {
     this->FindRootPathMode = RootPathModeNever;
   } else if (rootPathMode == "ONLY") {
@@ -145,7 +145,7 @@ void cmFindCommon::SelectDefaultRootPathMode()
 
 void cmFindCommon::SelectDefaultMacMode()
 {
-  std::string ff = this->Makefile->GetSafeDefinition("CMAKE_FIND_FRAMEWORK");
+  std::string ff = this->m_pMakefile->GetSafeDefinition("CMAKE_FIND_FRAMEWORK");
   if (ff == "NEVER") {
     this->SearchFrameworkLast = false;
     this->SearchFrameworkFirst = false;
@@ -164,7 +164,7 @@ void cmFindCommon::SelectDefaultMacMode()
     this->SearchFrameworkOnly = false;
   }
 
-  std::string fab = this->Makefile->GetSafeDefinition("CMAKE_FIND_APPBUNDLE");
+  std::string fab = this->m_pMakefile->GetSafeDefinition("CMAKE_FIND_APPBUNDLE");
   if (fab == "NEVER") {
     this->SearchAppBundleLast = false;
     this->SearchAppBundleFirst = false;
@@ -198,7 +198,7 @@ void cmFindCommon::SelectDefaultSearchModes()
   };
 
   for (auto const& path : search_paths) {
-    cmValue def = this->Makefile->GetDefinition(path.second);
+    cmValue def = this->m_pMakefile->GetDefinition(path.second);
     if (def) {
       path.first = !def.IsOn();
     }
@@ -213,11 +213,11 @@ void cmFindCommon::RerootPaths(std::vector<std::string>& paths,
     return;
   }
 
-  cmValue sysroot = this->Makefile->GetDefinition("CMAKE_SYSROOT");
+  cmValue sysroot = this->m_pMakefile->GetDefinition("CMAKE_SYSROOT");
   cmValue sysrootCompile =
-    this->Makefile->GetDefinition("CMAKE_SYSROOT_COMPILE");
-  cmValue sysrootLink = this->Makefile->GetDefinition("CMAKE_SYSROOT_LINK");
-  cmValue rootPath = this->Makefile->GetDefinition("CMAKE_FIND_ROOT_PATH");
+    this->m_pMakefile->GetDefinition("CMAKE_SYSROOT_COMPILE");
+  cmValue sysrootLink = this->m_pMakefile->GetDefinition("CMAKE_SYSROOT_LINK");
+  cmValue rootPath = this->m_pMakefile->GetDefinition("CMAKE_FIND_ROOT_PATH");
   bool const noSysroot = !cmNonempty(sysroot);
   bool const noCompileSysroot = !cmNonempty(sysrootCompile);
   bool const noLinkSysroot = !cmNonempty(sysrootLink);
@@ -267,7 +267,7 @@ void cmFindCommon::RerootPaths(std::vector<std::string>& paths,
     cmSystemTools::ConvertToUnixSlashes(r);
   }
 
-  cmValue stagePrefix = this->Makefile->GetDefinition("CMAKE_STAGING_PREFIX");
+  cmValue stagePrefix = this->m_pMakefile->GetDefinition("CMAKE_STAGING_PREFIX");
 
   // Copy the original set of unrooted paths.
   auto unrootedPaths = paths;
@@ -318,7 +318,7 @@ void cmFindCommon::GetIgnoredPaths(std::vector<std::string>& ignore)
   // Construct the list of path roots with no trailing slashes.
   for (char const* pathName : paths) {
     // Get the list of paths to ignore from the variable.
-    cmList::append(ignore, this->Makefile->GetDefinition(pathName));
+    cmList::append(ignore, this->m_pMakefile->GetDefinition(pathName));
   }
 
   for (std::string& i : ignore) {
@@ -341,7 +341,7 @@ void cmFindCommon::GetIgnoredPrefixPaths(std::vector<std::string>& ignore)
   // Construct the list of path roots with no trailing slashes.
   for (char const* pathName : paths) {
     // Get the list of paths to ignore from the variable.
-    cmList::append(ignore, this->Makefile->GetDefinition(pathName));
+    cmList::append(ignore, this->m_pMakefile->GetDefinition(pathName));
   }
 
   for (std::string& i : ignore) {

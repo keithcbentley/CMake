@@ -55,7 +55,7 @@ public:
   };
   struct ResourceAllocation
   {
-    std::string Id;
+    std::string m_id;
     unsigned int Slots;
   };
 

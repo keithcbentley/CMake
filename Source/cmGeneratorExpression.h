@@ -90,7 +90,7 @@ public:
 
 private:
   CMake& CMakeInstance;
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
 };
 
 class cmCompiledGeneratorExpression
@@ -127,7 +127,7 @@ public:
 
   std::string const& GetInput() const { return this->Input; }
 
-  cmListFileBacktrace GetBacktrace() const { return this->Backtrace; }
+  cmListFileBacktrace GetBacktrace() const { return this->m_backtrace; }
   bool GetHadContextSensitiveCondition() const
   {
     return this->HadContextSensitiveCondition;
@@ -162,7 +162,7 @@ private:
 
   friend class cmGeneratorExpression;
 
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
   std::vector<std::unique_ptr<cmGeneratorExpressionEvaluator>> Evaluators;
   std::string const Input;
   bool NeedsEvaluation;

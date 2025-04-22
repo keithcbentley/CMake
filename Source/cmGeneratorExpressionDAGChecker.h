@@ -41,7 +41,7 @@ struct cmGeneratorExpressionDAGChecker
 
   Result Check() const;
 
-  void ReportError(cmGeneratorExpressionContext* context,
+  void m_reportError(cmGeneratorExpressionContext* context,
                    std::string const& expr);
 
   bool EvaluatingTransitiveProperty() const;
@@ -85,7 +85,7 @@ private:
   std::string const Property;
   mutable std::map<cmGeneratorTarget const*, std::set<std::string>> Seen;
   GeneratorExpressionContent const* const Content;
-  cmListFileBacktrace const Backtrace;
+  cmListFileBacktrace const m_backtrace;
   Result CheckResult;
   bool TransitivePropertiesOnly = false;
   bool CMP0131 = false;

@@ -129,7 +129,7 @@ protected:
 
   // Instance of cmCTest running the script.
   cmCTest* CTest;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
 
   // A stream to which we write log information.
   std::ostream& Log;

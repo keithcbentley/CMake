@@ -145,7 +145,7 @@ cmQtAutoGenGlobalInitializer::cmQtAutoGenGlobalInitializer(
             cmQtAutoGen::Tools(mocDisabled, uicDisabled, rccDisabled),
             " disabled.  Consider adding:\n", "  find_package(Qt", version,
             " COMPONENTS ", component, ")\n", "to your CMakeLists.txt file.");
-          target->Makefile->IssueMessage(MessageType::AUTHOR_WARNING, msg);
+          target->m_pMakefile->IssueMessage(MessageType::AUTHOR_WARNING, msg);
         }
         if (mocIsValid || uicIsValid || rccIsValid) {
           // Create autogen target initializer
@@ -170,11 +170,11 @@ void cmQtAutoGenGlobalInitializer::GetOrCreateGlobalTarget(
     cmMakefile const* makefile = localGen->GetMakefile();
 
     // Create utility target
-    auto cc = cm::make_unique<cmCustomCommand>();
-    cc->SetWorkingDirectory(makefile->GetHomeOutputDirectory().c_str());
-    cc->SetEscapeOldStyle(false);
-    cc->SetComment(comment.c_str());
-    cmTarget* target = localGen->AddUtilityCommand(name, true, std::move(cc));
+    auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+    m_pCustomCommand->SetWorkingDirectory(makefile->GetHomeOutputDirectory().c_str());
+    m_pCustomCommand->SetEscapeOldStyle(false);
+    m_pCustomCommand->SetComment(comment.c_str());
+    cmTarget* target = localGen->AddUtilityCommand(name, true, std::move(m_pCustomCommand));
     localGen->AddGeneratorTarget(
       cm::make_unique<cmGeneratorTarget>(target, localGen));
 

@@ -43,7 +43,7 @@ char const* LinkLibraryTypeNames[3] = { "general", "debug", "optimized" };
 
 struct TLL
 {
-  cmMakefile& Makefile;
+  cmMakefile& m_pMakefile;
   cmTarget* Target;
   bool WarnRemoteInterface = false;
   bool RejectRemoteLinking = false;
@@ -326,12 +326,12 @@ static void LinkLibraryTypeSpecifierWarning(cmMakefile& mf, int left,
 namespace {
 
 TLL::TLL(cmMakefile& mf, cmTarget* target)
-  : Makefile(mf)
+  : m_pMakefile(mf)
   , Target(target)
 {
-  if (&this->Makefile != this->Target->GetMakefile()) {
+  if (&this->m_pMakefile != this->Target->GetMakefile()) {
     // The LHS target was created in another directory.
-    switch (this->Makefile.GetPolicyStatus(cmPolicies::CMP0079)) {
+    switch (this->m_pMakefile.GetPolicyStatus(cmPolicies::CMP0079)) {
       case cmPolicies::WARN:
         this->WarnRemoteInterface = true;
         CM_FALLTHROUGH;
@@ -344,7 +344,7 @@ TLL::TLL(cmMakefile& mf, cmTarget* target)
     }
   }
   if (this->EncodeRemoteReference) {
-    cmDirectoryId const dirId = this->Makefile.GetDirectoryId();
+    cmDirectoryId const dirId = this->m_pMakefile.GetDirectoryId();
     this->DirectoryId = cmStrCat(CMAKE_DIRECTORY_ID_SEP, dirId.String);
   }
 }
@@ -354,7 +354,7 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
 {
   if (this->Target->GetType() == cmStateEnums::INTERFACE_LIBRARY &&
       currentProcessingState != ProcessingKeywordLinkInterface) {
-    this->Makefile.IssueMessage(
+    this->m_pMakefile.IssueMessage(
       MessageType::FATAL_ERROR,
       "INTERFACE library can only be used with the INTERFACE keyword of "
       "target_link_libraries");
@@ -362,7 +362,7 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
   }
   if (this->Target->IsImported() &&
       currentProcessingState != ProcessingKeywordLinkInterface) {
-    this->Makefile.IssueMessage(
+    this->m_pMakefile.IssueMessage(
       MessageType::FATAL_ERROR,
       "IMPORTED library can only be used with the INTERFACE keyword of "
       "target_link_libraries");
@@ -378,7 +378,7 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
     ? cmTarget::KeywordTLLSignature
     : cmTarget::PlainTLLSignature;
   if (!this->Target->PushTLLCommandTrace(
-        sig, this->Makefile.GetBacktrace().Top())) {
+        sig, this->m_pMakefile.GetBacktrace().Top())) {
     std::ostringstream e;
     // If the sig is a keyword form and there is a conflict, the existing
     // form must be the plain form.
@@ -394,7 +394,7 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
                                         sig == cmTarget::KeywordTLLSignature
                                           ? cmTarget::PlainTLLSignature
                                           : cmTarget::KeywordTLLSignature);
-    this->Makefile.IssueMessage(MessageType::FATAL_ERROR, e.str());
+    this->m_pMakefile.IssueMessage(MessageType::FATAL_ERROR, e.str());
     return false;
   }
 
@@ -405,7 +405,7 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
       currentProcessingState != ProcessingPlainLinkInterface) {
 
     if (this->RejectRemoteLinking) {
-      this->Makefile.IssueMessage(
+      this->m_pMakefile.IssueMessage(
         MessageType::FATAL_ERROR,
         cmStrCat("Attempt to add link library \"", lib, "\" to target \"",
                  this->Target->GetName(),
@@ -415,7 +415,7 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
       return false;
     }
 
-    cmTarget* tgt = this->Makefile.GetGlobalGenerator()->FindTarget(lib);
+    cmTarget* tgt = this->m_pMakefile.GetGlobalGenerator()->FindTarget(lib);
 
     if (tgt && (tgt->GetType() != cmStateEnums::STATIC_LIBRARY) &&
         (tgt->GetType() != cmStateEnums::SHARED_LIBRARY) &&
@@ -423,7 +423,7 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
         (tgt->GetType() != cmStateEnums::OBJECT_LIBRARY) &&
         (tgt->GetType() != cmStateEnums::INTERFACE_LIBRARY) &&
         !tgt->IsExecutableWithExports()) {
-      this->Makefile.IssueMessage(
+      this->m_pMakefile.IssueMessage(
         MessageType::FATAL_ERROR,
         cmStrCat(
           "Target \"", lib, "\" of type ",
@@ -434,11 +434,11 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
     }
 
     this->AffectsProperty("LINK_LIBRARIES");
-    this->Target->AddLinkLibrary(this->Makefile, lib, llt);
+    this->Target->AddLinkLibrary(this->m_pMakefile, lib, llt);
   }
 
   if (this->WarnRemoteInterface) {
-    this->Makefile.IssueMessage(
+    this->m_pMakefile.IssueMessage(
       MessageType::AUTHOR_WARNING,
       cmStrCat(
         cmPolicies::GetPolicyWarning(cmPolicies::CMP0079), "\nTarget\n  ",
@@ -482,7 +482,7 @@ bool TLL::HandleLibrary(ProcessingState currentProcessingState,
 void TLL::AppendProperty(std::string const& prop, std::string const& value)
 {
   this->AffectsProperty(prop);
-  this->Target->AppendProperty(prop, value, this->Makefile.GetBacktrace());
+  this->Target->AppendProperty(prop, value, this->m_pMakefile.GetBacktrace());
 }
 
 void TLL::AffectsProperty(std::string const& prop)
@@ -494,7 +494,7 @@ void TLL::AffectsProperty(std::string const& prop)
   // names in the caller's directory.
   if (this->Props.insert(prop).second) {
     this->Target->AppendProperty(prop, this->DirectoryId,
-                                 this->Makefile.GetBacktrace());
+                                 this->m_pMakefile.GetBacktrace());
   }
 }
 
@@ -502,7 +502,7 @@ TLL::~TLL()
 {
   for (std::string const& prop : this->Props) {
     this->Target->AppendProperty(prop, CMAKE_DIRECTORY_ID_SEP,
-                                 this->Makefile.GetBacktrace());
+                                 this->m_pMakefile.GetBacktrace());
   }
 }
 

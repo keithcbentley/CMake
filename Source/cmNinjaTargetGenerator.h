@@ -64,7 +64,7 @@ protected:
 
   cmGlobalNinjaGenerator* GetGlobalGenerator() const;
 
-  cmMakefile* GetMakefile() const { return this->Makefile; }
+  cmMakefile* GetMakefile() const { return this->m_pMakefile; }
 
   enum class WithScanning
   {

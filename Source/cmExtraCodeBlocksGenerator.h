@@ -29,7 +29,7 @@ public:
 private:
   struct CbpUnit
   {
-    std::vector<cmGeneratorTarget const*> Targets;
+    std::vector<cmGeneratorTarget const*> m_targets;
   };
 
   void CreateProjectFile(std::vector<cmLocalGenerator*> const& lgs);

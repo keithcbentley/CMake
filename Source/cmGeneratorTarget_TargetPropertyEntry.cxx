@@ -43,7 +43,7 @@ public:
 
   cmListFileBacktrace GetBacktrace() const override
   {
-    return this->PropertyValue.Backtrace;
+    return this->PropertyValue.m_backtrace;
   }
   std::string const& GetInput() const override
   {
@@ -154,7 +154,7 @@ cmGeneratorTarget::TargetPropertyEntry::Create(
   bool evaluateForBuildsystem)
 {
   if (cmGeneratorExpression::Find(propertyValue.Value) != std::string::npos) {
-    cmGeneratorExpression ge(cmakeInstance, propertyValue.Backtrace);
+    cmGeneratorExpression ge(cmakeInstance, propertyValue.m_backtrace);
     std::unique_ptr<cmCompiledGeneratorExpression> cge =
       ge.Parse(propertyValue.Value);
     cge->SetEvaluateForBuildsystem(evaluateForBuildsystem);

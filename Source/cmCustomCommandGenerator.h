@@ -46,7 +46,7 @@ class cmCustomCommandGenerator
 
 public:
   cmCustomCommandGenerator(
-    cmCustomCommand const& cc, std::string config, cmLocalGenerator* lg,
+    cmCustomCommand const& m_pCustomCommand, std::string config, cmLocalGenerator* lg,
     bool transformDepfile = true, cm::optional<std::string> crossConfig = {},
     std::function<std::string(std::string const&, std::string const&)>
       computeInternalDepfile = {});

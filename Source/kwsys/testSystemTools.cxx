@@ -1228,9 +1228,9 @@ int testSystemTools(int, char*[])
 {
   bool res = true;
 
-  int cc;
-  for (cc = 0; toUnixPaths[cc][0]; cc++) {
-    res &= CheckConvertToUnixSlashes(toUnixPaths[cc][0], toUnixPaths[cc][1]);
+  int m_pCustomCommand;
+  for (m_pCustomCommand = 0; toUnixPaths[m_pCustomCommand][0]; m_pCustomCommand++) {
+    res &= CheckConvertToUnixSlashes(toUnixPaths[m_pCustomCommand][0], toUnixPaths[m_pCustomCommand][1]);
   }
 
   // Special check for ~
@@ -1240,9 +1240,9 @@ int testSystemTools(int, char*[])
     res &= CheckConvertToUnixSlashes("~/foo bar/lala", output);
   }
 
-  for (cc = 0; checkEscapeChars[cc][0]; cc++) {
-    res &= CheckEscapeChars(checkEscapeChars[cc][0], checkEscapeChars[cc][1],
-                            *checkEscapeChars[cc][2], checkEscapeChars[cc][3]);
+  for (m_pCustomCommand = 0; checkEscapeChars[m_pCustomCommand][0]; m_pCustomCommand++) {
+    res &= CheckEscapeChars(checkEscapeChars[m_pCustomCommand][0], checkEscapeChars[m_pCustomCommand][1],
+                            *checkEscapeChars[m_pCustomCommand][2], checkEscapeChars[m_pCustomCommand][3]);
   }
 
   res &= CheckFileOperations();

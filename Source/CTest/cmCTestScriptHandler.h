@@ -48,7 +48,7 @@ public:
 
   void CreateCMake();
   CMake* GetCMake() { return this->m_pcmake.get(); }
-  cmMakefile* GetMakefile() { return this->Makefile.get(); }
+  cmMakefile* GetMakefile() { return this->m_pMakefile.get(); }
 
 private:
   // reads in a script
@@ -61,7 +61,7 @@ private:
   std::vector<std::string> ConfigurationScripts;
   std::vector<bool> ScriptProcessScope;
 
-  std::unique_ptr<cmMakefile> Makefile;
+  std::unique_ptr<cmMakefile> m_pMakefile;
   cmMakefile* ParentMakefile = nullptr;
   std::unique_ptr<cmGlobalGenerator> m_pGlobalGenerator;
   std::unique_ptr<CMake> m_pcmake;

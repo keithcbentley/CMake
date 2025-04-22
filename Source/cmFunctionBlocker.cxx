@@ -26,7 +26,7 @@ bool cmFunctionBlocker::IsFunctionBlocked(cmListFileFunction const& lff,
 
       cmListFileContext const& lfc = this->GetStartingContext();
       cmListFileContext closingContext =
-        cmListFileContext::FromListFileFunction(lff, lfc.FilePath);
+        cmListFileContext::FromListFileFunction(lff, lfc.m_filePath);
       if (this->EndCommandSupportsArguments() &&
           !this->ArgumentsMatch(lff, mf)) {
         std::ostringstream e;

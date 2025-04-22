@@ -185,25 +185,25 @@ public:
   bool GetIsGeneratorMultiConfig() const;
   void SetIsGeneratorMultiConfig(bool b);
 
-  using Command = std::function<bool(std::vector<cmListFileArgument> const&, cmExecutionStatus&)>;
+  using m_command = std::function<bool(std::vector<cmListFileArgument> const&, cmExecutionStatus&)>;
   using BuiltinCommand = bool (*)(
     std::vector<std::string> const&,
     cmExecutionStatus&);
 
   // Returns a command from its name, case insensitive, or nullptr
-  Command GetCommand(std::string const& name) const;
+  m_command GetCommand(std::string const& name) const;
   // Returns a command from its name, or nullptr
-  Command GetCommandByExactName(std::string const& name) const;
+  m_command GetCommandByExactName(std::string const& name) const;
 
   void AddBuiltinCommand(
     std::string const& name,
-    Command command);
+    m_command command);
   void AddBuiltinCommand(
     std::string const& name,
     BuiltinCommand command);
   void AddFlowControlCommand(
     std::string const& name,
-    Command command);
+    m_command command);
   void AddFlowControlCommand(
     std::string const& name,
     BuiltinCommand command);
@@ -224,7 +224,7 @@ public:
     char const* error);
   bool AddScriptedCommand(
     std::string const& name,
-    BT<Command> command,
+    BT<m_command> command,
     cmMakefile& mf);
   void RemoveBuiltinCommand(std::string const& name);
   void RemoveUserDefinedCommands();
@@ -282,7 +282,7 @@ public:
   void ClearDependencyProvider() { m_dependencyProvider.reset(); }
   void SetDependencyProvider(cmDependencyProvider provider) { m_dependencyProvider = std::move(provider); }
   cm::optional<cmDependencyProvider> const& GetDependencyProvider() const { return m_dependencyProvider; }
-  Command GetDependencyProviderCommand(cmDependencyProvider::Method method) const;
+  m_command GetDependencyProviderCommand(cmDependencyProvider::Method method) const;
 
   void SetInTopLevelIncludes(bool inTopLevelIncludes) { m_processingTopLevelIncludes = inTopLevelIncludes; }
   bool InTopLevelIncludes() const { return m_processingTopLevelIncludes; }
@@ -311,8 +311,8 @@ private:
 
   cmPropertyDefinitionMap m_propertyDefinitions;
   std::vector<std::string> m_enabledLanguages;
-  std::unordered_map<std::string, Command> m_builtinCommands;
-  std::unordered_map<std::string, Command> m_scriptedCommands;
+  std::unordered_map<std::string, m_command> m_builtinCommands;
+  std::unordered_map<std::string, m_command> m_scriptedCommands;
   std::unordered_set<std::string> m_flowControlCommands;
   cmPropertyMap m_globalProperties;
   std::unique_ptr<cmCacheManager> m_cacheManager;

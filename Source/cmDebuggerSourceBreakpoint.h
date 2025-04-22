@@ -10,13 +10,13 @@ namespace cmDebugger {
 
 class cmDebuggerSourceBreakpoint
 {
-  int64_t Id;
+  int64_t m_id;
   int64_t Line;
   bool IsValid = true;
 
 public:
   cmDebuggerSourceBreakpoint(int64_t id, int64_t line);
-  int64_t GetId() const noexcept { return this->Id; }
+  int64_t GetId() const noexcept { return this->m_id; }
   int64_t GetLine() const noexcept { return this->Line; }
   void ChangeLine(int64_t line) noexcept { this->Line = line; }
   bool GetIsValid() const noexcept { return this->IsValid; }

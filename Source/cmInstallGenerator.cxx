@@ -19,7 +19,7 @@ cmInstallGenerator::cmInstallGenerator(
   , Message(message)
   , ExcludeFromAll(exclude_from_all)
   , AllComponents(all_components)
-  , Backtrace(std::move(backtrace))
+  , m_backtrace(std::move(backtrace))
 {
 }
 

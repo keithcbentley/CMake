@@ -22,7 +22,7 @@ namespace {
 struct cmVariableWatchCallbackData
 {
   bool InCallback;
-  std::string Command;
+  std::string m_command;
 };
 
 void cmVariableWatchCommandVariableAccessed(std::string const& variable,
@@ -44,7 +44,7 @@ void cmVariableWatchCommandVariableAccessed(std::string const& variable,
   cmMakefile* makefile = const_cast<cmMakefile*>(mf);
 
   std::string stack = *mf->GetProperty("LISTFILE_STACK");
-  if (!data->Command.empty()) {
+  if (!data->m_command.empty()) {
     cmValue const currentListFile =
       mf->GetDefinition("CMAKE_CURRENT_LIST_FILE");
     auto const fakeLineNo =
@@ -58,14 +58,14 @@ void cmVariableWatchCommandVariableAccessed(std::string const& variable,
       { stack, cmListFileArgument::Quoted, fakeLineNo }
     };
 
-    cmListFileFunction newLFF{ data->Command, fakeLineNo, fakeLineNo,
+    cmListFileFunction newLFF{ data->m_command, fakeLineNo, fakeLineNo,
                                std::move(newLFFArgs) };
     cmExecutionStatus status(*makefile);
     if (!makefile->ExecuteCommand(newLFF, status)) {
       cmSystemTools::Error(
         cmStrCat("Error in cmake code at\nUnknown:0:\nA command failed "
                  "during the invocation of callback \"",
-                 data->Command, "\"."));
+                 data->m_command, "\"."));
     }
   } else {
     makefile->IssueMessage(
@@ -91,7 +91,7 @@ class FinalAction
 public:
   /* NOLINTNEXTLINE(performance-unnecessary-value-param) */
   FinalAction(cmMakefile* makefile, std::string variable)
-    : Action{ std::make_shared<Impl>(makefile, std::move(variable)) }
+    : m_action{ std::make_shared<Impl>(makefile, std::move(variable)) }
   {
   }
 
@@ -101,22 +101,22 @@ private:
   struct Impl
   {
     Impl(cmMakefile* makefile, std::string variable)
-      : Makefile{ makefile }
+      : m_pMakefile{ makefile }
       , Variable{ std::move(variable) }
     {
     }
 
     ~Impl()
     {
-      this->Makefile->GetCMakeInstance()->GetVariableWatch()->RemoveWatch(
+      this->m_pMakefile->GetCMakeInstance()->GetVariableWatch()->RemoveWatch(
         this->Variable, cmVariableWatchCommandVariableAccessed);
     }
 
-    cmMakefile* const Makefile;
+    cmMakefile* const m_pMakefile;
     std::string const Variable;
   };
 
-  std::shared_ptr<Impl const> Action;
+  std::shared_ptr<Impl const> m_action;
 };
 } // anonymous namespace
 
@@ -140,7 +140,7 @@ bool cmVariableWatchCommand(std::vector<std::string> const& args,
   auto* const data = new cmVariableWatchCallbackData;
 
   data->InCallback = false;
-  data->Command = std::move(command);
+  data->m_command = std::move(command);
 
   if (!status.GetMakefile().GetCMakeInstance()->GetVariableWatch()->AddWatch(
         variable, cmVariableWatchCommandVariableAccessed, data,

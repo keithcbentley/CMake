@@ -34,7 +34,7 @@ cmSourceGroup::cmSourceGroup(cmSourceGroup const& r)
   this->FullName = r.FullName;
   this->GroupRegex = r.GroupRegex;
   this->GroupFiles = r.GroupFiles;
-  this->SourceFiles = r.SourceFiles;
+  this->m_sourceFiles = r.m_sourceFiles;
   this->Internal = cm::make_unique<cmSourceGroupInternals>(*r.Internal);
 }
 
@@ -43,7 +43,7 @@ cmSourceGroup& cmSourceGroup::operator=(cmSourceGroup const& r)
   this->Name = r.Name;
   this->GroupRegex = r.GroupRegex;
   this->GroupFiles = r.GroupFiles;
-  this->SourceFiles = r.SourceFiles;
+  this->m_sourceFiles = r.m_sourceFiles;
   *(this->Internal) = *(r.Internal);
   return *this;
 }
@@ -84,12 +84,12 @@ bool cmSourceGroup::MatchesFiles(std::string const& name) const
 
 void cmSourceGroup::AssignSource(cmSourceFile const* sf)
 {
-  this->SourceFiles.push_back(sf);
+  this->m_sourceFiles.push_back(sf);
 }
 
 std::vector<cmSourceFile const*> const& cmSourceGroup::GetSourceFiles() const
 {
-  return this->SourceFiles;
+  return this->m_sourceFiles;
 }
 
 void cmSourceGroup::AddChild(cmSourceGroup const& child)

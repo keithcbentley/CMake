@@ -482,18 +482,18 @@ bool cmAddCustomCommandCommand(std::vector<std::string> const& args,
   }
 
   // Choose which mode of the command to use.
-  auto cc = cm::make_unique<cmCustomCommand>();
-  cc->SetByproducts(byproducts);
-  cc->SetCommandLines(commandLines);
-  cc->SetComment(comment);
-  cc->SetWorkingDirectory(working.c_str());
-  cc->SetEscapeOldStyle(!verbatim);
-  cc->SetUsesTerminal(uses_terminal);
-  cc->SetDepfile(depfile);
-  cc->SetJobPool(job_pool);
-  cc->SetJobserverAware(cmIsOn(job_server_aware));
-  cc->SetCommandExpandLists(command_expand_lists);
-  cc->SetDependsExplicitOnly(depends_explicit_only);
+  auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+  m_pCustomCommand->SetByproducts(byproducts);
+  m_pCustomCommand->SetCommandLines(commandLines);
+  m_pCustomCommand->SetComment(comment);
+  m_pCustomCommand->SetWorkingDirectory(working.c_str());
+  m_pCustomCommand->SetEscapeOldStyle(!verbatim);
+  m_pCustomCommand->SetUsesTerminal(uses_terminal);
+  m_pCustomCommand->SetDepfile(depfile);
+  m_pCustomCommand->SetJobPool(job_pool);
+  m_pCustomCommand->SetJobserverAware(cmIsOn(job_server_aware));
+  m_pCustomCommand->SetCommandExpandLists(command_expand_lists);
+  m_pCustomCommand->SetDependsExplicitOnly(depends_explicit_only);
   if (source.empty() && output.empty()) {
     // Source is empty, use the target.
     if (commandLines.empty()) {
@@ -558,7 +558,7 @@ bool cmAddCustomCommandCommand(std::vector<std::string> const& args,
                    cmPolicies::GetPolicyWarning(cmPolicies::CMP0175)));
       }
     }
-    mf.AddCustomCommandToTarget(target, cctype, std::move(cc));
+    mf.AddCustomCommandToTarget(target, cctype, std::move(m_pCustomCommand));
   } else if (target.empty()) {
     // Target is empty, use the output.
     std::vector<std::string> unsupportedKeywordsUsed;
@@ -582,12 +582,12 @@ bool cmAddCustomCommandCommand(std::vector<std::string> const& args,
                    cmPolicies::GetPolicyWarning(cmPolicies::CMP0175)));
       }
     }
-    cc->SetOutputs(output);
-    cc->SetMainDependency(main_dependency);
-    cc->SetDepends(depends);
-    cc->SetCodegen(codegen);
-    cc->SetImplicitDepends(implicit_depends);
-    mf.AddCustomCommandToOutput(std::move(cc));
+    m_pCustomCommand->SetOutputs(output);
+    m_pCustomCommand->SetMainDependency(main_dependency);
+    m_pCustomCommand->SetDepends(depends);
+    m_pCustomCommand->SetCodegen(codegen);
+    m_pCustomCommand->SetImplicitDepends(implicit_depends);
+    mf.AddCustomCommandToOutput(std::move(m_pCustomCommand));
   } else {
     mf.IssueMessage(
       MessageType::FATAL_ERROR,

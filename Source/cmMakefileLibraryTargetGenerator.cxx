@@ -256,7 +256,7 @@ void cmMakefileLibraryTargetGenerator::WriteDeviceLibraryRules(
   // code duplication.
   std::vector<std::string> commands;
   std::string const objExt =
-    this->Makefile->GetSafeDefinition("CMAKE_CUDA_OUTPUT_EXTENSION");
+    this->m_pMakefile->GetSafeDefinition("CMAKE_CUDA_OUTPUT_EXTENSION");
 
   // Get the name of the device object to generate.
   std::string const targetOutput =
@@ -277,7 +277,7 @@ void cmMakefileLibraryTargetGenerator::WriteDeviceLibraryRules(
       commands, buildEcho, cmLocalUnixMakefileGenerator3::EchoLink, &progress);
   }
 
-  if (this->Makefile->GetSafeDefinition("CMAKE_CUDA_COMPILER_ID") == "Clang") {
+  if (this->m_pMakefile->GetSafeDefinition("CMAKE_CUDA_COMPILER_ID") == "Clang") {
     this->WriteDeviceLinkRule(commands, targetOutput);
   } else {
     this->WriteNvidiaDeviceLibraryRules(linkRuleVar, relink, commands,
@@ -380,7 +380,7 @@ void cmMakefileLibraryTargetGenerator::WriteNvidiaDeviceLibraryRules(
     std::string launcher;
     std::string val = this->LocalGenerator->GetRuleLauncher(
       this->GeneratorTarget, "RULE_LAUNCH_LINK",
-      this->Makefile->GetSafeDefinition("CMAKE_BUILD_TYPE"));
+      this->m_pMakefile->GetSafeDefinition("CMAKE_BUILD_TYPE"));
     if (cmNonempty(val)) {
       launcher = cmStrCat(val, ' ');
     }
@@ -419,7 +419,7 @@ void cmMakefileLibraryTargetGenerator::WriteNvidiaDeviceLibraryRules(
     commands1 = real_link_commands;
   }
   this->LocalGenerator->CreateCDCommand(
-    commands1, this->Makefile->GetCurrentBinaryDirectory(),
+    commands1, this->m_pMakefile->GetCurrentBinaryDirectory(),
     this->LocalGenerator->GetBinaryDirectory());
   cm::append(commands, commands1);
   commands1.clear();
@@ -504,7 +504,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
                                              this->GetConfigName());
     outpath += '/';
   } else if (relink) {
-    outpath = cmStrCat(this->Makefile->GetCurrentBinaryDirectory(),
+    outpath = cmStrCat(this->m_pMakefile->GetCurrentBinaryDirectory(),
                        "/CMakeFiles/CMakeRelink.dir");
     cmSystemTools::MakeDirectory(outpath);
     outpath += '/';
@@ -598,7 +598,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
     this->LocalGenerator->AppendCleanCommand(commands1, libCleanFiles,
                                              this->GeneratorTarget, "target");
     this->LocalGenerator->CreateCDCommand(
-      commands1, this->Makefile->GetCurrentBinaryDirectory(),
+      commands1, this->m_pMakefile->GetCurrentBinaryDirectory(),
       this->LocalGenerator->GetBinaryDirectory());
     cm::append(commands, commands1);
     commands1.clear();
@@ -664,14 +664,14 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
   cmList archiveFinishCommands;
   std::string::size_type archiveCommandLimit = std::string::npos;
   if (this->GeneratorTarget->GetType() == cmStateEnums::STATIC_LIBRARY) {
-    haveStaticLibraryRule = this->Makefile->IsDefinitionSet(linkRuleVar);
+    haveStaticLibraryRule = this->m_pMakefile->IsDefinitionSet(linkRuleVar);
     std::string arCreateVar =
       cmStrCat("CMAKE_", linkLanguage, "_ARCHIVE_CREATE");
 
     arCreateVar = this->GeneratorTarget->GetFeatureSpecificLinkRuleVariable(
       arCreateVar, linkLanguage, this->GetConfigName());
 
-    archiveCreateCommands.assign(this->Makefile->GetDefinition(arCreateVar));
+    archiveCreateCommands.assign(this->m_pMakefile->GetDefinition(arCreateVar));
 
     std::string arAppendVar =
       cmStrCat("CMAKE_", linkLanguage, "_ARCHIVE_APPEND");
@@ -679,7 +679,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
     arAppendVar = this->GeneratorTarget->GetFeatureSpecificLinkRuleVariable(
       arAppendVar, linkLanguage, this->GetConfigName());
 
-    archiveAppendCommands.assign(this->Makefile->GetDefinition(arAppendVar));
+    archiveAppendCommands.assign(this->m_pMakefile->GetDefinition(arAppendVar));
 
     std::string arFinishVar =
       cmStrCat("CMAKE_", linkLanguage, "_ARCHIVE_FINISH");
@@ -687,7 +687,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
     arFinishVar = this->GeneratorTarget->GetFeatureSpecificLinkRuleVariable(
       arFinishVar, linkLanguage, this->GetConfigName());
 
-    archiveFinishCommands.assign(this->Makefile->GetDefinition(arFinishVar));
+    archiveFinishCommands.assign(this->m_pMakefile->GetDefinition(arFinishVar));
   }
 
   // Decide whether to use archiving rules.
@@ -715,7 +715,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
     this->LocalGenerator->CreateRulePlaceholderExpander(
       cmBuildStep::Link, this->GeneratorTarget, linkLanguage);
   bool useWatcomQuote =
-    this->Makefile->IsOn(linkRuleVar + "_USE_WATCOM_QUOTE");
+    this->m_pMakefile->IsOn(linkRuleVar + "_USE_WATCOM_QUOTE");
   cmList real_link_commands;
   {
     // Set path conversion for link script shells.
@@ -803,7 +803,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
     std::string targetOutSOName;
     if (this->GeneratorTarget->HasSOName(this->GetConfigName()) ||
         this->GeneratorTarget->IsArchivedAIXSharedLibrary()) {
-      vars.SONameFlag = this->Makefile->GetSONameFlag(linkLanguage);
+      vars.SONameFlag = this->m_pMakefile->GetSONameFlag(linkLanguage);
       targetOutSOName = this->LocalGenerator->ConvertToOutputFormat(
         this->TargetNames.SharedObject, cmOutputConverter::SHELL);
       vars.TargetSOName = targetOutSOName.c_str();
@@ -849,7 +849,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
     std::string launcher;
     std::string val = this->LocalGenerator->GetRuleLauncher(
       this->GeneratorTarget, "RULE_LAUNCH_LINK",
-      this->Makefile->GetSafeDefinition("CMAKE_BUILD_TYPE"));
+      this->m_pMakefile->GetSafeDefinition("CMAKE_BUILD_TYPE"));
     if (cmNonempty(val)) {
       launcher = cmStrCat(val, ' ');
     }
@@ -908,7 +908,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
       real_link_commands.append(linkRule);
       if (this->UseLWYU) {
         cmValue lwyuCheck =
-          this->Makefile->GetDefinition("CMAKE_LINK_WHAT_YOU_USE_CHECK");
+          this->m_pMakefile->GetDefinition("CMAKE_LINK_WHAT_YOU_USE_CHECK");
         if (lwyuCheck) {
           std::string cmakeCommand = cmStrCat(
             this->LocalGenerator->ConvertToOutputFormat(
@@ -943,7 +943,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
     commands1 = real_link_commands;
   }
   this->LocalGenerator->CreateCDCommand(
-    commands1, this->Makefile->GetCurrentBinaryDirectory(),
+    commands1, this->m_pMakefile->GetCurrentBinaryDirectory(),
     this->LocalGenerator->GetBinaryDirectory());
   cm::append(commands, commands1);
   commands1.clear();
@@ -957,7 +957,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
                ' ', targetOutPathSO, ' ', targetOutPath);
     commands1.push_back(std::move(symlink));
     this->LocalGenerator->CreateCDCommand(
-      commands1, this->Makefile->GetCurrentBinaryDirectory(),
+      commands1, this->m_pMakefile->GetCurrentBinaryDirectory(),
       this->LocalGenerator->GetBinaryDirectory());
     cm::append(commands, commands1);
     commands1.clear();
@@ -990,10 +990,10 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
   if (this->GeneratorTarget->IsApple() &&
       this->GeneratorTarget->HasImportLibrary(this->GetConfigName())) {
     auto genStubsRule =
-      this->Makefile->GetDefinition("CMAKE_CREATE_TEXT_STUBS");
+      this->m_pMakefile->GetDefinition("CMAKE_CREATE_TEXT_STUBS");
     cmList genStubs_commands{ genStubsRule };
     this->LocalGenerator->CreateCDCommand(
-      genStubs_commands, this->Makefile->GetCurrentBinaryDirectory(),
+      genStubs_commands, this->m_pMakefile->GetCurrentBinaryDirectory(),
       this->LocalGenerator->GetBinaryDirectory());
 
     std::string TBDFullPath =
@@ -1047,7 +1047,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules(
                  ' ', TBDOutPathSO, ' ', TBDOutPath);
       commands1.push_back(std::move(symlink));
       this->LocalGenerator->CreateCDCommand(
-        commands1, this->Makefile->GetCurrentBinaryDirectory(),
+        commands1, this->m_pMakefile->GetCurrentBinaryDirectory(),
         this->LocalGenerator->GetBinaryDirectory());
       cm::append(genStubs_commands, commands1);
       commands1.clear();

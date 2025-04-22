@@ -241,9 +241,9 @@ private:
 bool cmCTestSVN::UpdateImpl()
 {
   // Get user-specified update options.
-  std::string opts = this->Makefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
+  std::string opts = this->m_pMakefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
   if (opts.empty()) {
-    opts = this->Makefile->GetSafeDefinition("CTEST_SVN_UPDATE_OPTIONS");
+    opts = this->m_pMakefile->GetSafeDefinition("CTEST_SVN_UPDATE_OPTIONS");
   }
   std::vector<std::string> args = cmSystemTools::ParseArguments(opts);
 
@@ -274,7 +274,7 @@ bool cmCTestSVN::RunSVNCommand(std::vector<std::string> const& parameters,
   args.emplace_back("--non-interactive");
 
   std::string userOptions =
-    this->Makefile->GetSafeDefinition("CTEST_SVN_OPTIONS");
+    this->m_pMakefile->GetSafeDefinition("CTEST_SVN_OPTIONS");
 
   std::vector<std::string> parsedUserOptions =
     cmSystemTools::ParseArguments(userOptions);
@@ -333,7 +333,7 @@ private:
       this->CurChange = Change();
       if (char const* action =
             cmCTestSVN::LogParser::FindAttribute(atts, "action")) {
-        this->CurChange.Action = action[0];
+        this->CurChange.m_action = action[0];
       }
     }
   }
@@ -362,7 +362,7 @@ private:
     this->CData.clear();
   }
 
-  void ReportError(int /*line*/, int /*column*/, char const* msg) override
+  void m_reportError(int /*line*/, int /*column*/, char const* msg) override
   {
     this->SVN->Log << "Error parsing svn log xml: " << msg << "\n";
   }

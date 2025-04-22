@@ -37,8 +37,8 @@ static rhash cmCryptoHash_rhash_init(unsigned int id)
 }
 
 cmCryptoHash::cmCryptoHash(Algo algo)
-  : Id(cmCryptoHashAlgoToId[algo])
-  , CTX(cmCryptoHash_rhash_init(this->Id))
+  : m_id(cmCryptoHashAlgoToId[algo])
+  , CTX(cmCryptoHash_rhash_init(this->m_id))
 {
 }
 
@@ -87,7 +87,7 @@ std::string cmCryptoHash::GetHashAlgoName() const
 #ifndef CMAKE_USE_SYSTEM_LIBRHASH
   static_assert(RHASH_HASH_COUNT == 10, "Update switch statement!");
 #endif
-  switch (this->Id) {
+  switch (this->m_id) {
     case RHASH_MD5:
       return "MD5";
     case RHASH_SHA1:
@@ -214,7 +214,7 @@ void cmCryptoHash::Append(cm::string_view input)
 
 std::vector<unsigned char> cmCryptoHash::Finalize()
 {
-  std::vector<unsigned char> hash(rhash_get_digest_size(this->Id), 0);
+  std::vector<unsigned char> hash(rhash_get_digest_size(this->m_id), 0);
   rhash_final(this->CTX, hash.data());
   return hash;
 }

@@ -161,9 +161,9 @@ bool cmCTestGIT::UpdateByFetchAndReset()
   git_fetch.emplace_back("fetch");
 
   // Add user-specified update options.
-  std::string opts = this->Makefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
+  std::string opts = this->m_pMakefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
   if (opts.empty()) {
-    opts = this->Makefile->GetSafeDefinition("CTEST_GIT_UPDATE_OPTIONS");
+    opts = this->m_pMakefile->GetSafeDefinition("CTEST_GIT_UPDATE_OPTIONS");
   }
   std::vector<std::string> args = cmSystemTools::ParseArguments(opts);
   cm::append(git_fetch, args);
@@ -223,7 +223,7 @@ bool cmCTestGIT::UpdateByCustom(std::string const& custom)
 bool cmCTestGIT::UpdateInternal()
 {
   std::string custom =
-    this->Makefile->GetSafeDefinition("CTEST_GIT_UPDATE_CUSTOM");
+    this->m_pMakefile->GetSafeDefinition("CTEST_GIT_UPDATE_CUSTOM");
   if (!custom.empty()) {
     return this->UpdateByCustom(custom);
   }
@@ -266,7 +266,7 @@ bool cmCTestGIT::UpdateImpl()
 
   bool ret;
 
-  if (this->Makefile->IsOn("CTEST_GIT_INIT_SUBMODULES")) {
+  if (this->m_pMakefile->IsOn("CTEST_GIT_INIT_SUBMODULES")) {
     std::vector<std::string> git_submodule_init = { git, "submodule", "init" };
     ret = this->RunChild(git_submodule_init, &submodule_out, &submodule_err,
                          top_dir);
@@ -377,20 +377,20 @@ protected:
       char const* status_first = this->ConsumeSpace(dst_sha1_last);
       char const* status_last = this->ConsumeField(status_first);
       if (status_first != status_last) {
-        this->CurChange.Action = *status_first;
+        this->CurChange.m_action = *status_first;
         this->DiffField = DiffFieldSrc;
       } else {
         this->DiffField = DiffFieldNone;
       }
     } else if (this->DiffField == DiffFieldSrc) {
       // src-path
-      if (this->CurChange.Action == 'C') {
+      if (this->CurChange.m_action == 'C') {
         // Convert copy to addition of destination.
-        this->CurChange.Action = 'A';
+        this->CurChange.m_action = 'A';
         this->DiffField = DiffFieldDst;
-      } else if (this->CurChange.Action == 'R') {
+      } else if (this->CurChange.m_action == 'R') {
         // Convert rename to deletion of source and addition of destination.
-        this->CurChange.Action = 'D';
+        this->CurChange.m_action = 'D';
         this->CurChange.Path = this->Line;
         this->Changes.push_back(this->CurChange);
 

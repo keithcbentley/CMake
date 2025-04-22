@@ -34,7 +34,7 @@ public:
 protected:
   std::string Property;
   cmTarget* Target = nullptr;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
 
   virtual void HandleInterfaceContent(cmTarget* tgt,
                                       std::vector<std::string> const& content,

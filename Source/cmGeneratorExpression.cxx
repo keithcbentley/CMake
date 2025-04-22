@@ -26,7 +26,7 @@
 cmGeneratorExpression::cmGeneratorExpression(CMake& cmakeInstance,
                                              cmListFileBacktrace backtrace)
   : CMakeInstance(cmakeInstance)
-  , Backtrace(std::move(backtrace))
+  , m_backtrace(std::move(backtrace))
 {
 }
 
@@ -38,7 +38,7 @@ std::unique_ptr<cmCompiledGeneratorExpression> cmGeneratorExpression::Parse(
   std::string input) const
 {
   return std::unique_ptr<cmCompiledGeneratorExpression>(
-    new cmCompiledGeneratorExpression(this->CMakeInstance, this->Backtrace,
+    new cmCompiledGeneratorExpression(this->CMakeInstance, this->m_backtrace,
                                       std::move(input)));
 }
 
@@ -71,7 +71,7 @@ std::string const& cmCompiledGeneratorExpression::Evaluate(
   cmGeneratorExpressionContext context(
     lg, config, this->Quiet, headTarget,
     currentTarget ? currentTarget : headTarget, this->EvaluateForBuildsystem,
-    this->Backtrace, language);
+    this->m_backtrace, language);
 
   if (!this->NeedsEvaluation) {
     return this->Input;
@@ -107,7 +107,7 @@ std::string const& cmCompiledGeneratorExpression::Evaluate(
 
 cmCompiledGeneratorExpression::cmCompiledGeneratorExpression(
   CMake& cmakeInstance, cmListFileBacktrace backtrace, std::string input)
-  : Backtrace(std::move(backtrace))
+  : m_backtrace(std::move(backtrace))
   , Input(std::move(input))
 {
 #ifndef CMAKE_BOOTSTRAP

@@ -28,7 +28,7 @@ cmGeneratorExpressionDAGChecker::cmGeneratorExpressionDAGChecker(
   , Target(target)
   , Property(std::move(property))
   , Content(content)
-  , Backtrace(std::move(backtrace))
+  , m_backtrace(std::move(backtrace))
   , ComputingLinkLibraries_(computingLinkLibraries)
 {
   if (parent) {
@@ -62,7 +62,7 @@ cmGeneratorExpressionDAGChecker::Check() const
   return this->CheckResult;
 }
 
-void cmGeneratorExpressionDAGChecker::ReportError(
+void cmGeneratorExpressionDAGChecker::m_reportError(
   cmGeneratorExpressionContext* context, std::string const& expr)
 {
   if (this->CheckResult == DAG) {
@@ -83,7 +83,7 @@ void cmGeneratorExpressionDAGChecker::ReportError(
       << "Self reference on target \"" << context->HeadTarget->GetName()
       << "\".\n";
     context->LG->GetCMakeInstance()->IssueMessage(MessageType::FATAL_ERROR,
-                                                  e.str(), parent->Backtrace);
+                                                  e.str(), parent->m_backtrace);
     return;
   }
 
@@ -95,7 +95,7 @@ void cmGeneratorExpressionDAGChecker::ReportError(
     << "Dependency loop found.";
     /* clang-format on */
     context->LG->GetCMakeInstance()->IssueMessage(MessageType::FATAL_ERROR,
-                                                  e.str(), context->Backtrace);
+                                                  e.str(), context->m_backtrace);
   }
 
   int loopStep = 1;
@@ -106,7 +106,7 @@ void cmGeneratorExpressionDAGChecker::ReportError(
       << (parent->Content ? parent->Content->GetOriginalExpression() : expr)
       << "\n";
     context->LG->GetCMakeInstance()->IssueMessage(MessageType::FATAL_ERROR,
-                                                  e.str(), parent->Backtrace);
+                                                  e.str(), parent->m_backtrace);
     parent = parent->Parent;
     ++loopStep;
   }

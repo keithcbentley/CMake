@@ -75,7 +75,7 @@ cmDebuggerExceptionManager::HandleExceptionInfoRequest()
 
   dap::ExceptionInfoResponse response;
   if (TheException.has_value()) {
-    response.exceptionId = TheException->Id;
+    response.exceptionId = TheException->m_id;
     response.breakMode = "always";
     response.description = TheException->Description;
     TheException = cm::nullopt;

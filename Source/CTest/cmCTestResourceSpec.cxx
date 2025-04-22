@@ -61,7 +61,7 @@ bool ResourceIdHelper(std::string& out, Json::Value const* value,
 
 auto const ResourceHelper =
   JSONHelperBuilder::Object<cmCTestResourceSpec::Resource>()
-    .Bind("id"_s, &cmCTestResourceSpec::Resource::Id, ResourceIdHelper)
+    .Bind("id"_s, &cmCTestResourceSpec::Resource::m_id, ResourceIdHelper)
     .Bind(
       "slots"_s, &cmCTestResourceSpec::Resource::Capacity,
       JSONHelperBuilder::UInt(cmCTestResourceSpecErrors::INVALID_RESOURCE, 1),
@@ -158,7 +158,7 @@ bool cmCTestResourceSpec::Socket::operator!=(
 bool cmCTestResourceSpec::Resource::operator==(
   cmCTestResourceSpec::Resource const& other) const
 {
-  return this->Id == other.Id && this->Capacity == other.Capacity;
+  return this->m_id == other.m_id && this->Capacity == other.Capacity;
 }
 
 bool cmCTestResourceSpec::Resource::operator!=(

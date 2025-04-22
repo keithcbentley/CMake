@@ -171,7 +171,7 @@ cm::optional<std::string> cmSarif::MessageRuleId(MessageType t)
 Json::Value cmSarif::Rule::GetJson() const
 {
   Json::Value rule(Json::objectValue);
-  rule["id"] = this->Id;
+  rule["id"] = this->m_id;
 
   if (this->Name) {
     rule["name"] = *this->Name;
@@ -194,7 +194,7 @@ cmSarif::SourceFileLocation::SourceFileLocation(
   }
 
   cmListFileContext const& lfc = backtrace.Top();
-  this->Uri = lfc.FilePath;
+  this->Uri = lfc.m_filePath;
   this->Line = lfc.Line;
 }
 
@@ -206,7 +206,7 @@ cmSarif::SourceFileLocation::FromBacktrace(
     return cm::nullopt;
   }
   cmListFileContext const& lfc = backtrace.Top();
-  if (lfc.Line <= 0 || lfc.FilePath.empty()) {
+  if (lfc.Line <= 0 || lfc.m_filePath.empty()) {
     return cm::nullopt;
   }
 
@@ -300,7 +300,7 @@ cmSarif::LogFileWriter::~LogFileWriter()
       // If the result is `FAILURE`, it means the write condition is true but
       // the file still wasn't written. This is an error.
       cmSystemTools::Error("Failed to write SARIF log to " +
-                           this->FilePath.generic_string());
+                           this->m_filePath.generic_string());
     }
   }
 }
@@ -308,7 +308,7 @@ cmSarif::LogFileWriter::~LogFileWriter()
 bool cmSarif::LogFileWriter::EnsureFileValid()
 {
   // First, ensure directory exists
-  cm::filesystem::path dir = this->FilePath.parent_path();
+  cm::filesystem::path dir = this->m_filePath.parent_path();
   if (!cmSystemTools::FileIsDirectory(dir.generic_string())) {
     if (!this->CreateDirectories ||
         !cmSystemTools::MakeDirectory(dir.generic_string()).IsSuccess()) {
@@ -317,7 +317,7 @@ bool cmSarif::LogFileWriter::EnsureFileValid()
   }
 
   // Open the file for writing
-  cmsys::ofstream outputFile(this->FilePath.generic_string().c_str());
+  cmsys::ofstream outputFile(this->m_filePath.generic_string().c_str());
   if (!outputFile.good()) {
     return false;
   }
@@ -335,7 +335,7 @@ cmSarif::LogFileWriter::WriteResult cmSarif::LogFileWriter::TryWrite()
   if (!this->EnsureFileValid()) {
     return WriteResult::FAILURE;
   }
-  cmsys::ofstream outputFile(this->FilePath.generic_string().c_str());
+  cmsys::ofstream outputFile(this->m_filePath.generic_string().c_str());
 
   // The file is available, so proceed to write the log
 

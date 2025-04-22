@@ -47,18 +47,18 @@ class cmCoreTryCompile
 {
 public:
   cmCoreTryCompile(cmMakefile* mf)
-    : Makefile(mf)
+    : m_pMakefile(mf)
   {
   }
 
   struct Arguments : public ArgumentParser::ParseResult
   {
     Arguments(cmMakefile const* mf)
-      : Makefile(mf)
+      : m_pMakefile(mf)
     {
     }
 
-    cmMakefile const* Makefile;
+    cmMakefile const* m_pMakefile;
 
     enum class SourceType
     {
@@ -155,7 +155,7 @@ public:
   std::string OutputFile;
   std::string FindErrorMessage;
   bool SrcFileSignature = false;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
 
 private:
   std::string WriteSource(std::string const& name, std::string const& content,

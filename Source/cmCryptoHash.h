@@ -85,6 +85,6 @@ public:
   std::string FinalizeHex();
 
 private:
-  unsigned int Id;
+  unsigned int m_id;
   struct rhash_context* CTX;
 };

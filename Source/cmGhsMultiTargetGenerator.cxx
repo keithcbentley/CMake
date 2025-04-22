@@ -39,11 +39,11 @@ cmGhsMultiTargetGenerator::cmGhsMultiTargetGenerator(cmGeneratorTarget* target)
   : GeneratorTarget(target)
   , LocalGenerator(
       static_cast<cmLocalGhsMultiGenerator*>(target->GetLocalGenerator()))
-  , Makefile(target->Target->GetMakefile())
+  , m_pMakefile(target->Target->GetMakefile())
   , Name(target->GetName())
 {
   // Store the configuration name that is being used
-  if (cmValue config = this->Makefile->GetDefinition("CMAKE_BUILD_TYPE")) {
+  if (cmValue config = this->m_pMakefile->GetDefinition("CMAKE_BUILD_TYPE")) {
     // Use the build type given by the user.
     this->ConfigName = *config;
   } else {
@@ -210,9 +210,9 @@ void cmGhsMultiTargetGenerator::SetCompilerFlags(std::string const& config,
     this->LocalGenerator->AddColorDiagnosticsFlags(flags, language);
 
     // Append old-style preprocessor definition flags.
-    if (this->Makefile->GetDefineFlags() != " ") {
+    if (this->m_pMakefile->GetDefineFlags() != " ") {
       this->LocalGenerator->AppendFlags(flags,
-                                        this->Makefile->GetDefineFlags());
+                                        this->m_pMakefile->GetDefineFlags());
     }
 
     // Add target-specific flags.
@@ -383,8 +383,8 @@ void cmGhsMultiTargetGenerator::WriteBuildEventsHelper(
   std::string shell = "/bin/sh ";
 #endif
 
-  for (cmCustomCommand const& cc : ccv) {
-    cmCustomCommandGenerator ccg(cc, this->ConfigName, this->LocalGenerator);
+  for (cmCustomCommand const& m_pCustomCommand : ccv) {
+    cmCustomCommandGenerator ccg(m_pCustomCommand, this->ConfigName, this->LocalGenerator);
     // Open the filestream for this custom command
     std::string fname =
       cmStrCat(this->LocalGenerator->GetCurrentBinaryDirectory(), '/',
@@ -518,14 +518,14 @@ void cmGhsMultiTargetGenerator::WriteSources(std::ostream& fout_proj)
   /* vector of all groups defined for this target
    * -- but the vector is not expanded with sub groups or in any useful order
    */
-  std::vector<cmSourceGroup> sourceGroups = this->Makefile->GetSourceGroups();
+  std::vector<cmSourceGroup> sourceGroups = this->m_pMakefile->GetSourceGroups();
 
   /* for each source file assign it to its group */
   std::map<std::string, std::vector<cmSourceFile*>> groupFiles;
   std::set<std::string> groupNames;
   for (cmSourceFile* sf : sources) {
     cmSourceGroup* sourceGroup =
-      this->Makefile->FindSourceGroup(sf->ResolveFullPath(), sourceGroups);
+      this->m_pMakefile->FindSourceGroup(sf->ResolveFullPath(), sourceGroups);
     std::string gn = sourceGroup->GetFullName();
     groupFiles[gn].push_back(sf);
     groupNames.insert(std::move(gn));
@@ -595,7 +595,7 @@ void cmGhsMultiTargetGenerator::WriteSources(std::ostream& fout_proj)
     std::ostream* fout;
     bool useProjectFile =
       this->GeneratorTarget->GetProperty("GHS_NO_SOURCE_GROUP_FILE").IsOn() ||
-      this->Makefile->IsOn("CMAKE_GHS_NO_SOURCE_GROUP_FILE");
+      this->m_pMakefile->IsOn("CMAKE_GHS_NO_SOURCE_GROUP_FILE");
     if (useProjectFile || sg.empty()) {
       fout = &fout_proj;
     } else {
@@ -694,8 +694,8 @@ void cmGhsMultiTargetGenerator::WriteSources(std::ostream& fout_proj)
         std::string fext = ".sh";
 #endif
         for (auto& sf : customCommands) {
-          cmCustomCommand const* cc = sf->GetCustomCommand();
-          cmCustomCommandGenerator ccg(*cc, this->ConfigName,
+          cmCustomCommand const* m_pCustomCommand = sf->GetCustomCommand();
+          cmCustomCommandGenerator ccg(*m_pCustomCommand, this->ConfigName,
                                        this->LocalGenerator);
 
           // Open the filestream for this custom command

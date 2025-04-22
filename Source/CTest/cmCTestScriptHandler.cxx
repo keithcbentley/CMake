@@ -68,11 +68,11 @@ int cmCTestScriptHandler::ProcessHandler()
 
 void cmCTestScriptHandler::UpdateElapsedTime()
 {
-  if (this->Makefile) {
+  if (this->m_pMakefile) {
     // set the current elapsed time
     auto itime = cmDurationTo<unsigned int>(this->CTest->GetElapsedTime());
     auto timeString = std::to_string(itime);
-    this->Makefile->AddDefinition("CTEST_ELAPSED_TIME", timeString);
+    this->m_pMakefile->AddDefinition("CTEST_ELAPSED_TIME", timeString);
   }
 }
 
@@ -186,10 +186,10 @@ void cmCTestScriptHandler::CreateCMake()
   std::string cwd = cmSystemTools::GetLogicalWorkingDirectory();
   snapshot.GetDirectory().SetCurrentSource(cwd);
   snapshot.GetDirectory().SetCurrentBinary(cwd);
-  this->Makefile =
+  this->m_pMakefile =
     cm::make_unique<cmMakefile>(this->m_pGlobalGenerator.get(), snapshot);
   if (this->ParentMakefile) {
-    this->Makefile->SetRecursionDepth(
+    this->m_pMakefile->SetRecursionDepth(
       this->ParentMakefile->GetRecursionDepth());
   }
 
@@ -252,30 +252,30 @@ int cmCTestScriptHandler::ReadInScript(std::string const& total_script_arg)
   this->CreateCMake();
 
   // set a variable with the path to the current script
-  this->Makefile->AddDefinition("CTEST_SCRIPT_DIRECTORY",
+  this->m_pMakefile->AddDefinition("CTEST_SCRIPT_DIRECTORY",
                                 cmSystemTools::GetFilenamePath(script));
-  this->Makefile->AddDefinition("CTEST_SCRIPT_NAME",
+  this->m_pMakefile->AddDefinition("CTEST_SCRIPT_NAME",
                                 cmSystemTools::GetFilenameName(script));
-  this->Makefile->AddDefinition("CTEST_EXECUTABLE_NAME",
+  this->m_pMakefile->AddDefinition("CTEST_EXECUTABLE_NAME",
                                 cmSystemTools::GetCTestCommand());
-  this->Makefile->AddDefinition("CMAKE_EXECUTABLE_NAME",
+  this->m_pMakefile->AddDefinition("CMAKE_EXECUTABLE_NAME",
                                 cmSystemTools::GetCMakeCommand());
   this->UpdateElapsedTime();
 
   // set the CTEST_CONFIGURATION_TYPE variable to the current value of the
   // the -C argument on the command line.
   if (!this->CTest->GetConfigType().empty()) {
-    this->Makefile->AddDefinition("CTEST_CONFIGURATION_TYPE",
+    this->m_pMakefile->AddDefinition("CTEST_CONFIGURATION_TYPE",
                                   this->CTest->GetConfigType());
   }
 
   // add the script arg if defined
   if (!script_arg.empty()) {
-    this->Makefile->AddDefinition("CTEST_SCRIPT_ARG", script_arg);
+    this->m_pMakefile->AddDefinition("CTEST_SCRIPT_ARG", script_arg);
   }
 
   // set a callback function to update the elapsed time
-  this->Makefile->OnExecuteCommand([this] { this->UpdateElapsedTime(); });
+  this->m_pMakefile->OnExecuteCommand([this] { this->UpdateElapsedTime(); });
 
   /* Execute CTestScriptMode.cmake, which loads CMakeDetermineSystem and
   CMakeSystemSpecificInformation, so
@@ -283,8 +283,8 @@ int cmCTestScriptHandler::ReadInScript(std::string const& total_script_arg)
   header and executables are set correctly and can be used. Makes new-style
   ctest scripting easier. */
   std::string systemFile =
-    this->Makefile->GetModulesFile("CTestScriptMode.cmake");
-  if (!this->Makefile->ReadListFile(systemFile) ||
+    this->m_pMakefile->GetModulesFile("CTestScriptMode.cmake");
+  if (!this->m_pMakefile->ReadListFile(systemFile) ||
       cmSystemTools::GetErrorOccurredFlag()) {
     cmCTestLog(this->CTest, ERROR_MESSAGE,
                "Error in read:" << systemFile << "\n");
@@ -295,13 +295,13 @@ int cmCTestScriptHandler::ReadInScript(std::string const& total_script_arg)
   std::map<std::string, std::string> const& defs =
     this->CTest->GetDefinitions();
   for (auto const& d : defs) {
-    this->Makefile->AddDefinition(d.first, d.second);
+    this->m_pMakefile->AddDefinition(d.first, d.second);
   }
 
   int res = 0;
 
   // finally read in the script
-  if (!this->Makefile->ReadListFile(script) ||
+  if (!this->m_pMakefile->ReadListFile(script) ||
       cmSystemTools::GetErrorOccurredFlag()) {
     // Reset the error flag so that it can run more than
     // one script with an error when you use ctest_run_script.

@@ -179,7 +179,7 @@ class InfoWriter
 {
 public:
   // -- Single value
-  void Set(std::string const& key, std::string const& value)
+  void m_set(std::string const& key, std::string const& value)
   {
     this->Value_[key] = value;
   }
@@ -223,9 +223,9 @@ private:
 void InfoWriter::SetConfig(std::string const& key,
                            cmQtAutoGenInitializer::ConfigString const& cfgStr)
 {
-  this->Set(key, cfgStr.Default);
+  this->m_set(key, cfgStr.Default);
   for (auto const& item : cfgStr.Config) {
-    this->Set(cmStrCat(key, '_', item.first), item.second);
+    this->m_set(cmStrCat(key, '_', item.first), item.second);
   }
 }
 
@@ -332,8 +332,8 @@ cmQtAutoGenInitializer::cmQtAutoGenInitializer(
   , GenTarget(genTarget)
   , GlobalGen(genTarget->GetGlobalGenerator())
   , LocalGen(genTarget->GetLocalGenerator())
-  , Makefile(genTarget->Makefile)
-  , PathCheckSum(genTarget->Makefile)
+  , m_pMakefile(genTarget->m_pMakefile)
+  , PathCheckSum(genTarget->m_pMakefile)
   , QtVersion(qtVersion)
 {
   this->AutogenTarget.GlobalTarget = globalAutogenTarget;
@@ -342,7 +342,7 @@ cmQtAutoGenInitializer::cmQtAutoGenInitializer(
   this->Rcc.Enabled = rccEnabled;
   this->Rcc.GlobalTarget = globalAutoRccTarget;
   this->CrossConfig =
-    !this->Makefile->GetSafeDefinition("CMAKE_CROSS_CONFIGS").empty();
+    !this->m_pMakefile->GetSafeDefinition("CMAKE_CROSS_CONFIGS").empty();
   this->UseBetterGraph =
     this->GenTarget->GetProperty("AUTOGEN_BETTER_GRAPH_MULTI_CONFIG").IsSet()
     ? this->GenTarget->GetProperty("AUTOGEN_BETTER_GRAPH_MULTI_CONFIG").IsOn()
@@ -385,14 +385,14 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
 {
   // Configurations
   this->MultiConfig = this->GlobalGen->IsMultiConfig();
-  this->ConfigDefault = this->Makefile->GetDefaultConfiguration();
+  this->ConfigDefault = this->m_pMakefile->GetDefaultConfiguration();
   this->ConfigsList =
-    this->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+    this->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
 
   // Verbosity
   {
     std::string const def =
-      this->Makefile->GetSafeDefinition("CMAKE_AUTOGEN_VERBOSE");
+      this->m_pMakefile->GetSafeDefinition("CMAKE_AUTOGEN_VERBOSE");
     if (!def.empty()) {
       unsigned long iVerb = 0;
       if (cmStrToULong(def, &iVerb)) {
@@ -410,9 +410,9 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
   // Targets FOLDER
   {
     cmValue folder =
-      this->Makefile->GetState()->GetGlobalProperty("AUTOMOC_TARGETS_FOLDER");
+      this->m_pMakefile->GetState()->GetGlobalProperty("AUTOMOC_TARGETS_FOLDER");
     if (!folder) {
-      folder = this->Makefile->GetState()->GetGlobalProperty(
+      folder = this->m_pMakefile->GetState()->GetGlobalProperty(
         "AUTOGEN_TARGETS_FOLDER");
     }
     // Inherit FOLDER property from target (#13688)
@@ -425,7 +425,7 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
   }
 
   // Check status of policy CMP0071 regarding handling of GENERATED files
-  switch (this->Makefile->GetPolicyStatus(cmPolicies::CMP0071)) {
+  switch (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0071)) {
     case cmPolicies::WARN:
       // Ignore GENERATED files but warn
       this->CMP0071Warn = true;
@@ -440,7 +440,7 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
   }
 
   // Check status of policy CMP0100 regarding handling of .hh headers
-  switch (this->Makefile->GetPolicyStatus(cmPolicies::CMP0100)) {
+  switch (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0100)) {
     case cmPolicies::WARN:
       // Ignore but .hh files but warn
       this->CMP0100Warn = true;
@@ -459,7 +459,7 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
   {
     // Collapsed current binary directory
     std::string const cbd = cmSystemTools::CollapseFullPath(
-      std::string(), this->Makefile->GetCurrentBinaryDirectory());
+      std::string(), this->m_pMakefile->GetCurrentBinaryDirectory());
 
     // Info directory
     this->Dir.Info = cmStrCat(cbd, "/CMakeFiles/", this->GenTarget->GetName(),
@@ -517,7 +517,7 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
         this->AutogenTarget.Parallel = static_cast<ParallelType>(propInt);
       } else {
         // Warn the project author that AUTOGEN_PARALLEL is not valid.
-        this->Makefile->IssueMessage(
+        this->m_pMakefile->IssueMessage(
           MessageType::AUTHOR_WARNING,
           cmStrCat("AUTOGEN_PARALLEL=\"", prop, "\" for target \"",
                    this->GenTarget->GetName(),
@@ -540,7 +540,7 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
             static_cast<maxCommandLineLengthType>(propInt);
         } else {
           // Warn the project author that AUTOGEN_PARALLEL is not valid.
-          this->Makefile->IssueMessage(
+          this->m_pMakefile->IssueMessage(
             MessageType::AUTHOR_WARNING,
             cmStrCat("AUTOGEN_COMMAND_LINE_LENGTH_MAX=\"", *value,
                      "\" for target \"", this->GenTarget->GetName(),
@@ -585,7 +585,7 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
       if (!deps.empty()) {
         for (auto const& depName : cmList{ deps }) {
           // Allow target and file dependencies
-          auto* depTarget = this->Makefile->FindTargetToUse(depName);
+          auto* depTarget = this->m_pMakefile->FindTargetToUse(depName);
           if (depTarget) {
             this->AutogenTarget.DependTargets.insert(depTarget);
           } else {
@@ -602,9 +602,9 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
       }
 
       // CMAKE_AUTOMOC_RELAXED_MODE
-      if (this->Makefile->IsOn("CMAKE_AUTOMOC_RELAXED_MODE")) {
+      if (this->m_pMakefile->IsOn("CMAKE_AUTOMOC_RELAXED_MODE")) {
         this->Moc.RelaxedMode = true;
-        this->Makefile->IssueMessage(
+        this->m_pMakefile->IssueMessage(
           MessageType::AUTHOR_WARNING,
           cmStrCat("AUTOMOC: CMAKE_AUTOMOC_RELAXED_MODE is "
                    "deprecated an will be removed in the future.  Consider "
@@ -660,7 +660,7 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
         addBefore = true;
       }
     } else {
-      switch (this->Makefile->GetPolicyStatus(cmPolicies::CMP0151)) {
+      switch (this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0151)) {
         case cmPolicies::WARN:
         case cmPolicies::OLD:
           addBefore = true;
@@ -713,7 +713,7 @@ bool cmQtAutoGenInitializer::InitMoc()
     // Command
     cmList::assign(
       this->Moc.PredefsCmd,
-      this->Makefile->GetDefinition("CMAKE_CXX_COMPILER_PREDEFINES_COMMAND"));
+      this->m_pMakefile->GetDefinition("CMAKE_CXX_COMPILER_PREDEFINES_COMMAND"));
     // Header
     if (!this->Moc.PredefsCmd.empty()) {
       this->ConfigFileNames(this->Moc.PredefsFile,
@@ -723,7 +723,7 @@ bool cmQtAutoGenInitializer::InitMoc()
 
   // Moc includes
   {
-    SearchPathSanitizer const sanitizer(this->Makefile);
+    SearchPathSanitizer const sanitizer(this->m_pMakefile);
     auto getDirs =
       [this, &sanitizer](std::string const& cfg) -> std::vector<std::string> {
       // Get the include dirs for this target, without stripping the implicit
@@ -756,7 +756,7 @@ bool cmQtAutoGenInitializer::InitMoc()
       std::set<std::string> defines;
       this->LocalGen->GetTargetDefines(this->GenTarget, cfg, "CXX", defines);
       if (this->Moc.PredefsCmd.empty() &&
-          this->Makefile->GetSafeDefinition("CMAKE_SYSTEM_NAME") ==
+          this->m_pMakefile->GetSafeDefinition("CMAKE_SYSTEM_NAME") ==
             "Windows") {
         // Add WIN32 definition if we don't have a moc_predefs.h
         defines.insert("WIN32");
@@ -802,7 +802,7 @@ bool cmQtAutoGenInitializer::InitUic()
       this->GenTarget->GetSafeProperty("AUTOUIC_SEARCH_PATHS");
     if (!usp.empty()) {
       this->Uic.SearchPaths =
-        SearchPathSanitizer(this->Makefile)(cmList{ usp });
+        SearchPathSanitizer(this->m_pMakefile)(cmList{ usp });
     }
   }
   // Uic target options
@@ -903,7 +903,7 @@ bool cmQtAutoGenInitializer::InitRcc()
 
 bool cmQtAutoGenInitializer::InitScanFiles()
 {
-  CMake const* cm = this->Makefile->GetCMakeInstance();
+  CMake const* cm = this->m_pMakefile->GetCMakeInstance();
   auto const& kw = this->GlobalInitializer->kw();
 
   auto makeMUFile = [this, &kw](cmSourceFile* sf, std::string const& fullPath,
@@ -1020,7 +1020,7 @@ bool cmQtAutoGenInitializer::InitScanFiles()
 
             auto constexpr locationKind = cmSourceFileLocationKind::Known;
             cmSourceFile* sf =
-              this->Makefile->GetSource(fullPath, locationKind);
+              this->m_pMakefile->GetSource(fullPath, locationKind);
             if (sf) {
               // Check if we know about this header already
               if (cm::contains(this->AutogenTarget.Headers, sf)) {
@@ -1033,7 +1033,7 @@ bool cmQtAutoGenInitializer::InitScanFiles()
               }
             } else if (cmSystemTools::FileExists(fullPath)) {
               // Create a new source file for the existing file
-              sf = this->Makefile->CreateSource(fullPath, false, locationKind);
+              sf = this->m_pMakefile->CreateSource(fullPath, false, locationKind);
             }
 
             if (sf) {
@@ -1058,7 +1058,7 @@ bool cmQtAutoGenInitializer::InitScanFiles()
   // The reason is that their file names might be discovered from source files
   // at generation time.
   if (this->MocOrUicEnabled()) {
-    for (auto const& sf : this->Makefile->GetSourceFiles()) {
+    for (auto const& sf : this->m_pMakefile->GetSourceFiles()) {
       // sf->GetExtension() is only valid after sf->ResolveFullPath() ...
       // Since we're iterating over source files that might be not in the
       // target we need to check for path errors (not existing files).
@@ -1163,7 +1163,7 @@ bool cmQtAutoGenInitializer::InitScanFiles()
       for (MUFile const* muf : this->AutogenTarget.FilesGenerated) {
         files += cmStrCat("  ", Quoted(muf->FullPath), '\n');
       }
-      this->Makefile->IssueMessage(
+      this->m_pMakefile->IssueMessage(
         MessageType::AUTHOR_WARNING,
         cmStrCat(
           cmPolicies::GetPolicyWarning(cmPolicies::CMP0071), '\n',
@@ -1194,7 +1194,7 @@ bool cmQtAutoGenInitializer::InitScanFiles()
     for (cmSourceFile const* sf : this->AutogenTarget.CMP0100HeadersWarn) {
       files += cmStrCat("  ", Quoted(sf->GetFullPath()), '\n');
     }
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::AUTHOR_WARNING,
       cmStrCat(
         cmPolicies::GetPolicyWarning(cmPolicies::CMP0100), '\n',
@@ -1299,7 +1299,7 @@ bool cmQtAutoGenInitializer::InitScanFiles()
 bool cmQtAutoGenInitializer::InitAutogenTarget()
 {
   // Register info file as generated by CMake
-  this->Makefile->AddCMakeOutputFile(this->AutogenTarget.InfoFile);
+  this->m_pMakefile->AddCMakeOutputFile(this->AutogenTarget.InfoFile);
 
   // Determine whether to use a depfile for the AUTOGEN target.
   bool const useDepfile = [this]() -> bool {
@@ -1391,7 +1391,7 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
     // Add additional autogen target dependencies to origin target
     for (cmTarget const* depTarget : this->AutogenTarget.DependTargets) {
       this->GenTarget->Target->AddUtility(depTarget->GetName(), false,
-                                          this->Makefile);
+                                          this->m_pMakefile);
     }
 
     if (!this->Uic.UiFilesNoOptions.empty() ||
@@ -1419,14 +1419,14 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
 
       // Add a rule file to cause the target to build if a dependency has
       // changed, which will trigger the pre-build command to run autogen
-      auto cc = cm::make_unique<cmCustomCommand>();
-      cc->SetOutputs(timestampFileGenex);
-      cc->SetDepends(uicDependencies);
-      cc->SetComment("");
-      cc->SetWorkingDirectory(this->Dir.Work.c_str());
-      cc->SetEscapeOldStyle(false);
-      cc->SetStdPipesUTF8(stdPipesUTF8);
-      this->LocalGen->AddCustomCommandToOutput(std::move(cc));
+      auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetOutputs(timestampFileGenex);
+      m_pCustomCommand->SetDepends(uicDependencies);
+      m_pCustomCommand->SetComment("");
+      m_pCustomCommand->SetWorkingDirectory(this->Dir.Work.c_str());
+      m_pCustomCommand->SetEscapeOldStyle(false);
+      m_pCustomCommand->SetStdPipesUTF8(stdPipesUTF8);
+      this->LocalGen->AddCustomCommandToOutput(std::move(m_pCustomCommand));
     }
 
     // Add the pre-build command directly to bypass the OBJECT_LIBRARY
@@ -1434,16 +1434,16 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
     // PRE_BUILD will work for an OBJECT_LIBRARY in this specific case.
     //
     // PRE_BUILD does not support file dependencies!
-    cmCustomCommand cc;
-    cc.SetByproducts(autogenByproducts);
-    cc.SetCommandLines(commandLines);
-    cc.SetComment(autogenComment.c_str());
-    cc.SetBacktrace(this->Makefile->GetBacktrace());
-    cc.SetWorkingDirectory(this->Dir.Work.c_str());
-    cc.SetStdPipesUTF8(stdPipesUTF8);
-    cc.SetEscapeOldStyle(false);
-    cc.SetEscapeAllowMakeVars(true);
-    this->GenTarget->Target->AddPreBuildCommand(std::move(cc));
+    cmCustomCommand m_pCustomCommand;
+    m_pCustomCommand.SetByproducts(autogenByproducts);
+    m_pCustomCommand.SetCommandLines(commandLines);
+    m_pCustomCommand.SetComment(autogenComment.c_str());
+    m_pCustomCommand.SetBacktrace(this->m_pMakefile->GetBacktrace());
+    m_pCustomCommand.SetWorkingDirectory(this->Dir.Work.c_str());
+    m_pCustomCommand.SetStdPipesUTF8(stdPipesUTF8);
+    m_pCustomCommand.SetEscapeOldStyle(false);
+    m_pCustomCommand.SetEscapeAllowMakeVars(true);
+    this->GenTarget->Target->AddPreBuildCommand(std::move(m_pCustomCommand));
   } else {
 
     // Add link library target dependencies to the autogen target
@@ -1499,12 +1499,12 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
       auto const timestampTargetName =
         cmStrCat(this->GenTarget->GetName(), "_autogen_timestamp_deps");
 
-      auto cc = cm::make_unique<cmCustomCommand>();
-      cc->SetWorkingDirectory(this->Dir.Work.c_str());
-      cc->SetDepends(dependencies);
-      cc->SetEscapeOldStyle(false);
+      auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetWorkingDirectory(this->Dir.Work.c_str());
+      m_pCustomCommand->SetDepends(dependencies);
+      m_pCustomCommand->SetEscapeOldStyle(false);
       timestampTarget = this->LocalGen->AddUtilityCommand(timestampTargetName,
-                                                          true, std::move(cc));
+                                                          true, std::move(m_pCustomCommand));
 
       this->LocalGen->AddGeneratorTarget(
         cm::make_unique<cmGeneratorTarget>(timestampTarget, this->LocalGen));
@@ -1563,17 +1563,17 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
           { cmSystemTools::GetCMakeCommand(), "-E", "touch", outputFile }));
         this->AddGeneratedSource(outputFile, this->Moc);
       }
-      cc = cm::make_unique<cmCustomCommand>();
-      cc->SetOutputs(outputFile);
-      cc->SetByproducts(timestampByproducts);
-      cc->SetDepends(dependencies);
-      cc->SetCommandLines(commandLines);
-      cc->SetComment(autogenComment.c_str());
-      cc->SetWorkingDirectory(this->Dir.Work.c_str());
-      cc->SetEscapeOldStyle(false);
-      cc->SetDepfile(depFile);
-      cc->SetStdPipesUTF8(stdPipesUTF8);
-      this->LocalGen->AddCustomCommandToOutput(std::move(cc));
+      m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetOutputs(outputFile);
+      m_pCustomCommand->SetByproducts(timestampByproducts);
+      m_pCustomCommand->SetDepends(dependencies);
+      m_pCustomCommand->SetCommandLines(commandLines);
+      m_pCustomCommand->SetComment(autogenComment.c_str());
+      m_pCustomCommand->SetWorkingDirectory(this->Dir.Work.c_str());
+      m_pCustomCommand->SetEscapeOldStyle(false);
+      m_pCustomCommand->SetDepfile(depFile);
+      m_pCustomCommand->SetStdPipesUTF8(stdPipesUTF8);
+      this->LocalGen->AddCustomCommandToOutput(std::move(m_pCustomCommand));
       dependencies.clear();
       dependencies.emplace_back(std::move(outputFile));
       commandLines.clear();
@@ -1581,15 +1581,15 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
     }
 
     // Create autogen target
-    auto cc = cm::make_unique<cmCustomCommand>();
-    cc->SetWorkingDirectory(this->Dir.Work.c_str());
-    cc->SetByproducts(autogenByproducts);
-    cc->SetDepends(dependencies);
-    cc->SetCommandLines(commandLines);
-    cc->SetEscapeOldStyle(false);
-    cc->SetComment(autogenComment.c_str());
+    auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+    m_pCustomCommand->SetWorkingDirectory(this->Dir.Work.c_str());
+    m_pCustomCommand->SetByproducts(autogenByproducts);
+    m_pCustomCommand->SetDepends(dependencies);
+    m_pCustomCommand->SetCommandLines(commandLines);
+    m_pCustomCommand->SetEscapeOldStyle(false);
+    m_pCustomCommand->SetComment(autogenComment.c_str());
     cmTarget* autogenTarget = this->LocalGen->AddUtilityCommand(
-      this->AutogenTarget.Name, true, std::move(cc));
+      this->AutogenTarget.Name, true, std::move(m_pCustomCommand));
     // Create autogen generator target
     this->LocalGen->AddGeneratorTarget(
       cm::make_unique<cmGeneratorTarget>(autogenTarget, this->LocalGen));
@@ -1600,13 +1600,13 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
     if (this->AutogenTarget.DependOrigin) {
       for (BT<std::pair<std::string, bool>> const& depName :
            this->GenTarget->GetUtilities()) {
-        orderTarget->AddUtility(depName.Value.first, false, this->Makefile);
+        orderTarget->AddUtility(depName.Value.first, false, this->m_pMakefile);
       }
     }
 
     // Add additional autogen target dependencies to autogen target
     for (cmTarget const* depTarget : this->AutogenTarget.DependTargets) {
-      orderTarget->AddUtility(depTarget->GetName(), false, this->Makefile);
+      orderTarget->AddUtility(depTarget->GetName(), false, this->m_pMakefile);
     }
 
     // Set FOLDER property in autogen target
@@ -1616,7 +1616,7 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
 
     // Add autogen target to the origin target dependencies
     this->GenTarget->Target->AddUtility(this->AutogenTarget.Name, false,
-                                        this->Makefile);
+                                        this->m_pMakefile);
 
     // Add autogen target to the global autogen target dependencies
     if (this->AutogenTarget.GlobalTarget) {
@@ -1664,7 +1664,7 @@ bool cmQtAutoGenInitializer::InitRccTargets()
 {
   for (Qrc const& qrc : this->Rcc.Qrcs) {
     // Register info file as generated by CMake
-    this->Makefile->AddCMakeOutputFile(qrc.InfoFile);
+    this->m_pMakefile->AddCMakeOutputFile(qrc.InfoFile);
     // Register file at target
     {
       cmSourceFile* sf = this->AddGeneratedSource(qrc.OutputFile, this->Rcc);
@@ -1681,13 +1681,13 @@ bool cmQtAutoGenInitializer::InitRccTargets()
 
     std::string const ccComment =
       cmStrCat("Automatic RCC for ",
-               FileProjectRelativePath(this->Makefile, qrc.QrcFile));
+               FileProjectRelativePath(this->m_pMakefile, qrc.QrcFile));
 
-    auto cc = cm::make_unique<cmCustomCommand>();
-    cc->SetWorkingDirectory(this->Dir.Work.c_str());
-    cc->SetCommandLines(commandLines);
-    cc->SetComment(ccComment.c_str());
-    cc->SetStdPipesUTF8(true);
+    auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+    m_pCustomCommand->SetWorkingDirectory(this->Dir.Work.c_str());
+    m_pCustomCommand->SetCommandLines(commandLines);
+    m_pCustomCommand->SetComment(ccComment.c_str());
+    m_pCustomCommand->SetStdPipesUTF8(true);
 
     if (qrc.Generated || this->Rcc.GlobalTarget) {
       // Create custom rcc target
@@ -1698,11 +1698,11 @@ bool cmQtAutoGenInitializer::InitRccTargets()
           ccName += cmStrCat('_', qrc.QrcPathChecksum);
         }
 
-        cc->SetByproducts(ccOutput);
-        cc->SetDepends(ccDepends);
-        cc->SetEscapeOldStyle(false);
+        m_pCustomCommand->SetByproducts(ccOutput);
+        m_pCustomCommand->SetDepends(ccDepends);
+        m_pCustomCommand->SetEscapeOldStyle(false);
         cmTarget* autoRccTarget =
-          this->LocalGen->AddUtilityCommand(ccName, true, std::move(cc));
+          this->LocalGen->AddUtilityCommand(ccName, true, std::move(m_pCustomCommand));
 
         // Create autogen generator target
         this->LocalGen->AddGeneratorTarget(
@@ -1714,11 +1714,11 @@ bool cmQtAutoGenInitializer::InitRccTargets()
         }
         if (!this->Rcc.ExecutableTargetName.empty()) {
           autoRccTarget->AddUtility(this->Rcc.ExecutableTargetName, false,
-                                    this->Makefile);
+                                    this->m_pMakefile);
         }
       }
       // Add autogen target to the origin target dependencies
-      this->GenTarget->Target->AddUtility(ccName, false, this->Makefile);
+      this->GenTarget->Target->AddUtility(ccName, false, this->m_pMakefile);
 
       // Add autogen target to the global autogen target dependencies
       if (this->Rcc.GlobalTarget) {
@@ -1750,12 +1750,12 @@ bool cmQtAutoGenInitializer::InitRccTargets()
 
         AddAutogenExecutableToDependencies(this->Rcc, ccDepends);
 
-        cc->SetOutputs(ccOutput);
-        cc->SetDepends(ccDepends);
-        this->LocalGen->AddCustomCommandToOutput(std::move(cc));
+        m_pCustomCommand->SetOutputs(ccOutput);
+        m_pCustomCommand->SetDepends(ccDepends);
+        this->LocalGen->AddCustomCommandToOutput(std::move(m_pCustomCommand));
       }
       // Reconfigure when .qrc file changes
-      this->Makefile->AddCMakeDependFile(qrc.QrcFile);
+      this->m_pMakefile->AddCMakeDependFile(qrc.QrcFile);
     }
   }
 
@@ -1787,7 +1787,7 @@ bool cmQtAutoGenInitializer::SetupWriteAutogenInfo()
 {
   // Utility lambdas
   auto MfDef = [this](std::string const& key) {
-    return this->Makefile->GetSafeDefinition(key);
+    return this->m_pMakefile->GetSafeDefinition(key);
   };
 
   // Filtered headers and sources
@@ -1859,11 +1859,11 @@ bool cmQtAutoGenInitializer::SetupWriteAutogenInfo()
   info.SetUInt("VERBOSITY", this->Verbosity);
 
   // Directories
-  info.Set("CMAKE_SOURCE_DIR", MfDef("CMAKE_SOURCE_DIR"));
-  info.Set("CMAKE_BINARY_DIR", MfDef("CMAKE_BINARY_DIR"));
-  info.Set("CMAKE_CURRENT_SOURCE_DIR", MfDef("CMAKE_CURRENT_SOURCE_DIR"));
-  info.Set("CMAKE_CURRENT_BINARY_DIR", MfDef("CMAKE_CURRENT_BINARY_DIR"));
-  info.Set("BUILD_DIR", this->Dir.Build);
+  info.m_set("CMAKE_SOURCE_DIR", MfDef("CMAKE_SOURCE_DIR"));
+  info.m_set("CMAKE_BINARY_DIR", MfDef("CMAKE_BINARY_DIR"));
+  info.m_set("CMAKE_CURRENT_SOURCE_DIR", MfDef("CMAKE_CURRENT_SOURCE_DIR"));
+  info.m_set("CMAKE_CURRENT_BINARY_DIR", MfDef("CMAKE_CURRENT_BINARY_DIR"));
+  info.m_set("BUILD_DIR", this->Dir.Build);
   info.SetConfig("INCLUDE_DIR", this->Dir.Include);
 
   info.SetUInt("QT_VERSION_MAJOR", this->QtVersion.Major);
@@ -1871,14 +1871,14 @@ bool cmQtAutoGenInitializer::SetupWriteAutogenInfo()
   info.SetConfig("QT_MOC_EXECUTABLE", this->Moc.Executable);
   info.SetConfig("QT_UIC_EXECUTABLE", this->Uic.Executable);
 
-  info.Set("CMAKE_EXECUTABLE", cmSystemTools::GetCMakeCommand());
+  info.m_set("CMAKE_EXECUTABLE", cmSystemTools::GetCMakeCommand());
   info.SetConfig("SETTINGS_FILE", this->AutogenTarget.SettingsFile);
   info.SetConfig("PARSE_CACHE_FILE", this->AutogenTarget.ParseCacheFile);
   info.SetConfig("DEP_FILE", this->AutogenTarget.DepFile);
   info.SetConfig("DEP_FILE_RULE_NAME", this->AutogenTarget.DepFileRuleName);
-  info.SetArray("CMAKE_LIST_FILES", this->Makefile->GetListFiles());
+  info.SetArray("CMAKE_LIST_FILES", this->m_pMakefile->GetListFiles());
   info.SetArray("HEADER_EXTENSIONS",
-                this->Makefile->GetCMakeInstance()->GetHeaderExtensions());
+                this->m_pMakefile->GetCMakeInstance()->GetHeaderExtensions());
   auto cfgArray = [this](std::vector<size_t> const& configs) -> Json::Value {
     Json::Value value;
     if (!configs.empty()) {
@@ -1959,12 +1959,12 @@ bool cmQtAutoGenInitializer::SetupWriteAutogenInfo()
     info.SetConfig("MOC_COMPILATION_FILE", this->Moc.CompilationFile);
     info.SetConfig("MOC_PREDEFS_FILE", this->Moc.PredefsFile);
 
-    cmStandardLevelResolver const resolver{ this->Makefile };
+    cmStandardLevelResolver const resolver{ this->m_pMakefile };
     auto const CompileOptionFlag =
       resolver.GetCompileOptionDef(this->GenTarget, "CXX", "");
 
     auto const CompileOptionValue =
-      this->GenTarget->Makefile->GetSafeDefinition(CompileOptionFlag);
+      this->GenTarget->m_pMakefile->GetSafeDefinition(CompileOptionFlag);
 
     if (!CompileOptionValue.empty()) {
       if (this->Moc.PredefsCmd.size() >= 3) {
@@ -2001,7 +2001,7 @@ bool cmQtAutoGenInitializer::SetupWriteRccInfo()
   for (Qrc const& qrc : this->Rcc.Qrcs) {
     // Utility lambdas
     auto MfDef = [this](std::string const& key) {
-      return this->Makefile->GetSafeDefinition(key);
+      return this->m_pMakefile->GetSafeDefinition(key);
     };
 
     InfoWriter info;
@@ -2011,18 +2011,18 @@ bool cmQtAutoGenInitializer::SetupWriteRccInfo()
     info.SetBool("CROSS_CONFIG", this->CrossConfig);
     info.SetBool("USE_BETTER_GRAPH", this->UseBetterGraph);
     info.SetUInt("VERBOSITY", this->Verbosity);
-    info.Set("GENERATOR", this->GlobalGen->GetName());
+    info.m_set("GENERATOR", this->GlobalGen->GetName());
 
     // Files
-    info.Set("LOCK_FILE", qrc.LockFile);
+    info.m_set("LOCK_FILE", qrc.LockFile);
     info.SetConfig("SETTINGS_FILE", qrc.SettingsFile);
 
     // Directories
-    info.Set("CMAKE_SOURCE_DIR", MfDef("CMAKE_SOURCE_DIR"));
-    info.Set("CMAKE_BINARY_DIR", MfDef("CMAKE_BINARY_DIR"));
-    info.Set("CMAKE_CURRENT_SOURCE_DIR", MfDef("CMAKE_CURRENT_SOURCE_DIR"));
-    info.Set("CMAKE_CURRENT_BINARY_DIR", MfDef("CMAKE_CURRENT_BINARY_DIR"));
-    info.Set("BUILD_DIR", this->Dir.Build);
+    info.m_set("CMAKE_SOURCE_DIR", MfDef("CMAKE_SOURCE_DIR"));
+    info.m_set("CMAKE_BINARY_DIR", MfDef("CMAKE_BINARY_DIR"));
+    info.m_set("CMAKE_CURRENT_SOURCE_DIR", MfDef("CMAKE_CURRENT_SOURCE_DIR"));
+    info.m_set("CMAKE_CURRENT_BINARY_DIR", MfDef("CMAKE_CURRENT_BINARY_DIR"));
+    info.m_set("BUILD_DIR", this->Dir.Build);
     info.SetConfig("INCLUDE_DIR", this->Dir.Include);
 
     // rcc executable
@@ -2032,9 +2032,9 @@ bool cmQtAutoGenInitializer::SetupWriteRccInfo()
       generateListOptions(this->Rcc.ExecutableFeatures, this->MultiConfig));
 
     // qrc file
-    info.Set("SOURCE", qrc.QrcFile);
-    info.Set("OUTPUT_CHECKSUM", qrc.QrcPathChecksum);
-    info.Set("OUTPUT_NAME", cmSystemTools::GetFilenameName(qrc.OutputFile));
+    info.m_set("SOURCE", qrc.QrcFile);
+    info.m_set("OUTPUT_CHECKSUM", qrc.QrcPathChecksum);
+    info.m_set("OUTPUT_NAME", cmSystemTools::GetFilenameName(qrc.OutputFile));
     info.SetArray("OPTIONS", qrc.Options);
     info.SetConfigArray("INPUTS", qrc.Resources);
 
@@ -2047,7 +2047,7 @@ bool cmQtAutoGenInitializer::SetupWriteRccInfo()
 cmSourceFile* cmQtAutoGenInitializer::RegisterGeneratedSource(
   std::string const& filename)
 {
-  cmSourceFile* gFile = this->Makefile->GetOrCreateSource(filename, true);
+  cmSourceFile* gFile = this->m_pMakefile->GetOrCreateSource(filename, true);
   gFile->MarkAsGenerated();
   gFile->SetProperty("SKIP_AUTOGEN", "1");
   gFile->SetProperty("SKIP_LINTING", "ON");
@@ -2108,7 +2108,7 @@ void cmQtAutoGenInitializer::AddToSourceGroup(std::string const& fileName,
         cmStrCat(genNameUpper, "_SOURCE_GROUP"), "AUTOGEN_SOURCE_GROUP"
       };
       for (std::string const& prop : props) {
-        cmValue propName = this->Makefile->GetState()->GetGlobalProperty(prop);
+        cmValue propName = this->m_pMakefile->GetState()->GetGlobalProperty(prop);
         if (cmNonempty(propName)) {
           groupName = *propName;
           property = prop;
@@ -2118,7 +2118,7 @@ void cmQtAutoGenInitializer::AddToSourceGroup(std::string const& fileName,
     }
     // Generate a source group on demand
     if (!groupName.empty()) {
-      sourceGroup = this->Makefile->GetOrCreateSourceGroup(groupName);
+      sourceGroup = this->m_pMakefile->GetOrCreateSourceGroup(groupName);
       if (!sourceGroup) {
         cmSystemTools::Error(
           cmStrCat(genNameUpper, " error in ", property,
@@ -2274,14 +2274,14 @@ cmQtAutoGenInitializer::GetQtVersion(cmGeneratorTarget const* target,
 
     // Read versions from variables
     for (auto const& keyPair : keys) {
-      addVersion(target->Makefile->GetDefinition(std::string(keyPair.first)),
-                 target->Makefile->GetDefinition(std::string(keyPair.second)));
+      addVersion(target->m_pMakefile->GetDefinition(std::string(keyPair.first)),
+                 target->m_pMakefile->GetDefinition(std::string(keyPair.second)));
     }
 
     // Read versions from directory properties
     for (auto const& keyPair : keys) {
-      addVersion(target->Makefile->GetProperty(std::string(keyPair.first)),
-                 target->Makefile->GetProperty(std::string(keyPair.second)));
+      addVersion(target->m_pMakefile->GetProperty(std::string(keyPair.first)),
+                 target->m_pMakefile->GetProperty(std::string(keyPair.second)));
     }
   }
 
@@ -2309,7 +2309,7 @@ cmQtAutoGenInitializer::GetQtVersion(cmGeneratorTarget const* target,
     // targets and call "moc --version" to get the Qt version.
     if (mocExecutable.empty()) {
       mocExecutable =
-        FindMocExecutableFromMocTarget(target->Makefile, res.second);
+        FindMocExecutableFromMocTarget(target->m_pMakefile, res.second);
     }
     if (!mocExecutable.empty()) {
       res.first = GetMocVersion(mocExecutable);
@@ -2377,8 +2377,8 @@ bool cmQtAutoGenInitializer::GetQtExecutable(GenVarsT& genVars,
     if (!val.empty()) {
       // Evaluate generator expression
       {
-        cmListFileBacktrace lfbt = this->Makefile->GetBacktrace();
-        cmGeneratorExpression ge(*this->Makefile->GetCMakeInstance(), lfbt);
+        cmListFileBacktrace lfbt = this->m_pMakefile->GetBacktrace();
+        cmGeneratorExpression ge(*this->m_pMakefile->GetCMakeInstance(), lfbt);
         std::unique_ptr<cmCompiledGeneratorExpression> cge = ge.Parse(val);
         if (this->MultiConfig && this->UseBetterGraph) {
           for (auto const& config : this->ConfigsList) {

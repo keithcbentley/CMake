@@ -38,7 +38,7 @@ public:
    * Get the custom command for this source file
    */
   cmCustomCommand* GetCustomCommand() const;
-  void SetCustomCommand(std::unique_ptr<cmCustomCommand> cc);
+  void SetCustomCommand(std::unique_ptr<cmCustomCommand> m_pCustomCommand);
 
   //! Set/Get a property of this source file
   void SetProperty(std::string const& prop, cmValue value);

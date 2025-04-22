@@ -137,7 +137,7 @@ void cmWIXPatchParser::CharacterDataHandler(char const* data, int length)
   }
 }
 
-void cmWIXPatchParser::ReportError(int line, int column, char const* msg)
+void cmWIXPatchParser::m_reportError(int line, int column, char const* msg)
 {
   cmCPackLogger(cmCPackLog::LOG_ERROR,
                 "Error while processing XML patch file at "
@@ -147,7 +147,7 @@ void cmWIXPatchParser::ReportError(int line, int column, char const* msg)
 
 void cmWIXPatchParser::ReportValidationError(std::string const& message)
 {
-  ReportError(
+  m_reportError(
     XML_GetCurrentLineNumber(static_cast<XML_Parser>(this->Parser)),
     XML_GetCurrentColumnNumber(static_cast<XML_Parser>(this->Parser)),
     message.c_str());

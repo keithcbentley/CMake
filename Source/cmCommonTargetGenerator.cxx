@@ -32,7 +32,7 @@
 
 cmCommonTargetGenerator::cmCommonTargetGenerator(cmGeneratorTarget* gt)
   : GeneratorTarget(gt)
-  , Makefile(gt->Makefile)
+  , m_pMakefile(gt->m_pMakefile)
   , LocalCommonGenerator(
       static_cast<cmLocalCommonGenerator*>(gt->LocalGenerator))
   , GlobalCommonGenerator(static_cast<cmGlobalCommonGenerator*>(
@@ -78,7 +78,7 @@ void cmCommonTargetGenerator::AppendFortranFormatFlags(
   }
   if (var) {
     this->LocalCommonGenerator->AppendFlags(
-      flags, this->Makefile->GetSafeDefinition(var));
+      flags, this->m_pMakefile->GetSafeDefinition(var));
   }
 }
 
@@ -109,7 +109,7 @@ void cmCommonTargetGenerator::AppendFortranPreprocessFlags(
   }
   if (var) {
     this->LocalCommonGenerator->AppendCompileOptions(
-      flags, this->Makefile->GetSafeDefinition(var));
+      flags, this->m_pMakefile->GetSafeDefinition(var));
   }
 }
 
@@ -277,7 +277,7 @@ std::string cmCommonTargetGenerator::GetManifests(std::string const& config)
 
   std::string lang = this->GeneratorTarget->GetLinkerLanguage(config);
   std::string manifestFlag =
-    this->Makefile->GetDefinition("CMAKE_" + lang + "_LINKER_MANIFEST_FLAG");
+    this->m_pMakefile->GetDefinition("CMAKE_" + lang + "_LINKER_MANIFEST_FLAG");
   for (cmSourceFile const* manifest_src : manifest_srcs) {
     manifests.push_back(manifestFlag +
                         this->LocalCommonGenerator->ConvertToOutputFormat(
@@ -309,7 +309,7 @@ void cmCommonTargetGenerator::AppendOSXVerFlag(std::string& flags,
 {
   // Lookup the flag to specify the version.
   std::string fvar = cmStrCat("CMAKE_", lang, "_OSX_", name, "_VERSION_FLAG");
-  cmValue flag = this->Makefile->GetDefinition(fvar);
+  cmValue flag = this->m_pMakefile->GetDefinition(fvar);
 
   // Skip if no such flag.
   if (!flag) {
@@ -405,7 +405,7 @@ std::string cmCommonTargetGenerator::GenerateCodeCheckRules(
       // Only add --driver-mode if it is not already specified, as adding
       // it unconditionally might override a user-specified driver-mode
       if (iwyu.find("--driver-mode=") == std::string::npos) {
-        cmValue const p = this->Makefile->GetDefinition(
+        cmValue const p = this->m_pMakefile->GetDefinition(
           cmStrCat("CMAKE_", lang, "_INCLUDE_WHAT_YOU_USE_DRIVER_MODE"));
         std::string driverMode;
 
@@ -425,7 +425,7 @@ std::string cmCommonTargetGenerator::GenerateCodeCheckRules(
     }
     if (cmNonempty(tidy)) {
       code_check += " --tidy=";
-      cmValue const p = this->Makefile->GetDefinition(
+      cmValue const p = this->m_pMakefile->GetDefinition(
         "CMAKE_" + lang + "_CLANG_TIDY_DRIVER_MODE");
       std::string driverMode;
       if (cmNonempty(p)) {
@@ -551,7 +551,7 @@ bool cmCommonTargetGenerator::HaveRequiredLanguages(
     languagesNeeded.insert(sf->GetLanguage());
   }
 
-  auto* makefile = this->Makefile;
+  auto* makefile = this->m_pMakefile;
   auto* state = makefile->GetState();
   auto unary = [&state, &makefile](std::string const& lang) -> bool {
     bool const valid = state->GetLanguageEnabled(lang);

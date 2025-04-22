@@ -46,7 +46,7 @@ void cmSearchPath::AddUserPath(std::string const& path)
 
   std::vector<std::string> outPaths;
 
-  cmWindowsRegistry registry(*this->FC->Makefile,
+  cmWindowsRegistry registry(*this->FC->m_pMakefile,
                              cmWindowsRegistry::SimpleTypes);
   auto expandedPaths = registry.ExpandExpression(path, this->FC->RegistryView);
   if (expandedPaths) {
@@ -59,7 +59,7 @@ void cmSearchPath::AddUserPath(std::string const& path)
   for (std::string const& p : outPaths) {
     this->AddPathInternal(
       cmSystemTools::CollapseFullPath(
-        p, this->FC->Makefile->GetCurrentSourceDirectory()),
+        p, this->FC->m_pMakefile->GetCurrentSourceDirectory()),
       "");
   }
 }
@@ -69,13 +69,13 @@ void cmSearchPath::AddCMakePath(std::string const& variable)
   assert(this->FC);
 
   // Get a path from a CMake variable.
-  if (cmValue value = this->FC->Makefile->GetDefinition(variable)) {
+  if (cmValue value = this->FC->m_pMakefile->GetDefinition(variable)) {
     cmList expanded{ *value };
 
     for (std::string const& p : expanded) {
       this->AddPathInternal(
         cmSystemTools::CollapseFullPath(
-          p, this->FC->Makefile->GetCurrentSourceDirectory()),
+          p, this->FC->m_pMakefile->GetCurrentSourceDirectory()),
         "");
     }
   }
@@ -95,11 +95,11 @@ void cmSearchPath::AddCMakePrefixPath(std::string const& variable)
   assert(this->FC);
 
   // Get a path from a CMake variable.
-  if (cmValue value = this->FC->Makefile->GetDefinition(variable)) {
+  if (cmValue value = this->FC->m_pMakefile->GetDefinition(variable)) {
     cmList expanded{ *value };
     for (std::string& p : expanded) {
       p = cmSystemTools::CollapseFullPath(
-        p, this->FC->Makefile->GetCurrentSourceDirectory());
+        p, this->FC->m_pMakefile->GetCurrentSourceDirectory());
     }
     this->AddPrefixPaths(expanded);
   }
@@ -179,7 +179,7 @@ void cmSearchPath::AddPrefixPaths(std::vector<std::string> const& paths)
     }
     if (subdir == "include" || subdir == "lib") {
       cmValue arch =
-        this->FC->Makefile->GetDefinition("CMAKE_LIBRARY_ARCHITECTURE");
+        this->FC->m_pMakefile->GetDefinition("CMAKE_LIBRARY_ARCHITECTURE");
       if (cmNonempty(arch)) {
         std::string archNoUnknown = *arch;
         auto unknownAtPos = archNoUnknown.find("-unknown-");
@@ -188,8 +188,8 @@ void cmSearchPath::AddPrefixPaths(std::vector<std::string> const& paths)
           // Replace "-unknown-" with "-".
           archNoUnknown.replace(unknownAtPos, 9, "-");
         }
-        if (this->FC->Makefile->IsDefinitionSet("CMAKE_SYSROOT") &&
-            this->FC->Makefile->IsDefinitionSet(
+        if (this->FC->m_pMakefile->IsDefinitionSet("CMAKE_SYSROOT") &&
+            this->FC->m_pMakefile->IsDefinitionSet(
               "CMAKE_PREFIX_LIBRARY_ARCHITECTURE")) {
           if (foundUnknown) {
             this->AddPathInternal(cmStrCat('/', archNoUnknown, dir, subdir),

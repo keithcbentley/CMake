@@ -20,7 +20,7 @@ public:
   class Resource
   {
   public:
-    std::string Id;
+    std::string m_id;
     unsigned int Capacity;
 
     bool operator==(Resource const& other) const;

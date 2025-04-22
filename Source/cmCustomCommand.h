@@ -145,7 +145,7 @@ private:
   std::vector<std::string> Byproducts;
   std::vector<std::string> Depends;
   cmCustomCommandLines CommandLines;
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
   cmImplicitDependsList ImplicitDepends;
   std::string Target;
   std::string Comment;

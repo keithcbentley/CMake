@@ -73,7 +73,7 @@ public:
               cmExecutionStatus& inStatus) override;
 
 private:
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   ScopeSet Scopes;
   BlockScopePushPop BlockScope;
   std::vector<std::string> VariableNames;
@@ -82,7 +82,7 @@ private:
 cmBlockFunctionBlocker::cmBlockFunctionBlocker(
   cmMakefile* const mf, ScopeSet const& scopes,
   std::vector<std::string> variableNames)
-  : Makefile{ mf }
+  : m_pMakefile{ mf }
   , Scopes{ scopes }
   , BlockScope{ mf, scopes }
   , VariableNames{ std::move(variableNames) }
@@ -92,7 +92,7 @@ cmBlockFunctionBlocker::cmBlockFunctionBlocker(
 cmBlockFunctionBlocker::~cmBlockFunctionBlocker()
 {
   if (this->Scopes.contains(ScopeType::VARIABLES)) {
-    this->Makefile->RaiseScope(this->VariableNames);
+    this->m_pMakefile->RaiseScope(this->VariableNames);
   }
 }
 

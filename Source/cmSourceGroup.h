@@ -126,7 +126,7 @@ private:
    * Vector of all source files that have been assigned to
    * this group.
    */
-  std::vector<cmSourceFile const*> SourceFiles;
+  std::vector<cmSourceFile const*> m_sourceFiles;
 
   std::unique_ptr<cmSourceGroupInternals> Internal;
 };

@@ -70,7 +70,7 @@ void cmConfigureLog::WriteBacktrace(cmMakefile const& mf)
   for (auto bt = mf.GetBacktrace(); !bt.Empty(); bt = bt.Pop()) {
     auto t = bt.Top();
     if (!t.Name.empty() || t.Line == cmListFileContext::DeferPlaceholderLine) {
-      t.FilePath = cmSystemTools::RelativeIfUnder(root, t.FilePath);
+      t.m_filePath = cmSystemTools::RelativeIfUnder(root, t.m_filePath);
       std::ostringstream s;
       s << t;
       backtrace.emplace_back(s.str());

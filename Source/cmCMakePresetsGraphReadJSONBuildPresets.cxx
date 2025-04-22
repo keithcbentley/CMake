@@ -84,7 +84,7 @@ auto const BuildPresetHelper =
           cmCMakePresetsGraphInternal::PresetOptionalBoolHelper, false)
     .Bind("jobs"_s, &BuildPreset::Jobs,
           cmCMakePresetsGraphInternal::PresetOptionalIntHelper, false)
-    .Bind("targets"_s, &BuildPreset::Targets,
+    .Bind("targets"_s, &BuildPreset::m_targets,
           cmCMakePresetsGraphInternal::PresetVectorOneOrMoreStringHelper,
           false)
     .Bind("configuration"_s, &BuildPreset::Configuration,

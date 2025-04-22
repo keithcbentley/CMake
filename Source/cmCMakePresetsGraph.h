@@ -29,7 +29,7 @@ public:
 
   enum class ArchToolsetStrategy
   {
-    Set,
+    m_set,
     External,
   };
 
@@ -168,7 +168,7 @@ public:
     std::string ConfigurePreset;
     cm::optional<bool> InheritConfigureEnvironment;
     cm::optional<int> Jobs;
-    std::vector<std::string> Targets;
+    std::vector<std::string> m_targets;
     std::string Configuration;
     cm::optional<bool> CleanFirst;
     cm::optional<bool> Verbose;

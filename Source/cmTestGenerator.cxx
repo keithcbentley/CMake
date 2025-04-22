@@ -349,7 +349,7 @@ void cmTestGenerator::GenerateInternalProperties(std::ostream& os)
     if (prependTripleSeparator) {
       os << ";";
     }
-    os << entry.FilePath << ";" << entry.Line << ";" << entry.Name;
+    os << entry.m_filePath << ";" << entry.Line << ";" << entry.Name;
     bt = bt.Pop();
     prependTripleSeparator = true;
   }

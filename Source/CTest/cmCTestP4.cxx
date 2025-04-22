@@ -291,11 +291,11 @@ private:
       std::string action = this->RegexDiff.match(2);
 
       if (action == "add") {
-        change.Action = 'A';
+        change.m_action = 'A';
       } else if (action == "delete") {
-        change.Action = 'D';
+        change.m_action = 'D';
       } else if (action == "edit" || action == "integrate") {
-        change.Action = 'M';
+        change.m_action = 'M';
       }
 
       this->Changes.push_back(change);
@@ -311,7 +311,7 @@ void cmCTestP4::SetP4Options(std::vector<std::string>& CommandOptions)
 
     // The CTEST_P4_CLIENT variable sets the P4 client used when issuing
     // Perforce commands, if it's different from the default one.
-    std::string client = this->Makefile->GetSafeDefinition("CTEST_P4_CLIENT");
+    std::string client = this->m_pMakefile->GetSafeDefinition("CTEST_P4_CLIENT");
     if (!client.empty()) {
       this->P4Options.emplace_back("-c");
       this->P4Options.push_back(client);
@@ -324,7 +324,7 @@ void cmCTestP4::SetP4Options(std::vector<std::string>& CommandOptions)
 
     // The CTEST_P4_OPTIONS variable adds additional Perforce command line
     // options before the main command
-    std::string opts = this->Makefile->GetSafeDefinition("CTEST_P4_OPTIONS");
+    std::string opts = this->m_pMakefile->GetSafeDefinition("CTEST_P4_OPTIONS");
     cm::append(this->P4Options, cmSystemTools::ParseArguments(opts));
   }
 
@@ -467,7 +467,7 @@ bool cmCTestP4::UpdateCustom(std::string const& custom)
 bool cmCTestP4::UpdateImpl()
 {
   std::string custom =
-    this->Makefile->GetSafeDefinition("CTEST_P4_UPDATE_CUSTOM");
+    this->m_pMakefile->GetSafeDefinition("CTEST_P4_UPDATE_CUSTOM");
   if (!custom.empty()) {
     return this->UpdateCustom(custom);
   }
@@ -485,9 +485,9 @@ bool cmCTestP4::UpdateImpl()
   p4_sync.emplace_back("sync");
 
   // Get user-specified update options.
-  std::string opts = this->Makefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
+  std::string opts = this->m_pMakefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
   if (opts.empty()) {
-    opts = this->Makefile->GetSafeDefinition("CTEST_P4_UPDATE_OPTIONS");
+    opts = this->m_pMakefile->GetSafeDefinition("CTEST_P4_UPDATE_OPTIONS");
   }
   std::vector<std::string> args = cmSystemTools::ParseArguments(opts);
   cm::append(p4_sync, args);

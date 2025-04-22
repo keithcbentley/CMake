@@ -32,7 +32,7 @@ protected:
   // Implement virtual methods from the superclass.
   void ComplainAboutDuplicateTarget(
     std::string const& /*targetName*/) const override {};
-  void ReportError(std::string const& errorMessage) const override;
+  void m_reportError(std::string const& errorMessage) const override;
 
   bool GenerateMainFile(std::ostream& os) override;
 

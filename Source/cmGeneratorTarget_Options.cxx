@@ -53,7 +53,7 @@ void processOptions(cmGeneratorTarget const* tgt,
     std::string usedOptions;
     for (std::string const& opt : entry.Values) {
       if (processDeviceOptions && (opt == DL_BEGIN || opt == DL_END)) {
-        options.emplace_back(opt, entry.Backtrace);
+        options.emplace_back(opt, entry.m_backtrace);
         splitOption = opt == DL_BEGIN;
         continue;
       }
@@ -65,14 +65,14 @@ void processOptions(cmGeneratorTarget const* tgt,
             std::vector<std::string> tmp;
             cmSystemTools::ParseUnixCommandLine(opt.c_str() + 6, tmp);
             for (std::string& o : tmp) {
-              options.emplace_back(std::move(o), entry.Backtrace);
+              options.emplace_back(std::move(o), entry.m_backtrace);
             }
           } else {
             options.emplace_back(std::string(opt.c_str() + 6),
-                                 entry.Backtrace);
+                                 entry.m_backtrace);
           }
         } else {
-          options.emplace_back(opt, entry.Backtrace);
+          options.emplace_back(opt, entry.m_backtrace);
         }
         if (debugOptions) {
           usedOptions += " * " + opt + "\n";
@@ -84,7 +84,7 @@ void processOptions(cmGeneratorTarget const* tgt,
         MessageType::LOG,
         std::string("Used ") + logName + std::string(" for target ") +
           tgt->GetName() + ":\n" + usedOptions,
-        entry.Backtrace);
+        entry.m_backtrace);
     }
   }
 }
@@ -234,7 +234,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetCompileOptions(
     this, "COMPILE_OPTIONS", nullptr, nullptr, this->LocalGenerator, config,
   };
 
-  cmList debugProperties{ this->Makefile->GetDefinition(
+  cmList debugProperties{ this->m_pMakefile->GetDefinition(
     "CMAKE_DEBUG_TARGET_PROPERTIES") };
   bool debugOptions = !this->DebugCompileOptionsDone &&
     cm::contains(debugProperties, "COMPILE_OPTIONS");
@@ -274,7 +274,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetCompileFeatures(
     this, "COMPILE_FEATURES", nullptr, nullptr, this->LocalGenerator, config,
   };
 
-  cmList debugProperties{ this->Makefile->GetDefinition(
+  cmList debugProperties{ this->m_pMakefile->GetDefinition(
     "CMAKE_DEBUG_TARGET_PROPERTIES") };
   bool debugFeatures = !this->DebugCompileFeaturesDone &&
     cm::contains(debugProperties, "COMPILE_FEATURES");
@@ -324,7 +324,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetCompileDefinitions(
     nullptr, this->LocalGenerator,  config,
   };
 
-  cmList debugProperties{ this->Makefile->GetDefinition(
+  cmList debugProperties{ this->m_pMakefile->GetDefinition(
     "CMAKE_DEBUG_TARGET_PROPERTIES") };
   bool debugDefines = !this->DebugCompileDefinitionsDone &&
     cm::contains(debugProperties, "COMPILE_DEFINITIONS");
@@ -360,7 +360,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetPrecompileHeaders(
     this, "PRECOMPILE_HEADERS", nullptr, nullptr, this->LocalGenerator, config,
   };
 
-  cmList debugProperties{ this->Makefile->GetDefinition(
+  cmList debugProperties{ this->m_pMakefile->GetDefinition(
     "CMAKE_DEBUG_TARGET_PROPERTIES") };
   bool debugDefines = !this->DebugPrecompileHeadersDone &&
     std::find(debugProperties.begin(), debugProperties.end(),
@@ -417,7 +417,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetLinkOptions(
     this, "LINK_OPTIONS", nullptr, nullptr, this->LocalGenerator, config,
   };
 
-  cmList debugProperties{ this->Makefile->GetDefinition(
+  cmList debugProperties{ this->m_pMakefile->GetDefinition(
     "CMAKE_DEBUG_TARGET_PROPERTIES") };
   bool debugOptions = !this->DebugLinkOptionsDone &&
     cm::contains(debugProperties, "LINK_OPTIONS");
@@ -438,10 +438,10 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetLinkOptions(
 
   if (this->IsDeviceLink()) {
     // wrap host link options
-    std::string const wrapper(this->Makefile->GetSafeDefinition(
+    std::string const wrapper(this->m_pMakefile->GetSafeDefinition(
       "CMAKE_" + language + "_DEVICE_COMPILER_WRAPPER_FLAG"));
     cmList wrapperFlag{ wrapper };
-    std::string const wrapperSep(this->Makefile->GetSafeDefinition(
+    std::string const wrapperSep(this->m_pMakefile->GetSafeDefinition(
       "CMAKE_" + language + "_DEVICE_COMPILER_WRAPPER_FLAG_SEP"));
     bool concatFlagAndArgs = true;
     if (!wrapperFlag.empty() && wrapperFlag.back() == " ") {
@@ -465,7 +465,7 @@ std::vector<BT<std::string>> cmGeneratorTarget::GetLinkOptions(
         std::vector<std::string> options;
         cmSystemTools::ParseUnixCommandLine(it->Value.c_str(), options);
         auto hostOptions =
-          wrapOptions(options, it->Backtrace, wrapperFlag, wrapperSep,
+          wrapOptions(options, it->m_backtrace, wrapperFlag, wrapperSep,
                       concatFlagAndArgs, NestedLinkerFlags::Normalize);
         it = result.erase(it);
         // some compilers (like gcc 4.8 or Intel 19.0 or XLC 16) do not respect
@@ -497,11 +497,11 @@ std::vector<BT<std::string>>& cmGeneratorTarget::ResolvePrefixWrapper(
 {
   // replace "LINKER:" or "ARCHIVER:" prefixed elements by actual linker or
   // archiver wrapper
-  std::string const wrapper(this->Makefile->GetSafeDefinition(
+  std::string const wrapper(this->m_pMakefile->GetSafeDefinition(
     cmStrCat("CMAKE_", language, (this->IsDeviceLink() ? "_DEVICE_" : "_"),
              prefix, "_WRAPPER_FLAG")));
   cmList wrapperFlag{ wrapper };
-  std::string const wrapperSep(this->Makefile->GetSafeDefinition(
+  std::string const wrapperSep(this->m_pMakefile->GetSafeDefinition(
     cmStrCat("CMAKE_", language, (this->IsDeviceLink() ? "_DEVICE_" : "_"),
              prefix, "_WRAPPER_FLAG_SEP")));
   bool concatFlagAndArgs = true;
@@ -521,7 +521,7 @@ std::vector<BT<std::string>>& cmGeneratorTarget::ResolvePrefixWrapper(
     }
 
     std::string value = std::move(entry->Value);
-    cmListFileBacktrace bt = std::move(entry->Backtrace);
+    cmListFileBacktrace bt = std::move(entry->m_backtrace);
     entry = result.erase(entry);
 
     std::vector<std::string> options;

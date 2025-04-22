@@ -67,7 +67,7 @@ private:
 
   virtual void CharacterDataHandler(char const* data, int length);
 
-  virtual void ReportError(int line, int column, char const* msg);
+  virtual void m_reportError(int line, int column, char const* msg);
 
   void ReportValidationError(std::string const& message);
 

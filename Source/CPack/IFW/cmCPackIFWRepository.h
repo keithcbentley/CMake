@@ -19,7 +19,7 @@ class cmCPackIFWRepository : public cmCPackIFWCommon
 public:
   // Types
 
-  enum Action
+  enum m_action
   {
     None,
     Add,
@@ -44,7 +44,7 @@ public:
   std::string Name;
 
   /// Optional update action
-  Action Update;
+  m_action Update;
 
   /// Is points to a list of available components
   std::string Url;

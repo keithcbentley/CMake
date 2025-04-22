@@ -88,26 +88,26 @@ bool cmQTWrapUICommand(std::vector<std::string> const& args,
 
       std::vector<std::string> depends;
       depends.push_back(uiName);
-      auto cc = cm::make_unique<cmCustomCommand>();
-      cc->SetOutputs(hName);
-      cc->SetDepends(depends);
-      cc->SetCommandLines(hCommandLines);
-      mf.AddCustomCommandToOutput(std::move(cc));
+      auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetOutputs(hName);
+      m_pCustomCommand->SetDepends(depends);
+      m_pCustomCommand->SetCommandLines(hCommandLines);
+      mf.AddCustomCommandToOutput(std::move(m_pCustomCommand));
 
       depends.push_back(hName);
-      cc = cm::make_unique<cmCustomCommand>();
-      cc->SetOutputs(cxxName);
-      cc->SetDepends(depends);
-      cc->SetCommandLines(cxxCommandLines);
-      mf.AddCustomCommandToOutput(std::move(cc));
+      m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetOutputs(cxxName);
+      m_pCustomCommand->SetDepends(depends);
+      m_pCustomCommand->SetCommandLines(cxxCommandLines);
+      mf.AddCustomCommandToOutput(std::move(m_pCustomCommand));
 
       depends.clear();
       depends.push_back(hName);
-      cc = cm::make_unique<cmCustomCommand>();
-      cc->SetOutputs(mocName);
-      cc->SetDepends(depends);
-      cc->SetCommandLines(mocCommandLines);
-      mf.AddCustomCommandToOutput(std::move(cc));
+      m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetOutputs(mocName);
+      m_pCustomCommand->SetDepends(depends);
+      m_pCustomCommand->SetCommandLines(mocCommandLines);
+      mf.AddCustomCommandToOutput(std::move(m_pCustomCommand));
     }
   }
 

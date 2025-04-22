@@ -85,7 +85,7 @@ bool cmExportBuildCMakeConfigGenerator::GenerateMainFile(std::ostream& os)
   } else {
     cmCryptoHash hasher(cmCryptoHash::AlgoSHA3_512);
     constexpr std::size_t HASH_TRUNCATION = 12;
-    for (auto const& target : this->Targets) {
+    for (auto const& target : this->m_targets) {
       hasher.Append(target.Name);
     }
     cxx_modules_name = hasher.FinalizeHex().substr(0, HASH_TRUNCATION);
@@ -172,7 +172,7 @@ std::string cmExportBuildCMakeConfigGenerator::GetFileSetDirectories(
   std::vector<std::string> resultVector;
 
   auto configs =
-    gte->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+    gte->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
   auto directoryEntries = fileSet->CompileDirectoryEntries();
 
   for (auto const& config : configs) {
@@ -220,7 +220,7 @@ std::string cmExportBuildCMakeConfigGenerator::GetFileSetFiles(
   std::vector<std::string> resultVector;
 
   auto configs =
-    gte->Makefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
+    gte->m_pMakefile->GetGeneratorConfigs(cmMakefile::IncludeEmptyConfig);
 
   auto fileEntries = fileSet->CompileFileEntries();
   auto directoryEntries = fileSet->CompileDirectoryEntries();

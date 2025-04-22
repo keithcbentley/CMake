@@ -151,7 +151,7 @@ private:
   cmGeneratorTarget* GenTarget = nullptr;
   cmGlobalGenerator* GlobalGen = nullptr;
   cmLocalGenerator* LocalGen = nullptr;
-  cmMakefile* Makefile = nullptr;
+  cmMakefile* m_pMakefile = nullptr;
   cmFilePathChecksum const PathCheckSum;
 
   // -- Configuration

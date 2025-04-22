@@ -42,7 +42,7 @@ bool ArchToolsetStrategyHelper(cm::optional<ArchToolsetStrategy>& out,
   }
 
   if (value->asString() == "set") {
-    out = ArchToolsetStrategy::Set;
+    out = ArchToolsetStrategy::m_set;
     return true;
   }
 

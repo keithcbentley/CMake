@@ -105,7 +105,7 @@ class cmListFileContext
 {
 public:
   std::string Name;
-  std::string FilePath;
+  std::string m_filePath;
   long Line = 0;
   static long const DeferPlaceholderLine = -1;
   cm::optional<std::string> DeferId;
@@ -131,7 +131,7 @@ public:
 
   cmListFileContext(std::string name, std::string filePath, long line)
     : Name(std::move(name))
-    , FilePath(std::move(filePath))
+    , m_filePath(std::move(filePath))
     , Line(line)
   {
   }
@@ -143,7 +143,7 @@ public:
     // when it is at the top, but otherwise can be skipped during call stack
     // printing if preceded by a more specific entry.
     cmListFileContext lfc;
-    lfc.FilePath = filePath;
+    lfc.m_filePath = filePath;
     return lfc;
   }
 
@@ -152,7 +152,7 @@ public:
     cm::optional<std::string> deferId = {})
   {
     cmListFileContext lfc;
-    lfc.FilePath = fileName;
+    lfc.m_filePath = fileName;
     lfc.Line = lff.Line();
     lfc.Name = lff.OriginalName();
     lfc.DeferId = std::move(deferId);
@@ -185,11 +185,11 @@ class BT
 public:
   BT(T v = T(), cmListFileBacktrace bt = cmListFileBacktrace())
     : Value(std::move(v))
-    , Backtrace(std::move(bt))
+    , m_backtrace(std::move(bt))
   {
   }
   T Value;
-  cmListFileBacktrace Backtrace;
+  cmListFileBacktrace m_backtrace;
   friend bool operator==(BT<T> const& l, BT<T> const& r)
   {
     return l.Value == r.Value;

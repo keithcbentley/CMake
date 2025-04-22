@@ -539,7 +539,7 @@ void cmExtraCodeLiteGenerator::CreateProjectSourceEntries(
 void cmExtraCodeLiteGenerator::CreateNewProjectFile(
   cmGeneratorTarget const* gt, std::string const& filename)
 {
-  cmMakefile const* mf = gt->Makefile;
+  cmMakefile const* mf = gt->m_pMakefile;
   cmGeneratedFileStream fout(filename);
   if (!fout) {
     return;

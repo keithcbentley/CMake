@@ -208,19 +208,19 @@ bool cmAddCustomTargetCommand(std::vector<std::string> const& args,
   }
 
   // Add the utility target to the makefile.
-  auto cc = cm::make_unique<cmCustomCommand>();
-  cc->SetWorkingDirectory(working_directory.c_str());
-  cc->SetByproducts(byproducts);
-  cc->SetDepends(depends);
-  cc->SetCommandLines(commandLines);
-  cc->SetEscapeOldStyle(!verbatim);
-  cc->SetComment(comment);
-  cc->SetUsesTerminal(uses_terminal);
-  cc->SetCommandExpandLists(command_expand_lists);
-  cc->SetJobPool(job_pool);
-  cc->SetJobserverAware(cmIsOn(job_server_aware));
+  auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+  m_pCustomCommand->SetWorkingDirectory(working_directory.c_str());
+  m_pCustomCommand->SetByproducts(byproducts);
+  m_pCustomCommand->SetDepends(depends);
+  m_pCustomCommand->SetCommandLines(commandLines);
+  m_pCustomCommand->SetEscapeOldStyle(!verbatim);
+  m_pCustomCommand->SetComment(comment);
+  m_pCustomCommand->SetUsesTerminal(uses_terminal);
+  m_pCustomCommand->SetCommandExpandLists(command_expand_lists);
+  m_pCustomCommand->SetJobPool(job_pool);
+  m_pCustomCommand->SetJobserverAware(cmIsOn(job_server_aware));
   cmTarget* target =
-    mf.AddUtilityCommand(targetName, excludeFromAll, std::move(cc));
+    mf.AddUtilityCommand(targetName, excludeFromAll, std::move(m_pCustomCommand));
 
   // Add additional user-specified source files to the target.
   target->AddSources(sources);

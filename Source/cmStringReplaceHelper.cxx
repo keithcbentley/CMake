@@ -15,7 +15,7 @@ cmStringReplaceHelper::cmStringReplaceHelper(std::string const& regex,
   : RegExString(regex)
   , RegularExpression(regex)
   , ReplaceExpression(std::move(replace_expr))
-  , Makefile(makefile)
+  , m_pMakefile(makefile)
 {
   this->ParseReplaceExpression();
 }
@@ -26,8 +26,8 @@ bool cmStringReplaceHelper::Replace(std::string const& input,
   output.clear();
 
   unsigned optAnchor = 0;
-  if (this->Makefile &&
-      this->Makefile->GetPolicyStatus(cmPolicies::CMP0186) !=
+  if (this->m_pMakefile &&
+      this->m_pMakefile->GetPolicyStatus(cmPolicies::CMP0186) !=
         cmPolicies::NEW) {
     optAnchor = cmsys::RegularExpression::BOL_AT_OFFSET;
   }
@@ -37,9 +37,9 @@ bool cmStringReplaceHelper::Replace(std::string const& input,
   std::string::size_type base = 0;
   unsigned optNonEmpty = 0;
   while (re.find(input, base, optAnchor | optNonEmpty)) {
-    if (this->Makefile) {
-      this->Makefile->ClearMatches();
-      this->Makefile->StoreMatches(re);
+    if (this->m_pMakefile) {
+      this->m_pMakefile->ClearMatches();
+      this->m_pMakefile->StoreMatches(re);
     }
 
     // Concatenate the part of the input that was not matched.

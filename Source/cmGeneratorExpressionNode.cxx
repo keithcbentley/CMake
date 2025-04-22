@@ -57,7 +57,7 @@ std::string cmGeneratorExpressionNode::EvaluateDependentExpression(
   cmGeneratorExpressionDAGChecker* dagChecker,
   cmGeneratorTarget const* currentTarget)
 {
-  cmGeneratorExpression ge(*lg->GetCMakeInstance(), context->Backtrace);
+  cmGeneratorExpression ge(*lg->GetCMakeInstance(), context->m_backtrace);
   std::unique_ptr<cmCompiledGeneratorExpression> cge = ge.Parse(prop);
   cge->SetEvaluateForBuildsystem(context->EvaluateForBuildsystem);
   cge->SetQuiet(context->Quiet);
@@ -326,7 +326,7 @@ static const struct InListNode : public cmGeneratorExpressionNode
             << "\nSearch Item:\n  \"" << parameters.front()
             << "\"\nList:\n  \"" << parameters[1] << "\"\n";
           context->LG->GetCMakeInstance()->IssueMessage(
-            MessageType ::AUTHOR_WARNING, e.str(), context->Backtrace);
+            MessageType ::AUTHOR_WARNING, e.str(), context->m_backtrace);
           return "0";
         }
         if (values.empty()) {
@@ -490,12 +490,12 @@ protected:
         dagCheckerParent,
         context->LG,
         context->Config,
-        context->Backtrace,
+        context->m_backtrace,
       };
       switch (dagChecker.Check()) {
         case cmGeneratorExpressionDAGChecker::SELF_REFERENCE:
         case cmGeneratorExpressionDAGChecker::CYCLIC_REFERENCE: {
-          dagChecker.ReportError(context, content->GetOriginalExpression());
+          dagChecker.m_reportError(context, content->GetOriginalExpression());
           return std::string();
         }
         case cmGeneratorExpressionDAGChecker::ALREADY_SEEN:
@@ -554,7 +554,7 @@ static const struct TargetGenexEvalNode : public GenexEvaluator
     // Replace the surrounding context with the named target.
     cmGeneratorExpressionContext targetContext(
       context->LG, context->Config, context->Quiet, target, target,
-      context->EvaluateForBuildsystem, context->Backtrace, context->Language);
+      context->EvaluateForBuildsystem, context->m_backtrace, context->Language);
 
     return this->EvaluateExpression("TARGET_GENEX_EVAL", expression,
                                     &targetContext, content, dagCheckerParent);
@@ -1531,7 +1531,7 @@ static const struct ListNode : public cmGeneratorExpressionNode
                   ActionDescriptor(std::string name,
                                    cmList::TransformAction action, int arity)
                     : Name(std::move(name))
-                    , Action(action)
+                    , m_action(action)
                     , Arity(arity)
                   {
                   }
@@ -1539,7 +1539,7 @@ static const struct ListNode : public cmGeneratorExpressionNode
                   operator std::string const&() const { return this->Name; }
 
                   std::string Name;
-                  cmList::TransformAction Action;
+                  cmList::TransformAction m_action;
                   int Arity = 0;
                 };
 
@@ -1714,10 +1714,10 @@ static const struct ListNode : public cmGeneratorExpressionNode
                   if (!selector) {
                     selector = cmList::TransformSelector::New();
                   }
-                  selector->Makefile = ctx->LG->GetMakefile();
+                  selector->m_pMakefile = ctx->LG->GetMakefile();
 
                   return list
-                    .transform(descriptor->Action, arguments,
+                    .transform(descriptor->m_action, arguments,
                                std::move(selector))
                     .to_string();
                 } catch (cmList::transform_error& e) {
@@ -2248,7 +2248,7 @@ static const struct ConfigurationTestNode : public cmGeneratorExpressionNode
           << "The config name of \"" << param << "\" is invalid";
         /* clang-format on */
         context->LG->GetCMakeInstance()->IssueMessage(
-          MessageType::WARNING, e.str(), context->Backtrace);
+          MessageType::WARNING, e.str(), context->m_backtrace);
       }
 
       firstParam = false;
@@ -2794,7 +2794,7 @@ static std::string getLinkedTargetsContent(
         // Create a context as cmCompiledGeneratorExpression::Evaluate does.
         cmGeneratorExpressionContext libContext(
           target->GetLocalGenerator(), context->Config, context->Quiet, target,
-          target, context->EvaluateForBuildsystem, lib.Backtrace,
+          target, context->EvaluateForBuildsystem, lib.m_backtrace,
           context->Language);
         std::string libResult = lib.Target->EvaluateInterfaceProperty(
           prop, &libContext, dagChecker, usage);
@@ -3003,12 +3003,12 @@ static const struct TargetPropertyNode : public cmGeneratorExpressionNode
       dagCheckerParent,
       context->LG,
       context->Config,
-      context->Backtrace,
+      context->m_backtrace,
     };
 
     switch (dagChecker.Check()) {
       case cmGeneratorExpressionDAGChecker::SELF_REFERENCE:
-        dagChecker.ReportError(context, content->GetOriginalExpression());
+        dagChecker.m_reportError(context, content->GetOriginalExpression());
         return std::string();
       case cmGeneratorExpressionDAGChecker::CYCLIC_REFERENCE:
         // No error. We just skip cyclic references.
@@ -3533,7 +3533,7 @@ struct TargetFilesystemArtifactDependencyCMP0112
                      "\nDependency being added to target:\n  \"",
                      target->GetName(), "\"\n");
           lg->GetCMakeInstance()->IssueMessage(MessageType ::AUTHOR_WARNING,
-                                               err, context->Backtrace);
+                                               err, context->m_backtrace);
         }
         CM_FALLTHROUGH;
       case cmPolicies::OLD:
@@ -4672,5 +4672,5 @@ void reportError(cmGeneratorExpressionContext* context,
     << result;
   /* clang-format on */
   context->LG->GetCMakeInstance()->IssueMessage(MessageType::FATAL_ERROR,
-                                                e.str(), context->Backtrace);
+                                                e.str(), context->m_backtrace);
 }

@@ -173,7 +173,7 @@ std::string cmLocalVisualStudioGenerator::ConstructScript(
   // if CMAKE_MSVCIDE_RUN_PATH is set.
   if (this->GetGlobalGenerator()->IsVisualStudio()) {
     cmValue extraPath =
-      this->Makefile->GetDefinition("CMAKE_MSVCIDE_RUN_PATH");
+      this->m_pMakefile->GetDefinition("CMAKE_MSVCIDE_RUN_PATH");
     if (extraPath) {
       script = cmStrCat(script, newline, "set PATH=", *extraPath, ";%PATH%");
       newline = newline_text;

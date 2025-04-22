@@ -79,7 +79,7 @@ public:
       return { this->Feature
                  ? this->Feature->GetDecoratedItem(path, this->IsPath)
                  : path,
-               Value.Backtrace };
+               Value.m_backtrace };
     }
 
   private:
@@ -146,7 +146,7 @@ private:
 
   // Context information.
   cmGeneratorTarget const* const Target;
-  cmMakefile* const Makefile;
+  cmMakefile* const m_pMakefile;
   cmGlobalGenerator* const m_pGlobalGenerator;
   CMake* const CMakeInstance;
 

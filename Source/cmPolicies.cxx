@@ -441,7 +441,7 @@ cmPolicies::PolicyStatus cmPolicies::PolicyMap::Get(
   return status;
 }
 
-void cmPolicies::PolicyMap::Set(cmPolicies::PolicyID id,
+void cmPolicies::PolicyMap::m_set(cmPolicies::PolicyID id,
                                 cmPolicies::PolicyStatus status)
 {
   this->Status[(POLICY_STATUS_COUNT * id) + OLD] = (status == OLD);

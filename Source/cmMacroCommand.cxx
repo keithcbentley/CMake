@@ -36,7 +36,7 @@ public:
   std::vector<std::string> Args;
   std::vector<cmListFileFunction> Functions;
   cmPolicies::PolicyMap Policies;
-  std::string FilePath;
+  std::string m_filePath;
 };
 
 bool cmMacroHelperCommand::operator()(
@@ -59,7 +59,7 @@ bool cmMacroHelperCommand::operator()(
     return false;
   }
 
-  cmMakefile::MacroPushPop macroScope(&makefile, this->FilePath,
+  cmMakefile::MacroPushPop macroScope(&makefile, this->m_filePath,
                                       this->Policies);
 
   // set the value of argc
@@ -172,11 +172,11 @@ bool cmMacroFunctionBlocker::Replay(std::vector<cmListFileFunction> functions,
   cmMacroHelperCommand f;
   f.Args = this->Args;
   f.Functions = std::move(functions);
-  f.FilePath = this->GetStartingContext().FilePath;
+  f.m_filePath = this->GetStartingContext().m_filePath;
   mf.RecordPolicies(f.Policies);
   return mf.GetState()->AddScriptedCommand(
     this->Args[0],
-    BT<cmState::Command>(std::move(f),
+    BT<cmState::m_command>(std::move(f),
                          mf.GetBacktrace().Push(this->GetStartingContext())),
     mf);
 }

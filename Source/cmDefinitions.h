@@ -41,7 +41,7 @@ public:
   // -- Member functions
 
   /** Set a value associated with a key.  */
-  void Set(std::string const& key, cm::string_view value);
+  void m_set(std::string const& key, cm::string_view value);
 
   /** Unset a definition.  */
   void Unset(std::string const& key);

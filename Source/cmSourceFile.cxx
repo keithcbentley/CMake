@@ -484,7 +484,7 @@ cmCustomCommand* cmSourceFile::GetCustomCommand() const
   return this->CustomCommand.get();
 }
 
-void cmSourceFile::SetCustomCommand(std::unique_ptr<cmCustomCommand> cc)
+void cmSourceFile::SetCustomCommand(std::unique_ptr<cmCustomCommand> m_pCustomCommand)
 {
-  this->CustomCommand = std::move(cc);
+  this->CustomCommand = std::move(m_pCustomCommand);
 }

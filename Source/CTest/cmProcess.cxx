@@ -29,7 +29,7 @@ cmProcess::cmProcess(std::unique_ptr<cmCTestRunTest> runner)
 {
   this->TotalTime = cmDuration::zero();
   this->ExitValue = 0;
-  this->Id = 0;
+  this->m_id = 0;
   this->StartTime = std::chrono::steady_clock::time_point();
 }
 
@@ -37,7 +37,7 @@ cmProcess::~cmProcess() = default;
 
 void cmProcess::SetCommand(std::string const& command)
 {
-  this->Command = command;
+  this->m_command = command;
 }
 
 void cmProcess::SetCommandArguments(std::vector<std::string> const& args)
@@ -53,14 +53,14 @@ void cmProcess::SetWorkingDirectory(std::string const& dir)
 bool cmProcess::StartProcess(uv_loop_t& loop, std::vector<size_t>* affinity)
 {
   this->ProcessState = cmProcess::m_pState::Error;
-  if (this->Command.empty()) {
+  if (this->m_command.empty()) {
     return false;
   }
   this->StartTime = std::chrono::steady_clock::now();
   this->SystemStartTime = std::chrono::system_clock::now();
   this->ProcessArgs.clear();
   // put the command as arg0
-  this->ProcessArgs.push_back(this->Command.c_str());
+  this->ProcessArgs.push_back(this->m_command.c_str());
   // now put the command arguments in
   for (std::string const& arg : this->Arguments) {
     this->ProcessArgs.push_back(arg.c_str());
@@ -102,7 +102,7 @@ bool cmProcess::StartProcess(uv_loop_t& loop, std::vector<size_t>* affinity)
   stdio[2] = stdio[1];
 
   uv_process_options_t options = uv_process_options_t();
-  options.file = this->Command.data();
+  options.file = this->m_command.data();
   options.args = const_cast<char**>(this->ProcessArgs.data());
   options.stdio_count = 3; // in, out and err
   options.exit_cb = &cmProcess::OnExitCB;
@@ -142,7 +142,7 @@ bool cmProcess::StartProcess(uv_loop_t& loop, std::vector<size_t>* affinity)
   status = this->Process.spawn(loop, options, this);
   if (status != 0) {
     cmCTestLog(this->Runner->GetCTest(), ERROR_MESSAGE,
-               "Process not started\n " << this->Command << "\n["
+               "Process not started\n " << this->m_command << "\n["
                                         << uv_strerror(status) << "]\n");
     return false;
   }

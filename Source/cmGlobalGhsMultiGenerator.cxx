@@ -704,24 +704,24 @@ bool cmGlobalGhsMultiGenerator::AddCheckTarget()
      * The build tool, currently, does not support rereading the project files
      * if they get updated. So do not run this target as part of ALL_BUILD.
      */
-    auto cc = cm::make_unique<cmCustomCommand>();
+    auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
     cmTarget* tgt =
-      lg.AddUtilityCommand(CHECK_BUILD_SYSTEM_TARGET, true, std::move(cc));
+      lg.AddUtilityCommand(CHECK_BUILD_SYSTEM_TARGET, true, std::move(m_pCustomCommand));
     auto ptr = cm::make_unique<cmGeneratorTarget>(tgt, &lg);
     auto* gt = ptr.get();
     lg.AddGeneratorTarget(std::move(ptr));
 
     // Add the rule.
-    cc = cm::make_unique<cmCustomCommand>();
-    cc->SetOutputs(this->StampFile);
-    cc->SetDepends(listFiles);
-    cc->SetCommandLines(commandLines);
-    cc->SetComment("Checking Build System");
-    cc->SetEscapeOldStyle(false);
-    cc->SetStdPipesUTF8(true);
+    m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+    m_pCustomCommand->SetOutputs(this->StampFile);
+    m_pCustomCommand->SetDepends(listFiles);
+    m_pCustomCommand->SetCommandLines(commandLines);
+    m_pCustomCommand->SetComment("Checking Build System");
+    m_pCustomCommand->SetEscapeOldStyle(false);
+    m_pCustomCommand->SetStdPipesUTF8(true);
 
     if (cmSourceFile* file =
-          lg.AddCustomCommandToOutput(std::move(cc), true)) {
+          lg.AddCustomCommandToOutput(std::move(m_pCustomCommand), true)) {
       gt->AddSource(file->ResolveFullPath());
     } else {
       cmSystemTools::Error("Error adding rule for " + this->StampFile);
@@ -745,11 +745,11 @@ void cmGlobalGhsMultiGenerator::AddAllTarget()
     if (!gen.empty()) {
       // Use no actual command lines so that the target itself is not
       // considered always out of date.
-      auto cc = cm::make_unique<cmCustomCommand>();
-      cc->SetEscapeOldStyle(false);
-      cc->SetComment("Build all projects");
+      auto m_pCustomCommand = cm::make_unique<cmCustomCommand>();
+      m_pCustomCommand->SetEscapeOldStyle(false);
+      m_pCustomCommand->SetComment("Build all projects");
       cmTarget* allBuild = gen[0]->AddUtilityCommand(this->GetAllTargetName(),
-                                                     true, std::move(cc));
+                                                     true, std::move(m_pCustomCommand));
 
       gen[0]->AddGeneratorTarget(
         cm::make_unique<cmGeneratorTarget>(allBuild, gen[0]));

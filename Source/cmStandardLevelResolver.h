@@ -18,7 +18,7 @@ class cmStandardLevelResolver
 
 public:
   explicit cmStandardLevelResolver(cmMakefile* makefile)
-    : Makefile(makefile)
+    : m_pMakefile(makefile)
   {
   }
 
@@ -69,5 +69,5 @@ private:
                                      std::string& lang,
                                      std::string* error) const;
 
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
 };

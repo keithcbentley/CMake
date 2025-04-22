@@ -143,16 +143,16 @@ struct FileSetType
   FileSetEntries SelfEntries;
   FileSetEntries InterfaceEntries;
 
-  enum class Action
+  enum class m_action
   {
-    Set,
+    m_set,
     Append,
   };
 
   template <typename ValueType>
   bool WriteProperties(cmTarget* tgt, cmTargetInternals* impl,
                        std::string const& prop, ValueType value,
-                       Action action);
+                       m_action action);
   std::pair<bool, cmValue> ReadProperties(cmTarget const* tgt,
                                           cmTargetInternals const* impl,
                                           std::string const& prop) const;
@@ -181,9 +181,9 @@ struct UsageRequirementProperty
     cm::append(this->Entries, entries);
   }
 
-  enum class Action
+  enum class m_action
   {
-    Set,
+    m_set,
     Prepend,
     Append,
   };
@@ -191,12 +191,12 @@ struct UsageRequirementProperty
   template <typename ValueType>
   bool Write(cmTargetInternals const* impl,
              cm::optional<cmListFileBacktrace> const& bt,
-             std::string const& prop, ValueType value, Action action);
+             std::string const& prop, ValueType value, m_action action);
   template <typename ValueType>
   void WriteDirect(cmTargetInternals const* impl,
                    cm::optional<cmListFileBacktrace> const& bt,
-                   ValueType value, Action action);
-  void WriteDirect(BT<std::string> value, Action action);
+                   ValueType value, m_action action);
+  void WriteDirect(BT<std::string> value, m_action action);
   std::pair<bool, cmValue> Read(std::string const& prop) const;
 
   cm::static_string_view const Name;
@@ -584,7 +584,7 @@ class cmTargetInternals
 {
 public:
   cmStateEnums::TargetType TargetType;
-  cmMakefile* Makefile;
+  cmMakefile* m_pMakefile;
   cmPolicies::PolicyMap PolicyMap;
   cmTarget const* TemplateTarget;
   std::string Name;
@@ -605,8 +605,8 @@ public:
   std::vector<cmCustomCommand> PreBuildCommands;
   std::vector<cmCustomCommand> PreLinkCommands;
   std::vector<cmCustomCommand> PostBuildCommands;
-  std::vector<cmInstallTargetGenerator*> InstallGenerators;
-  std::set<std::string> SystemIncludeDirectories;
+  std::vector<cmInstallTargetGenerator*> m_installGenerators;
+  std::set<std::string> m_systemIncludeDirectories;
   cmTarget::LinkLibraryVectorType OriginalLinkLibraries;
   std::map<std::string, BTs<std::string>> LanguageStandardProperties;
   std::map<cmTargetExport const*, std::vector<std::string>>
@@ -614,8 +614,8 @@ public:
   std::vector<std::pair<cmTarget::TLLSignature, cmListFileContext>>
     TLLCommands;
   std::map<std::string, cmFileSet> FileSets;
-  cmListFileBacktrace Backtrace;
-  cmFindPackageStack FindPackageStack;
+  cmListFileBacktrace m_backtrace;
+  cmFindPackageStack m_findPackageStack;
 
   UsageRequirementProperty IncludeDirectories;
   UsageRequirementProperty CompileOptions;
@@ -649,12 +649,12 @@ public:
   void AddDirectoryToFileSet(cmTarget* self, std::string const& fileSetName,
                              ValueType value, cm::string_view fileSetType,
                              cm::string_view description,
-                             FileSetType::Action action);
+                             FileSetType::m_action action);
   template <typename ValueType>
   void AddPathToFileSet(cmTarget* self, std::string const& fileSetName,
                         ValueType value, cm::string_view fileSetType,
                         cm::string_view description,
-                        FileSetType::Action action);
+                        FileSetType::m_action action);
   cmValue GetFileSetDirectories(cmTarget const* self,
                                 std::string const& fileSetName,
                                 cm::string_view fileSetType) const;
@@ -664,7 +664,7 @@ public:
   cmListFileBacktrace GetBacktrace(
     cm::optional<cmListFileBacktrace> const& bt) const
   {
-    return bt ? *bt : this->Makefile->GetBacktrace();
+    return bt ? *bt : this->m_pMakefile->GetBacktrace();
   }
 };
 
@@ -707,7 +707,7 @@ cmTargetInternals::cmTargetInternals()
 template <typename ValueType>
 bool FileSetType::WriteProperties(cmTarget* tgt, cmTargetInternals* impl,
                                   std::string const& prop, ValueType value,
-                                  Action action)
+                                  m_action action)
 {
   if (prop == this->DefaultDirectoryProperty) {
     impl->AddDirectoryToFileSet(tgt, std::string(this->TypeName), value,
@@ -723,7 +723,7 @@ bool FileSetType::WriteProperties(cmTarget* tgt, cmTargetInternals* impl,
   if (cmHasPrefix(prop, this->DirectoryPrefix)) {
     auto fileSetName = prop.substr(this->DirectoryPrefix.size());
     if (fileSetName.empty()) {
-      impl->Makefile->IssueMessage(
+      impl->m_pMakefile->IssueMessage(
         MessageType::FATAL_ERROR,
         cmStrCat(this->ArbitraryDescription, " name cannot be empty."));
     } else {
@@ -737,7 +737,7 @@ bool FileSetType::WriteProperties(cmTarget* tgt, cmTargetInternals* impl,
   if (cmHasPrefix(prop, this->PathPrefix)) {
     auto fileSetName = prop.substr(this->PathPrefix.size());
     if (fileSetName.empty()) {
-      impl->Makefile->IssueMessage(
+      impl->m_pMakefile->IssueMessage(
         MessageType::FATAL_ERROR,
         cmStrCat(this->ArbitraryDescription, " name cannot be empty."));
     } else {
@@ -805,7 +805,7 @@ void FileSetType::AddFileSet(std::string const& name, cmFileSetVisibility vis,
 template <typename ValueType>
 bool UsageRequirementProperty::Write(
   cmTargetInternals const* impl, cm::optional<cmListFileBacktrace> const& bt,
-  std::string const& prop, ValueType value, Action action)
+  std::string const& prop, ValueType value, m_action action)
 {
   if (prop == this->Name) {
     this->WriteDirect(impl, bt, value, action);
@@ -817,16 +817,16 @@ bool UsageRequirementProperty::Write(
 template <typename ValueType>
 void UsageRequirementProperty::WriteDirect(
   cmTargetInternals const* impl, cm::optional<cmListFileBacktrace> const& bt,
-  ValueType value, Action action)
+  ValueType value, m_action action)
 {
-  if (action == Action::Set) {
+  if (action == m_action::m_set) {
     this->Entries.clear();
   }
   if (value) {
     cmListFileBacktrace lfbt = impl->GetBacktrace(bt);
-    if (action == Action::Prepend) {
+    if (action == m_action::Prepend) {
       this->Entries.emplace(this->Entries.begin(), value, lfbt);
-    } else if (action == Action::Set || cmNonempty(value) ||
+    } else if (action == m_action::m_set || cmNonempty(value) ||
                this->AppendBehavior == AppendEmpty::Yes) {
       this->Entries.emplace_back(value, lfbt);
     }
@@ -834,12 +834,12 @@ void UsageRequirementProperty::WriteDirect(
 }
 
 void UsageRequirementProperty::WriteDirect(BT<std::string> value,
-                                           Action action)
+                                           m_action action)
 {
-  if (action == Action::Set) {
+  if (action == m_action::m_set) {
     this->Entries.clear();
   }
-  if (action == Action::Prepend) {
+  if (action == m_action::Prepend) {
     this->Entries.emplace(this->Entries.begin(), std::move(value));
   } else {
     this->Entries.emplace_back(std::move(value));
@@ -869,7 +869,7 @@ cmTarget::cmTarget(std::string const& name, cmStateEnums::TargetType type,
 {
   assert(mf);
   this->impl->TargetType = type;
-  this->impl->Makefile = mf;
+  this->impl->m_pMakefile = mf;
   this->impl->Name = name;
   this->impl->TemplateTarget = nullptr;
   this->impl->IsGeneratorProvided = false;
@@ -884,51 +884,51 @@ cmTarget::cmTarget(std::string const& name, cmStateEnums::TargetType type,
 
   // Check whether this is a DLL platform.
   this->impl->IsDLLPlatform =
-    !this->impl->Makefile->GetSafeDefinition("CMAKE_IMPORT_LIBRARY_SUFFIX")
+    !this->impl->m_pMakefile->GetSafeDefinition("CMAKE_IMPORT_LIBRARY_SUFFIX")
        .empty();
 
   // Check whether we are targeting AIX.
   {
     std::string const& systemName =
-      this->impl->Makefile->GetSafeDefinition("CMAKE_SYSTEM_NAME");
+      this->impl->m_pMakefile->GetSafeDefinition("CMAKE_SYSTEM_NAME");
     this->impl->IsAIX = (systemName == "AIX" || systemName == "OS400");
   }
 
   // Check whether we are targeting Apple.
-  this->impl->IsApple = this->impl->Makefile->IsOn("APPLE");
+  this->impl->IsApple = this->impl->m_pMakefile->IsOn("APPLE");
 
   // Check whether we are targeting an Android platform.
-  this->impl->IsAndroid = (this->impl->Makefile->GetSafeDefinition(
+  this->impl->IsAndroid = (this->impl->m_pMakefile->GetSafeDefinition(
                              "CMAKE_SYSTEM_NAME") == "Android");
 
   // Save the backtrace of target construction.
-  this->impl->Backtrace = this->impl->Makefile->GetBacktrace();
+  this->impl->m_backtrace = this->impl->m_pMakefile->GetBacktrace();
   if (this->impl->IsImported()) {
-    this->impl->FindPackageStack = this->impl->Makefile->GetFindPackageStack();
+    this->impl->m_findPackageStack = this->impl->m_pMakefile->GetFindPackageStack();
   }
 
   if (this->IsNormal()) {
     // Initialize the INCLUDE_DIRECTORIES property based on the current value
     // of the same directory property:
     this->impl->IncludeDirectories.CopyFromEntries(
-      this->impl->Makefile->GetIncludeDirectoriesEntries());
+      this->impl->m_pMakefile->GetIncludeDirectoriesEntries());
 
     {
-      auto const& sysInc = this->impl->Makefile->GetSystemIncludeDirectories();
-      this->impl->SystemIncludeDirectories.insert(sysInc.begin(),
+      auto const& sysInc = this->impl->m_pMakefile->GetSystemIncludeDirectories();
+      this->impl->m_systemIncludeDirectories.insert(sysInc.begin(),
                                                   sysInc.end());
     }
 
     this->impl->CompileOptions.CopyFromEntries(
-      this->impl->Makefile->GetCompileOptionsEntries());
+      this->impl->m_pMakefile->GetCompileOptionsEntries());
     this->impl->LinkOptions.CopyFromEntries(
-      this->impl->Makefile->GetLinkOptionsEntries());
+      this->impl->m_pMakefile->GetLinkOptionsEntries());
     this->impl->LinkDirectories.CopyFromEntries(
-      this->impl->Makefile->GetLinkDirectoriesEntries());
+      this->impl->m_pMakefile->GetLinkDirectoriesEntries());
   }
 
   // Record current policies for later use.
-  this->impl->Makefile->RecordPolicies(this->impl->PolicyMap);
+  this->impl->m_pMakefile->RecordPolicies(this->impl->PolicyMap);
 
   std::set<TargetProperty::InitCondition> metConditions;
   metConditions.insert(TargetProperty::InitCondition::Always);
@@ -1111,7 +1111,7 @@ cmStateEnums::TargetType cmTarget::GetType() const
 
 cmMakefile* cmTarget::GetMakefile() const
 {
-  return this->impl->Makefile;
+  return this->impl->m_pMakefile;
 }
 
 cmPolicies::PolicyMap const& cmTarget::GetPolicyMap() const
@@ -1140,7 +1140,7 @@ cmPolicies::PolicyStatus cmTarget::GetPolicyStatus(
 
 cmGlobalGenerator* cmTarget::GetGlobalGenerator() const
 {
-  return this->impl->Makefile->GetGlobalGenerator();
+  return this->impl->m_pMakefile->GetGlobalGenerator();
 }
 
 BTs<std::string> const* cmTarget::GetLanguageStandardProperty(
@@ -1161,7 +1161,7 @@ void cmTarget::SetLanguageStandardProperty(std::string const& lang,
   cmListFileBacktrace featureBacktrace;
   for (auto const& entry : this->impl->CompileFeatures.Entries) {
     if (entry.Value == feature) {
-      featureBacktrace = entry.Backtrace;
+      featureBacktrace = entry.m_backtrace;
       break;
     }
   }
@@ -1205,12 +1205,12 @@ std::set<BT<std::pair<std::string, bool>>> const& cmTarget::GetUtilities()
 
 cmListFileBacktrace const& cmTarget::GetBacktrace() const
 {
-  return this->impl->Backtrace;
+  return this->impl->m_backtrace;
 }
 
 cmFindPackageStack const& cmTarget::GetFindPackageStack() const
 {
-  return this->impl->FindPackageStack;
+  return this->impl->m_findPackageStack;
 }
 
 bool cmTarget::IsExecutableWithExports() const
@@ -1322,7 +1322,7 @@ void cmTarget::AddTracedSources(std::vector<std::string> const& srcs)
   if (!srcs.empty()) {
     this->impl->Sources.WriteDirect(this->impl.get(), {},
                                     cmValue(cmJoin(srcs, ";")),
-                                    UsageRequirementProperty::Action::Append);
+                                    UsageRequirementProperty::m_action::Append);
   }
 }
 
@@ -1331,7 +1331,7 @@ void cmTarget::AddSources(std::vector<std::string> const& srcs)
   std::vector<std::string> srcFiles;
   for (std::string const& filename : srcs) {
     if (!cmGeneratorExpression::StartsWithGeneratorExpression(filename)) {
-      this->impl->Makefile->GetOrCreateSource(filename);
+      this->impl->m_pMakefile->GetOrCreateSource(filename);
     }
     srcFiles.emplace_back(filename);
   }
@@ -1340,16 +1340,16 @@ void cmTarget::AddSources(std::vector<std::string> const& srcs)
 
 struct CreateLocation
 {
-  cmMakefile const* Makefile;
+  cmMakefile const* m_pMakefile;
 
   CreateLocation(cmMakefile const* mf)
-    : Makefile(mf)
+    : m_pMakefile(mf)
   {
   }
 
   cmSourceFileLocation operator()(std::string const& filename) const
   {
-    return cmSourceFileLocation(this->Makefile, filename);
+    return cmSourceFileLocation(this->m_pMakefile, filename);
   }
 };
 
@@ -1394,20 +1394,20 @@ public:
 
 cmSourceFile* cmTarget::AddSource(std::string const& src, bool before)
 {
-  cmSourceFileLocation sfl(this->impl->Makefile, src,
+  cmSourceFileLocation sfl(this->impl->m_pMakefile, src,
                            cmSourceFileLocationKind::Known);
   auto const& sources = this->impl->Sources.Entries;
   if (std::find_if(sources.begin(), sources.end(),
                    TargetPropertyEntryFinder(sfl)) == sources.end()) {
     this->impl->Sources.WriteDirect(
       this->impl.get(), {}, cmValue(src),
-      before ? UsageRequirementProperty::Action::Prepend
-             : UsageRequirementProperty::Action::Append);
+      before ? UsageRequirementProperty::m_action::Prepend
+             : UsageRequirementProperty::m_action::Append);
   }
   if (cmGeneratorExpression::Find(src) != std::string::npos) {
     return nullptr;
   }
-  return this->impl->Makefile->GetOrCreateSource(
+  return this->impl->m_pMakefile->GetOrCreateSource(
     src, false, cmSourceFileLocationKind::Known);
 }
 
@@ -1426,7 +1426,7 @@ std::string cmTarget::GetDebugGeneratorExpressions(
 
   // Get the list of configurations considered to be DEBUG.
   std::vector<std::string> debugConfigs =
-    this->impl->Makefile->GetCMakeInstance()->GetDebugConfigs();
+    this->impl->m_pMakefile->GetCMakeInstance()->GetDebugConfigs();
 
   std::string configString = "$<CONFIG:" + debugConfigs[0] + ">";
 
@@ -1472,8 +1472,8 @@ void cmTarget::GetTllSignatureTraces(std::ostream& s, TLLSignature sig) const
   for (auto const& cmd : this->impl->TLLCommands) {
     if (cmd.first == sig) {
       cmListFileContext lfc = cmd.second;
-      lfc.FilePath = cmSystemTools::RelativeIfUnder(
-        this->impl->Makefile->GetState()->GetSourceDirectory(), lfc.FilePath);
+      lfc.m_filePath = cmSystemTools::RelativeIfUnder(
+        this->impl->m_pMakefile->GetState()->GetSourceDirectory(), lfc.m_filePath);
       s << " * " << lfc << '\n';
     }
   }
@@ -1511,13 +1511,13 @@ void cmTarget::SetHaveInstallRule(bool hir)
 
 void cmTarget::AddInstallGenerator(cmInstallTargetGenerator* g)
 {
-  this->impl->InstallGenerators.emplace_back(g);
+  this->impl->m_installGenerators.emplace_back(g);
 }
 
 std::vector<cmInstallTargetGenerator*> const& cmTarget::GetInstallGenerators()
   const
 {
-  return this->impl->InstallGenerators;
+  return this->impl->m_installGenerators;
 }
 
 bool cmTarget::GetIsGeneratorProvided() const
@@ -1601,12 +1601,12 @@ void cmTarget::AddLinkLibrary(cmMakefile& mf, std::string const& lib,
 
 void cmTarget::AddSystemIncludeDirectories(std::set<std::string> const& incs)
 {
-  this->impl->SystemIncludeDirectories.insert(incs.begin(), incs.end());
+  this->impl->m_systemIncludeDirectories.insert(incs.begin(), incs.end());
 }
 
 std::set<std::string> const& cmTarget::GetSystemIncludeDirectories() const
 {
-  return this->impl->SystemIncludeDirectories;
+  return this->impl->m_systemIncludeDirectories;
 }
 
 void cmTarget::AddInstallIncludeDirectories(cmTargetExport const& te,
@@ -1830,7 +1830,7 @@ void cmTarget::CopyImportedCxxModulesProperties(cmTarget const* tgt)
   };
 
   std::vector<std::string> configNames =
-    this->impl->Makefile->GetGeneratorConfigs(cmMakefile::ExcludeEmptyConfig);
+    this->impl->m_pMakefile->GetGeneratorConfigs(cmMakefile::ExcludeEmptyConfig);
   for (std::string const& configName : configNames) {
     std::string configUpper = cmSystemTools::UpperCase(configName);
     for (auto const& perConfigProp : perConfigPropertiesToCopy) {
@@ -2050,7 +2050,7 @@ bool IsSettableProperty(cmMakefile* context, cmTarget* target,
 
 void cmTarget::SetProperty(std::string const& prop, cmValue value)
 {
-  if (!IsSettableProperty(this->impl->Makefile, this, prop)) {
+  if (!IsSettableProperty(this->impl->m_pMakefile, this, prop)) {
     return;
   }
 
@@ -2076,7 +2076,7 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
 
   for (auto* usageRequirement : usageRequirements) {
     if (usageRequirement->Write(this->impl.get(), {}, prop, value,
-                                UsageRequirementProperty::Action::Set)) {
+                                UsageRequirementProperty::m_action::m_set)) {
       return;
     }
   }
@@ -2088,7 +2088,7 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
 
   for (auto* fileSetType : fileSetTypes) {
     if (fileSetType->WriteProperties(this, this->impl.get(), prop, value,
-                                     FileSetType::Action::Set)) {
+                                     FileSetType::m_action::m_set)) {
       return;
     }
   }
@@ -2098,7 +2098,7 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
       std::ostringstream e;
       e << "IMPORTED_GLOBAL property can't be set to FALSE on targets (\""
         << this->impl->Name << "\")\n";
-      this->impl->Makefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
+      this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
       return;
     }
     /* no need to change anything if value does not change */
@@ -2117,31 +2117,31 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
              prop == propCUDA_OPTIX_COMPILATION ||
              prop == propCUDA_PTX_COMPILATION) {
     auto const& compiler =
-      this->impl->Makefile->GetSafeDefinition("CMAKE_CUDA_COMPILER_ID");
+      this->impl->m_pMakefile->GetSafeDefinition("CMAKE_CUDA_COMPILER_ID");
     auto const& compilerVersion =
-      this->impl->Makefile->GetSafeDefinition("CMAKE_CUDA_COMPILER_VERSION");
+      this->impl->m_pMakefile->GetSafeDefinition("CMAKE_CUDA_COMPILER_VERSION");
     if (this->GetType() != cmStateEnums::OBJECT_LIBRARY) {
       auto e =
         cmStrCat(prop, " property can only be applied to OBJECT targets(",
                  this->impl->Name, ")\n");
-      this->impl->Makefile->IssueMessage(MessageType::FATAL_ERROR, e);
+      this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e);
       return;
     }
     bool const flag_found =
       (prop == propCUDA_PTX_COMPILATION &&
-       this->impl->Makefile->GetDefinition("_CMAKE_CUDA_PTX_FLAG")) ||
+       this->impl->m_pMakefile->GetDefinition("_CMAKE_CUDA_PTX_FLAG")) ||
       (prop == propCUDA_CUBIN_COMPILATION &&
-       this->impl->Makefile->GetDefinition("_CMAKE_CUDA_CUBIN_FLAG")) ||
+       this->impl->m_pMakefile->GetDefinition("_CMAKE_CUDA_CUBIN_FLAG")) ||
       (prop == propCUDA_FATBIN_COMPILATION &&
-       this->impl->Makefile->GetDefinition("_CMAKE_CUDA_FATBIN_FLAG")) ||
+       this->impl->m_pMakefile->GetDefinition("_CMAKE_CUDA_FATBIN_FLAG")) ||
       (prop == propCUDA_OPTIX_COMPILATION &&
-       this->impl->Makefile->GetDefinition("_CMAKE_CUDA_OPTIX_FLAG"));
+       this->impl->m_pMakefile->GetDefinition("_CMAKE_CUDA_OPTIX_FLAG"));
     if (flag_found) {
       this->impl->Properties.SetProperty(prop, value);
     } else {
       auto e = cmStrCat(prop, " property is not supported by ", compiler,
                         "  compiler version ", compilerVersion, ".");
-      this->impl->Makefile->IssueMessage(MessageType::FATAL_ERROR, e);
+      this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e);
       return;
     }
   } else if (prop == propPRECOMPILE_HEADERS_REUSE_FROM) {
@@ -2149,16 +2149,16 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
       std::ostringstream e;
       e << "PRECOMPILE_HEADERS property is already set on target (\""
         << this->impl->Name << "\")\n";
-      this->impl->Makefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
+      this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
       return;
     }
-    auto* reusedTarget = this->impl->Makefile->GetCMakeInstance()
+    auto* reusedTarget = this->impl->m_pMakefile->GetCMakeInstance()
                            ->GetGlobalGenerator()
                            ->FindTarget(value);
     if (!reusedTarget) {
       std::string const e(
         "PRECOMPILE_HEADERS_REUSE_FROM set with non existing target");
-      this->impl->Makefile->IssueMessage(MessageType::FATAL_ERROR, e);
+      this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e);
       return;
     }
 
@@ -2175,13 +2175,13 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
 
     cmValue tmp = reusedTarget->GetProperty("COMPILE_PDB_NAME");
     this->SetProperty("COMPILE_PDB_NAME", tmp);
-    this->AddUtility(reusedFrom, false, this->impl->Makefile);
+    this->AddUtility(reusedFrom, false, this->impl->m_pMakefile);
   } else if (prop == propC_STANDARD || prop == propCXX_STANDARD ||
              prop == propCUDA_STANDARD || prop == propHIP_STANDARD ||
              prop == propOBJC_STANDARD || prop == propOBJCXX_STANDARD) {
     if (value) {
       this->impl->LanguageStandardProperties[prop] =
-        BTs<std::string>(value, this->impl->Makefile->GetBacktrace());
+        BTs<std::string>(value, this->impl->m_pMakefile->GetBacktrace());
     } else {
       this->impl->LanguageStandardProperties.erase(prop);
     }
@@ -2195,11 +2195,11 @@ void cmTarget::AppendProperty(std::string const& prop,
                               cm::optional<cmListFileBacktrace> const& bt,
                               bool asString)
 {
-  if (!IsSettableProperty(this->impl->Makefile, this, prop)) {
+  if (!IsSettableProperty(this->impl->m_pMakefile, this, prop)) {
     return;
   }
   if (prop == "IMPORTED_GLOBAL") {
-    this->impl->Makefile->IssueMessage(
+    this->impl->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat("IMPORTED_GLOBAL property can't be appended, only set on "
                "imported targets (\"",
@@ -2207,7 +2207,7 @@ void cmTarget::AppendProperty(std::string const& prop,
   }
   if (prop == propPRECOMPILE_HEADERS &&
       this->GetProperty("PRECOMPILE_HEADERS_REUSE_FROM")) {
-    this->impl->Makefile->IssueMessage(
+    this->impl->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat(
         "PRECOMPILE_HEADERS_REUSE_FROM property is already set on target (\"",
@@ -2237,7 +2237,7 @@ void cmTarget::AppendProperty(std::string const& prop,
 
   for (auto* usageRequirement : usageRequirements) {
     if (usageRequirement->Write(this->impl.get(), bt, prop, cmValue(value),
-                                UsageRequirementProperty::Action::Append)) {
+                                UsageRequirementProperty::m_action::Append)) {
       return;
     }
   }
@@ -2249,18 +2249,18 @@ void cmTarget::AppendProperty(std::string const& prop,
 
   for (auto* fileSetType : fileSetTypes) {
     if (fileSetType->WriteProperties(this, this->impl.get(), prop, value,
-                                     FileSetType::Action::Append)) {
+                                     FileSetType::m_action::Append)) {
       return;
     }
   }
 
   if (cmHasLiteralPrefix(prop, "IMPORTED_LIBNAME")) {
-    this->impl->Makefile->IssueMessage(
+    this->impl->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR, prop + " property may not be APPENDed.");
   } else if (prop == "C_STANDARD" || prop == "CXX_STANDARD" ||
              prop == "CUDA_STANDARD" || prop == "HIP_STANDARD" ||
              prop == "OBJC_STANDARD" || prop == "OBJCXX_STANDARD") {
-    this->impl->Makefile->IssueMessage(
+    this->impl->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR, prop + " property may not be appended.");
   } else {
     this->impl->Properties.AppendProperty(prop, value, asString);
@@ -2273,28 +2273,28 @@ void cmTargetInternals::AddDirectoryToFileSet(cmTarget* self,
                                               ValueType value,
                                               cm::string_view fileSetType,
                                               cm::string_view description,
-                                              FileSetType::Action action)
+                                              FileSetType::m_action action)
 {
   auto* fileSet = self->GetFileSet(fileSetName);
   if (!fileSet) {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat(description, "has not yet been created."));
     return;
   }
   if (fileSet->GetType() != fileSetType) {
-    this->Makefile->IssueMessage(MessageType::FATAL_ERROR,
+    this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR,
                                  cmStrCat("File set \"", fileSetName,
                                           "\" is not of type \"", fileSetType,
                                           "\"."));
     return;
   }
-  if (action == FileSetType::Action::Set) {
+  if (action == FileSetType::m_action::m_set) {
     fileSet->ClearDirectoryEntries();
   }
   if (cmNonempty(value)) {
     fileSet->AddDirectoryEntry(
-      BT<std::string>(value, this->Makefile->GetBacktrace()));
+      BT<std::string>(value, this->m_pMakefile->GetBacktrace()));
   }
 }
 
@@ -2304,28 +2304,28 @@ void cmTargetInternals::AddPathToFileSet(cmTarget* self,
                                          ValueType value,
                                          cm::string_view fileSetType,
                                          cm::string_view description,
-                                         FileSetType::Action action)
+                                         FileSetType::m_action action)
 {
   auto* fileSet = self->GetFileSet(fileSetName);
   if (!fileSet) {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat(description, "has not yet been created."));
     return;
   }
   if (fileSet->GetType() != fileSetType) {
-    this->Makefile->IssueMessage(MessageType::FATAL_ERROR,
+    this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR,
                                  cmStrCat("File set \"", fileSetName,
                                           "\" is not of type \"", fileSetType,
                                           "\"."));
     return;
   }
-  if (action == FileSetType::Action::Set) {
+  if (action == FileSetType::m_action::m_set) {
     fileSet->ClearFileEntries();
   }
   if (cmNonempty(value)) {
     fileSet->AddFileEntry(
-      BT<std::string>(value, this->Makefile->GetBacktrace()));
+      BT<std::string>(value, this->m_pMakefile->GetBacktrace()));
   }
 }
 
@@ -2338,7 +2338,7 @@ cmValue cmTargetInternals::GetFileSetDirectories(
     return nullptr;
   }
   if (fileSet->GetType() != fileSetType) {
-    this->Makefile->IssueMessage(MessageType::FATAL_ERROR,
+    this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR,
                                  cmStrCat("File set \"", fileSetName,
                                           "\" is not of type \"", fileSetType,
                                           "\"."));
@@ -2358,7 +2358,7 @@ cmValue cmTargetInternals::GetFileSetPaths(cmTarget const* self,
     return nullptr;
   }
   if (fileSet->GetType() != fileSetType) {
-    this->Makefile->IssueMessage(MessageType::FATAL_ERROR,
+    this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR,
                                  cmStrCat("File set \"", fileSetName,
                                           "\" is not of type \"", fileSetType,
                                           "\"."));
@@ -2383,12 +2383,12 @@ void cmTarget::AppendBuildInterfaceIncludes()
   }
   this->impl->BuildInterfaceIncludesAppended = true;
 
-  if (this->impl->Makefile->IsOn("CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE")) {
-    std::string dirs = this->impl->Makefile->GetCurrentBinaryDirectory();
+  if (this->impl->m_pMakefile->IsOn("CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE")) {
+    std::string dirs = this->impl->m_pMakefile->GetCurrentBinaryDirectory();
     if (!dirs.empty()) {
       dirs += ';';
     }
-    dirs += this->impl->Makefile->GetCurrentSourceDirectory();
+    dirs += this->impl->m_pMakefile->GetCurrentSourceDirectory();
     if (!dirs.empty()) {
       this->AppendProperty("INTERFACE_INCLUDE_DIRECTORIES",
                            ("$<BUILD_INTERFACE:" + dirs + ">"));
@@ -2422,7 +2422,7 @@ bool CheckLinkLibraryPattern(UsageRequirementProperty const& usage,
         " property may contain the generator-expression \"$<LINK_",
         linkPattern.match(3),
         ":...>\" which may be used to specify how the libraries are linked."),
-      item.Backtrace);
+      item.m_backtrace);
   }
 
   return isValid;
@@ -2460,44 +2460,44 @@ void cmTarget::InsertInclude(BT<std::string> const& entry, bool before)
 {
   this->impl->IncludeDirectories.WriteDirect(
     entry,
-    before ? UsageRequirementProperty::Action::Prepend
-           : UsageRequirementProperty::Action::Append);
+    before ? UsageRequirementProperty::m_action::Prepend
+           : UsageRequirementProperty::m_action::Append);
 }
 
 void cmTarget::InsertCompileOption(BT<std::string> const& entry, bool before)
 {
   this->impl->CompileOptions.WriteDirect(
     entry,
-    before ? UsageRequirementProperty::Action::Prepend
-           : UsageRequirementProperty::Action::Append);
+    before ? UsageRequirementProperty::m_action::Prepend
+           : UsageRequirementProperty::m_action::Append);
 }
 
 void cmTarget::InsertCompileDefinition(BT<std::string> const& entry)
 {
   this->impl->CompileDefinitions.WriteDirect(
-    entry, UsageRequirementProperty::Action::Append);
+    entry, UsageRequirementProperty::m_action::Append);
 }
 
 void cmTarget::InsertLinkOption(BT<std::string> const& entry, bool before)
 {
   this->impl->LinkOptions.WriteDirect(
     entry,
-    before ? UsageRequirementProperty::Action::Prepend
-           : UsageRequirementProperty::Action::Append);
+    before ? UsageRequirementProperty::m_action::Prepend
+           : UsageRequirementProperty::m_action::Append);
 }
 
 void cmTarget::InsertLinkDirectory(BT<std::string> const& entry, bool before)
 {
   this->impl->LinkDirectories.WriteDirect(
     entry,
-    before ? UsageRequirementProperty::Action::Prepend
-           : UsageRequirementProperty::Action::Append);
+    before ? UsageRequirementProperty::m_action::Prepend
+           : UsageRequirementProperty::m_action::Append);
 }
 
 void cmTarget::InsertPrecompileHeader(BT<std::string> const& entry)
 {
   this->impl->PrecompileHeaders.WriteDirect(
-    entry, UsageRequirementProperty::Action::Append);
+    entry, UsageRequirementProperty::m_action::Append);
 }
 
 namespace {
@@ -2708,12 +2708,12 @@ cmValue cmTarget::GetProperty(std::string const& prop) const
       return cmValue(this->GetName());
     }
     if (prop == propBINARY_DIR) {
-      return cmValue(this->impl->Makefile->GetStateSnapshot()
+      return cmValue(this->impl->m_pMakefile->GetStateSnapshot()
                        .GetDirectory()
                        .GetCurrentBinary());
     }
     if (prop == propSOURCE_DIR) {
-      return cmValue(this->impl->Makefile->GetStateSnapshot()
+      return cmValue(this->impl->m_pMakefile->GetStateSnapshot()
                        .GetDirectory()
                        .GetCurrentSource());
     }
@@ -2736,10 +2736,10 @@ cmValue cmTarget::GetProperty(std::string const& prop) const
 
   cmValue retVal = this->impl->Properties.GetPropertyValue(prop);
   if (!retVal) {
-    bool const chain = this->impl->Makefile->GetState()->IsPropertyChained(
+    bool const chain = this->impl->m_pMakefile->GetState()->IsPropertyChained(
       prop, cmProperty::TARGET);
     if (chain) {
-      return this->impl->Makefile->GetStateSnapshot()
+      return this->impl->m_pMakefile->GetStateSnapshot()
         .GetDirectory()
         .GetProperty(prop, chain);
     }
@@ -3046,13 +3046,13 @@ std::string cmTarget::ImportedGetFullPath(
              this->impl->TargetType == cmStateEnums::STATIC_LIBRARY ||
              this->impl->TargetType == cmStateEnums::UNKNOWN_LIBRARY) &&
             cmSystemTools::IsPathToXcFramework(result)) {
-          auto plist = cmParseXcFrameworkPlist(result, *this->impl->Makefile,
-                                               this->impl->Backtrace);
+          auto plist = cmParseXcFrameworkPlist(result, *this->impl->m_pMakefile,
+                                               this->impl->m_backtrace);
           if (!plist) {
             return "";
           }
           auto const* library = plist->SelectSuitableLibrary(
-            *this->impl->Makefile, this->impl->Backtrace);
+            *this->impl->m_pMakefile, this->impl->m_backtrace);
           if (library) {
             result = cmStrCat(result, '/', library->LibraryIdentifier, '/',
                               library->LibraryPath);
@@ -3103,7 +3103,7 @@ std::string cmTarget::ImportedGetFullPath(
 
       switch (this->GetPolicyStatus(cmPolicies::CMP0111)) {
         case cmPolicies::WARN:
-          this->impl->Makefile->IssueMessage(
+          this->impl->m_pMakefile->IssueMessage(
             MessageType::AUTHOR_WARNING,
             cmPolicies::GetPolicyWarning(cmPolicies::CMP0111) + "\n" +
               message());
@@ -3111,7 +3111,7 @@ std::string cmTarget::ImportedGetFullPath(
         case cmPolicies::OLD:
           break;
         default:
-          this->impl->Makefile->IssueMessage(MessageType::FATAL_ERROR,
+          this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR,
                                              message());
       }
     }
@@ -3140,7 +3140,7 @@ std::pair<cmFileSet*, bool> cmTarget::GetOrCreateFileSet(
     name,
     cmFileSet(*this->GetMakefile()->GetCMakeInstance(), name, type, vis));
   if (result.second) {
-    auto bt = this->impl->Makefile->GetBacktrace();
+    auto bt = this->impl->m_pMakefile->GetBacktrace();
     if (type == this->impl->HeadersFileSets.TypeName) {
       this->impl->HeadersFileSets.AddFileSet(name, vis, std::move(bt));
     } else if (type == this->impl->CxxModulesFileSets.TypeName) {
@@ -3211,7 +3211,7 @@ bool cmTargetInternals::CheckImportedLibName(std::string const& prop,
 {
   if (this->TargetType != cmStateEnums::INTERFACE_LIBRARY ||
       !this->IsImported()) {
-    this->Makefile->IssueMessage(
+    this->m_pMakefile->IssueMessage(
       MessageType::FATAL_ERROR,
       prop +
         " property may be set only on imported INTERFACE library targets.");
@@ -3219,14 +3219,14 @@ bool cmTargetInternals::CheckImportedLibName(std::string const& prop,
   }
   if (!value.empty()) {
     if (value[0] == '-') {
-      this->Makefile->IssueMessage(MessageType::FATAL_ERROR,
+      this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR,
                                    prop + " property value\n  " + value +
                                      "\nmay not start with '-'.");
       return false;
     }
     std::string::size_type bad = value.find_first_of(":/\\;");
     if (bad != std::string::npos) {
-      this->Makefile->IssueMessage(MessageType::FATAL_ERROR,
+      this->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR,
                                    prop + " property value\n  " + value +
                                      "\nmay not contain '" +
                                      value.substr(bad, 1) + "'.");

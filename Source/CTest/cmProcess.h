@@ -62,8 +62,8 @@ public:
   };
 
   m_pState GetProcessStatus();
-  int GetId() const { return this->Id; }
-  void SetId(int id) { this->Id = id; }
+  int GetId() const { return this->m_id; }
+  void SetId(int id) { this->m_id = id; }
   int64_t GetExitValue() const { return this->ExitValue; }
   cmDuration GetTotalTime() { return this->TotalTime; }
   std::chrono::steady_clock::time_point GetStartTime()
@@ -148,11 +148,11 @@ private:
     bool GetLast(std::string& line);
   };
   Buffer Output;
-  std::string Command;
+  std::string m_command;
   std::string WorkingDirectory;
   std::vector<std::string> Arguments;
   std::vector<char const*> ProcessArgs;
-  int Id;
+  int m_id;
   int64_t ExitValue;
   Termination TerminationStyle = Termination::Normal;
 };

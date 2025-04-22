@@ -76,9 +76,9 @@ private:
 bool cmCTestCVS::UpdateImpl()
 {
   // Get user-specified update options.
-  std::string opts = this->Makefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
+  std::string opts = this->m_pMakefile->GetSafeDefinition("CTEST_UPDATE_OPTIONS");
   if (opts.empty()) {
-    opts = this->Makefile->GetSafeDefinition("CTEST_CVS_UPDATE_OPTIONS");
+    opts = this->m_pMakefile->GetSafeDefinition("CTEST_CVS_UPDATE_OPTIONS");
     if (opts.empty()) {
       opts = "-dP";
     }

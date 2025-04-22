@@ -338,7 +338,7 @@ void cmCTestMemCheckHandler::GenerateCTestXML(cmXMLWriter& xml)
   xml.Element("StartDateTime", this->StartTest);
   xml.Element("StartTestTime", this->StartTestTime);
   xml.StartElement("TestList");
-  cmCTestMemCheckHandler::TestResultsVector::size_type cc;
+  cmCTestMemCheckHandler::TestResultsVector::size_type m_pCustomCommand;
   for (cmCTestTestResult const& result : this->TestResults) {
     std::string testPath = result.Path + "/" + result.Name;
     xml.Element("Test", this->CTest->GetShortPathToFile(testPath));
@@ -347,8 +347,8 @@ void cmCTestMemCheckHandler::GenerateCTestXML(cmXMLWriter& xml)
   cmCTestOptionalLog(this->CTest, HANDLER_OUTPUT,
                      "-- Processing memory checking output:\n", this->Quiet);
   size_t total = this->TestResults.size();
-  for (cc = 0; cc < this->TestResults.size(); cc++) {
-    cmCTestTestResult const& result = this->TestResults[cc];
+  for (m_pCustomCommand = 0; m_pCustomCommand < this->TestResults.size(); m_pCustomCommand++) {
+    cmCTestTestResult const& result = this->TestResults[m_pCustomCommand];
     std::string memcheckstr;
     std::vector<int> memcheckresults(this->ResultStrings.size(), 0);
     bool res =
@@ -379,7 +379,7 @@ void cmCTestMemCheckHandler::GenerateCTestXML(cmXMLWriter& xml)
       std::string outname = result.Name + " ";
       outname.resize(maxTestNameWidth + 4, '.');
       cmCTestOptionalLog(this->CTest, HANDLER_OUTPUT,
-                         cc + 1 << "/" << total << " MemCheck: #"
+                         m_pCustomCommand + 1 << "/" << total << " MemCheck: #"
                                 << result.TestCount << ": " << outname
                                 << "   Defects: " << memoryErrors << std::endl,
                          this->Quiet);
@@ -407,15 +407,15 @@ void cmCTestMemCheckHandler::GenerateCTestXML(cmXMLWriter& xml)
   cmCTestOptionalLog(this->CTest, HANDLER_OUTPUT,
                      "Memory checking results:" << std::endl, this->Quiet);
   xml.StartElement("DefectList");
-  for (cc = 0; cc < this->GlobalResults.size(); cc++) {
-    if (this->GlobalResults[cc]) {
+  for (m_pCustomCommand = 0; m_pCustomCommand < this->GlobalResults.size(); m_pCustomCommand++) {
+    if (this->GlobalResults[m_pCustomCommand]) {
       std::cerr.width(35);
       cmCTestOptionalLog(this->CTest, HANDLER_OUTPUT,
-                         this->ResultStringsLong[cc]
-                           << " - " << this->GlobalResults[cc] << std::endl,
+                         this->ResultStringsLong[m_pCustomCommand]
+                           << " - " << this->GlobalResults[m_pCustomCommand] << std::endl,
                          this->Quiet);
       xml.StartElement("Defect");
-      xml.Attribute("Type", this->ResultStringsLong[cc]);
+      xml.Attribute("Type", this->ResultStringsLong[m_pCustomCommand]);
       xml.EndElement();
     }
   }
@@ -879,14 +879,14 @@ bool cmCTestMemCheckHandler::ProcessMemCheckPurifyOutput(
   for (std::string const& l : lines) {
     std::vector<int>::size_type failure = this->ResultStrings.size();
     if (pfW.find(l)) {
-      std::vector<int>::size_type cc;
-      for (cc = 0; cc < this->ResultStrings.size(); cc++) {
-        if (pfW.match(1) == this->ResultStrings[cc]) {
-          failure = cc;
+      std::vector<int>::size_type m_pCustomCommand;
+      for (m_pCustomCommand = 0; m_pCustomCommand < this->ResultStrings.size(); m_pCustomCommand++) {
+        if (pfW.match(1) == this->ResultStrings[m_pCustomCommand]) {
+          failure = m_pCustomCommand;
           break;
         }
       }
-      if (cc == this->ResultStrings.size()) {
+      if (m_pCustomCommand == this->ResultStrings.size()) {
         cmCTestLog(this->CTest, ERROR_MESSAGE,
                    "Unknown Purify memory fault: " << pfW.match(1)
                                                    << std::endl);
@@ -918,7 +918,7 @@ bool cmCTestMemCheckHandler::ProcessMemCheckValgrindOutput(
     unlimitedOutput = true;
   }
 
-  std::string::size_type cc;
+  std::string::size_type m_pCustomCommand;
 
   std::ostringstream ostr;
   log.clear();
@@ -964,16 +964,16 @@ bool cmCTestMemCheckHandler::ProcessMemCheckValgrindOutput(
   cmCTestOptionalLog(this->CTest, DEBUG,
                      "Start test: " << lines.size() << std::endl, this->Quiet);
   std::string::size_type totalOutputSize = 0;
-  for (cc = 0; cc < lines.size(); cc++) {
+  for (m_pCustomCommand = 0; m_pCustomCommand < lines.size(); m_pCustomCommand++) {
     cmCTestOptionalLog(this->CTest, DEBUG,
-                       "test line " << lines[cc] << std::endl, this->Quiet);
+                       "test line " << lines[m_pCustomCommand] << std::endl, this->Quiet);
 
-    if (valgrindLine.find(lines[cc])) {
+    if (valgrindLine.find(lines[m_pCustomCommand])) {
       cmCTestOptionalLog(this->CTest, DEBUG,
-                         "valgrind  line " << lines[cc] << std::endl,
+                         "valgrind  line " << lines[m_pCustomCommand] << std::endl,
                          this->Quiet);
       int failure = cmCTestMemCheckHandler::NO_MEMORY_FAULT;
-      auto& line = lines[cc];
+      auto& line = lines[m_pCustomCommand];
       if (vgFIM.find(line)) {
         failure = cmCTestMemCheckHandler::FIM;
       } else if (vgFMM.find(line)) {
@@ -1000,10 +1000,10 @@ bool cmCTestMemCheckHandler::ProcessMemCheckValgrindOutput(
         results[failure]++;
         defects++;
       }
-      totalOutputSize += lines[cc].size();
-      ostr << lines[cc] << std::endl;
+      totalOutputSize += lines[m_pCustomCommand].size();
+      ostr << lines[m_pCustomCommand] << std::endl;
     } else {
-      nonValGrindOutput.push_back(cc);
+      nonValGrindOutput.push_back(m_pCustomCommand);
     }
   }
   // Now put all all the non valgrind output into the test output
@@ -1080,17 +1080,17 @@ bool cmCTestMemCheckHandler::ProcessMemCheckBoundsCheckerOutput(
   cmsys::SystemTools::Split(str, lines);
   cmCTestOptionalLog(this->CTest, DEBUG,
                      "Start test: " << lines.size() << std::endl, this->Quiet);
-  std::vector<std::string>::size_type cc;
-  for (cc = 0; cc < lines.size(); cc++) {
-    if (lines[cc] == BOUNDS_CHECKER_MARKER) {
+  std::vector<std::string>::size_type m_pCustomCommand;
+  for (m_pCustomCommand = 0; m_pCustomCommand < lines.size(); m_pCustomCommand++) {
+    if (lines[m_pCustomCommand] == BOUNDS_CHECKER_MARKER) {
       break;
     }
   }
   cmBoundsCheckerParser parser(this->CTest);
   parser.InitializeParser();
-  if (cc < lines.size()) {
-    for (cc++; cc < lines.size(); ++cc) {
-      std::string& theLine = lines[cc];
+  if (m_pCustomCommand < lines.size()) {
+    for (m_pCustomCommand++; m_pCustomCommand < lines.size(); ++m_pCustomCommand) {
+      std::string& theLine = lines[m_pCustomCommand];
       // check for command line arguments that are not escaped
       // correctly by BC
       if (theLine.find("TargetArgs=") != std::string::npos) {
@@ -1132,7 +1132,7 @@ bool cmCTestMemCheckHandler::ProcessMemCheckCudaOutput(
     unlimitedOutput = true;
   }
 
-  std::string::size_type cc;
+  std::string::size_type m_pCustomCommand;
 
   std::ostringstream ostr;
   log.clear();
@@ -1176,16 +1176,16 @@ bool cmCTestMemCheckHandler::ProcessMemCheckCudaOutput(
   cmCTestOptionalLog(this->CTest, DEBUG,
                      "Start test: " << lines.size() << std::endl, this->Quiet);
   std::string::size_type totalOutputSize = 0;
-  for (cc = 0; cc < lines.size(); cc++) {
+  for (m_pCustomCommand = 0; m_pCustomCommand < lines.size(); m_pCustomCommand++) {
     cmCTestOptionalLog(this->CTest, DEBUG,
-                       "test line " << lines[cc] << std::endl, this->Quiet);
+                       "test line " << lines[m_pCustomCommand] << std::endl, this->Quiet);
 
-    if (memcheckLine.find(lines[cc])) {
+    if (memcheckLine.find(lines[m_pCustomCommand])) {
       cmCTestOptionalLog(this->CTest, DEBUG,
-                         "cuda sanitizer line " << lines[cc] << std::endl,
+                         "cuda sanitizer line " << lines[m_pCustomCommand] << std::endl,
                          this->Quiet);
       int failure = -1;
-      auto& line = lines[cc];
+      auto& line = lines[m_pCustomCommand];
       if (leakExpr.find(line)) {
         failure = static_cast<int>(this->FindOrAddWarning("Memory leak"));
       } else {
@@ -1214,10 +1214,10 @@ bool cmCTestMemCheckHandler::ProcessMemCheckCudaOutput(
         }
         defects++;
       }
-      totalOutputSize += lines[cc].size();
-      ostr << lines[cc] << std::endl;
+      totalOutputSize += lines[m_pCustomCommand].size();
+      ostr << lines[m_pCustomCommand] << std::endl;
     } else {
-      nonMemcheckOutput.push_back(cc);
+      nonMemcheckOutput.push_back(m_pCustomCommand);
     }
   }
   // Now put all all the non cuda sanitizer output into the test output

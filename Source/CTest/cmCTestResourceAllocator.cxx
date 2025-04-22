@@ -16,8 +16,8 @@ void cmCTestResourceAllocator::InitializeFromResourceSpec(
   for (auto const& it : spec.LocalSocket.Resources) {
     auto& res = this->Resources[it.first];
     for (auto const& specRes : it.second) {
-      res[specRes.Id].Total = specRes.Capacity;
-      res[specRes.Id].Locked = 0;
+      res[specRes.m_id].Total = specRes.Capacity;
+      res[specRes.m_id].Locked = 0;
     }
   }
 }

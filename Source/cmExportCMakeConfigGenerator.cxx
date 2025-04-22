@@ -587,7 +587,7 @@ void cmExportCMakeConfigGenerator::GenerateTargetFileSets(
     for (auto const& name : interfaceFileSets) {
       auto* fileSet = gte->Target->GetFileSet(name);
       if (!fileSet) {
-        gte->Makefile->IssueMessage(
+        gte->m_pMakefile->IssueMessage(
           MessageType::FATAL_ERROR,
           cmStrCat("File set \"", name,
                    "\" is listed in interface file sets of ", gte->GetName(),
@@ -609,7 +609,7 @@ void cmExportCMakeConfigGenerator::GenerateTargetFileSets(
     for (auto const& name : interfaceFileSets) {
       auto* fileSet = gte->Target->GetFileSet(name);
       if (!fileSet) {
-        gte->Makefile->IssueMessage(
+        gte->m_pMakefile->IssueMessage(
           MessageType::FATAL_ERROR,
           cmStrCat("File set \"", name,
                    "\" is listed in interface file sets of ", gte->GetName(),

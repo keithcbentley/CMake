@@ -174,7 +174,7 @@ public:
     std::vector<std::vector<cmCTestTestResourceRequirement>> ResourceGroups;
     std::string GeneratedResourceSpecFile;
     // Private test generator properties used to track backtraces
-    cmListFileBacktrace Backtrace;
+    cmListFileBacktrace m_backtrace;
   };
 
   struct cmCTestTestResult

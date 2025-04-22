@@ -394,7 +394,7 @@ void cmLocalNinjaGenerator::WriteProcessedMakefile(std::ostream& os)
   cmGlobalNinjaGenerator::WriteDivider(os);
   os << "# Write statements declared in CMakeLists.txt:\n"
         "# "
-     << this->Makefile->GetSafeDefinition("CMAKE_CURRENT_LIST_FILE") << '\n';
+     << this->m_pMakefile->GetSafeDefinition("CMAKE_CURRENT_LIST_FILE") << '\n';
   if (this->IsRootMakefile()) {
     os << "# Which is the root file.\n";
   }
@@ -623,15 +623,15 @@ void cmLocalNinjaGenerator::AppendCustomCommandLines(
 }
 
 void cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(
-  cmCustomCommand const* cc, std::set<cmGeneratorTarget*> const& targets,
+  cmCustomCommand const* m_pCustomCommand, std::set<cmGeneratorTarget*> const& targets,
   std::string const& fileConfig)
 {
   cmGlobalNinjaGenerator* gg = this->GetGlobalNinjaGenerator();
-  if (gg->SeenCustomCommand(cc, fileConfig)) {
+  if (gg->SeenCustomCommand(m_pCustomCommand, fileConfig)) {
     return;
   }
 
-  auto ccgs = this->MakeCustomCommandGenerators(*cc, fileConfig);
+  auto ccgs = this->MakeCustomCommandGenerators(*m_pCustomCommand, fileConfig);
   for (cmCustomCommandGenerator const& ccg : ccgs) {
     if (ccg.GetOutputs().empty() && ccg.GetByproducts().empty()) {
       // Generator expressions evaluate to no output for this config.
@@ -640,7 +640,7 @@ void cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(
 
     std::unordered_set<std::string> orderOnlyDeps;
 
-    if (!cc->GetDependsExplicitOnly()) {
+    if (!m_pCustomCommand->GetDependsExplicitOnly()) {
       // A custom command may appear on multiple targets.  However, some build
       // systems exist where the target dependencies on some of the targets are
       // overspecified, leading to a dependency cycle.  If we assume all target
@@ -671,7 +671,7 @@ void cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(
 
     bool symbolic = false;
     for (std::string const& output : outputs) {
-      if (cmSourceFile* sf = this->Makefile->GetSource(output)) {
+      if (cmSourceFile* sf = this->m_pMakefile->GetSource(output)) {
         if (sf->GetPropertyAsBool("SYMBOLIC")) {
           symbolic = true;
           break;
@@ -718,16 +718,16 @@ void cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(
 
       std::string depfile = ccg.GetDepfile();
       if (!depfile.empty()) {
-        switch (cc->GetCMP0116Status()) {
+        switch (m_pCustomCommand->GetCMP0116Status()) {
           case cmPolicies::WARN:
             if (this->GetCurrentBinaryDirectory() !=
                   this->GetBinaryDirectory() ||
-                this->Makefile->PolicyOptionalWarningEnabled(
+                this->m_pMakefile->PolicyOptionalWarningEnabled(
                   "CMAKE_POLICY_WARNING_CMP0116")) {
               this->GetCMakeInstance()->IssueMessage(
                 MessageType::AUTHOR_WARNING,
                 cmPolicies::GetPolicyWarning(cmPolicies::CMP0116),
-                cc->GetBacktrace());
+                m_pCustomCommand->GetBacktrace());
             }
             CM_FALLTHROUGH;
           case cmPolicies::OLD:
@@ -742,8 +742,8 @@ void cmLocalNinjaGenerator::WriteCustomCommandBuildStatement(
       gg->WriteCustomCommandBuild(
         this->BuildCommandLine(cmdLines, ccg.GetOutputConfig(), fileConfig,
                                customStep),
-        this->ConstructComment(ccg), comment, depfile, cc->GetJobPool(),
-        cc->GetUsesTerminal(),
+        this->ConstructComment(ccg), comment, depfile, m_pCustomCommand->GetJobPool(),
+        m_pCustomCommand->GetUsesTerminal(),
         /*restat*/ !symbolic || !byproducts.empty(), fileConfig,
         std::move(ccOutputs), std::move(ninjaDeps),
         std::move(sortedOrderOnlyDeps));
@@ -811,7 +811,7 @@ std::string cmLocalNinjaGenerator::CreateUtilityOutput(
   // The output is not actually created so mark it symbolic.
   for (std::string const& config : this->GetConfigNames()) {
     std::string const force = cmStrCat(base, config);
-    if (cmSourceFile* sf = this->Makefile->GetOrCreateGeneratedSource(force)) {
+    if (cmSourceFile* sf = this->m_pMakefile->GetOrCreateGeneratedSource(force)) {
       sf->SetProperty("SYMBOLIC", "1");
     } else {
       cmSystemTools::Error("Could not get source file entry for " + force);
@@ -823,12 +823,12 @@ std::string cmLocalNinjaGenerator::CreateUtilityOutput(
 
 std::vector<cmCustomCommandGenerator>
 cmLocalNinjaGenerator::MakeCustomCommandGenerators(
-  cmCustomCommand const& cc, std::string const& fileConfig)
+  cmCustomCommand const& m_pCustomCommand, std::string const& fileConfig)
 {
   cmGlobalNinjaGenerator const* gg = this->GetGlobalNinjaGenerator();
 
   bool transformDepfile = false;
-  switch (cc.GetCMP0116Status()) {
+  switch (m_pCustomCommand.GetCMP0116Status()) {
     case cmPolicies::WARN:
       CM_FALLTHROUGH;
     case cmPolicies::OLD:
@@ -840,7 +840,7 @@ cmLocalNinjaGenerator::MakeCustomCommandGenerators(
 
   // Start with the build graph's configuration.
   std::vector<cmCustomCommandGenerator> ccgs;
-  ccgs.emplace_back(cc, fileConfig, this, transformDepfile);
+  ccgs.emplace_back(m_pCustomCommand, fileConfig, this, transformDepfile);
 
   // Consider adding cross configurations.
   if (!gg->EnableCrossConfigBuild()) {
@@ -848,12 +848,12 @@ cmLocalNinjaGenerator::MakeCustomCommandGenerators(
   }
 
   // Outputs and byproducts must be expressed using generator expressions.
-  for (std::string const& output : cc.GetOutputs()) {
+  for (std::string const& output : m_pCustomCommand.GetOutputs()) {
     if (cmGeneratorExpression::Find(output) == std::string::npos) {
       return ccgs;
     }
   }
-  for (std::string const& byproduct : cc.GetByproducts()) {
+  for (std::string const& byproduct : m_pCustomCommand.GetByproducts()) {
     if (cmGeneratorExpression::Find(byproduct) == std::string::npos) {
       return ccgs;
     }
@@ -862,7 +862,7 @@ cmLocalNinjaGenerator::MakeCustomCommandGenerators(
   // Tentatively add the other cross configurations.
   for (std::string const& config : gg->GetCrossConfigs(fileConfig)) {
     if (fileConfig != config) {
-      ccgs.emplace_back(cc, fileConfig, this, transformDepfile, config);
+      ccgs.emplace_back(m_pCustomCommand, fileConfig, this, transformDepfile, config);
     }
   }
 
@@ -875,14 +875,14 @@ cmLocalNinjaGenerator::MakeCustomCommandGenerators(
   return ccgs;
 }
 
-void cmLocalNinjaGenerator::AddCustomCommandTarget(cmCustomCommand const* cc,
+void cmLocalNinjaGenerator::AddCustomCommandTarget(cmCustomCommand const* m_pCustomCommand,
                                                    cmGeneratorTarget* target)
 {
-  CustomCommandTargetMap::value_type v(cc, std::set<cmGeneratorTarget*>());
+  CustomCommandTargetMap::value_type v(m_pCustomCommand, std::set<cmGeneratorTarget*>());
   std::pair<CustomCommandTargetMap::iterator, bool> ins =
     this->CustomCommandTargets.insert(v);
   if (ins.second) {
-    this->CustomCommands.push_back(cc);
+    this->CustomCommands.push_back(m_pCustomCommand);
   }
   ins.first->second.insert(target);
 }
@@ -901,7 +901,7 @@ void cmLocalNinjaGenerator::WriteCustomCommandBuildStatements(
 std::string cmLocalNinjaGenerator::MakeCustomLauncher(
   cmCustomCommandGenerator const& ccg)
 {
-  cmValue property_value = this->Makefile->GetProperty("RULE_LAUNCH_CUSTOM");
+  cmValue property_value = this->m_pMakefile->GetProperty("RULE_LAUNCH_CUSTOM");
 
   if (!cmNonempty(property_value)) {
     return std::string();
@@ -940,7 +940,7 @@ std::string cmLocalNinjaGenerator::MakeCustomLauncher(
 void cmLocalNinjaGenerator::AdditionalCleanFiles(std::string const& config)
 {
   if (cmValue prop_value =
-        this->Makefile->GetProperty("ADDITIONAL_CLEAN_FILES")) {
+        this->m_pMakefile->GetProperty("ADDITIONAL_CLEAN_FILES")) {
     cmList cleanFiles{ cmGeneratorExpression::Evaluate(*prop_value, this,
                                                        config) };
     std::string const& binaryDir = this->GetCurrentBinaryDirectory();

@@ -133,10 +133,10 @@ bool HandleGetCommand(std::vector<std::string> const& args,
   }
 
   std::vector<int> indexes;
-  for (std::size_t cc = 2; cc < args.size() - 1; cc++) {
+  for (std::size_t m_pCustomCommand = 2; m_pCustomCommand < args.size() - 1; m_pCustomCommand++) {
     int index;
-    if (!GetIndexArg(args[cc], &index, status.GetMakefile())) {
-      status.SetError(cmStrCat("index: ", args[cc], " is not a valid index"));
+    if (!GetIndexArg(args[m_pCustomCommand], &index, status.GetMakefile())) {
+      status.SetError(cmStrCat("index: ", args[m_pCustomCommand], " is not a valid index"));
       return false;
     }
     indexes.push_back(index);
@@ -460,7 +460,7 @@ bool HandleTransformCommand(std::vector<std::string> const& args,
     ActionDescriptor(std::string name, cmList::TransformAction action,
                      int arity)
       : Name(std::move(name))
-      , Action(action)
+      , m_action(action)
       , Arity(arity)
     {
     }
@@ -468,7 +468,7 @@ bool HandleTransformCommand(std::vector<std::string> const& args,
     operator std::string const&() const { return this->Name; }
 
     std::string Name;
-    cmList::TransformAction Action;
+    cmList::TransformAction m_action;
     int Arity = 0;
   };
 
@@ -681,9 +681,9 @@ bool HandleTransformCommand(std::vector<std::string> const& args,
     if (!selector) {
       selector = cmList::TransformSelector::New();
     }
-    selector->Makefile = &status.GetMakefile();
+    selector->m_pMakefile = &status.GetMakefile();
 
-    list->transform(descriptor->Action, arguments, std::move(selector));
+    list->transform(descriptor->m_action, arguments, std::move(selector));
     status.GetMakefile().AddDefinition(outputName, list->to_string());
     return true;
   } catch (cmList::transform_error& e) {
@@ -884,12 +884,12 @@ bool HandleRemoveAtCommand(std::vector<std::string> const& args,
     return false;
   }
 
-  size_t cc;
+  size_t m_pCustomCommand;
   std::vector<cmList::index_type> removed;
-  for (cc = 2; cc < args.size(); ++cc) {
+  for (m_pCustomCommand = 2; m_pCustomCommand < args.size(); ++m_pCustomCommand) {
     int index;
-    if (!GetIndexArg(args[cc], &index, status.GetMakefile())) {
-      status.SetError(cmStrCat("index: ", args[cc], " is not a valid index"));
+    if (!GetIndexArg(args[m_pCustomCommand], &index, status.GetMakefile())) {
+      status.SetError(cmStrCat("index: ", args[m_pCustomCommand], " is not a valid index"));
       return false;
     }
     removed.push_back(index);

@@ -37,10 +37,10 @@ protected:
   /** Represent a vcs-reported action for one path in a revision.  */
   struct Change
   {
-    char Action;
+    char m_action;
     std::string Path;
     Change(char a = '?')
-      : Action(a)
+      : m_action(a)
     {
     }
   };

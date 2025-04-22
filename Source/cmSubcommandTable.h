@@ -17,11 +17,11 @@ class cmExecutionStatus;
 class cmSubcommandTable
 {
 public:
-  using Command = bool (*)(std::vector<std::string> const&,
+  using m_command = bool (*)(std::vector<std::string> const&,
                            cmExecutionStatus&);
 
-  using Elem = std::pair<cm::string_view, Command>;
-  using InitElem = std::pair<cm::static_string_view, Command>;
+  using Elem = std::pair<cm::string_view, m_command>;
+  using InitElem = std::pair<cm::static_string_view, m_command>;
 
   cmSubcommandTable(std::initializer_list<InitElem> init);
 

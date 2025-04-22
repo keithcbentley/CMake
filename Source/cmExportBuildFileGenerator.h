@@ -46,12 +46,12 @@ public:
   /** Set the list of targets to export.  */
   void SetTargets(std::vector<TargetExport> const& targets)
   {
-    this->Targets = targets;
+    this->m_targets = targets;
   }
   void GetTargets(std::vector<TargetExport>& targets) const;
   void AppendTargets(std::vector<TargetExport> const& targets)
   {
-    cm::append(this->Targets, targets);
+    cm::append(this->m_targets, targets);
   }
   void SetExportSet(cmExportSet*);
 
@@ -86,7 +86,7 @@ protected:
   void ComplainAboutDuplicateTarget(
     std::string const& targetName) const override;
 
-  void ReportError(std::string const& errorMessage) const override;
+  void m_reportError(std::string const& errorMessage) const override;
 
   /** Fill in properties indicating built file locations.  */
   void SetImportLocationProperty(std::string const& config,
@@ -123,7 +123,7 @@ protected:
     std::string XcFrameworkLocation;
   };
 
-  std::vector<TargetExport> Targets;
+  std::vector<TargetExport> m_targets;
   cmExportSet* ExportSet;
   std::vector<TargetExportPrivate> Exports;
   cmLocalGenerator* LG;
