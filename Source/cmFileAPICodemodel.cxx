@@ -244,7 +244,7 @@ class CodemodelConfig
 
   struct Directory
   {
-    cmStateSnapshot Snapshot;
+    cmStateSnapshot m_snapshot;
     cmLocalGenerator const* LocalGenerator = nullptr;
     Json::Value TargetIndexes = Json::arrayValue;
     Json::ArrayIndex ProjectIndex;
@@ -256,7 +256,7 @@ class CodemodelConfig
 
   struct Project
   {
-    cmStateSnapshot Snapshot;
+    cmStateSnapshot m_snapshot;
     static Json::ArrayIndex const NoParentIndex =
       static_cast<Json::ArrayIndex>(-1);
     Json::ArrayIndex ParentIndex = NoParentIndex;
@@ -596,11 +596,11 @@ void CodemodelConfig::ProcessDirectories()
       static_cast<Json::ArrayIndex>(this->Directories.size());
     this->Directories.emplace_back();
     Directory& d = this->Directories[directoryIndex];
-    d.Snapshot = lg->GetStateSnapshot().GetBuildsystemDirectory();
+    d.m_snapshot = lg->GetStateSnapshot().GetBuildsystemDirectory();
     d.LocalGenerator = lg.get();
-    this->DirectoryMap[d.Snapshot] = directoryIndex;
+    this->DirectoryMap[d.m_snapshot] = directoryIndex;
 
-    d.ProjectIndex = this->AddProject(d.Snapshot);
+    d.ProjectIndex = this->AddProject(d.m_snapshot);
     this->Projects[d.ProjectIndex].DirectoryIndexes.append(directoryIndex);
   }
 
@@ -618,7 +618,7 @@ void CodemodelConfig::ProcessDirectories()
       }
     }
     if (!d.HasInstallRule) {
-      for (cmStateSnapshot const& child : d.Snapshot.GetChildren()) {
+      for (cmStateSnapshot const& child : d.m_snapshot.GetChildren()) {
         cmStateSnapshot childDir = child.GetBuildsystemDirectory();
         Json::ArrayIndex const childIndex = this->GetDirectoryIndex(childDir);
         if (this->Directories[childIndex].HasInstallRule) {
@@ -656,7 +656,7 @@ Json::ArrayIndex CodemodelConfig::AddProject(cmStateSnapshot s)
   auto projectIndex = static_cast<Json::ArrayIndex>(this->Projects.size());
   this->Projects.emplace_back();
   Project& p = this->Projects[projectIndex];
-  p.Snapshot = s;
+  p.m_snapshot = s;
   this->ProjectMap[s] = projectIndex;
   if (ps.IsValid()) {
     Json::ArrayIndex const parentDirIndex = this->GetDirectoryIndex(ps);
@@ -738,19 +738,19 @@ Json::Value CodemodelConfig::DumpDirectory(Directory& d)
 {
   Json::Value directory = this->DumpDirectoryObject(d);
 
-  std::string sourceDir = d.Snapshot.GetDirectory().GetCurrentSource();
+  std::string sourceDir = d.m_snapshot.GetDirectory().GetCurrentSource();
   directory["source"] = RelativeIfUnder(this->TopSource, sourceDir);
 
-  std::string buildDir = d.Snapshot.GetDirectory().GetCurrentBinary();
+  std::string buildDir = d.m_snapshot.GetDirectory().GetCurrentBinary();
   directory["build"] = RelativeIfUnder(this->TopBuild, buildDir);
 
-  cmStateSnapshot parentDir = d.Snapshot.GetBuildsystemDirectoryParent();
+  cmStateSnapshot parentDir = d.m_snapshot.GetBuildsystemDirectoryParent();
   if (parentDir.IsValid()) {
     directory["parentIndex"] = this->GetDirectoryIndex(parentDir);
   }
 
   Json::Value childIndexes = Json::arrayValue;
-  for (cmStateSnapshot const& child : d.Snapshot.GetChildren()) {
+  for (cmStateSnapshot const& child : d.m_snapshot.GetChildren()) {
     childIndexes.append(
       this->GetDirectoryIndex(child.GetBuildsystemDirectory()));
   }
@@ -764,7 +764,7 @@ Json::Value CodemodelConfig::DumpDirectory(Directory& d)
     directory["targetIndexes"] = std::move(d.TargetIndexes);
   }
 
-  Json::Value minimumCMakeVersion = this->DumpMinimumCMakeVersion(d.Snapshot);
+  Json::Value minimumCMakeVersion = this->DumpMinimumCMakeVersion(d.m_snapshot);
   if (!minimumCMakeVersion.isNull()) {
     directory["minimumCMakeVersion"] = std::move(minimumCMakeVersion);
   }
@@ -780,9 +780,9 @@ Json::Value CodemodelConfig::DumpDirectoryObject(Directory& d)
 {
   std::string prefix = "directory";
   std::string sourceDirRel = RelativeIfUnder(
-    this->TopSource, d.Snapshot.GetDirectory().GetCurrentSource());
+    this->TopSource, d.m_snapshot.GetDirectory().GetCurrentSource());
   std::string buildDirRel = RelativeIfUnder(
-    this->TopBuild, d.Snapshot.GetDirectory().GetCurrentBinary());
+    this->TopBuild, d.m_snapshot.GetDirectory().GetCurrentBinary());
   if (!cmSystemTools::FileIsFullPath(buildDirRel)) {
     prefix = cmStrCat(prefix, '-', buildDirRel);
   } else if (!cmSystemTools::FileIsFullPath(sourceDirRel)) {
@@ -814,7 +814,7 @@ Json::Value CodemodelConfig::DumpProject(Project& p)
 {
   Json::Value project = Json::objectValue;
 
-  project["name"] = p.Snapshot.GetProjectName();
+  project["name"] = p.m_snapshot.GetProjectName();
 
   if (p.ParentIndex != Project::NoParentIndex) {
     project["parentIndex"] = p.ParentIndex;

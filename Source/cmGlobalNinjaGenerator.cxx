@@ -338,14 +338,14 @@ void cmGlobalNinjaGenerator::CCOutputs::Add(
   std::vector<std::string> const& paths)
 {
   for (std::string const& path : paths) {
-    std::string out = this->GG->ConvertToNinjaPath(path);
+    std::string out = this->m_globalGenerator->ConvertToNinjaPath(path);
     if (!cmSystemTools::FileIsFullPath(out)) {
       // This output is expressed as a relative path.  Repeat it,
       // but expressed as an absolute path for Ninja Issue 1251.
       this->WorkDirOuts.emplace_back(out);
-      this->GG->SeenCustomCommandOutput(this->GG->ConvertToNinjaAbsPath(path));
+      this->m_globalGenerator->SeenCustomCommandOutput(this->m_globalGenerator->ConvertToNinjaAbsPath(path));
     }
-    this->GG->SeenCustomCommandOutput(out);
+    this->m_globalGenerator->SeenCustomCommandOutput(out);
     this->ExplicitOuts.emplace_back(std::move(out));
   }
 }

@@ -1941,7 +1941,7 @@ cmFindPackageCommand::AppendixMap cmFindPackageCommand::FindAppendices(
 bool cmFindPackageCommand::ReadListFile(std::string const& f,
                                         PolicyScopeRule const psr)
 {
-  bool const noPolicyScope = !this->PolicyScope || psr == NoPolicyScope;
+  bool const noPolicyScope = !this->PolicyScope || psr == m_noPolicyScope;
 
   using ITScope = cmMakefile::ImportedTargetScope;
   ITScope scope = this->GlobalScope ? ITScope::Global : ITScope::Local;
@@ -2997,7 +2997,7 @@ bool cmFindPackageCommand::CheckVersionFile(std::string const& version_file,
   // Load the version check file.
   // Pass NoPolicyScope because we do our own policy push/pop.
   bool suitable = false;
-  if (this->ReadListFile(version_file, NoPolicyScope)) {
+  if (this->ReadListFile(version_file, m_noPolicyScope)) {
     // Check the output variables.
     bool okay = this->m_pMakefile->IsOn("PACKAGE_VERSION_EXACT");
     bool const unsuitable = this->m_pMakefile->IsOn("PACKAGE_VERSION_UNSUITABLE");

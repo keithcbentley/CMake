@@ -297,7 +297,7 @@ public:
     std::string const& name,
     cmValue value)
   {
-    this->AddDefinition(name, *value);
+    AddDefinition(name, *value);
   }
 
   void AddDefinitionBool(
@@ -318,7 +318,7 @@ public:
     cmStateEnums::CacheEntryType type,
     bool force = false)
   {
-    this->AddCacheDefinition(name, value, cmValue{ doc }, type, force);
+    AddCacheDefinition(name, value, cmValue{ doc }, type, force);
   }
 
   void AddCacheDefinition(
@@ -328,7 +328,7 @@ public:
     cmStateEnums::CacheEntryType type,
     bool force = false)
   {
-    this->AddCacheDefinition(name, cmValue{ value }, cmValue{ doc }, type, force);
+    AddCacheDefinition(name, cmValue{ value }, cmValue{ doc }, type, force);
   }
 
   void RemoveDefinition(std::string const& name);
@@ -430,24 +430,24 @@ public:
    * Set a regular expression that include files must match
    * in order to be considered as part of the depend information.
    */
-  void SetIncludeRegularExpression(std::string const& regex) { this->SetProperty("INCLUDE_REGULAR_EXPRESSION", regex); }
-  std::string const& GetIncludeRegularExpression() const { return this->GetProperty("INCLUDE_REGULAR_EXPRESSION"); }
+  void SetIncludeRegularExpression(std::string const& regex) { SetProperty("INCLUDE_REGULAR_EXPRESSION", regex); }
+  std::string const& GetIncludeRegularExpression() const { return GetProperty("INCLUDE_REGULAR_EXPRESSION"); }
 
   /**
    * Set a regular expression that include files that are not found
    * must match in order to be considered a problem.
    */
-  void SetComplainRegularExpression(std::string const& regex) { this->m_complainFileRegularExpression = regex; }
-  std::string const& GetComplainRegularExpression() const { return this->m_complainFileRegularExpression; }
+  void SetComplainRegularExpression(std::string const& regex) { m_complainFileRegularExpression = regex; }
+  std::string const& GetComplainRegularExpression() const { return m_complainFileRegularExpression; }
 
   // -- List of targets
   using cmTargetMap = std::unordered_map<std::string, cmTarget>;
   /** Get the target map */
-  cmTargetMap& GetTargets() { return this->m_targets; }
+  cmTargetMap& GetTargets() { return m_targets; }
   /** Get the target map - const version */
-  cmTargetMap const& GetTargets() const { return this->m_targets; }
+  cmTargetMap const& GetTargets() const { return m_targets; }
 
-  std::vector<std::unique_ptr<cmTarget>> const& GetOwnedImportedTargets() const { return this->m_importedTargetsOwned; }
+  std::vector<std::unique_ptr<cmTarget>> const& GetOwnedImportedTargets() const { return m_importedTargetsOwned; }
   std::vector<cmTarget*> GetImportedTargets() const;
 
   cmTarget* FindImportedTarget(std::string const& name) const;
@@ -467,7 +467,7 @@ public:
     std::string>
   GetAliasTargets() const
   {
-    return this->m_aliasTargets;
+    return m_aliasTargets;
   }
 
   /**
@@ -581,7 +581,7 @@ public:
   /**
    * Get a list of preprocessor define flags.
    */
-  std::string GetDefineFlags() const { return this->m_defineFlags; }
+  std::string GetDefineFlags() const { return m_defineFlags; }
 
   /**
    * Make sure CMake can write this file
@@ -592,7 +592,7 @@ public:
   /**
    * Get the vector source groups.
    */
-  std::vector<cmSourceGroup> const& GetSourceGroups() const { return this->m_sourceGroups; }
+  std::vector<cmSourceGroup> const& GetSourceGroups() const { return m_sourceGroups; }
 
   /**
    * Get the source group
@@ -636,9 +636,9 @@ public:
   /**
    * Get the vector of list files on which this makefile depends
    */
-  std::vector<std::string> const& GetListFiles() const { return this->m_listFiles; }
+  std::vector<std::string> const& GetListFiles() const { return m_listFiles; }
   //! When the file changes cmake will be re-run from the build system.
-  void AddCMakeDependFile(std::string const& file) { this->m_listFiles.push_back(file); }
+  void AddCMakeDependFile(std::string const& file) { m_listFiles.push_back(file); }
   void AddCMakeDependFilesFromUser();
 
   std::string FormatListFileStack() const;
@@ -656,8 +656,8 @@ public:
   /**
    * Get the vector of  files created by this makefile
    */
-  std::vector<std::string> const& GetOutputFiles() const { return this->m_outputFiles; }
-  void AddCMakeOutputFile(std::string const& file) { this->m_outputFiles.push_back(file); }
+  std::vector<std::string> const& GetOutputFiles() const { return m_outputFiles; }
+  void AddCMakeOutputFile(std::string const& file) { m_outputFiles.push_back(file); }
 
   /**
    * Expand all defined variables in the string.
@@ -777,9 +777,9 @@ public:
   /**
    * Get all the source files this makefile knows about
    */
-  std::vector<std::unique_ptr<cmSourceFile>> const& GetSourceFiles() const { return this->m_sourceFiles; }
+  std::vector<std::unique_ptr<cmSourceFile>> const& GetSourceFiles() const { return m_sourceFiles; }
 
-  std::vector<cmTarget*> const& GetOrderedTargets() const { return this->m_orderedTargets; }
+  std::vector<cmTarget*> const& GetOrderedTargets() const { return m_orderedTargets; }
 
   //! Add a new cmTest to the list of tests for this makefile.
   cmTest* CreateTest(std::string const& testName);
@@ -803,7 +803,7 @@ public:
   {
     bool system;
     std::string debugBuffer;
-    return this->GetModulesFile(name, system, false, debugBuffer);
+    return GetModulesFile(name, system, false, debugBuffer);
   }
 
   /**
@@ -814,7 +814,7 @@ public:
     bool& system) const
   {
     std::string debugBuffer;
-    return this->GetModulesFile(name, system, false, debugBuffer);
+    return GetModulesFile(name, system, false, debugBuffer);
   }
 
   std::string GetModulesFile(
@@ -831,13 +831,13 @@ public:
     std::string const& prop,
     std::nullptr_t)
   {
-    this->SetProperty(prop, cmValue{ nullptr });
+    SetProperty(prop, cmValue{ nullptr });
   }
   void SetProperty(
     std::string const& prop,
     std::string const& value)
   {
-    this->SetProperty(prop, cmValue(value));
+    SetProperty(prop, cmValue(value));
   }
   void AppendProperty(
     std::string const& prop,
@@ -855,15 +855,15 @@ public:
 
   void AddInstallGenerator(std::unique_ptr<cmInstallGenerator> g);
 
-  std::vector<std::unique_ptr<cmInstallGenerator>>& GetInstallGenerators() { return this->m_installGenerators; }
+  std::vector<std::unique_ptr<cmInstallGenerator>>& GetInstallGenerators() { return m_installGenerators; }
   std::vector<std::unique_ptr<cmInstallGenerator>> const& GetInstallGenerators() const
   {
-    return this->m_installGenerators;
+    return m_installGenerators;
   }
 
   void AddTestGenerator(std::unique_ptr<cmTestGenerator> g);
 
-  std::vector<std::unique_ptr<cmTestGenerator>> const& GetTestGenerators() const { return this->m_testGenerators; }
+  std::vector<std::unique_ptr<cmTestGenerator>> const& GetTestGenerators() const { return m_testGenerators; }
 
   class FunctionPushPop
   {
@@ -877,7 +877,7 @@ public:
     FunctionPushPop(FunctionPushPop const&) = delete;
     FunctionPushPop& operator=(FunctionPushPop const&) = delete;
 
-    void Quiet() { this->m_reportError = false; }
+    void Quiet() { m_reportError = false; }
 
   private:
     cmMakefile* m_pMakefile;
@@ -896,7 +896,7 @@ public:
     MacroPushPop(MacroPushPop const&) = delete;
     MacroPushPop& operator=(MacroPushPop const&) = delete;
 
-    void Quiet() { this->m_reportError = false; }
+    void Quiet() { m_reportError = false; }
 
   private:
     cmMakefile* m_pMakefile;
@@ -920,7 +920,7 @@ public:
     std::string const& var,
     cmValue value)
   {
-    this->RaiseScope(var, value.GetCStr());
+    RaiseScope(var, value.GetCStr());
   }
   void RaiseScope(std::vector<std::string> const& variables);
 
@@ -947,17 +947,17 @@ public:
       ImportedTargetScope const scope)
       : m_pMakefile(mk)
     {
-      if (scope == ImportedTargetScope::Global && !this->m_pMakefile->IsImportedTargetGlobalScope()) {
-        this->m_pMakefile->m_currentImportedTargetScope = scope;
-        this->m_set = true;
+      if (scope == ImportedTargetScope::Global && !m_pMakefile->IsImportedTargetGlobalScope()) {
+        m_pMakefile->m_currentImportedTargetScope = scope;
+        m_set = true;
       } else {
-        this->m_set = false;
+        m_set = false;
       }
     }
     ~SetGlobalTargetImportScope()
     {
-      if (this->m_set) {
-        this->m_pMakefile->m_currentImportedTargetScope = ImportedTargetScope::Local;
+      if (m_set) {
+        m_pMakefile->m_currentImportedTargetScope = ImportedTargetScope::Local;
       }
     }
 
@@ -973,10 +973,10 @@ public:
     ScopePushPop(cmMakefile* m)
       : m_pMakefile(m)
     {
-      this->m_pMakefile->PushScope();
+      m_pMakefile->PushScope();
     }
 
-    ~ScopePushPop() { this->m_pMakefile->PopScope(); }
+    ~ScopePushPop() { m_pMakefile->PopScope(); }
 
     ScopePushPop(ScopePushPop const&) = delete;
     ScopePushPop& operator=(ScopePushPop const&) = delete;
@@ -991,7 +991,7 @@ public:
   Message::LogLevel GetCurrentLogLevel() const;
 
   /** Set whether or not to report a CMP0000 violation.  */
-  void SetCheckCMP0000(bool b) { this->m_checkCMP0000 = b; }
+  void SetCheckCMP0000(bool b) { m_checkCMP0000 = b; }
 
   void IssueInvalidTargetNameError(std::string const& targetName) const;
 
@@ -1001,7 +1001,7 @@ public:
   cmBTStringRange GetLinkOptionsEntries() const;
   cmBTStringRange GetLinkDirectoriesEntries() const;
 
-  std::set<std::string> const& GetSystemIncludeDirectories() const { return this->m_systemIncludeDirectories; }
+  std::set<std::string> const& GetSystemIncludeDirectories() const { return m_systemIncludeDirectories; }
 
   bool PolicyOptionalWarningEnabled(std::string const& var) const;
 

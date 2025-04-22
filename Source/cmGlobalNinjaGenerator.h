@@ -112,11 +112,11 @@ public:
 
   class CCOutputs
   {
-    cmGlobalNinjaGenerator* GG;
+    cmGlobalNinjaGenerator* m_globalGenerator;
 
   public:
     CCOutputs(cmGlobalNinjaGenerator* gg)
-      : GG(gg)
+      : m_globalGenerator(gg)
     {
     }
     void Add(std::vector<std::string> const& outputs);
@@ -272,14 +272,14 @@ public:
 
   struct MapToNinjaPathImpl
   {
-    cmGlobalNinjaGenerator* GG;
+    cmGlobalNinjaGenerator* m_globalGenerator;
     MapToNinjaPathImpl(cmGlobalNinjaGenerator* gg)
-      : GG(gg)
+      : m_globalGenerator(gg)
     {
     }
     std::string operator()(std::string const& path) const
     {
-      return this->GG->ConvertToNinjaPath(path);
+      return this->m_globalGenerator->ConvertToNinjaPath(path);
     }
   };
   MapToNinjaPathImpl MapToNinjaPath() { return { this }; }

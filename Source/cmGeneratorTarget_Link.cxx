@@ -149,18 +149,18 @@ class cmTargetSelectLinker
 {
   int Preference = 0;
   cmGeneratorTarget const* Target;
-  cmGlobalGenerator* GG;
+  cmGlobalGenerator* m_globalGenerator;
   std::set<std::string> Preferred;
 
 public:
   cmTargetSelectLinker(cmGeneratorTarget const* target)
     : Target(target)
   {
-    this->GG = this->Target->GetLocalGenerator()->GetGlobalGenerator();
+    this->m_globalGenerator = this->Target->GetLocalGenerator()->GetGlobalGenerator();
   }
   void Consider(std::string const& lang)
   {
-    int preference = this->GG->GetLinkerPreference(lang);
+    int preference = this->m_globalGenerator->GetLinkerPreference(lang);
     if (preference > this->Preference) {
       this->Preference = preference;
       this->Preferred.clear();

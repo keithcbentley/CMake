@@ -27,5 +27,5 @@ public:
   std::string ConvertToLinkReference(std::string const& input) const override;
 
 private:
-  cmGlobalNinjaGenerator const* GG;
+  cmGlobalNinjaGenerator const* m_globalGenerator;
 };

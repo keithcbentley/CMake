@@ -360,7 +360,7 @@ private:
   cmXCodeObject* MainGroupChildren;
   cmXCodeObject* FrameworkGroup;
   cmXCodeObject* ResourcesGroup;
-  cmMakefile* CurrentMakefile;
+  cmMakefile* m_currentMakefile;
   cmLocalGenerator* CurrentLocalGenerator;
   cmLocalGenerator* CurrentRootGenerator = nullptr;
   std::vector<std::string> CurrentConfigurationTypes;

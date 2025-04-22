@@ -9,12 +9,12 @@ cmNinjaLinkLineDeviceComputer::cmNinjaLinkLineDeviceComputer(
   cmOutputConverter* outputConverter, cmStateDirectory const& stateDir,
   cmGlobalNinjaGenerator const* gg)
   : cmLinkLineDeviceComputer(outputConverter, stateDir)
-  , GG(gg)
+  , m_globalGenerator(gg)
 {
 }
 
 std::string cmNinjaLinkLineDeviceComputer::ConvertToLinkReference(
   std::string const& lib) const
 {
-  return this->GG->ConvertToNinjaPath(lib);
+  return this->m_globalGenerator->ConvertToNinjaPath(lib);
 }

@@ -2248,7 +2248,7 @@ struct kwsysProcess_List_s
   CreateToolhelp32SnapshotType P_CreateToolhelp32Snapshot;
   Process32FirstType P_Process32First;
   Process32NextType P_Process32Next;
-  HANDLE Snapshot;
+  HANDLE m_snapshot;
   PROCESSENTRY32 CurrentEntry;
 };
 
@@ -2450,25 +2450,25 @@ static int kwsysProcess_List__New_Snapshot(kwsysProcess_List* self)
 
 static void kwsysProcess_List__Delete_Snapshot(kwsysProcess_List* self)
 {
-  if (self->Snapshot) {
-    CloseHandle(self->Snapshot);
+  if (self->m_snapshot) {
+    CloseHandle(self->m_snapshot);
   }
 }
 
 static int kwsysProcess_List__Update_Snapshot(kwsysProcess_List* self)
 {
-  if (self->Snapshot) {
-    CloseHandle(self->Snapshot);
+  if (self->m_snapshot) {
+    CloseHandle(self->m_snapshot);
   }
-  if (!(self->Snapshot =
+  if (!(self->m_snapshot =
           self->P_CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0))) {
     return 0;
   }
   ZeroMemory(&self->CurrentEntry, sizeof(self->CurrentEntry));
   self->CurrentEntry.dwSize = sizeof(self->CurrentEntry);
-  if (!self->P_Process32First(self->Snapshot, &self->CurrentEntry)) {
-    CloseHandle(self->Snapshot);
-    self->Snapshot = 0;
+  if (!self->P_Process32First(self->m_snapshot, &self->CurrentEntry)) {
+    CloseHandle(self->m_snapshot);
+    self->m_snapshot = 0;
     return 0;
   }
   return 1;
@@ -2476,24 +2476,24 @@ static int kwsysProcess_List__Update_Snapshot(kwsysProcess_List* self)
 
 static int kwsysProcess_List__Next_Snapshot(kwsysProcess_List* self)
 {
-  if (self->Snapshot) {
-    if (self->P_Process32Next(self->Snapshot, &self->CurrentEntry)) {
+  if (self->m_snapshot) {
+    if (self->P_Process32Next(self->m_snapshot, &self->CurrentEntry)) {
       return 1;
     }
-    CloseHandle(self->Snapshot);
-    self->Snapshot = 0;
+    CloseHandle(self->m_snapshot);
+    self->m_snapshot = 0;
   }
   return 0;
 }
 
 static int kwsysProcess_List__GetProcessId_Snapshot(kwsysProcess_List* self)
 {
-  return self->Snapshot ? self->CurrentEntry.th32ProcessID : -1;
+  return self->m_snapshot ? self->CurrentEntry.th32ProcessID : -1;
 }
 
 static int kwsysProcess_List__GetParentId_Snapshot(kwsysProcess_List* self)
 {
-  return self->Snapshot ? self->CurrentEntry.th32ParentProcessID : -1;
+  return self->m_snapshot ? self->CurrentEntry.th32ParentProcessID : -1;
 }
 
 static void kwsysProcessKill(DWORD pid)

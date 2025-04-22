@@ -197,7 +197,7 @@ struct cmFindLibraryHelper
   // Context information.
   cmMakefile* m_pMakefile;
   cmFindBase const* FindBase;
-  cmGlobalGenerator* GG;
+  cmGlobalGenerator* m_globalGenerator;
 
   // List of valid prefixes and suffixes.
   cmList Prefixes;
@@ -313,7 +313,7 @@ cmFindLibraryHelper::cmFindLibraryHelper(std::string debugName, cmMakefile* mf,
   , DebugMode(base->DebugModeEnabled())
   , DebugSearches(std::move(debugName), base)
 {
-  this->GG = this->m_pMakefile->GetGlobalGenerator();
+  this->m_globalGenerator = this->m_pMakefile->GetGlobalGenerator();
 
   // Collect the list of library name prefixes/suffixes to try.
   std::string const& prefixes_list = get_prefixes(this->m_pMakefile);
@@ -477,7 +477,7 @@ bool cmFindLibraryHelper::CheckDirectoryForName(std::string const& path,
   cmsys::RegularExpression& regex =
     dirCase == cmSystemTools::DirCase::Insensitive ? name.ICaseRegex
                                                    : name.Regex;
-  std::set<std::string> const& files = this->GG->GetDirectoryContent(path);
+  std::set<std::string> const& files = this->m_globalGenerator->GetDirectoryContent(path);
   for (std::string const& origName : files) {
     std::string testName = dirCase == cmSystemTools::DirCase::Insensitive
       ? cmSystemTools::LowerCase(origName)

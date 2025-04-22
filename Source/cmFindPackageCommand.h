@@ -136,7 +136,7 @@ private:
   bool FindEnvironmentConfig();
   enum PolicyScopeRule
   {
-    NoPolicyScope,
+    m_noPolicyScope,
     DoPolicyScope
   };
   bool ReadListFile(std::string const& f, PolicyScopeRule psr);
