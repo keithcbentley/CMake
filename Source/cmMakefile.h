@@ -73,6 +73,20 @@ public:
   std::string String;
 };
 
+enum class ImportedTargetScope
+{
+  Local,
+  Global,
+};
+
+enum class GeneratorActionWhen
+{
+  // Run after all CMake code has been parsed.
+  AfterConfigure,
+  // Run after generator targets have been constructed.
+  AfterGeneratorTargets,
+};
+
 /** \class cmMakefile
  * \brief Process the input CMakeLists.txt file.
  *
@@ -82,63 +96,19 @@ public:
  */
 class cmMakefile
 {
-public:
-  void MarkVariableAsUsed(std::string const& var);
-  bool VariableInitialized(std::string const&) const;
 
-  cmMakefile(
-    cmGlobalGenerator* globalGenerator,
-    cmStateSnapshot const& snapshot);
-
-  ~cmMakefile();
-
-  cmMakefile(cmMakefile const&) = delete;
-  cmMakefile& operator=(cmMakefile const&) = delete;
-
-  cmDirectoryId GetDirectoryId() const;
-
-  bool ReadListFile(std::string const& filename);
-
-  bool ReadListFileAsString(
-    std::string const& content,
-    std::string const& virtualFileName);
-
-  bool ReadDependentFile(
-    std::string const& filename,
-    bool noPolicyScope = true);
-
-  void AddFunctionBlocker(std::unique_ptr<cmFunctionBlocker> fb);
-
-  bool IsRootMakefile() const;
-
-  std::unique_ptr<cmFunctionBlocker> RemoveFunctionBlocker();
-
-  int TryCompile(
-    std::string const& srcdir,
-    std::string const& bindir,
-    std::string const& projectName,
-    std::string const& targetName,
-    bool fast,
-    int jobs,
-    std::vector<std::string> const* cmakeArgs,
-    std::string& output);
-
-  bool GetIsSourceFileTryCompile() const;
-
-  /**
-   * Help enforce global target name uniqueness.
-   */
-  bool EnforceUniqueName(
-    std::string const& name,
-    std::string& msg,
-    bool isCustom = false) const;
-
-  enum class GeneratorActionWhen
+private:
+  struct DeferCommand
   {
-    // Run after all CMake code has been parsed.
-    AfterConfigure,
-    // Run after generator targets have been constructed.
-    AfterGeneratorTargets,
+    // Id is empty for an already-executed or canceled operation.
+    std::string m_id;
+    std::string m_filePath;
+    cmListFileFunction m_command;
+  };
+
+  struct DeferCommands
+  {
+    std::vector<DeferCommand> m_commands;
   };
 
   class GeneratorAction
@@ -180,6 +150,165 @@ public:
     CCActionT m_CCAction;
     std::unique_ptr<cmCustomCommand> m_pCustomCommand;
   };
+
+  cmStateSnapshot m_stateSnapshot;
+  cmListFileBacktrace m_backtrace;
+  size_t m_recursionDepth = 0;
+
+  std::unique_ptr<DeferCommands> m_defer;
+  bool m_deferRunning = false;
+
+  std::function<void()> m_executeCommandCallback;
+  using FunctionBlockerPtr = std::unique_ptr<cmFunctionBlocker>;
+  using FunctionBlockersType = std::stack<FunctionBlockerPtr, std::vector<FunctionBlockerPtr>>;
+  FunctionBlockersType m_functionBlockers;
+  std::vector<FunctionBlockersType::size_type> m_functionBlockerBarriers;
+
+  mutable cmsys::RegularExpression m_cmDefineRegex;
+  mutable cmsys::RegularExpression m_cmDefine01Regex;
+  mutable cmsys::RegularExpression m_cmNamedCurly;
+
+  std::vector<cmMakefile*> m_unconfiguredDirectories;
+  std::vector<std::unique_ptr<cmExportBuildFileGenerator>> m_exportBuildFileGenerators;
+
+  std::vector<std::unique_ptr<cmGeneratorExpressionEvaluationFile>> m_evaluationFiles;
+
+  void DoGenerate(cmLocalGenerator& lg);
+
+  void RunListFile(
+    cmListFile const& listFile,
+    std::string const& filenametoread,
+    DeferCommands* defer = nullptr);
+
+  bool ParseDefineFlag(
+    std::string const& definition,
+    bool remove);
+
+  bool EnforceUniqueDir(
+    std::string const& srcPath,
+    std::string const& binPath) const;
+
+  void PushFunctionBlockerBarrier();
+  void PopFunctionBlockerBarrier(bool reportError = true);
+
+  std::stack<int> m_loopBlockCounter;
+  std::vector<cmExecutionStatus*> m_executionStatusStack;
+  friend class cmParseFileScope;
+
+  std::vector<std::unique_ptr<cmTarget>> m_importedTargetsOwned;
+  using TargetMap = std::unordered_map<std::string, cmTarget*>;
+  TargetMap m_importedTargets;
+
+  std::vector<BT<GeneratorAction>> m_generatorActions;
+  bool m_generatorActionsInvoked = false;
+
+  cmFindPackageStack m_findPackageStack;
+  unsigned int m_findPackageStackNextIndex = 0;
+
+  bool m_debugFindPkg = false;
+
+  bool m_checkSystemVars;
+  bool m_checkCMP0000;
+  std::set<std::string> m_warnedCMP0074;
+  std::set<std::string> m_warnedCMP0144;
+  bool m_isSourceFileTryCompile;
+  ImportedTargetScope m_currentImportedTargetScope = ImportedTargetScope::Local;
+
+  class CallScope;
+  friend class CallScope;
+
+  // Internal policy stack management.
+  void PushPolicy(
+    bool weak = false,
+    cmPolicies::PolicyMap const& pm = cmPolicies::PolicyMap());
+
+  void PopPolicy();
+
+  void PopSnapshot(bool reportError = true);
+
+  friend bool cmCMakePolicyCommand(
+    std::vector<std::string> const& args,
+    cmExecutionStatus& status);
+
+  class IncludeScope;
+  friend class IncludeScope;
+
+  class ListFileScope;
+  friend class ListFileScope;
+
+  class DeferScope;
+  friend class DeferScope;
+
+  class DeferCallScope;
+  friend class DeferCallScope;
+
+  class BuildsystemFileScope;
+  friend class BuildsystemFileScope;
+
+  MessageType ExpandVariablesInStringImpl(
+    std::string& errorstr,
+    std::string& source,
+    bool escapeQuotes,
+    bool noEscapes,
+    bool atOnly,
+    char const* filename,
+    long line,
+    bool replaceAt) const;
+
+  bool ValidateCustomCommand(cmCustomCommandLines const& commandLines) const;
+
+  void CreateGeneratedOutputs(std::vector<std::string> const& outputs);
+
+public:
+  void MarkVariableAsUsed(std::string const& var);
+
+  bool VariableInitialized(std::string const&) const;
+
+  cmMakefile(
+    cmGlobalGenerator* globalGenerator,
+    cmStateSnapshot const& snapshot);
+
+  //    TODO: can't put =default here.  Because of forward class defs?
+  ~cmMakefile();
+
+  cmMakefile(cmMakefile const&) = delete;
+
+  cmMakefile& operator=(cmMakefile const&) = delete;
+
+  cmDirectoryId GetDirectoryId() const;
+
+  bool ReadListFile(std::string const& filename);
+
+  bool ReadListFileAsString(
+    std::string const& content,
+    std::string const& virtualFileName);
+
+  bool ReadDependentFile(
+    std::string const& filename,
+    bool noPolicyScope = true);
+
+  void AddFunctionBlocker(std::unique_ptr<cmFunctionBlocker> fb);
+
+  bool IsRootMakefile() const;
+
+  std::unique_ptr<cmFunctionBlocker> RemoveFunctionBlocker();
+
+  int TryCompile(
+    std::string const& srcdir,
+    std::string const& bindir,
+    std::string const& projectName,
+    std::string const& targetName,
+    bool fast,
+    int jobs,
+    std::vector<std::string> const* cmakeArgs,
+    std::string& output);
+
+  bool GetIsSourceFileTryCompile() const;
+
+  bool EnforceUniqueName(
+    std::string const& name,
+    std::string& msg,
+    bool isCustom = false) const;
 
   void AddGeneratorAction(GeneratorAction&& action);
 
@@ -856,10 +985,7 @@ public:
   void AddInstallGenerator(std::unique_ptr<cmInstallGenerator> g);
 
   std::vector<std::unique_ptr<cmInstallGenerator>>& GetInstallGenerators() { return m_installGenerators; }
-  std::vector<std::unique_ptr<cmInstallGenerator>> const& GetInstallGenerators() const
-  {
-    return m_installGenerators;
-  }
+  std::vector<std::unique_ptr<cmInstallGenerator>> const& GetInstallGenerators() const { return m_installGenerators; }
 
   void AddTestGenerator(std::unique_ptr<cmTestGenerator> g);
 
@@ -929,12 +1055,6 @@ public:
   void PopLoopBlockBarrier();
 
   bool IsImportedTargetGlobalScope() const;
-
-  enum class ImportedTargetScope
-  {
-    Local,
-    Global,
-  };
 
   /** Helper class to manage whether imported packages
    * should be globally scoped based off the find package command
@@ -1165,120 +1285,4 @@ protected:
   bool IsFunctionBlocked(
     cmListFileFunction const& lff,
     cmExecutionStatus& status);
-
-private:
-  cmStateSnapshot m_stateSnapshot;
-  cmListFileBacktrace m_backtrace;
-  size_t m_recursionDepth = 0;
-
-  struct DeferCommand
-  {
-    // Id is empty for an already-executed or canceled operation.
-    std::string m_id;
-    std::string m_filePath;
-    cmListFileFunction m_command;
-  };
-  struct DeferCommands
-  {
-    std::vector<DeferCommand> m_commands;
-  };
-  std::unique_ptr<DeferCommands> m_defer;
-  bool m_deferRunning = false;
-
-  void DoGenerate(cmLocalGenerator& lg);
-
-  void RunListFile(
-    cmListFile const& listFile,
-    std::string const& filenametoread,
-    DeferCommands* defer = nullptr);
-
-  bool ParseDefineFlag(
-    std::string const& definition,
-    bool remove);
-
-  bool EnforceUniqueDir(
-    std::string const& srcPath,
-    std::string const& binPath) const;
-
-  std::function<void()> m_executeCommandCallback;
-  using FunctionBlockerPtr = std::unique_ptr<cmFunctionBlocker>;
-  using FunctionBlockersType = std::stack<FunctionBlockerPtr, std::vector<FunctionBlockerPtr>>;
-  FunctionBlockersType m_functionBlockers;
-  std::vector<FunctionBlockersType::size_type> m_functionBlockerBarriers;
-  void PushFunctionBlockerBarrier();
-  void PopFunctionBlockerBarrier(bool reportError = true);
-
-  std::stack<int> m_loopBlockCounter;
-
-  mutable cmsys::RegularExpression m_cmDefineRegex;
-  mutable cmsys::RegularExpression m_cmDefine01Regex;
-  mutable cmsys::RegularExpression m_cmNamedCurly;
-
-  std::vector<cmMakefile*> m_unconfiguredDirectories;
-  std::vector<std::unique_ptr<cmExportBuildFileGenerator>> m_exportBuildFileGenerators;
-
-  std::vector<std::unique_ptr<cmGeneratorExpressionEvaluationFile>> m_evaluationFiles;
-
-  class CallScope;
-  friend class CallScope;
-
-  std::vector<cmExecutionStatus*> m_executionStatusStack;
-  friend class cmParseFileScope;
-
-  std::vector<std::unique_ptr<cmTarget>> m_importedTargetsOwned;
-  using TargetMap = std::unordered_map<std::string, cmTarget*>;
-  TargetMap m_importedTargets;
-
-  // Internal policy stack management.
-  void PushPolicy(
-    bool weak = false,
-    cmPolicies::PolicyMap const& pm = cmPolicies::PolicyMap());
-  void PopPolicy();
-  void PopSnapshot(bool reportError = true);
-  friend bool cmCMakePolicyCommand(
-    std::vector<std::string> const& args,
-    cmExecutionStatus& status);
-  class IncludeScope;
-  friend class IncludeScope;
-
-  class ListFileScope;
-  friend class ListFileScope;
-
-  class DeferScope;
-  friend class DeferScope;
-
-  class DeferCallScope;
-  friend class DeferCallScope;
-
-  class BuildsystemFileScope;
-  friend class BuildsystemFileScope;
-
-  MessageType ExpandVariablesInStringImpl(
-    std::string& errorstr,
-    std::string& source,
-    bool escapeQuotes,
-    bool noEscapes,
-    bool atOnly,
-    char const* filename,
-    long line,
-    bool replaceAt) const;
-
-  bool ValidateCustomCommand(cmCustomCommandLines const& commandLines) const;
-
-  void CreateGeneratedOutputs(std::vector<std::string> const& outputs);
-
-  std::vector<BT<GeneratorAction>> m_generatorActions;
-  bool m_generatorActionsInvoked = false;
-
-  cmFindPackageStack m_findPackageStack;
-  unsigned int m_findPackageStackNextIndex = 0;
-
-  bool m_debugFindPkg = false;
-
-  bool m_checkSystemVars;
-  bool m_checkCMP0000;
-  std::set<std::string> m_warnedCMP0074;
-  std::set<std::string> m_warnedCMP0144;
-  bool m_isSourceFileTryCompile;
-  ImportedTargetScope m_currentImportedTargetScope = ImportedTargetScope::Local;
 };

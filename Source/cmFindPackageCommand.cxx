@@ -1943,7 +1943,7 @@ bool cmFindPackageCommand::ReadListFile(std::string const& f,
 {
   bool const noPolicyScope = !this->PolicyScope || psr == m_noPolicyScope;
 
-  using ITScope = cmMakefile::ImportedTargetScope;
+  using ITScope = ImportedTargetScope;
   ITScope scope = this->GlobalScope ? ITScope::Global : ITScope::Local;
   cmMakefile::SetGlobalTargetImportScope globScope(this->m_pMakefile, scope);
 

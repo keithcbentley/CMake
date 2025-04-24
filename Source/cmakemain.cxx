@@ -1082,6 +1082,7 @@ int main(
   int ac,
   char const* const* av)
 {
+  std::cout << "New CMake\n";
   cmSystemTools::EnsureStdPipes();
 
   // Replace streambuf so we can output Unicode to console

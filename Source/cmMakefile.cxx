@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <sstream>
 #include <utility>
 
@@ -109,6 +110,7 @@ public:
     : m_pMakefile(mf)
   {
   }
+
   void PushListFileVars(std::string const& newCurrent)
   {
     if (cmValue p = m_pMakefile->GetDefinition(kCMAKE_PARENT_LIST_FILE)) {
@@ -124,6 +126,7 @@ public:
     m_pMakefile->MarkVariableAsUsed(kCMAKE_CURRENT_LIST_FILE);
     m_pMakefile->MarkVariableAsUsed(kCMAKE_CURRENT_LIST_DIR);
   }
+
   void PopListFileVars()
   {
     if (m_oldParent) {
@@ -147,7 +150,6 @@ cmDirectoryId::cmDirectoryId(std::string s)
 {
 }
 
-// default is not to be building executables
 cmMakefile::cmMakefile(
   cmGlobalGenerator* globalGenerator,
   cmStateSnapshot const& snapshot)
@@ -163,16 +165,15 @@ cmMakefile::cmMakefile(
 
   m_defineFlags = " ";
 
+  //    TODO:  Why are these member instead of static?
   m_cmDefineRegex.compile("#([ \t]*)cmakedefine[ \t]+([A-Za-z_0-9]*)");
   m_cmDefine01Regex.compile("#([ \t]*)cmakedefine01[ \t]+([A-Za-z_0-9]*)");
   m_cmNamedCurly.compile("^[A-Za-z0-9/_.+-]+{");
 
   m_stateSnapshot = m_stateSnapshot.GetState()->CreatePolicyScopeSnapshot(m_stateSnapshot);
 
-  // Enter a policy level for this directory.
   PushPolicy();
 
-  // push empty loop block
   PushLoopBlockBarrier();
 
   // By default the check is not done.  It is enabled by
@@ -195,6 +196,7 @@ cmMakefile::cmMakefile(
 
 cmMakefile::~cmMakefile() = default;
 
+//  TODO: This whold directory id stuff is screwy.  Does it even do anything?
 cmDirectoryId cmMakefile::GetDirectoryId() const
 {
   // Use the instance pointer value to uniquely identify this directory.

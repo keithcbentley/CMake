@@ -3226,7 +3226,7 @@ bool cmGlobalGenerator::AddBuildDatabaseTargets()
         m_pCustomCommand->SetComment(comment);
         mf->AddGeneratorAction(
           std::move(m_pCustomCommand), action,
-          cmMakefile::GeneratorActionWhen::AfterGeneratorTargets);
+          GeneratorActionWhen::AfterGeneratorTargets);
       }
 
       // Add a custom target with the given name.
