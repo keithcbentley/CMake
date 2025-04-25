@@ -38,7 +38,7 @@ void cmWIXFeaturesSourceWriter::EmitFeatureForComponentGroup(
   cmCPackComponentGroup const& group, cmWIXPatch& patch)
 {
   BeginElement("Feature");
-  AddAttribute("Id", cmStrCat("CM_G_", group.Name));
+  AddAttribute("Id", cmStrCat("CM_G_", group.m_name));
 
   if (group.IsExpandedByDefault) {
     AddAttribute("Display", "expand");
@@ -47,7 +47,7 @@ void cmWIXFeaturesSourceWriter::EmitFeatureForComponentGroup(
   AddAttributeUnlessEmpty("Title", group.DisplayName);
   AddAttributeUnlessEmpty("Description", group.Description);
 
-  patch.ApplyFragment(cmStrCat("CM_G_", group.Name), *this);
+  patch.ApplyFragment(cmStrCat("CM_G_", group.m_name), *this);
 
   for (cmCPackComponentGroup* subgroup : group.Subgroups) {
     EmitFeatureForComponentGroup(*subgroup, patch);
@@ -64,7 +64,7 @@ void cmWIXFeaturesSourceWriter::EmitFeatureForComponent(
   cmCPackComponent const& component, cmWIXPatch& patch)
 {
   BeginElement("Feature");
-  AddAttribute("Id", cmStrCat("CM_C_", component.Name));
+  AddAttribute("Id", cmStrCat("CM_C_", component.m_name));
 
   AddAttributeUnlessEmpty("Title", component.DisplayName);
   AddAttributeUnlessEmpty("Description", component.Description);
@@ -85,7 +85,7 @@ void cmWIXFeaturesSourceWriter::EmitFeatureForComponent(
     AddAttribute("Level", "2");
   }
 
-  patch.ApplyFragment(cmStrCat("CM_C_", component.Name), *this);
+  patch.ApplyFragment(cmStrCat("CM_C_", component.m_name), *this);
 
   EndElement("Feature");
 }

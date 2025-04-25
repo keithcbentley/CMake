@@ -38,11 +38,11 @@ void cmCPackIFWInstaller::ConfigureFromOptions()
   // Name;
   if (cmValue optIFW_PACKAGE_NAME =
         this->GetOption("CPACK_IFW_PACKAGE_NAME")) {
-    this->Name = *optIFW_PACKAGE_NAME;
+    this->m_name = *optIFW_PACKAGE_NAME;
   } else if (cmValue optPACKAGE_NAME = this->GetOption("CPACK_PACKAGE_NAME")) {
-    this->Name = *optPACKAGE_NAME;
+    this->m_name = *optPACKAGE_NAME;
   } else {
-    this->Name = "Your package";
+    this->m_name = "Your package";
   }
 
   // Title;
@@ -217,7 +217,7 @@ void cmCPackIFWInstaller::ConfigureFromOptions()
         this->GetOption("CPACK_IFW_PACKAGE_START_MENU_DIRECTORY")) {
     this->StartMenuDir = *optIFW_START_MENU_DIR;
   } else {
-    this->StartMenuDir = this->Name;
+    this->StartMenuDir = this->m_name;
   }
 
   // Default target directory for installation
@@ -437,7 +437,7 @@ void cmCPackIFWInstaller::GenerateInstallerFile()
 
   xout.StartElement("Installer");
 
-  xout.Element("Name", this->Name);
+  xout.Element("Name", this->m_name);
   xout.Element("Version", this->Version);
   xout.Element("Title", this->Title);
 

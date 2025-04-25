@@ -83,7 +83,7 @@ void cmBuildDatabase::Write(std::string const& path) const
   for (auto const& Set_ : this->Sets) {
     Json::Value set = Json::objectValue;
 
-    set["name"] = Set_.Name;
+    set["name"] = Set_.m_name;
     set["family-name"] = Set_.FamilyName;
 
     Json::Value& visible_sets = set["visible-sets"] = Json::arrayValue;
@@ -126,8 +126,8 @@ void cmBuildDatabase::Write(std::string const& path) const
       }
 
       Json::Value& arguments = tu["arguments"] = Json::arrayValue;
-      for (auto const& Argument : TranslationUnit_.Arguments) {
-        arguments.append(Argument);
+      for (auto const& m_argument : TranslationUnit_.Arguments) {
+        arguments.append(m_argument);
       }
 
       tus.append(tu);
@@ -210,7 +210,7 @@ std::unique_ptr<cmBuildDatabase> cmBuildDatabase::Load(std::string const& path)
                    ": name is not a string"));
         return {};
       }
-      Set_.Name = name.asString();
+      Set_.m_name = name.asString();
 
       Json::Value const& family_name = set["family-name"];
       if (!family_name.isString()) {
@@ -428,7 +428,7 @@ cmBuildDatabase cmBuildDatabase::ForTarget(cmGeneratorTarget* gt,
   cmBuildDatabase db;
 
   m_set set;
-  set.Name = cmStrCat(gt->GetName(), '@', config);
+  set.m_name = cmStrCat(gt->GetName(), '@', config);
   set.FamilyName = gt->GetFamilyName();
   if (auto* cli = gt->GetLinkInformation(config)) {
     std::set<cmGeneratorTarget const*> emitted;

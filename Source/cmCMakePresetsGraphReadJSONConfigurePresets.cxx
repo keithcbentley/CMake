@@ -251,7 +251,7 @@ auto const PresetTraceHelper =
 auto const ConfigurePresetHelper =
   JSONHelperBuilder::Object<ConfigurePreset>(
     cmCMakePresetsErrors::INVALID_PRESET_OBJECT, false)
-    .Bind("name"_s, &ConfigurePreset::Name,
+    .Bind("name"_s, &ConfigurePreset::m_name,
           cmCMakePresetsGraphInternal::PresetNameHelper)
     .Bind("inherits"_s, &ConfigurePreset::Inherits,
           cmCMakePresetsGraphInternal::PresetVectorOneOrMoreStringHelper,

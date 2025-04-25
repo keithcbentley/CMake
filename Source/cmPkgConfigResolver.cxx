@@ -86,7 +86,7 @@ std::string cmPkgConfigResult::StrOrDefault(std::string const& key,
   return it == Keywords.end() ? std::string{ def } : it->second;
 };
 
-std::string cmPkgConfigResult::Name()
+std::string cmPkgConfigResult::m_name()
 {
   return StrOrDefault("Name");
 }
@@ -696,7 +696,7 @@ std::vector<cmPkgConfigDependency> cmPkgConfigResolver::ParseDependencies(
     auto& dep = result.back();
 
     while (!std::isspace(*cur) && *cur != ',') {
-      dep.Name += *cur;
+      dep.m_name += *cur;
       if (++cur == end) {
         return result;
       }

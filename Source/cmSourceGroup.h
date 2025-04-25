@@ -108,7 +108,7 @@ private:
   /**
    * The name of the source group.
    */
-  std::string Name;
+  std::string m_name;
   // Full path to group
   std::string FullName;
 

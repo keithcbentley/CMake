@@ -27,7 +27,7 @@ struct cmFileCopier
 protected:
   cmExecutionStatus& Status;
   cmMakefile* m_pMakefile;
-  char const* Name;
+  char const* m_name;
   bool Always = false;
   cmFileTimeCache FileTimes;
 

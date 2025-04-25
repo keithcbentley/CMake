@@ -15,7 +15,7 @@
 class cmFindPackageCall
 {
 public:
-  std::string Name;
+  std::string m_name;
   unsigned int Index;
 };
 

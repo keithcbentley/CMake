@@ -288,7 +288,7 @@ void cmNinjaNormalTargetGenerator::WriteNvidiaDeviceLinkRule(
   bool useResponseFile, std::string const& config)
 {
   cmNinjaRule rule(this->LanguageLinkerDeviceRule(config));
-  if (!this->GetGlobalGenerator()->HasRule(rule.Name)) {
+  if (!this->GetGlobalGenerator()->HasRule(rule.m_name)) {
     cmRulePlaceholderExpander::RuleVariables vars;
     vars.CMTargetName = this->GetGeneratorTarget()->GetName().c_str();
     vars.CMTargetType =
@@ -429,14 +429,14 @@ void cmNinjaNormalTargetGenerator::WriteDeviceLinkRules(
   rulePlaceholderExpander->ExpandRuleVariables(this->GetLocalGenerator(),
                                                compileCmd, vars);
 
-  rule.Name = this->LanguageLinkerCudaDeviceCompileRule(config);
+  rule.m_name = this->LanguageLinkerCudaDeviceCompileRule(config);
   rule.m_command = this->GetLocalGenerator()->BuildCommandLine({ compileCmd },
                                                              config, config);
   rule.Comment = "Rule for compiling CUDA device stubs.";
   rule.Description = "Compiling CUDA device stub $out";
   this->GetGlobalGenerator()->AddRule(rule);
 
-  rule.Name = this->LanguageLinkerCudaFatbinaryRule(config);
+  rule.m_name = this->LanguageLinkerCudaFatbinaryRule(config);
   rule.m_command = this->GetLocalGenerator()->BuildCommandLine(
     { cmStrCat(mf->GetRequiredDefinition("CMAKE_CUDA_FATBINARY"),
                " -64 -cmdline=--compile-only -compress-all -link "

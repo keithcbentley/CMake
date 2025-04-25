@@ -448,7 +448,7 @@ void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
 {
   // -- Parameter checks
   // Make sure the rule has a name.
-  if (rule.Name.empty()) {
+  if (rule.m_name.empty()) {
     cmSystemTools::Error(cmStrCat(
       "No name given for WriteRule! called with comment: ", rule.Comment));
     return;
@@ -473,7 +473,7 @@ void cmGlobalNinjaGenerator::WriteRule(std::ostream& os,
   // -- Write rule
   // Write rule intro
   cmGlobalNinjaGenerator::WriteComment(os, rule.Comment);
-  os << "rule " << rule.Name << '\n';
+  os << "rule " << rule.m_name << '\n';
 
   // Write rule key/value pairs
   auto writeKV = [&os](char const* key, std::string const& value) {
@@ -1032,11 +1032,11 @@ cmGlobalNinjaGenerator::GenerateBuildCommand(
 void cmGlobalNinjaGenerator::AddRule(cmNinjaRule const& rule)
 {
   // Do not add the same rule twice.
-  if (!this->Rules.insert(rule.Name).second) {
+  if (!this->Rules.insert(rule.m_name).second) {
     return;
   }
   // Store command length
-  this->RuleCmdLength[rule.Name] = static_cast<int>(rule.m_command.size());
+  this->RuleCmdLength[rule.m_name] = static_cast<int>(rule.m_command.size());
   // Write rule
   cmGlobalNinjaGenerator::WriteRule(*this->RulesFileStream, rule);
 }

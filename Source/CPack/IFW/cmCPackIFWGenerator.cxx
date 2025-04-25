@@ -103,10 +103,10 @@ std::vector<std::string> cmCPackIFWGenerator::BuildRepogenCommand()
   if (!this->OnlineOnly && !this->DownloadedPackages.empty()) {
     ifwCmd.emplace_back("-i");
     auto it = this->DownloadedPackages.begin();
-    std::string ifwArg = (*it)->Name;
+    std::string ifwArg = (*it)->m_name;
     ++it;
     while (it != this->DownloadedPackages.end()) {
-      ifwArg += "," + (*it)->Name;
+      ifwArg += "," + (*it)->m_name;
       ++it;
     }
     ifwCmd.emplace_back(ifwArg);
@@ -238,10 +238,10 @@ std::vector<std::string> cmCPackIFWGenerator::BuildBinaryCreatorCommand()
              !this->Installer.RemoteRepositories.empty()) {
     ifwCmd.emplace_back("-e");
     auto it = this->DownloadedPackages.begin();
-    ifwArg = (*it)->Name;
+    ifwArg = (*it)->m_name;
     ++it;
     while (it != this->DownloadedPackages.end()) {
-      ifwArg += "," + (*it)->Name;
+      ifwArg += "," + (*it)->m_name;
       ++it;
     }
     ifwCmd.emplace_back(ifwArg);
@@ -251,15 +251,15 @@ std::vector<std::string> cmCPackIFWGenerator::BuildBinaryCreatorCommand()
     // Binary
     auto bit = this->BinaryPackages.begin();
     while (bit != this->BinaryPackages.end()) {
-      ifwArg += (*bit)->Name + ",";
+      ifwArg += (*bit)->m_name + ",";
       ++bit;
     }
     // Depend
     auto it = this->DependentPackages.begin();
-    ifwArg += it->second.Name;
+    ifwArg += it->second.m_name;
     ++it;
     while (it != this->DependentPackages.end()) {
-      ifwArg += "," + it->second.Name;
+      ifwArg += "," + it->second.m_name;
       ++it;
     }
     ifwCmd.emplace_back(ifwArg);
@@ -401,7 +401,7 @@ int cmCPackIFWGenerator::InitializeInternal()
 
   // Repository
   this->Repository.Generator = this;
-  this->Repository.Name = "Unspecified";
+  this->Repository.m_name = "Unspecified";
   if (cmValue site = this->GetOption("CPACK_DOWNLOAD_SITE")) {
     this->Repository.Url = *site;
     this->Installer.RemoteRepositories.push_back(&this->Repository);
@@ -512,7 +512,7 @@ cmCPackComponent* cmCPackIFWGenerator::GetComponent(
   }
 
   cmCPackIFWPackage* package = &this->Packages[name];
-  package->Name = name;
+  package->m_name = name;
   package->Generator = this;
   if (package->ConfigureFromComponent(component)) {
     package->Installer = &this->Installer;
@@ -529,7 +529,7 @@ cmCPackComponent* cmCPackIFWGenerator::GetComponent(
     this->Packages.erase(name);
     cmCPackIFWLogger(ERROR,
                      "Cannot configure package \""
-                       << name << "\" for component \"" << component->Name
+                       << name << "\" for component \"" << component->m_name
                        << "\"" << std::endl);
   }
 
@@ -552,7 +552,7 @@ cmCPackComponentGroup* cmCPackIFWGenerator::GetComponentGroup(
   }
 
   cmCPackIFWPackage* package = &this->Packages[name];
-  package->Name = name;
+  package->m_name = name;
   package->Generator = this;
   if (package->ConfigureFromGroup(group)) {
     package->Installer = &this->Installer;
@@ -565,7 +565,7 @@ cmCPackComponentGroup* cmCPackIFWGenerator::GetComponentGroup(
     this->Packages.erase(name);
     cmCPackIFWLogger(ERROR,
                      "Cannot configure package \""
-                       << name << "\" for component group \"" << group->Name
+                       << name << "\" for component group \"" << group->m_name
                        << "\"" << std::endl);
   }
   return group;
@@ -602,7 +602,7 @@ std::string cmCPackIFWGenerator::GetRootPackageName()
     cmCPackIFWPackage package;
     package.Generator = this;
     package.ConfigureFromGroup(*optIFW_PACKAGE_GROUP);
-    name = package.Name;
+    name = package.m_name;
   } else if (cmValue optIFW_PACKAGE_NAME =
                this->GetOption("CPACK_IFW_PACKAGE_NAME")) {
     // Configure from root package name
@@ -622,17 +622,17 @@ std::string cmCPackIFWGenerator::GetGroupPackageName(
     return name;
   }
   if (cmCPackIFWPackage* package = this->GetGroupPackage(group)) {
-    return package->Name;
+    return package->m_name;
   }
   cmValue option =
     this->GetOption("CPACK_IFW_COMPONENT_GROUP_" +
-                    cmsys::SystemTools::UpperCase(group->Name) + "_NAME");
-  name = option ? *option : group->Name;
+                    cmsys::SystemTools::UpperCase(group->m_name) + "_NAME");
+  name = option ? *option : group->m_name;
   if (group->ParentGroup) {
     cmCPackIFWPackage* package = this->GetGroupPackage(group->ParentGroup);
     bool dot = !this->ResolveDuplicateNames;
-    if (dot && !cmHasPrefix(name, package->Name)) {
-      name = package->Name + "." + name;
+    if (dot && !cmHasPrefix(name, package->m_name)) {
+      name = package->m_name + "." + name;
     }
   }
   return name;
@@ -646,22 +646,22 @@ std::string cmCPackIFWGenerator::GetComponentPackageName(
     return name;
   }
   if (cmCPackIFWPackage* package = this->GetComponentPackage(component)) {
-    return package->Name;
+    return package->m_name;
   }
   std::string prefix = "CPACK_IFW_COMPONENT_" +
-    cmsys::SystemTools::UpperCase(component->Name) + "_";
+    cmsys::SystemTools::UpperCase(component->m_name) + "_";
   cmValue option = this->GetOption(prefix + "NAME");
-  name = option ? *option : component->Name;
+  name = option ? *option : component->m_name;
   if (component->Group) {
     cmCPackIFWPackage* package = this->GetGroupPackage(component->Group);
     if ((this->componentPackageMethod ==
          cmCPackGenerator::ONE_PACKAGE_PER_GROUP) ||
         this->IsOn(prefix + "COMMON")) {
-      return package->Name;
+      return package->m_name;
     }
     bool dot = !this->ResolveDuplicateNames;
-    if (dot && !cmHasPrefix(name, package->Name)) {
-      name = package->Name + "." + name;
+    if (dot && !cmHasPrefix(name, package->m_name)) {
+      name = package->m_name + "." + name;
     }
   }
   return name;
@@ -690,7 +690,7 @@ cmCPackIFWRepository* cmCPackIFWGenerator::GetRepository(
   }
 
   cmCPackIFWRepository* repository = &this->Repositories[repositoryName];
-  repository->Name = repositoryName;
+  repository->m_name = repositoryName;
   repository->Generator = this;
   if (repository->ConfigureFromOptions()) {
     if (repository->Update == cmCPackIFWRepository::None) {

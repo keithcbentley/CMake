@@ -463,7 +463,7 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
   bool result;
 
   for (auto const& f : this->Files) {
-    if (cmSystemTools::SameFile(filename, f->Filename)) {
+    if (cmSystemTools::SameFile(filename, f->m_filename)) {
       file = f.get();
       auto fileIt =
         std::find(inProgressFiles.begin(), inProgressFiles.end(), file);
@@ -565,13 +565,13 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
   file = filePtr.get();
   this->Files.emplace_back(std::move(filePtr));
   inProgressFiles.emplace_back(file);
-  file->Filename = filename;
+  file->m_filename = filename;
   file->Version = v;
   file->ReachableFiles.insert(file);
 
   for (auto& preset : presets.ConfigurePresets) {
     preset.OriginFile = file;
-    if (preset.Name.empty()) {
+    if (preset.m_name.empty()) {
       // No error, already handled by PresetNameHelper
       return false;
     }
@@ -579,8 +579,8 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
     PresetPair<ConfigurePreset> presetPair;
     presetPair.Unexpanded = preset;
     presetPair.Expanded = cm::nullopt;
-    if (!this->ConfigurePresets.emplace(preset.Name, presetPair).second) {
-      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.Name, &this->parseState);
+    if (!this->ConfigurePresets.emplace(preset.m_name, presetPair).second) {
+      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.m_name, &this->parseState);
       return false;
     }
 
@@ -617,12 +617,12 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
       return false;
     }
 
-    this->ConfigurePresetOrder.push_back(preset.Name);
+    this->ConfigurePresetOrder.push_back(preset.m_name);
   }
 
   for (auto& preset : presets.BuildPresets) {
     preset.OriginFile = file;
-    if (preset.Name.empty()) {
+    if (preset.m_name.empty()) {
       // No error, already handled by PresetNameHelper
       return false;
     }
@@ -630,8 +630,8 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
     PresetPair<BuildPreset> presetPair;
     presetPair.Unexpanded = preset;
     presetPair.Expanded = cm::nullopt;
-    if (!this->BuildPresets.emplace(preset.Name, presetPair).second) {
-      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.Name, &this->parseState);
+    if (!this->BuildPresets.emplace(preset.m_name, presetPair).second) {
+      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.m_name, &this->parseState);
       return false;
     }
 
@@ -641,12 +641,12 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
       return false;
     }
 
-    this->BuildPresetOrder.push_back(preset.Name);
+    this->BuildPresetOrder.push_back(preset.m_name);
   }
 
   for (auto& preset : presets.TestPresets) {
     preset.OriginFile = file;
-    if (preset.Name.empty()) {
+    if (preset.m_name.empty()) {
       // No error, already handled by PresetNameHelper
       return false;
     }
@@ -654,8 +654,8 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
     PresetPair<TestPreset> presetPair;
     presetPair.Unexpanded = preset;
     presetPair.Expanded = cm::nullopt;
-    if (!this->TestPresets.emplace(preset.Name, presetPair).second) {
-      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.Name, &this->parseState);
+    if (!this->TestPresets.emplace(preset.m_name, presetPair).second) {
+      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.m_name, &this->parseState);
       return false;
     }
 
@@ -678,12 +678,12 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
       return false;
     }
 
-    this->TestPresetOrder.push_back(preset.Name);
+    this->TestPresetOrder.push_back(preset.m_name);
   }
 
   for (auto& preset : presets.PackagePresets) {
     preset.OriginFile = file;
-    if (preset.Name.empty()) {
+    if (preset.m_name.empty()) {
       // No error, already handled by PresetNameHelper
       return false;
     }
@@ -691,20 +691,20 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
     PresetPair<PackagePreset> presetPair;
     presetPair.Unexpanded = preset;
     presetPair.Expanded = cm::nullopt;
-    if (!this->PackagePresets.emplace(preset.Name, presetPair).second) {
-      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.Name, &this->parseState);
+    if (!this->PackagePresets.emplace(preset.m_name, presetPair).second) {
+      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.m_name, &this->parseState);
       return false;
     }
 
     // Support for conditions added in version 3, but this requires version 5
     // already, so no action needed.
 
-    this->PackagePresetOrder.push_back(preset.Name);
+    this->PackagePresetOrder.push_back(preset.m_name);
   }
 
   for (auto& preset : presets.WorkflowPresets) {
     preset.OriginFile = file;
-    if (preset.Name.empty()) {
+    if (preset.m_name.empty()) {
       // No error, already handled by PresetNameHelper
       return false;
     }
@@ -712,15 +712,15 @@ bool cmCMakePresetsGraph::ReadJSONFile(std::string const& filename,
     PresetPair<WorkflowPreset> presetPair;
     presetPair.Unexpanded = preset;
     presetPair.Expanded = cm::nullopt;
-    if (!this->WorkflowPresets.emplace(preset.Name, presetPair).second) {
-      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.Name, &this->parseState);
+    if (!this->WorkflowPresets.emplace(preset.m_name, presetPair).second) {
+      cmCMakePresetsErrors::DUPLICATE_PRESETS(preset.m_name, &this->parseState);
       return false;
     }
 
     // Support for conditions added in version 3, but this requires version 6
     // already, so no action needed.
 
-    this->WorkflowPresetOrder.push_back(preset.Name);
+    this->WorkflowPresetOrder.push_back(preset.m_name);
   }
 
   auto const includeFile = [this, &inProgressFiles,

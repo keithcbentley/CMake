@@ -60,5 +60,5 @@ public:
 private:
   std::string GetJsonContext(Location loc);
   Location LocateInDocument(ptrdiff_t offset);
-  std::string Filename;
+  std::string m_filename;
 };

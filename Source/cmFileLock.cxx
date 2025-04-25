@@ -13,7 +13,7 @@ cmFileLock::cmFileLock(cmFileLock&& other) noexcept
 {
   this->File = other.File;
   other.File = (decltype(other.File))-1;
-  this->Filename = std::move(other.Filename);
+  this->m_filename = std::move(other.m_filename);
 #if defined(_WIN32)
   this->Overlapped = std::move(other.Overlapped);
 #endif
@@ -21,7 +21,7 @@ cmFileLock::cmFileLock(cmFileLock&& other) noexcept
 
 cmFileLock::~cmFileLock()
 {
-  if (!this->Filename.empty()) {
+  if (!this->m_filename.empty()) {
     cmFileLockResult const result = this->Release();
     static_cast<void>(result);
     assert(result.IsOk());
@@ -32,7 +32,7 @@ cmFileLock& cmFileLock::operator=(cmFileLock&& other) noexcept
 {
   this->File = other.File;
   other.File = (decltype(other.File))-1;
-  this->Filename = std::move(other.Filename);
+  this->m_filename = std::move(other.m_filename);
 #if defined(_WIN32)
   this->Overlapped = std::move(other.Overlapped);
 #endif
@@ -49,13 +49,13 @@ cmFileLockResult cmFileLock::Lock(std::string const& filename,
     return cmFileLockResult::MakeInternal();
   }
 
-  if (!this->Filename.empty()) {
+  if (!this->m_filename.empty()) {
     // Error is internal since double-lock must be checked in class
     // cmFileLockPool by the cmFileLock::IsLocked method.
     return cmFileLockResult::MakeInternal();
   }
 
-  this->Filename = filename;
+  this->m_filename = filename;
   cmFileLockResult result = this->OpenFile();
   if (result.IsOk()) {
     if (timeout == static_cast<unsigned long>(-1)) {
@@ -66,7 +66,7 @@ cmFileLockResult cmFileLock::Lock(std::string const& filename,
   }
 
   if (!result.IsOk()) {
-    this->Filename.clear();
+    this->m_filename.clear();
   }
 
   return result;
@@ -74,7 +74,7 @@ cmFileLockResult cmFileLock::Lock(std::string const& filename,
 
 bool cmFileLock::IsLocked(std::string const& filename) const
 {
-  return filename == this->Filename;
+  return filename == this->m_filename;
 }
 
 #if defined(_WIN32)

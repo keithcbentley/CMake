@@ -54,8 +54,10 @@ public:
    * all arguments after the -E are ignored and not searched for
    * help arguments.
    */
-  bool CheckOptions(int argc, char const* const* argv,
-                    char const* exitOpt = nullptr);
+  bool CheckOptions(
+    int argc,
+    char const* const* argv,
+    char const* exitOpt = nullptr);
 
   /**
    * Print help requested on the command line.  Call after
@@ -66,37 +68,55 @@ public:
   bool PrintRequestedDocumentation(std::ostream& os);
 
   /** Print help of the given type.  */
-  bool PrintDocumentation(Type ht, std::ostream& os);
+  bool PrintDocumentation(
+    Type ht,
+    std::ostream& os);
 
-  void SetShowGenerators(bool showGen) { this->ShowGenerators = showGen; }
+  void SetShowGenerators(bool showGen) { this->m_showGenerators = showGen; }
 
   /** Set the program name for standard document generation.  */
   void SetName(std::string const& name);
 
   /** Set a section of the documentation. Typical sections include Name,
       Usage, Description, Options */
-  void SetSection(char const* sectionName, cmDocumentationSection section);
+  void SetSection(
+    char const* sectionName,
+    cmDocumentationSection section);
+
   template <typename Iterable>
-  void SetSection(char const* sectionName, Iterable const& docs)
+  void SetSection(
+    char const* sectionName,
+    Iterable const& docs)
   {
     cmDocumentationSection sec{ sectionName };
     sec.Append(docs);
-    this->SetSection(sectionName, std::move(sec));
+    SetSection(sectionName, std::move(sec));
   }
 
   /** Add the documentation to the beginning/end of the section */
   template <typename Iterable>
-  void PrependSection(char const* sectionName, Iterable const& docs)
+  void PrependSection(
+    char const* sectionName,
+    Iterable const& docs)
   {
-    this->SectionAtName(sectionName).Prepend(docs);
+    SectionAtName(sectionName).Prepend(docs);
   }
-  void PrependSection(char const* sectionName, cmDocumentationEntry& docs);
+
+  void PrependSection(
+    char const* sectionName,
+    cmDocumentationEntry& docs);
+
   template <typename Iterable>
-  void AppendSection(char const* sectionName, Iterable const& docs)
+  void AppendSection(
+    char const* sectionName,
+    Iterable const& docs)
   {
-    this->SectionAtName(sectionName).Append(docs);
+    SectionAtName(sectionName).Append(docs);
   }
-  void AppendSection(char const* sectionName, cmDocumentationEntry& docs);
+
+  void AppendSection(
+    char const* sectionName,
+    cmDocumentationEntry& docs);
 
   /** Add common (to all tools) documentation section(s) */
   void addCommonStandardDocSections();
@@ -111,9 +131,17 @@ public:
   void addCPackStandardDocSections();
 
 private:
-  void GlobHelp(std::vector<std::string>& files, std::string const& pattern);
-  void PrintNames(std::ostream& os, std::string const& pattern);
-  bool PrintFiles(std::ostream& os, std::string const& pattern);
+  void GlobHelp(
+    std::vector<std::string>& files,
+    std::string const& pattern);
+
+  void PrintNames(
+    std::ostream& os,
+    std::string const& pattern);
+
+  bool PrintFiles(
+    std::ostream& os,
+    std::string const& pattern);
 
   bool PrintVersion(std::ostream& os);
   bool PrintUsage(std::ostream& os);
@@ -137,24 +165,27 @@ private:
 
   char const* GetNameString() const;
 
-  bool ShowGenerators;
+  bool m_showGenerators;
 
-  std::string NameString;
-  std::map<std::string, cmDocumentationSection> AllSections;
+  std::string m_nameString;
+  std::map<std::string, cmDocumentationSection> m_allSections;
   cmDocumentationSection& SectionAtName(char const* name);
 
-  std::string CurrentArgument;
+  std::string m_currentArgument;
 
   struct RequestedHelpItem
   {
-    Type HelpType = None;
-    std::string Filename;
-    std::string Argument;
+    Type m_helpType = None;
+    std::string m_filename;
+    std::string m_argument;
   };
 
-  std::vector<RequestedHelpItem> RequestedHelpItems;
-  cmDocumentationFormatter Formatter;
+  std::vector<RequestedHelpItem> m_requestedHelpItems;
+  cmDocumentationFormatter m_formatter;
 
-  static void WarnFormFromFilename(RequestedHelpItem& request, bool& result);
+  static void WarnFormFromFilename(
+    RequestedHelpItem& request,
+    bool& result);
+
   static std::string GeneralizeKeyword(std::string word);
 };

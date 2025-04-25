@@ -18,7 +18,7 @@ class cmCPackInstallationType
 public:
   /// The name of the installation type (used to reference this
   /// installation type).
-  std::string Name;
+  std::string m_name;
 
   /// The name of the installation type as displayed to the user.
   std::string DisplayName;
@@ -43,7 +43,7 @@ public:
   }
 
   /// The name of the component (used to reference the component).
-  std::string Name;
+  std::string m_name;
 
   /// The name of the component as displayed to the user.
   std::string DisplayName;
@@ -117,7 +117,7 @@ public:
   }
 
   /// The name of the group (used to reference the group).
-  std::string Name;
+  std::string m_name;
 
   /// The name of the component as displayed to the user.
   std::string DisplayName;

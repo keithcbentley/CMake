@@ -272,8 +272,8 @@ cmVisualStudio10TargetGenerator::cmVisualStudio10TargetGenerator(
   : GeneratorTarget(target)
   , m_pMakefile(target->Target->GetMakefile())
   , Platform(gg->GetPlatformName())
-  , Name(target->GetName())
-  , GUID(gg->GetGUID(this->Name))
+  , m_name(target->GetName())
+  , GUID(gg->GetGUID(this->m_name))
   , m_pGlobalGenerator(gg)
   , LocalGenerator(
       (cmLocalVisualStudio10Generator*)target->GetLocalGenerator())
@@ -397,12 +397,12 @@ void cmVisualStudio10TargetGenerator::Generate()
   if (this->Android &&
       this->GeneratorTarget->GetType() == cmStateEnums::EXECUTABLE &&
       !this->GeneratorTarget->Target->IsAndroidGuiExecutable()) {
-    this->m_pGlobalGenerator->AddAndroidExecutableWarning(this->Name);
+    this->m_pGlobalGenerator->AddAndroidExecutableWarning(this->m_name);
   }
 
   // Tell the global generator the name of the project file
   this->GeneratorTarget->Target->SetProperty("GENERATOR_FILE_NAME",
-                                             this->Name);
+                                             this->m_name);
   this->GeneratorTarget->Target->SetProperty("GENERATOR_FILE_NAME_EXT",
                                              ProjectFileExtension);
   this->DotNetHintReferences.clear();
@@ -438,7 +438,7 @@ void cmVisualStudio10TargetGenerator::Generate()
   }
   std::string path =
     cmStrCat(this->LocalGenerator->GetCurrentBinaryDirectory(), '/',
-             this->Name, ProjectFileExtension);
+             this->m_name, ProjectFileExtension);
   cmGeneratedFileStream BuildFileStream(path);
   std::string const& PathToProjectFile = path;
   BuildFileStream.SetCopyIfDifferent(true);
@@ -560,7 +560,7 @@ void cmVisualStudio10TargetGenerator::WriteClassicMsBuildProjectFile(
 
       e1.Element("Platform", this->Platform);
       cmValue projLabel = this->GeneratorTarget->GetProperty("PROJECT_LABEL");
-      e1.Element("ProjectName", projLabel ? *projLabel : this->Name);
+      e1.Element("ProjectName", projLabel ? *projLabel : this->m_name);
       {
         cm::optional<std::string> targetFramework;
         cm::optional<std::string> targetFrameworkVersion;
@@ -2014,7 +2014,7 @@ void cmVisualStudio10TargetGenerator::WriteGroups()
 
   // Write out group file
   std::string path = cmStrCat(
-    this->LocalGenerator->GetCurrentBinaryDirectory(), '/', this->Name,
+    this->LocalGenerator->GetCurrentBinaryDirectory(), '/', this->m_name,
     computeProjectFileExtension(this->GeneratorTarget), ".filters");
   cmGeneratedFileStream fout(path);
   fout.SetCopyIfDifferent(true);
@@ -3348,7 +3348,7 @@ bool cmVisualStudio10TargetGenerator::ComputeClOptions(
     this->GeneratorTarget->GetLinkerLanguage(configName);
   if (linkLanguage.empty()) {
     cmSystemTools::Error(cmStrCat(
-      "CMake can not determine linker language for target: ", this->Name));
+      "CMake can not determine linker language for target: ", this->m_name));
     return false;
   }
 
@@ -4457,7 +4457,7 @@ bool cmVisualStudio10TargetGenerator::ComputeLinkOptions(
   std::string const& linkLanguage = linkClosure->LinkerLanguage;
   if (linkLanguage.empty()) {
     cmSystemTools::Error(cmStrCat(
-      "CMake can not determine linker language for target: ", this->Name));
+      "CMake can not determine linker language for target: ", this->m_name));
     return false;
   }
 
@@ -4498,7 +4498,7 @@ bool cmVisualStudio10TargetGenerator::ComputeLinkOptions(
   if (!pcli) {
     cmSystemTools::Error(
       cmStrCat("CMake can not compute cmComputeLinkInformation for target: ",
-               this->Name));
+               this->m_name));
     return false;
   }
   cmComputeLinkInformation& cli = *pcli;
@@ -4677,7 +4677,7 @@ bool cmVisualStudio10TargetGenerator::ComputeLibOptions(
   if (!pcli) {
     cmSystemTools::Error(
       cmStrCat("CMake can not compute cmComputeLinkInformation for target: ",
-               this->Name));
+               this->m_name));
     return false;
   }
 
@@ -5395,7 +5395,7 @@ void cmVisualStudio10TargetGenerator::WriteApplicationTypeSettings(Elem& e1)
                    cmStateEnums::EXECUTABLE) {
         e1.Element("XapOutputs", "true");
         e1.Element("XapFilename",
-                   cmStrCat(this->Name, "_$(Configuration)_$(Platform).xap"));
+                   cmStrCat(this->m_name, "_$(Configuration)_$(Platform).xap"));
       }
     }
   } else if (isAndroid) {

@@ -469,7 +469,7 @@ private:
 
   struct Person
   {
-    std::string Name;
+    std::string m_name;
     std::string EMail;
     unsigned long Time = 0;
     long TimeZone = 0;
@@ -491,7 +491,7 @@ private:
     while (name_last != name_first && cmIsSpace(*(name_last - 1))) {
       --name_last;
     }
-    person.Name.assign(name_first, name_last - name_first);
+    person.m_name.assign(name_first, name_last - name_first);
 
     char const* email_first = *c ? ++c : c;
     while (*c && *c != '>') {
@@ -550,13 +550,13 @@ private:
     } else if (cmHasLiteralPrefix(this->Line, "author ")) {
       Person author;
       this->ParsePerson(this->Line.c_str() + 7, author);
-      this->Rev.Author = author.Name;
+      this->Rev.Author = author.m_name;
       this->Rev.EMail = author.EMail;
       this->Rev.Date = this->FormatDateTime(author);
     } else if (cmHasLiteralPrefix(this->Line, "committer ")) {
       Person committer;
       this->ParsePerson(this->Line.c_str() + 10, committer);
-      this->Rev.Committer = committer.Name;
+      this->Rev.Committer = committer.m_name;
       this->Rev.CommitterEMail = committer.EMail;
       this->Rev.CommitDate = this->FormatDateTime(committer);
     }

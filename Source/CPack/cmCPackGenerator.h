@@ -298,7 +298,7 @@ protected:
     std::string const& projectName, std::string const& name);
 
   cmSystemTools::OutputOption GeneratorVerbose;
-  std::string Name;
+  std::string m_name;
 
   std::string InstallPath;
 

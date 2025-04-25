@@ -86,7 +86,7 @@ bool cmExportBuildCMakeConfigGenerator::GenerateMainFile(std::ostream& os)
     cmCryptoHash hasher(cmCryptoHash::AlgoSHA3_512);
     constexpr std::size_t HASH_TRUNCATION = 12;
     for (auto const& target : this->m_targets) {
-      hasher.Append(target.Name);
+      hasher.Append(target.m_name);
     }
     cxx_modules_name = hasher.FinalizeHex().substr(0, HASH_TRUNCATION);
   }

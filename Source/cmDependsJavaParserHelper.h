@@ -60,7 +60,7 @@ private:
   class CurrentClass
   {
   public:
-    std::string Name;
+    std::string m_name;
     std::vector<CurrentClass> NestedClasses;
     void AddFileNamesForPrinting(std::vector<std::string>* files,
                                  char const* prefix, char const* sep) const;

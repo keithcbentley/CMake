@@ -40,7 +40,7 @@ cmGhsMultiTargetGenerator::cmGhsMultiTargetGenerator(cmGeneratorTarget* target)
   , LocalGenerator(
       static_cast<cmLocalGhsMultiGenerator*>(target->GetLocalGenerator()))
   , m_pMakefile(target->Target->GetMakefile())
-  , Name(target->GetName())
+  , m_name(target->GetName())
 {
   // Store the configuration name that is being used
   if (cmValue config = this->m_pMakefile->GetDefinition("CMAKE_BUILD_TYPE")) {
@@ -77,7 +77,7 @@ void cmGhsMultiTargetGenerator::Generate()
     }
     case cmStateEnums::SHARED_LIBRARY: {
       std::string msg =
-        cmStrCat("add_library(<name> SHARED ...) not supported: ", this->Name);
+        cmStrCat("add_library(<name> SHARED ...) not supported: ", this->m_name);
       cmSystemTools::Message(msg);
       return;
     }
@@ -89,7 +89,7 @@ void cmGhsMultiTargetGenerator::Generate()
     }
     case cmStateEnums::MODULE_LIBRARY: {
       std::string msg =
-        cmStrCat("add_library(<name> MODULE ...) not supported: ", this->Name);
+        cmStrCat("add_library(<name> MODULE ...) not supported: ", this->m_name);
       cmSystemTools::Message(msg);
       return;
     }
@@ -134,7 +134,7 @@ void cmGhsMultiTargetGenerator::GenerateTarget()
   std::string fproj =
     cmStrCat(this->LocalGenerator->GetCurrentBinaryDirectory(), '/',
              this->LocalGenerator->GetTargetDirectory(this->GeneratorTarget),
-             '/', this->Name, cmGlobalGhsMultiGenerator::FILE_EXTENSION);
+             '/', this->m_name, cmGlobalGhsMultiGenerator::FILE_EXTENSION);
 
   // Tell the global generator the name of the project file
   this->GeneratorTarget->Target->SetProperty("GENERATOR_FILE_NAME", fproj);
@@ -389,7 +389,7 @@ void cmGhsMultiTargetGenerator::WriteBuildEventsHelper(
     std::string fname =
       cmStrCat(this->LocalGenerator->GetCurrentBinaryDirectory(), '/',
                this->LocalGenerator->GetTargetDirectory(this->GeneratorTarget),
-               '/', this->Name, '_', name, cmdcount++, fext);
+               '/', this->m_name, '_', name, cmdcount++, fext);
 
     cmGeneratedFileStream f(fname);
     f.SetCopyIfDifferent(true);
@@ -682,7 +682,7 @@ void cmGhsMultiTargetGenerator::WriteSources(std::ostream& fout_proj)
          */
         for (auto sf = customCommands.begin(); sf != customCommands.end();
              ++sf) {
-          if (((*sf)->GetLocation()).GetName() == this->Name + ".rule") {
+          if (((*sf)->GetLocation()).GetName() == this->m_name + ".rule") {
             std::rotate(sf, sf + 1, customCommands.end());
             break;
           }
@@ -702,7 +702,7 @@ void cmGhsMultiTargetGenerator::WriteSources(std::ostream& fout_proj)
           std::string fname = cmStrCat(
             this->LocalGenerator->GetCurrentBinaryDirectory(), '/',
             this->LocalGenerator->GetTargetDirectory(this->GeneratorTarget),
-            '/', this->Name, "_cc", cmdcount++, '_',
+            '/', this->m_name, "_cc", cmdcount++, '_',
             (sf->GetLocation()).GetName(), fext);
 
           cmGeneratedFileStream f(fname);

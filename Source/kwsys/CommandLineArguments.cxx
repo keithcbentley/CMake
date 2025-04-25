@@ -42,7 +42,7 @@ namespace KWSYS_NAMESPACE {
 
 struct CommandLineArgumentsCallbackStructure
 {
-  char const* Argument;
+  char const* m_argument;
   int ArgumentType;
   CommandLineArguments::CallbackType Callback;
   void* CallData;
@@ -175,7 +175,7 @@ int CommandLineArguments::Parse()
       CommandLineArgumentsCallbackStructure* cs =
         &this->Internals->Callbacks[matches[maxidx]];
       std::string const& sarg = matches[maxidx];
-      if (cs->Argument != sarg) {
+      if (cs->m_argument != sarg) {
         abort();
       }
       switch (cs->ArgumentType) {
@@ -329,7 +329,7 @@ void CommandLineArguments::AddCallback(char const* argument,
                                        char const* help)
 {
   CommandLineArgumentsCallbackStructure s;
-  s.Argument = argument;
+  s.m_argument = argument;
   s.ArgumentType = type;
   s.Callback = callback;
   s.CallData = call_data;
@@ -347,7 +347,7 @@ void CommandLineArguments::AddArgument(char const* argument,
                                        char const* help)
 {
   CommandLineArgumentsCallbackStructure s;
-  s.Argument = argument;
+  s.m_argument = argument;
   s.ArgumentType = type;
   s.Callback = nullptr;
   s.CallData = nullptr;
@@ -702,12 +702,12 @@ bool CommandLineArguments::PopulateVariable(
 {
   // Call the callback
   if (cs->Callback) {
-    if (!cs->Callback(cs->Argument, value, cs->CallData)) {
+    if (!cs->Callback(cs->m_argument, value, cs->CallData)) {
       this->Internals->LastArgument--;
       return false;
     }
   }
-  CommandLineArguments_DEBUG("Set argument: " << cs->Argument << " to "
+  CommandLineArguments_DEBUG("Set argument: " << cs->m_argument << " to "
                                               << value);
   if (cs->Variable) {
     std::string var = "1";

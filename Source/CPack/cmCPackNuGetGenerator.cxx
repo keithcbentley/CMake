@@ -80,7 +80,7 @@ void cmCPackNuGetGenerator::SetupGroupComponentVariables(bool ignoreGroup)
       std::transform(begin(compG.second.Components),
                      end(compG.second.Components),
                      std::back_inserter(components),
-                     [](cmCPackComponent const* comp) { return comp->Name; });
+                     [](cmCPackComponent const* comp) { return comp->m_name; });
       this->SetOption("CPACK_NUGET_" + compGUp + "_GROUP_COMPONENTS",
                       cmList::to_string(components));
     }
@@ -96,7 +96,7 @@ void cmCPackNuGetGenerator::SetupGroupComponentVariables(bool ignoreGroup)
         cmCPackLogger(
           cmCPackLog::LOG_VERBOSE,
           "Component <"
-            << comp.second.Name
+            << comp.second.m_name
             << "> does not belong to any group, package it separately."
             << std::endl);
         components.push_back(comp.first);

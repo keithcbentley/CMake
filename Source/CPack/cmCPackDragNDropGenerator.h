@@ -48,7 +48,7 @@ private:
 
   struct RezDict
   {
-    std::string Name;
+    std::string m_name;
     size_t ID;
     std::vector<unsigned char> Data;
   };

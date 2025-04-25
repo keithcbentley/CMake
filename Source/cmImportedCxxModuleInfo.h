@@ -10,7 +10,7 @@
 
 struct ImportedCxxModuleInfo
 {
-  std::string const Name;
+  std::string const m_name;
   std::vector<std::string> const AvailableBmis;
 };
 

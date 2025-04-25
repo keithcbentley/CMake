@@ -44,7 +44,7 @@ cmCPackIFWPackage::DependenceStruct::DependenceStruct(
   }
 
   if (pos != std::string::npos) {
-    this->Name = dependence.substr(0, pos);
+    this->m_name = dependence.substr(0, pos);
     ++pos;
     if (pos == dependence.size()) {
       // Nothing after the separator. Treat this as no version constraint.
@@ -78,14 +78,14 @@ cmCPackIFWPackage::DependenceStruct::DependenceStruct(
       this->Compare.Value = std::string(versionPart);
     }
   } else {
-    this->Name = dependence;
+    this->m_name = dependence;
   }
 }
 
 std::string cmCPackIFWPackage::DependenceStruct::NameWithCompare() const
 {
-  std::string result = this->Name;
-  if (this->Name.find('-') != std::string::npos) {
+  std::string result = this->m_name;
+  if (this->m_name.find('-') != std::string::npos) {
     // When a name contains a hyphen, we must use a colon after the name to
     // prevent the hyphen from being parsed by QtIFW as the separator between
     // the name and the version. Note that a colon is only supported with
@@ -128,8 +128,8 @@ std::string cmCPackIFWPackage::GetComponentName(cmCPackComponent* component)
   }
   cmValue option =
     this->GetOption("CPACK_IFW_COMPONENT_" +
-                    cmsys::SystemTools::UpperCase(component->Name) + "_NAME");
-  return option ? *option : component->Name;
+                    cmsys::SystemTools::UpperCase(component->m_name) + "_NAME");
+  return option ? *option : component->m_name;
 }
 
 void cmCPackIFWPackage::DefaultConfiguration()
@@ -158,7 +158,7 @@ int cmCPackIFWPackage::ConfigureFromOptions()
   this->DefaultConfiguration();
 
   // Name
-  this->Name = this->Generator->GetRootPackageName();
+  this->m_name = this->Generator->GetRootPackageName();
 
   // Display name
   if (cmValue option = this->GetOption("CPACK_PACKAGE_NAME")) {
@@ -196,7 +196,7 @@ int cmCPackIFWPackage::ConfigureFromComponent(cmCPackComponent* component)
   this->DefaultConfiguration();
 
   std::string prefix = "CPACK_IFW_COMPONENT_" +
-    cmsys::SystemTools::UpperCase(component->Name) + "_";
+    cmsys::SystemTools::UpperCase(component->m_name) + "_";
 
   // Display name
   this->DisplayName[""] = component->DisplayName;
@@ -252,7 +252,7 @@ int cmCPackIFWPackage::ConfigureFromComponent(cmCPackComponent* component)
     cmCPackIFWLogger(
       WARNING,
       "The \"PRIORITY\" option is set "
-        << "for component \"" << component->Name << "\", but there option is "
+        << "for component \"" << component->m_name << "\", but there option is "
         << "deprecated. Please use \"SORTING_PRIORITY\" option instead."
         << std::endl);
   }
@@ -284,7 +284,7 @@ int cmCPackIFWPackage::ConfigureFromGroup(cmCPackComponentGroup* group)
   this->DefaultConfiguration();
 
   std::string prefix = "CPACK_IFW_COMPONENT_GROUP_" +
-    cmsys::SystemTools::UpperCase(group->Name) + "_";
+    cmsys::SystemTools::UpperCase(group->m_name) + "_";
 
   this->DisplayName[""] = group->DisplayName;
   this->Description[""] = group->Description;
@@ -330,7 +330,7 @@ int cmCPackIFWPackage::ConfigureFromGroup(cmCPackComponentGroup* group)
     cmCPackIFWLogger(
       WARNING,
       "The \"PRIORITY\" option is set "
-        << "for component group \"" << group->Name
+        << "for component group \"" << group->m_name
         << "\", but there option is "
         << "deprecated. Please use \"SORTING_PRIORITY\" option instead."
         << std::endl);
@@ -350,7 +350,7 @@ int cmCPackIFWPackage::ConfigureFromGroup(std::string const& groupName)
   if (cmValue option = this->GetOption(prefix + "DISPLAY_NAME")) {
     group.DisplayName = *option;
   } else {
-    group.DisplayName = group.Name;
+    group.DisplayName = group.m_name;
   }
 
   if (cmValue option = this->GetOption(prefix + "DESCRIPTION")) {
@@ -361,12 +361,12 @@ int cmCPackIFWPackage::ConfigureFromGroup(std::string const& groupName)
 
   // Package configuration
 
-  group.Name = groupName;
+  group.m_name = groupName;
 
   if (this->Generator) {
-    this->Name = this->Generator->GetGroupPackageName(&group);
+    this->m_name = this->Generator->GetGroupPackageName(&group);
   } else {
-    this->Name = group.Name;
+    this->m_name = group.m_name;
   }
 
   return this->ConfigureFromGroup(&group);
@@ -439,12 +439,12 @@ int cmCPackIFWPackage::ConfigureFromPrefix(std::string const& prefix)
   }
   for (auto const& d : deps) {
     DependenceStruct dep(d);
-    if (this->Generator->Packages.count(dep.Name)) {
-      cmCPackIFWPackage& depPkg = this->Generator->Packages[dep.Name];
-      dep.Name = depPkg.Name;
+    if (this->Generator->Packages.count(dep.m_name)) {
+      cmCPackIFWPackage& depPkg = this->Generator->Packages[dep.m_name];
+      dep.m_name = depPkg.m_name;
     }
-    bool hasDep = this->Generator->DependentPackages.count(dep.Name) > 0;
-    DependenceStruct& depRef = this->Generator->DependentPackages[dep.Name];
+    bool hasDep = this->Generator->DependentPackages.count(dep.m_name) > 0;
+    DependenceStruct& depRef = this->Generator->DependentPackages[dep.m_name];
     if (!hasDep) {
       depRef = dep;
     }
@@ -459,12 +459,12 @@ int cmCPackIFWPackage::ConfigureFromPrefix(std::string const& prefix)
     cmList depsOn{ value };
     for (std::string const& d : depsOn) {
       DependenceStruct dep(d);
-      if (this->Generator->Packages.count(dep.Name)) {
-        cmCPackIFWPackage& depPkg = this->Generator->Packages[dep.Name];
-        dep.Name = depPkg.Name;
+      if (this->Generator->Packages.count(dep.m_name)) {
+        cmCPackIFWPackage& depPkg = this->Generator->Packages[dep.m_name];
+        dep.m_name = depPkg.m_name;
       }
-      bool hasDep = this->Generator->DependentPackages.count(dep.Name) > 0;
-      DependenceStruct& depRef = this->Generator->DependentPackages[dep.Name];
+      bool hasDep = this->Generator->DependentPackages.count(dep.m_name) > 0;
+      DependenceStruct& depRef = this->Generator->DependentPackages[dep.m_name];
       if (!hasDep) {
         depRef = dep;
       }
@@ -544,9 +544,9 @@ void cmCPackIFWPackage::GeneratePackageFile()
   // Lazy directory initialization
   if (this->Directory.empty()) {
     if (this->Installer) {
-      this->Directory = this->Installer->Directory + "/packages/" + this->Name;
+      this->Directory = this->Installer->Directory + "/packages/" + this->m_name;
     } else if (this->Generator) {
-      this->Directory = this->Generator->toplevel + "/packages/" + this->Name;
+      this->Directory = this->Generator->toplevel + "/packages/" + this->m_name;
     }
   }
 
@@ -585,7 +585,7 @@ void cmCPackIFWPackage::GeneratePackageFile()
     xout.Element("UpdateText", this->UpdateText);
   }
 
-  xout.Element("Name", this->Name);
+  xout.Element("Name", this->m_name);
   xout.Element("Version", this->Version);
 
   if (!this->ReleaseDate.empty()) {
@@ -643,19 +643,19 @@ void cmCPackIFWPackage::GeneratePackageFile()
     compDepSet.insert(*ad);
   }
   for (cmCPackIFWPackage* d : this->Dependencies) {
-    compDepSet.insert(DependenceStruct(d->Name));
+    compDepSet.insert(DependenceStruct(d->m_name));
   }
   // Write dependencies
   if (!compDepSet.empty()) {
     std::ostringstream dependencies;
     auto it = compDepSet.begin();
     warnUnsupportedNames |=
-      hyphensInNamesUnsupported && it->Name.find('-') != std::string::npos;
+      hyphensInNamesUnsupported && it->m_name.find('-') != std::string::npos;
     dependencies << it->NameWithCompare();
     ++it;
     while (it != compDepSet.end()) {
       warnUnsupportedNames |=
-        hyphensInNamesUnsupported && it->Name.find('-') != std::string::npos;
+        hyphensInNamesUnsupported && it->m_name.find('-') != std::string::npos;
       dependencies << "," << it->NameWithCompare();
       ++it;
     }
@@ -672,12 +672,12 @@ void cmCPackIFWPackage::GeneratePackageFile()
     std::ostringstream dependencies;
     auto it = compAutoDepSet.begin();
     warnUnsupportedNames |=
-      hyphensInNamesUnsupported && it->Name.find('-') != std::string::npos;
+      hyphensInNamesUnsupported && it->m_name.find('-') != std::string::npos;
     dependencies << it->NameWithCompare();
     ++it;
     while (it != compAutoDepSet.end()) {
       warnUnsupportedNames |=
-        hyphensInNamesUnsupported && it->Name.find('-') != std::string::npos;
+        hyphensInNamesUnsupported && it->m_name.find('-') != std::string::npos;
       dependencies << "," << it->NameWithCompare();
       ++it;
     }
@@ -688,7 +688,7 @@ void cmCPackIFWPackage::GeneratePackageFile()
     cmCPackIFWLogger(
       WARNING,
       "The dependencies for component \""
-        << this->Name << "\" specify names that contain hyphens. "
+        << this->m_name << "\" specify names that contain hyphens. "
         << "This requires QtIFW 3.1 or later, but you are using version "
         << this->Generator->FrameworkVersion << std::endl);
   }

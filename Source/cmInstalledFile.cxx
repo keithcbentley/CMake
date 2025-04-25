@@ -23,13 +23,13 @@ void cmInstalledFile::SetName(cmMakefile* mf, std::string const& name)
   cmListFileBacktrace backtrace = mf->GetBacktrace();
   cmGeneratorExpression ge(*mf->GetCMakeInstance(), backtrace);
 
-  this->Name = name;
+  this->m_name = name;
   this->NameExpression = ge.Parse(name);
 }
 
 std::string const& cmInstalledFile::GetName() const
 {
-  return this->Name;
+  return this->m_name;
 }
 
 cmCompiledGeneratorExpression const& cmInstalledFile::GetNameExpression() const

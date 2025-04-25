@@ -582,14 +582,14 @@ void cmCTestTestHandler::LogDisabledTests(
     cmCTestLog(this->CTest, HANDLER_OUTPUT,
                this->CTest->GetColorCode(cmCTest::Color::BLUE));
     for (cmCTestTestResult const& dt : disabledTests) {
-      ofs << dt.TestCount << ":" << dt.Name << std::endl;
+      ofs << dt.TestCount << ":" << dt.m_name << std::endl;
       if (dt.CompletionStatus == "Disabled") {
         disabled_reason = "Disabled";
       } else {
         disabled_reason = "Skipped";
       }
       cmCTestLog(this->CTest, HANDLER_OUTPUT,
-                 "\t" << std::setw(3) << dt.TestCount << " - " << dt.Name
+                 "\t" << std::setw(3) << dt.TestCount << " - " << dt.m_name
                       << " (" << disabled_reason << ")" << std::endl);
     }
     cmCTestLog(this->CTest, HANDLER_OUTPUT,
@@ -611,13 +611,13 @@ void cmCTestTestHandler::LogFailedTests(std::vector<std::string> const& failed,
       if (ft.Status != cmCTestTestHandler::COMPLETED &&
           !cmHasLiteralPrefix(ft.CompletionStatus, "SKIP_") &&
           ft.CompletionStatus != "Disabled") {
-        ofs << ft.TestCount << ":" << ft.Name << std::endl;
+        ofs << ft.TestCount << ":" << ft.m_name << std::endl;
         auto testColor = cmCTest::Color::RED;
         if (this->GetTestStatus(ft) == "Not Run") {
           testColor = cmCTest::Color::YELLOW;
         }
         std::string ft_name_and_status =
-          cmStrCat(ft.Name, " (", this->GetTestStatus(ft), ")");
+          cmStrCat(ft.m_name, " (", this->GetTestStatus(ft), ")");
         std::string labels;
         cmCTestTestProperties const& p = *ft.Properties;
         if (!p.Labels.empty()) {
@@ -882,14 +882,14 @@ bool cmCTestTestHandler::ComputeTestList()
     }
 
     if (this->TestsToRunByName) {
-      if (this->TestsToRunByName->find(tp.Name) ==
+      if (this->TestsToRunByName->find(tp.m_name) ==
           this->TestsToRunByName->end()) {
         continue;
       }
     }
 
     if (this->TestsToExcludeByName) {
-      if (this->TestsToExcludeByName->find(tp.Name) !=
+      if (this->TestsToExcludeByName->find(tp.m_name) !=
           this->TestsToExcludeByName->end()) {
         continue;
       }
@@ -994,7 +994,7 @@ void cmCTestTestHandler::UpdateForFixtures(ListOfTests& tests) const
   // Prepare fast lookup of tests already included in our list of tests
   std::set<std::string> addedTests;
   for (cmCTestTestProperties const& p : tests) {
-    addedTests.insert(p.Name);
+    addedTests.insert(p.m_name);
   }
 
   // These are lookups of fixture name to a list of indices into the final
@@ -1041,7 +1041,7 @@ void cmCTestTestHandler::UpdateForFixtures(ListOfTests& tests) const
       std::pair<FixtureDepsIterator, FixtureDepsIterator> setupRange =
         fixtureSetups.equal_range(requiredFixtureName);
       for (auto sIt = setupRange.first; sIt != setupRange.second; ++sIt) {
-        std::string const& setupTestName = sIt->second->Name;
+        std::string const& setupTestName = sIt->second->m_name;
         tests[i].RequireSuccessDepends.insert(setupTestName);
         if (!cm::contains(tests[i].Depends, setupTestName)) {
           tests[i].Depends.push_back(setupTestName);
@@ -1067,7 +1067,7 @@ void cmCTestTestHandler::UpdateForFixtures(ListOfTests& tests) const
           ListOfTests::const_iterator lotIt = it->second;
           cmCTestTestProperties const& p = *lotIt;
 
-          if (!addedTests.insert(p.Name).second) {
+          if (!addedTests.insert(p.m_name).second) {
             // Already have p in our test list
             continue;
           }
@@ -1083,7 +1083,7 @@ void cmCTestTestHandler::UpdateForFixtures(ListOfTests& tests) const
 
           cmCTestOptionalLog(this->CTest, HANDLER_VERBOSE_OUTPUT,
                              "Added setup test "
-                               << p.Name << " required by fixture "
+                               << p.m_name << " required by fixture "
                                << requiredFixtureName << std::endl,
                              this->Quiet);
         }
@@ -1098,7 +1098,7 @@ void cmCTestTestHandler::UpdateForFixtures(ListOfTests& tests) const
           ListOfTests::const_iterator lotIt = it->second;
           cmCTestTestProperties const& p = *lotIt;
 
-          if (!addedTests.insert(p.Name).second) {
+          if (!addedTests.insert(p.m_name).second) {
             // Already have p in our test list
             continue;
           }
@@ -1114,7 +1114,7 @@ void cmCTestTestHandler::UpdateForFixtures(ListOfTests& tests) const
 
           cmCTestOptionalLog(this->CTest, HANDLER_VERBOSE_OUTPUT,
                              "Added cleanup test "
-                               << p.Name << " required by fixture "
+                               << p.m_name << " required by fixture "
                                << requiredFixtureName << std::endl,
                              this->Quiet);
         }
@@ -1146,7 +1146,7 @@ void cmCTestTestHandler::UpdateForFixtures(ListOfTests& tests) const
       if (cIt != fixtureRequirements.end()) {
         std::vector<size_t> const& indices = cIt->second;
         for (size_t index : indices) {
-          std::string const& reqTestName = tests[index].Name;
+          std::string const& reqTestName = tests[index].m_name;
           if (!cm::contains(p.Depends, reqTestName)) {
             p.Depends.push_back(reqTestName);
           }
@@ -1159,7 +1159,7 @@ void cmCTestTestHandler::UpdateForFixtures(ListOfTests& tests) const
       if (cIt != setupFixturesAdded.end()) {
         std::vector<size_t> const& indices = cIt->second;
         for (size_t index : indices) {
-          std::string const& setupTestName = tests[index].Name;
+          std::string const& setupTestName = tests[index].m_name;
           if (!cm::contains(p.Depends, setupTestName)) {
             p.Depends.push_back(setupTestName);
           }
@@ -1179,8 +1179,8 @@ void cmCTestTestHandler::UpdateMaxTestNameWidth()
 {
   std::string::size_type max = this->CTest->GetMaxTestNameWidth();
   for (cmCTestTestProperties& p : this->TestList) {
-    if (max < p.Name.size()) {
-      max = p.Name.size();
+    if (max < p.m_name.size()) {
+      max = p.m_name.size();
     }
   }
   if (static_cast<std::string::size_type>(
@@ -1344,7 +1344,7 @@ bool cmCTestTestHandler::ProcessDirectory(std::vector<std::string>& passed,
     if (!p.Depends.empty()) {
       for (std::string const& i : p.Depends) {
         for (cmCTestTestProperties const& it2 : this->TestList) {
-          if (it2.Name == i) {
+          if (it2.m_name == i) {
             depends.insert(it2.Index);
             break; // break out of test loop as name can only match 1
           }
@@ -1400,7 +1400,7 @@ void cmCTestTestHandler::GenerateCTestXML(cmXMLWriter& xml)
   xml.Element("StartTestTime", this->StartTestTime);
   xml.StartElement("TestList");
   for (cmCTestTestResult const& result : this->TestResults) {
-    std::string testPath = result.Path + "/" + result.Name;
+    std::string testPath = result.Path + "/" + result.m_name;
     xml.Element("Test", this->CTest->GetShortPathToFile(testPath));
   }
   xml.EndElement(); // TestList
@@ -1520,8 +1520,8 @@ void cmCTestTestHandler::WriteTestResultHeader(cmXMLWriter& xml,
   } else {
     xml.Attribute("Status", "failed");
   }
-  std::string testPath = result.Path + "/" + result.Name;
-  xml.Element("Name", result.Name);
+  std::string testPath = result.Path + "/" + result.m_name;
+  xml.Element("Name", result.m_name);
   xml.Element("Path", this->CTest->GetShortPathToFile(result.Path));
   xml.Element("FullName", this->CTest->GetShortPathToFile(testPath));
   xml.Element("FullCommandLine", result.FullCommandLine);
@@ -2195,7 +2195,7 @@ bool cmCTestTestHandler::SetTestsProperties(
     std::string const& val = *it;
     for (std::string const& t : tests) {
       for (cmCTestTestProperties& rt : this->TestList) {
-        if (t == rt.Name) {
+        if (t == rt.m_name) {
           if (key == "_BACKTRACE_TRIPLES"_s) {
             // allow empty args in the triples
             cmList triples{ val, cmList::EmptyElements::Yes };
@@ -2215,7 +2215,7 @@ bool cmCTestTestHandler::SetTestsProperties(
                   line = 0;
                 }
                 fc.Line = line;
-                fc.Name = triples[i - 1];
+                fc.m_name = triples[i - 1];
                 rt.m_backtrace = rt.m_backtrace.Push(fc);
               }
             }
@@ -2467,7 +2467,7 @@ bool cmCTestTestHandler::AddTest(std::vector<std::string> const& args)
   }
 
   cmCTestTestProperties test;
-  test.Name = testname;
+  test.m_name = testname;
   test.Args = args;
   test.Directory = cmSystemTools::GetLogicalWorkingDirectory();
   cmCTestOptionalLog(this->CTest, DEBUG,
@@ -2577,8 +2577,8 @@ bool cmCTestTestHandler::WriteJUnitXML()
   // Write <testcase> elements.
   for (cmCTestTestResult const& result : resultsSet) {
     xml.StartElement("testcase");
-    xml.Attribute("name", result.Name);
-    xml.Attribute("classname", result.Name);
+    xml.Attribute("name", result.m_name);
+    xml.Attribute("classname", result.m_name);
     xml.Attribute("time", result.ExecutionTime.count());
 
     std::string status;

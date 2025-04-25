@@ -52,8 +52,8 @@ public:
   //! Generate the project files, the Makefiles have already been generated
   virtual void Generate() = 0;
 
-  void SetName(std::string const& n) { this->Name = n; }
-  std::string GetName() const { return this->Name; }
+  void SetName(std::string const& n) { this->m_name = n; }
+  std::string GetName() const { return this->m_name; }
 
   virtual bool Open(std::string const& bindir, std::string const& projectName,
                     bool dryRun);
@@ -64,7 +64,7 @@ protected:
   //! the global generator which creates the makefiles
   cmGlobalGenerator const* m_pGlobalGenerator = nullptr;
 
-  std::string Name;
+  std::string m_name;
 };
 
 class cmExternalMakefileProjectGeneratorFactory
@@ -84,7 +84,7 @@ public:
   void AddSupportedGlobalGenerator(std::string const& base);
 
 private:
-  std::string Name;
+  std::string m_name;
   std::string Documentation;
   std::vector<std::string> SupportedGlobalGenerators;
 };

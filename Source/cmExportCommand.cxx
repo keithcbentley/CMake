@@ -68,7 +68,7 @@ bool cmExportCommand(std::vector<std::string> const& args,
     cm::optional<ArgumentParser::MaybeEmpty<std::vector<std::string>>> m_targets;
     ArgumentParser::NonEmpty<std::string> ExportSetName;
     ArgumentParser::NonEmpty<std::string> Namespace;
-    ArgumentParser::NonEmpty<std::string> Filename;
+    ArgumentParser::NonEmpty<std::string> m_filename;
     ArgumentParser::NonEmpty<std::string> AndroidMKFile;
     ArgumentParser::NonEmpty<std::string> PackageName;
     ArgumentParser::NonEmpty<std::string> Appendix;
@@ -91,7 +91,7 @@ bool cmExportCommand(std::vector<std::string> const& args,
   auto parser =
     cmArgumentParser<Arguments>{}
       .Bind("NAMESPACE"_s, &Arguments::Namespace)
-      .Bind("FILE"_s, &Arguments::Filename)
+      .Bind("FILE"_s, &Arguments::m_filename)
       .Bind("CXX_MODULES_DIRECTORY"_s, &Arguments::CxxModulesDirectory);
 
   if (args[0] == "EXPORT") {
@@ -243,7 +243,7 @@ bool cmExportCommand(std::vector<std::string> const& args,
       return false;
     }
   } else {
-    if (!arguments.Filename.empty()) {
+    if (!arguments.m_filename.empty()) {
       status.SetError("PACKAGE_INFO and FILE are mutually exclusive.");
       return false;
     }
@@ -285,7 +285,7 @@ bool cmExportCommand(std::vector<std::string> const& args,
   if (!arguments.AndroidMKFile.empty()) {
     fname = arguments.AndroidMKFile;
     android = true;
-  } else if (arguments.Filename.empty()) {
+  } else if (arguments.m_filename.empty()) {
     if (args[0] != "EXPORT") {
       status.SetError("FILE <filename> option missing.");
       return false;
@@ -314,15 +314,15 @@ bool cmExportCommand(std::vector<std::string> const& args,
     }
   } else {
     // Make sure the file has a .cmake extension.
-    if (cmSystemTools::GetFilenameLastExtension(arguments.Filename) !=
+    if (cmSystemTools::GetFilenameLastExtension(arguments.m_filename) !=
         ".cmake") {
       std::ostringstream e;
-      e << "FILE option given filename \"" << arguments.Filename
+      e << "FILE option given filename \"" << arguments.m_filename
         << "\" which does not have an extension of \".cmake\".\n";
       status.SetError(e.str());
       return false;
     }
-    fname = arguments.Filename;
+    fname = arguments.m_filename;
   }
 
   cmMakefile& mf = status.GetMakefile();
@@ -409,13 +409,13 @@ bool cmExportCommand(std::vector<std::string> const& args,
           MessageType::AUTHOR_WARNING,
           cmStrCat(cmPolicies::GetPolicyWarning(cmPolicies::CMP0103), '\n',
                    "export() command already specified for the file\n  ",
-                   arguments.Filename, "\nDid you miss 'APPEND' keyword?"));
+                   arguments.m_filename, "\nDid you miss 'APPEND' keyword?"));
         CM_FALLTHROUGH;
       case cmPolicies::OLD:
         break;
       default:
         status.SetError(cmStrCat("command already specified for the file\n  ",
-                                 arguments.Filename,
+                                 arguments.m_filename,
                                  "\nDid you miss 'APPEND' keyword?"));
         return false;
     }

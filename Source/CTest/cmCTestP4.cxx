@@ -94,7 +94,7 @@ private:
 
       NewUser.UserName = this->RegexUser.match(1);
       NewUser.EMail = this->RegexUser.match(2);
-      NewUser.Name = this->RegexUser.match(3);
+      NewUser.m_name = this->RegexUser.match(3);
       NewUser.AccessTime = this->RegexUser.match(4);
       this->P4->Users[this->RegexUser.match(1)] = NewUser;
 
@@ -258,7 +258,7 @@ private:
       this->Rev.Date = this->RegexHeader.match(4);
 
       cmCTestP4::User user = this->P4->GetUserData(this->RegexHeader.match(2));
-      this->Rev.Author = user.Name;
+      this->Rev.Author = user.m_name;
       this->Rev.EMail = user.EMail;
 
       this->Rev.Committer = this->Rev.Author;

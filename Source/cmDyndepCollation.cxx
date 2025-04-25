@@ -313,7 +313,7 @@ Json::Value CollationInformationExports(cmGeneratorTarget const* gt)
     bool has_current_target =
       std::any_of(targets.begin(), targets.end(),
                   [name](cmExportBuildFileGenerator::TargetExport const& te) {
-                    return te.Name == name;
+                    return te.m_name == name;
                   });
     if (!has_current_target) {
       continue;
@@ -364,7 +364,7 @@ struct SourceInfo
 
 struct CxxModuleFileSet
 {
-  std::string Name;
+  std::string m_name;
   bool BmiOnly = false;
   std::string RelativeDirectory;
   std::string SourcePath;
@@ -392,7 +392,7 @@ struct CxxModuleBmiInstall
 
 struct CxxModuleExport
 {
-  std::string Name;
+  std::string m_name;
   std::string FilesystemName;
   std::string Destination;
   std::string Prefix;
@@ -432,7 +432,7 @@ cmDyndepCollation::ParseExportInfo(Json::Value const& tdi)
     for (auto const& tdi_export : tdi_exports) {
       CxxModuleExport exp;
       exp.Install = tdi_export["install"].asBool();
-      exp.Name = tdi_export["export-name"].asString();
+      exp.m_name = tdi_export["export-name"].asString();
       exp.FilesystemName = tdi_export["filesystem-export-name"].asString();
       exp.Destination = tdi_export["destination"].asString();
       exp.Prefix = tdi_export["export-prefix"].asString();
@@ -471,7 +471,7 @@ cmDyndepCollation::ParseExportInfo(Json::Value const& tdi)
     for (auto i = tdi_cxx_modules.begin(); i != tdi_cxx_modules.end(); ++i) {
       CxxModuleFileSet& fsi = export_info->ObjectToFileSet[i.key().asString()];
       auto const& tdi_cxx_module_info = *i;
-      fsi.Name = tdi_cxx_module_info["name"].asString();
+      fsi.m_name = tdi_cxx_module_info["name"].asString();
       fsi.BmiOnly = tdi_cxx_module_info["bmi-only"].asBool();
       fsi.RelativeDirectory =
         tdi_cxx_module_info["relative-directory"].asString();
@@ -532,7 +532,7 @@ bool cmDyndepCollation::WriteDyndepMetadata(
     properties = cm::make_unique<cmGeneratedFileStream>(property_file_path);
 
     // Set up the preamble.
-    *properties << "set_property(TARGET \"" << exp.Namespace << exp.Name
+    *properties << "set_property(TARGET \"" << exp.Namespace << exp.m_name
                 << "\"\n"
                 << "  PROPERTY IMPORTED_CXX_MODULES_" << config_upper << '\n';
 

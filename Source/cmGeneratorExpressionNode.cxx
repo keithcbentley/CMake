@@ -1525,20 +1525,20 @@ static const struct ListNode : public cmGeneratorExpressionNode
                 struct ActionDescriptor
                 {
                   ActionDescriptor(std::string name)
-                    : Name(std::move(name))
+                    : m_name(std::move(name))
                   {
                   }
                   ActionDescriptor(std::string name,
                                    cmList::TransformAction action, int arity)
-                    : Name(std::move(name))
+                    : m_name(std::move(name))
                     , m_action(action)
                     , Arity(arity)
                   {
                   }
 
-                  operator std::string const&() const { return this->Name; }
+                  operator std::string const&() const { return this->m_name; }
 
-                  std::string Name;
+                  std::string m_name;
                   cmList::TransformAction m_action;
                   int Arity = 0;
                 };
@@ -1571,7 +1571,7 @@ static const struct ListNode : public cmGeneratorExpressionNode
                 if (args.size() < descriptor->Arity) {
                   reportError(ctx, cnt->GetOriginalExpression(),
                               cmStrCat("sub-command TRANSFORM, action ",
-                                       descriptor->Name, " expects ",
+                                       descriptor->m_name, " expects ",
                                        descriptor->Arity, " argument(s)."));
                   return std::string{};
                 }

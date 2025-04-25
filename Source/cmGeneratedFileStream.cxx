@@ -125,10 +125,10 @@ cmGeneratedFileStreamBase::~cmGeneratedFileStreamBase()
 void cmGeneratedFileStreamBase::Open(std::string const& name)
 {
   // Save the original name of the file.
-  this->Name = cmSystemTools::CollapseFullPath(name);
+  this->m_name = cmSystemTools::CollapseFullPath(name);
 
   // Create the name of the temporary file.
-  this->TempName = this->Name;
+  this->TempName = this->m_name;
 #if defined(__VMS)
   this->TempName += "_";
 #else
@@ -154,14 +154,14 @@ bool cmGeneratedFileStreamBase::Close()
 {
   bool replaced = false;
 
-  std::string resname = this->Name;
+  std::string resname = this->m_name;
   if (this->Compress && this->CompressExtraExtension) {
     resname += ".gz";
   }
 
   // Only consider replacing the destination file if no error
   // occurred.
-  if (!this->Name.empty() && this->Okay &&
+  if (!this->m_name.empty() && this->Okay &&
       (!this->CopyIfDifferent ||
        cmSystemTools::FilesDiffer(this->TempName, resname))) {
     // The destination is to be replaced.  Rename the temporary to the
@@ -232,7 +232,7 @@ int cmGeneratedFileStreamBase::RenameFile(std::string const& oldname,
 
 void cmGeneratedFileStream::SetName(std::string const& fname)
 {
-  this->Name = cmSystemTools::CollapseFullPath(fname);
+  this->m_name = cmSystemTools::CollapseFullPath(fname);
 }
 
 void cmGeneratedFileStream::SetTempExt(std::string const& ext)

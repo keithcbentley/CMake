@@ -26,7 +26,7 @@ cmDependsJavaParserHelper::cmDependsJavaParserHelper()
   this->LastClassId = 0;
 
   CurrentClass tl;
-  tl.Name = "*";
+  tl.m_name = "*";
   this->ClassStack.push_back(std::move(tl));
 }
 
@@ -43,7 +43,7 @@ void cmDependsJavaParserHelper::CurrentClass::AddFileNamesForPrinting(
     rname += prefix;
     rname += sep;
   }
-  rname += this->Name;
+  rname += this->m_name;
   files->push_back(rname);
   for (CurrentClass const& nc : this->NestedClasses) {
     nc.AddFileNamesForPrinting(files, rname.c_str(), sep);
@@ -180,7 +180,7 @@ void cmDependsJavaParserHelper::AllocateParserType(
 void cmDependsJavaParserHelper::StartClass(char const* cls)
 {
   CurrentClass cl;
-  cl.Name = cls;
+  cl.m_name = cls;
   this->ClassStack.push_back(std::move(cl));
 
   this->CurrentDepth++;

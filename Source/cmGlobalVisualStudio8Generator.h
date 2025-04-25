@@ -25,7 +25,7 @@ class cmGlobalVisualStudio8Generator : public cmGlobalVisualStudio71Generator
 {
 public:
   //! Get the name for the generator.
-  std::string GetName() const override { return this->Name; }
+  std::string GetName() const override { return this->m_name; }
 
   /** Get the name of the main stamp list file. */
   static std::string GetGenerateStampList();
@@ -86,7 +86,7 @@ protected:
 
   bool UseFolderProperty() const override;
 
-  std::string Name;
+  std::string m_name;
   std::string WindowsCEVersion;
 
   cm::optional<std::string> DefaultTargetFrameworkVersion;

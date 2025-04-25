@@ -23,11 +23,11 @@ class cmNinjaRule
 {
 public:
   cmNinjaRule(std::string name)
-    : Name(std::move(name))
+    : m_name(std::move(name))
   {
   }
 
-  std::string Name;
+  std::string m_name;
   std::string m_command;
   std::string Description;
   std::string Comment;

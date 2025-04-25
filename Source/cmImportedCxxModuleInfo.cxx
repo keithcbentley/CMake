@@ -62,7 +62,7 @@ std::string ImportedCxxModuleLookup::BmiNameForSource(std::string const& path)
   cmCryptoHash hasher(cmCryptoHash::AlgoSHA3_512);
   constexpr size_t HASH_TRUNCATION = 12;
   if (importit != this->ImportedInfo.end()) {
-    auto safename = hasher.HashString(importit->second.Name);
+    auto safename = hasher.HashString(importit->second.m_name);
     bmiName = cmStrCat(safename.substr(0, HASH_TRUNCATION), ".bmi");
   } else {
     auto dirhash = hasher.HashString(path);

@@ -483,8 +483,8 @@ std::ostream& operator<<(
   os << lfc.m_filePath;
   if (lfc.Line > 0) {
     os << ':' << lfc.Line;
-    if (!lfc.Name.empty()) {
-      os << " (" << lfc.Name << ')';
+    if (!lfc.m_name.empty()) {
+      os << " (" << lfc.m_name << ')';
     }
   } else if (lfc.Line == cmListFileContext::DeferPlaceholderLine) {
     os << ":DEFERRED";

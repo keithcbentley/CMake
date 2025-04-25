@@ -182,7 +182,7 @@ private:
   /** Autogen target variables.  */
   struct
   {
-    std::string Name;
+    std::string m_name;
     bool GlobalTarget = false;
     // Settings
     unsigned int Parallel = 1;

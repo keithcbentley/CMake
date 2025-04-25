@@ -70,7 +70,7 @@ public:
     bool HasFeature() const { return this->Feature != nullptr; }
     std::string const& GetFeatureName() const
     {
-      return HasFeature() ? this->Feature->Name
+      return HasFeature() ? this->Feature->m_name
                           : cmComputeLinkDepends::LinkEntry::DEFAULT;
     }
 
@@ -261,7 +261,7 @@ private:
   public:
     FeatureDescriptor() = default;
 
-    std::string const Name;
+    std::string const m_name;
     bool const Supported = false;
     std::string const Prefix;
     std::string const Suffix;

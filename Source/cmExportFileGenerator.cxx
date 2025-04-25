@@ -679,7 +679,7 @@ bool cmExportFileGenerator::PopulateCxxModuleExportProperties(
 
   struct ModuleTargetPropertyTable
   {
-    cm::static_string_view Name;
+    cm::static_string_view m_name;
     ExportWhen Cond;
   };
 
@@ -695,7 +695,7 @@ bool cmExportFileGenerator::PopulateCxxModuleExportProperties(
     { "CXX_MODULE_STD"_s, ExportWhen::Always },
   };
   for (auto const& prop : exportedDirectModuleProperties) {
-    auto const propNameStr = std::string(prop.Name);
+    auto const propNameStr = std::string(prop.m_name);
     cmValue propValue = gte->Target->GetComputedProperty(
       propNameStr, *gte->Target->GetMakefile());
     if (!propValue) {
@@ -711,7 +711,7 @@ bool cmExportFileGenerator::PopulateCxxModuleExportProperties(
 
   struct ModulePropertyTable
   {
-    cm::static_string_view Name;
+    cm::static_string_view m_name;
     PropertyType Type;
   };
 
@@ -722,7 +722,7 @@ bool cmExportFileGenerator::PopulateCxxModuleExportProperties(
     { "COMPILE_FEATURES"_s, PropertyType::Strings },
   };
   for (auto const& propEntry : exportedModuleProperties) {
-    auto const propNameStr = std::string(propEntry.Name);
+    auto const propNameStr = std::string(propEntry.m_name);
     cmValue prop = gte->Target->GetComputedProperty(
       propNameStr, *gte->Target->GetMakefile());
     if (!prop) {
@@ -730,7 +730,7 @@ bool cmExportFileGenerator::PopulateCxxModuleExportProperties(
     }
     if (prop) {
       auto const exportedPropName =
-        cmStrCat("IMPORTED_CXX_MODULES_", propEntry.Name);
+        cmStrCat("IMPORTED_CXX_MODULES_", propEntry.m_name);
       properties[exportedPropName] =
         cmGeneratorExpression::Preprocess(*prop, ctx);
       if (ctx == cmGeneratorExpression::InstallInterface &&

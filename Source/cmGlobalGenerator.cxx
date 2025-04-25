@@ -2762,7 +2762,7 @@ void cmGlobalGenerator::AddGlobalTarget_Package(
 
   char const* cmakeCfgIntDir = this->GetCMakeCFGIntDir();
   GlobalTargetInfo gti;
-  gti.Name = this->GetPackageTargetName();
+  gti.m_name = this->GetPackageTargetName();
   gti.Message = "Run CPack packaging tool...";
   gti.UsesTerminal = true;
   gti.WorkingDir = mf->GetCurrentBinaryDirectory();
@@ -2811,7 +2811,7 @@ void cmGlobalGenerator::AddGlobalTarget_PackageSource(
   }
 
   GlobalTargetInfo gti;
-  gti.Name = packageSourceTargetName;
+  gti.m_name = packageSourceTargetName;
   gti.Message = "Run CPack packaging tool for source...";
   gti.WorkingDir = mf->GetCurrentBinaryDirectory();
   gti.UsesTerminal = true;
@@ -2842,7 +2842,7 @@ void cmGlobalGenerator::AddGlobalTarget_Test(
 
   char const* cmakeCfgIntDir = this->GetCMakeCFGIntDir();
   GlobalTargetInfo gti;
-  gti.Name = this->GetTestTargetName();
+  gti.m_name = this->GetTestTargetName();
   gti.Message = "Running tests...";
   gti.UsesTerminal = true;
   // Unlike the 'install' target, the 'test' target does not depend on 'all'
@@ -2924,7 +2924,7 @@ void cmGlobalGenerator::AddGlobalTarget_EditCache(
     return;
   }
   GlobalTargetInfo gti;
-  gti.Name = editCacheTargetName;
+  gti.m_name = editCacheTargetName;
   gti.PerConfig = cmTarget::PerConfig::No;
   cmCustomCommandLine singleLine;
 
@@ -2964,7 +2964,7 @@ void cmGlobalGenerator::AddGlobalTarget_RebuildCache(
     return;
   }
   GlobalTargetInfo gti;
-  gti.Name = rebuildCacheTargetName;
+  gti.m_name = rebuildCacheTargetName;
   gti.Message = "Running CMake to regenerate build system...";
   gti.UsesTerminal = true;
   gti.PerConfig = cmTarget::PerConfig::No;
@@ -3007,14 +3007,14 @@ void cmGlobalGenerator::AddGlobalTarget_Install(
         ostr << "Only default component available";
       }
       GlobalTargetInfo gti;
-      gti.Name = "list_install_components";
+      gti.m_name = "list_install_components";
       gti.Message = ostr.str();
       gti.UsesTerminal = false;
       targets.push_back(std::move(gti));
     }
     std::string cmd = cmSystemTools::GetCMakeCommand();
     GlobalTargetInfo gti;
-    gti.Name = this->GetInstallTargetName();
+    gti.m_name = this->GetInstallTargetName();
     gti.Message = "Install the project...";
     gti.UsesTerminal = true;
     gti.StdPipesUTF8 = true;
@@ -3055,7 +3055,7 @@ void cmGlobalGenerator::AddGlobalTarget_Install(
 
     // install_local
     if (char const* install_local = this->GetInstallLocalTargetName()) {
-      gti.Name = install_local;
+      gti.m_name = install_local;
       gti.Message = "Installing only the local directory...";
       gti.Role = "install";
       gti.UsesTerminal =
@@ -3075,7 +3075,7 @@ void cmGlobalGenerator::AddGlobalTarget_Install(
     // install_strip
     char const* install_strip = this->GetInstallStripTargetName();
     if (install_strip && mf->IsSet("CMAKE_STRIP")) {
-      gti.Name = install_strip;
+      gti.m_name = install_strip;
       gti.Message = "Installing the project stripped...";
       gti.UsesTerminal = true;
       gti.Role = "install";
@@ -3323,7 +3323,7 @@ void cmGlobalGenerator::CreateGlobalTarget(GlobalTargetInfo const& gti,
 {
   // Package
   auto tb =
-    mf->CreateNewTarget(gti.Name, cmStateEnums::GLOBAL_TARGET, gti.PerConfig);
+    mf->CreateNewTarget(gti.m_name, cmStateEnums::GLOBAL_TARGET, gti.PerConfig);
 
   // Do nothing if gti.Name is already used
   if (!tb.second) {

@@ -45,7 +45,7 @@ public:
   };
 
   StatusType Status = STATUS_OK;
-  std::string Filename;
+  std::string m_filename;
   std::string MD5;
   std::string Message;
   std::string BuildID;
@@ -85,7 +85,7 @@ private:
         this->Status = STATUS_ERROR;
       }
     } else if (name == "filename") {
-      this->Filename = this->GetCurrentValue();
+      this->m_filename = this->GetCurrentValue();
     } else if (name == "md5") {
       this->MD5 = this->GetCurrentValue();
     } else if (name == "message") {

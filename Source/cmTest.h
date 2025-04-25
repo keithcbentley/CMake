@@ -30,7 +30,7 @@ public:
 
   //! Set the test name
   void SetName(std::string const& name);
-  std::string GetName() const { return this->Name; }
+  std::string GetName() const { return this->m_name; }
 
   void SetCommand(std::vector<std::string> const& command);
   std::vector<std::string> const& GetCommand() const { return this->m_command; }
@@ -83,7 +83,7 @@ public:
 
 private:
   cmPropertyMap Properties;
-  std::string Name;
+  std::string m_name;
   std::vector<std::string> m_command;
   bool CommandExpandLists = false;
 

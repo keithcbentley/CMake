@@ -76,7 +76,7 @@ public:
    * final name (but could be).  Otherwise the returned name is the
    * final name.
    */
-  std::string const& GetName() const { return this->Name; }
+  std::string const& GetName() const { return this->m_name; }
 
   /**
    * Get the full file path composed of GetDirectory() and GetName().
@@ -93,7 +93,7 @@ private:
   bool AmbiguousDirectory = true;
   bool AmbiguousExtension = true;
   std::string Directory;
-  std::string Name;
+  std::string m_name;
 
   bool MatchesAmbiguousExtension(cmSourceFileLocation const& loc) const;
 

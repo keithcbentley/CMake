@@ -46,14 +46,14 @@ public:
     DependenceStruct();
     explicit DependenceStruct(std::string const& dependence);
 
-    std::string Name;
+    std::string m_name;
     CompareStruct Compare;
 
     std::string NameWithCompare() const;
 
     bool operator<(DependenceStruct const& other) const
     {
-      return this->Name < other.Name;
+      return this->m_name < other.m_name;
     }
   };
 
@@ -81,7 +81,7 @@ public:
   std::string ReleaseDate;
 
   /// Domain-like identification for this component
-  std::string Name;
+  std::string m_name;
 
   /// File name of a script being loaded
   std::string Script;

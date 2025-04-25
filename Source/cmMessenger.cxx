@@ -127,7 +127,7 @@ void PrintCallStack(std::ostream& out, cmListFileBacktrace bt,
   bool first = true;
   for (; !bt.Empty(); bt = bt.Pop()) {
     cmListFileContext lfc = bt.Top();
-    if (lfc.Name.empty() &&
+    if (lfc.m_name.empty() &&
         lfc.Line != cmListFileContext::DeferPlaceholderLine &&
         lfc.m_filePath == lastFilePath) {
       // An entry with no function name is frequently preceded (in the stack)

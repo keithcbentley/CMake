@@ -36,7 +36,7 @@ public:
 
   struct Path
   {
-    std::string Name;
+    std::string m_name;
     std::string Link;
   };
 
@@ -107,7 +107,7 @@ public:
     if (i == this->Paths.end()) {
       return cmsys::Status::POSIX(ENOENT);
     }
-    name = i->second.Name;
+    name = i->second.m_name;
     return cmsys::Status::Success();
   }
 #endif

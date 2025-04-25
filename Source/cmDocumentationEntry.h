@@ -6,18 +6,22 @@
 
 #include <string>
 
+//  TODO: Why is this in a separate file from documentation.
+
 /** Standard documentation entry for cmDocumentation's formatting.  */
 struct cmDocumentationEntry
 {
 #if __cplusplus <= 201103L
-  cmDocumentationEntry(std::string const& name, std::string const& brief)
-    : Name{ name }
-    , Brief{ brief }
+  cmDocumentationEntry(
+    std::string const& name,
+    std::string const& brief)
+    : m_name{ name }
+    , m_brief{ brief }
   {
   }
 #endif
 
-  std::string Name;
-  std::string Brief;
-  char CustomNamePrefix = ' ';
+  std::string m_name;
+  std::string m_brief;
+  char m_customNamePrefix = ' ';
 };

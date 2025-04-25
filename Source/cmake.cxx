@@ -1503,11 +1503,11 @@ void CMake::SetArgs(std::vector<std::string> const& args)
     auto const& expandedPreset = preset->second.Expanded;
     if (!expandedPreset) {
       cmSystemTools::Error(
-        cmStrCat("Could not evaluate preset \"", preset->second.Unexpanded.Name, "\": Invalid macro expansion"));
+        cmStrCat("Could not evaluate preset \"", preset->second.Unexpanded.m_name, "\": Invalid macro expansion"));
       return;
     }
     if (!expandedPreset->ConditionResult) {
-      cmSystemTools::Error(cmStrCat("Could not use disabled preset \"", preset->second.Unexpanded.Name, "\""));
+      cmSystemTools::Error(cmStrCat("Could not use disabled preset \"", preset->second.Unexpanded.m_name, "\""));
       return;
     }
 
@@ -3119,8 +3119,8 @@ void CMake::AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry
 
   for (auto const& g : m_generators) {
     v.emplace_back(g->GetDocumentation());
-    if (!foundDefaultOne && cmHasPrefix(v.back().Name, defaultName)) {
-      v.back().CustomNamePrefix = '*';
+    if (!foundDefaultOne && cmHasPrefix(v.back().m_name, defaultName)) {
+      v.back().m_customNamePrefix = '*';
       foundDefaultOne = true;
     }
   }
@@ -3927,7 +3927,7 @@ int CMake::Workflow(
   {
     int StepNumber;
     cm::static_string_view Type;
-    std::string Name;
+    std::string m_name;
     std::function<int()> m_action;
 
     CalculatedStep(
@@ -3937,7 +3937,7 @@ int CMake::Workflow(
       std::function<int()> action)
       : StepNumber(stepNumber)
       , Type(type)
-      , Name(std::move(name))
+      , m_name(std::move(name))
       , m_action(std::move(action))
     {
     }
@@ -3997,7 +3997,7 @@ int CMake::Workflow(
       std::cout << "\n";
     }
     std::cout << "Executing workflow step " << step.StepNumber << " of " << steps.size() << ": " << step.Type
-              << " preset \"" << step.Name << "\"\n\n"
+              << " preset \"" << step.m_name << "\"\n\n"
               << std::flush;
     if ((stepResult = step.m_action()) != 0) {
       return stepResult;

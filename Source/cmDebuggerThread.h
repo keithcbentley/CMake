@@ -33,7 +33,7 @@ namespace cmDebugger {
 class cmDebuggerThread
 {
   int64_t m_id;
-  std::string Name;
+  std::string m_name;
   std::vector<std::shared_ptr<cmDebuggerStackFrame>> Frames;
   std::unordered_map<int64_t, std::shared_ptr<cmDebuggerStackFrame>> FrameMap;
   std::mutex Mutex;
@@ -46,7 +46,7 @@ class cmDebuggerThread
 public:
   cmDebuggerThread(int64_t id, std::string name);
   int64_t GetId() const { return this->m_id; }
-  std::string const& GetName() const { return this->Name; }
+  std::string const& GetName() const { return this->m_name; }
   void PushStackFrame(cmMakefile* mf, std::string const& sourcePath,
                       cmListFileFunction const& lff);
   void PopStackFrame();

@@ -217,14 +217,14 @@ struct cmFindLibraryHelper
   bool DebugMode;
 
   // Current names under consideration.
-  struct Name
+  struct m_name
   {
     bool TryRaw = false;
     std::string Raw;
     cmsys::RegularExpression Regex;
     cmsys::RegularExpression ICaseRegex; // case insensitive
   };
-  std::vector<Name> Names;
+  std::vector<m_name> Names;
 
   void RegexFromLiteral(std::string& out, std::string const& in,
                         cmSystemTools::DirCase dirCase);
@@ -244,7 +244,7 @@ struct cmFindLibraryHelper
   void AddName(std::string const& name);
   void SetName(std::string const& name);
   bool CheckDirectory(std::string const& path);
-  bool CheckDirectoryForName(std::string const& path, Name& name);
+  bool CheckDirectoryForName(std::string const& path, m_name& name);
 
   bool Validate(std::string const& path) const
   {
@@ -393,7 +393,7 @@ bool cmFindLibraryHelper::HasValidSuffix(std::string const& name)
 
 void cmFindLibraryHelper::AddName(std::string const& name)
 {
-  Name entry;
+  m_name entry;
 
   // Consider checking the raw name too.
   entry.TryRaw = this->HasValidSuffix(name);
@@ -434,7 +434,7 @@ void cmFindLibraryHelper::SetName(std::string const& name)
 
 bool cmFindLibraryHelper::CheckDirectory(std::string const& path)
 {
-  for (Name& i : this->Names) {
+  for (m_name& i : this->Names) {
     if (this->CheckDirectoryForName(path, i)) {
       return true;
     }
@@ -443,7 +443,7 @@ bool cmFindLibraryHelper::CheckDirectory(std::string const& path)
 }
 
 bool cmFindLibraryHelper::CheckDirectoryForName(std::string const& path,
-                                                Name& name)
+                                                m_name& name)
 {
   // If the original library name provided by the user matches one of
   // the suffixes, try it first.  This allows users to search

@@ -241,7 +241,7 @@ private:
   cmGeneratorTarget* const GeneratorTarget;
   cmMakefile* const m_pMakefile;
   std::string const Platform;
-  std::string const Name;
+  std::string const m_name;
   std::string const GUID;
   bool MSTools = false;
   bool Managed = false;

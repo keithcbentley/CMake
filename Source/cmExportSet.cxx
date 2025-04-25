@@ -14,7 +14,7 @@
 #include "cmTargetExport.h" // IWYU pragma: associated
 
 cmExportSet::cmExportSet(std::string name)
-  : Name(std::move(name))
+  : m_name(std::move(name))
 {
 }
 

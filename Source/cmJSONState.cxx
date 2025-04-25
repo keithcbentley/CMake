@@ -17,11 +17,11 @@
 #include "cmSystemTools.h"
 
 cmJSONState::cmJSONState(std::string jsonFile, Json::Value* root)
-  : Filename(std::move(jsonFile))
+  : m_filename(std::move(jsonFile))
 {
-  cmsys::ifstream fin(this->Filename.c_str(), std::ios::in | std::ios::binary);
+  cmsys::ifstream fin(this->m_filename.c_str(), std::ios::in | std::ios::binary);
   if (!fin) {
-    this->AddError(cmStrCat("File not found: ", this->Filename));
+    this->AddError(cmStrCat("File not found: ", this->m_filename));
     return;
   }
   // If there's a BOM, toss it.
@@ -89,7 +89,7 @@ void cmJSONState::AddErrorAtOffset(std::string const& errMsg,
 std::string cmJSONState::GetErrorMessage(bool showContext)
 {
   std::string message;
-  std::string filenameName = cmSystemTools::GetFilenameName(this->Filename);
+  std::string filenameName = cmSystemTools::GetFilenameName(this->m_filename);
   for (auto const& error : this->errors) {
     Location loc = error.GetLocation();
     if (!filenameName.empty() && loc.line > 0) {

@@ -29,7 +29,7 @@ cmSourceFileLocation::cmSourceFileLocation(cmSourceFileLocation const& loc)
   this->AmbiguousDirectory = loc.AmbiguousDirectory;
   this->AmbiguousExtension = loc.AmbiguousExtension;
   this->Directory = loc.Directory;
-  this->Name = loc.Name;
+  this->m_name = loc.m_name;
 }
 
 cmSourceFileLocation::cmSourceFileLocation(cmMakefile const* mf,
@@ -48,7 +48,7 @@ cmSourceFileLocation::cmSourceFileLocation(cmMakefile const* mf,
   if (cmSystemTools::FileIsFullPath(this->Directory)) {
     this->Directory = cmSystemTools::CollapseFullPath(this->Directory);
   }
-  this->Name = cmSystemTools::GetFilenameName(name);
+  this->m_name = cmSystemTools::GetFilenameName(name);
   if (kind == cmSourceFileLocationKind::Known) {
     this->DirectoryUseSource();
     this->AmbiguousExtension = false;
@@ -74,7 +74,7 @@ void cmSourceFileLocation::Update(cmSourceFileLocation const& loc)
     this->AmbiguousDirectory = false;
   }
   if (this->AmbiguousExtension && !loc.AmbiguousExtension) {
-    this->Name = loc.Name;
+    this->m_name = loc.m_name;
     this->AmbiguousExtension = false;
   }
 }
@@ -115,7 +115,7 @@ void cmSourceFileLocation::UpdateExtension(std::string const& name)
   if (!gg->GetLanguageFromExtension(ext.c_str()).empty() ||
       cm->IsAKnownExtension(ext)) {
     // This is a known extension.  Use the given filename with extension.
-    this->Name = cmSystemTools::GetFilenameName(name);
+    this->m_name = cmSystemTools::GetFilenameName(name);
     this->AmbiguousExtension = false;
   } else {
     // This is not a known extension.  See if the file exists on disk as
@@ -131,11 +131,11 @@ void cmSourceFileLocation::UpdateExtension(std::string const& name)
       tryPath += this->Directory;
       tryPath += "/";
     }
-    tryPath += this->Name;
+    tryPath += this->m_name;
     if (cmSystemTools::FileExists(tryPath, true)) {
       // We found a source file named by the user on disk.  Trust it's
       // extension.
-      this->Name = cmSystemTools::GetFilenameName(name);
+      this->m_name = cmSystemTools::GetFilenameName(name);
       this->AmbiguousExtension = false;
 
       // If the directory was ambiguous, it isn't anymore.
@@ -152,21 +152,21 @@ bool cmSourceFileLocation::MatchesAmbiguousExtension(
   assert(this->m_pMakefile);
   // This location's extension is not ambiguous but loc's extension
   // is.  See if the names match as-is.
-  if (this->Name == loc.Name) {
+  if (this->m_name == loc.m_name) {
     return true;
   }
 
   // Check if loc's name could possibly be extended to our name by
   // adding an extension.
-  if (!(this->Name.size() > loc.Name.size() &&
-        this->Name[loc.Name.size()] == '.' &&
-        cmHasPrefix(this->Name, loc.Name))) {
+  if (!(this->m_name.size() > loc.m_name.size() &&
+        this->m_name[loc.m_name.size()] == '.' &&
+        cmHasPrefix(this->m_name, loc.m_name))) {
     return false;
   }
 
   // Only a fixed set of extensions will be tried to match a file on
   // disk.  One of these must match if loc refers to this source file.
-  auto ext = cm::string_view(this->Name).substr(loc.Name.size() + 1);
+  auto ext = cm::string_view(this->m_name).substr(loc.m_name.size() + 1);
   cmMakefile const* mf = this->m_pMakefile;
   auto* cm = mf->GetCMakeInstance();
   return cm->IsAKnownExtension(ext);
@@ -179,8 +179,8 @@ bool cmSourceFileLocation::Matches(cmSourceFileLocation const& loc)
     // Both extensions are similarly ambiguous.  Since only the old fixed set
     // of extensions will be tried, the names must match at this point to be
     // the same file.
-    if (this->Name.size() != loc.Name.size() ||
-        !cmSystemTools::ComparePath(this->Name, loc.Name)) {
+    if (this->m_name.size() != loc.m_name.size() ||
+        !cmSystemTools::ComparePath(this->m_name, loc.m_name)) {
       return false;
     }
   } else {

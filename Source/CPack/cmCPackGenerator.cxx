@@ -65,14 +65,14 @@ int cmCPackGenerator::PrepareNames()
     if (SETDESTDIR_UNSUPPORTED == this->SupportsSetDestdir()) {
       cmCPackLogger(cmCPackLog::LOG_ERROR,
                     "CPACK_SET_DESTDIR is set to ON but the '"
-                      << this->Name << "' generator does NOT support it."
+                      << this->m_name << "' generator does NOT support it."
                       << std::endl);
       return 0;
     }
     if (SETDESTDIR_SHOULD_NOT_BE_USED == this->SupportsSetDestdir()) {
       cmCPackLogger(cmCPackLog::LOG_WARNING,
                     "CPACK_SET_DESTDIR is set to ON but it is "
-                      << "usually a bad idea to do that with '" << this->Name
+                      << "usually a bad idea to do that with '" << this->m_name
                       << "' generator. Use at your own risk." << std::endl);
     }
   }
@@ -1077,7 +1077,7 @@ void cmCPackGenerator::SetOption(std::string const& op, cmValue value)
 int cmCPackGenerator::DoPackage()
 {
   cmCPackLogger(cmCPackLog::LOG_OUTPUT,
-                "Create package using " << this->Name << std::endl);
+                "Create package using " << this->m_name << std::endl);
 
   // Prepare CPack internal name and check
   // values for many CPACK_xxx vars
@@ -1233,9 +1233,9 @@ int cmCPackGenerator::DoPackage()
 int cmCPackGenerator::Initialize(std::string const& name, cmMakefile* mf)
 {
   this->MakefileMap = mf;
-  this->Name = name;
+  this->m_name = name;
   // set the running generator name
-  this->SetOption("CPACK_GENERATOR", this->Name);
+  this->SetOption("CPACK_GENERATOR", this->m_name);
   // Load the project specific config file
   cmValue config = this->GetOption("CPACK_PROJECT_CONFIG_FILE");
   if (config) {
@@ -1499,7 +1499,7 @@ int cmCPackGenerator::PrepareGroupingKind()
 
   if (!groupingType.empty()) {
     cmCPackLogger(cmCPackLog::LOG_VERBOSE,
-                  "[" << this->Name << "]"
+                  "[" << this->m_name << "]"
                       << " requested component grouping = " << groupingType
                       << std::endl);
     if (groupingType == "ALL_COMPONENTS_IN_ONE") {
@@ -1511,7 +1511,7 @@ int cmCPackGenerator::PrepareGroupingKind()
     } else {
       cmCPackLogger(
         cmCPackLog::LOG_WARNING,
-        "[" << this->Name << "]"
+        "[" << this->m_name << "]"
             << " requested component grouping type <" << groupingType
             << "> UNKNOWN not in (ALL_COMPONENTS_IN_ONE,IGNORE,ONE_PER_GROUP)"
             << std::endl);
@@ -1529,7 +1529,7 @@ int cmCPackGenerator::PrepareGroupingKind()
     }
     cmCPackLogger(
       cmCPackLog::LOG_WARNING,
-      "[" << this->Name << "]"
+      "[" << this->m_name << "]"
           << " One package per component group requested, "
           << "but NO component groups exist: Ignoring component group."
           << std::endl);
@@ -1545,7 +1545,7 @@ int cmCPackGenerator::PrepareGroupingKind()
                                  "ONE_PER_GROUP", "UNKNOWN" };
 
   cmCPackLogger(cmCPackLog::LOG_VERBOSE,
-                "[" << this->Name << "]"
+                "[" << this->m_name << "]"
                     << " requested component grouping = "
                     << method_names[this->componentPackageMethod]
                     << std::endl);
@@ -1622,7 +1622,7 @@ std::string cmCPackGenerator::GetComponentPackageFileName(
   std::string suffix = "-" + groupOrComponentName;
   /* check if we should use DISPLAY name */
   std::string dispNameVar =
-    "CPACK_" + this->Name + "_USE_DISPLAY_NAME_IN_FILENAME";
+    "CPACK_" + this->m_name + "_USE_DISPLAY_NAME_IN_FILENAME";
   if (this->IsOn(dispNameVar)) {
     /* the component Group case */
     if (isGroupName) {
@@ -1680,13 +1680,13 @@ cmCPackInstallationType* cmCPackGenerator::GetInstallationType(
     // Define the installation type
     std::string macroPrefix =
       "CPACK_INSTALL_TYPE_" + cmsys::SystemTools::UpperCase(name);
-    installType->Name = name;
+    installType->m_name = name;
 
     cmValue displayName = this->GetOption(macroPrefix + "_DISPLAY_NAME");
     if (cmNonempty(displayName)) {
       installType->DisplayName = *displayName;
     } else {
-      installType->DisplayName = installType->Name;
+      installType->DisplayName = installType->m_name;
     }
 
     installType->Index = static_cast<unsigned>(this->InstallationTypes.size());
@@ -1703,12 +1703,12 @@ cmCPackComponent* cmCPackGenerator::GetComponent(
     // Define the component
     std::string macroPrefix =
       "CPACK_COMPONENT_" + cmsys::SystemTools::UpperCase(name);
-    component->Name = name;
+    component->m_name = name;
     cmValue displayName = this->GetOption(macroPrefix + "_DISPLAY_NAME");
     if (cmNonempty(displayName)) {
       component->DisplayName = *displayName;
     } else {
-      component->DisplayName = component->Name;
+      component->DisplayName = component->m_name;
     }
     component->IsHidden = this->IsOn(macroPrefix + "_HIDDEN");
     component->IsRequired = this->IsOn(macroPrefix + "_REQUIRED");
@@ -1773,12 +1773,12 @@ cmCPackComponentGroup* cmCPackGenerator::GetComponentGroup(
   cmCPackComponentGroup* group = &this->ComponentGroups[name];
   if (!hasGroup) {
     // Define the group
-    group->Name = name;
+    group->m_name = name;
     cmValue displayName = this->GetOption(macroPrefix + "_DISPLAY_NAME");
     if (cmNonempty(displayName)) {
       group->DisplayName = *displayName;
     } else {
-      group->DisplayName = group->Name;
+      group->DisplayName = group->m_name;
     }
 
     cmValue description = this->GetOption(macroPrefix + "_DESCRIPTION");

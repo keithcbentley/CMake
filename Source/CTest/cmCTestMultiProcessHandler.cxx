@@ -282,7 +282,7 @@ void cmCTestMultiProcessHandler::StartTestProcess(int test)
 
   if (!this->ResourceAvailabilityErrors[test].empty()) {
     std::ostringstream e;
-    e << "Insufficient resources for test " << this->Properties[test]->Name
+    e << "Insufficient resources for test " << this->Properties[test]->m_name
       << ":\n\n";
     for (auto const& it : this->ResourceAvailabilityErrors[test]) {
       switch (it.second) {
@@ -558,7 +558,7 @@ inline size_t cmCTestMultiProcessHandler::GetProcessorsUsed(int test)
 
 std::string cmCTestMultiProcessHandler::GetName(int test)
 {
-  return this->Properties[test]->Name;
+  return this->Properties[test]->m_name;
 }
 
 void cmCTestMultiProcessHandler::StartTest(int test)
@@ -798,9 +798,9 @@ void cmCTestMultiProcessHandler::FinishTestProcess(
   }
 
   if (testResult.Passed) {
-    this->Passed->push_back(properties->Name);
+    this->Passed->push_back(properties->m_name);
   } else if (!properties->Disabled) {
-    this->Failed->push_back(properties->Name);
+    this->Failed->push_back(properties->m_name);
   }
 
   for (auto& t : this->PendingTests) {
@@ -861,7 +861,7 @@ void cmCTestMultiProcessHandler::UpdateCostData()
 
   // Add all tests not previously listed in the file
   for (auto const& i : temp) {
-    fout << i.second->Name << " " << i.second->PreviousRuns << " "
+    fout << i.second->m_name << " " << i.second->PreviousRuns << " "
          << i.second->Cost << "\n";
   }
 
@@ -923,7 +923,7 @@ int cmCTestMultiProcessHandler::SearchByName(cm::string_view name)
   int index = -1;
 
   for (auto const& p : this->Properties) {
-    if (p.second->Name == name) {
+    if (p.second->m_name == name) {
       index = p.first;
     }
   }
@@ -950,7 +950,7 @@ void cmCTestMultiProcessHandler::CreateParallelTestCostList()
   // In parallel test runs add previously failed tests to the front
   // of the cost list and queue other tests for further sorting
   for (auto const& t : this->PendingTests) {
-    if (cm::contains(this->LastTestsFailed, this->Properties[t.first]->Name)) {
+    if (cm::contains(this->LastTestsFailed, this->Properties[t.first]->m_name)) {
       // If the test failed last time, it should be run first.
       this->OrderedTests.push_back(t.first);
       alreadyOrderedTests.insert(t.first);
@@ -1246,7 +1246,7 @@ static Json::Value DumpCTestProperties(
   }
   if (testProperties.TimeoutSignal) {
     properties.append(DumpCTestProperty("TIMEOUT_SIGNAL_NAME",
-                                        testProperties.TimeoutSignal->Name));
+                                        testProperties.TimeoutSignal->m_name));
   }
   if (testProperties.TimeoutGracePeriod) {
     properties.append(
@@ -1322,8 +1322,8 @@ bool BacktraceData::Add(cmListFileBacktrace const& bt, Json::ArrayIndex& index)
   if (top->Line) {
     entry["line"] = static_cast<int>(top->Line);
   }
-  if (!top->Name.empty()) {
-    entry["command"] = this->AddCommand(top->Name);
+  if (!top->m_name.empty()) {
+    entry["command"] = this->AddCommand(top->m_name);
   }
   Json::ArrayIndex parent;
   if (this->Add(bt.Pop(), parent)) {
@@ -1362,7 +1362,7 @@ static Json::Value DumpCTestInfo(
 {
   Json::Value testInfo = Json::objectValue;
   // test name should always be present
-  testInfo["name"] = testProperties.Name;
+  testInfo["name"] = testProperties.m_name;
   std::string const& config = testRun.GetCTest()->GetConfigType();
   if (!config.empty()) {
     testInfo["config"] = config;
@@ -1480,7 +1480,7 @@ void cmCTestMultiProcessHandler::PrintTestList()
       std::setw(3 + getNumWidth(this->TestHandler->GetMaxIndex()))
         << indexStr.str(),
       this->Quiet);
-    cmCTestOptionalLog(this->CTest, HANDLER_OUTPUT, " " << p.Name,
+    cmCTestOptionalLog(this->CTest, HANDLER_OUTPUT, " " << p.m_name,
                        this->Quiet);
     if (p.Disabled) {
       cmCTestOptionalLog(this->CTest, HANDLER_OUTPUT, " (Disabled)",
@@ -1584,7 +1584,7 @@ bool cmCTestMultiProcessHandler::CheckCycles()
               this->CTest, ERROR_MESSAGE,
               "Error: a cycle exists in the test dependency graph "
               "for the test \""
-                << this->Properties[root]->Name
+                << this->Properties[root]->m_name
                 << "\".\nPlease fix the cycle and run ctest again.\n");
             return false;
           }

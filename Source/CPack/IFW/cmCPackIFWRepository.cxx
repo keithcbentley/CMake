@@ -37,12 +37,12 @@ bool cmCPackIFWRepository::IsValid() const
 bool cmCPackIFWRepository::ConfigureFromOptions()
 {
   // Name;
-  if (this->Name.empty()) {
+  if (this->m_name.empty()) {
     return false;
   }
 
   std::string prefix =
-    "CPACK_IFW_REPOSITORY_" + cmsys::SystemTools::UpperCase(this->Name) + "_";
+    "CPACK_IFW_REPOSITORY_" + cmsys::SystemTools::UpperCase(this->m_name) + "_";
 
   // Update
   if (this->IsOn(prefix + "ADD")) {

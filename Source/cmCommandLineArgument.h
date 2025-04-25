@@ -38,7 +38,7 @@ struct cmCommandLineArgument
 
   std::string InvalidSyntaxMessage;
   std::string InvalidValueMessage;
-  std::string Name;
+  std::string m_name;
   Values Type;
   RequiresSeparator SeparatorNeeded;
   std::function<FunctionSignature> StoreCall;
@@ -47,7 +47,7 @@ struct cmCommandLineArgument
   cmCommandLineArgument(std::string n, Values t, FunctionType&& func)
     : InvalidSyntaxMessage(cmStrCat(" is invalid syntax for ", n))
     , InvalidValueMessage(cmStrCat("Invalid value used with ", n))
-    , Name(std::move(n))
+    , m_name(std::move(n))
     , Type(t)
     , SeparatorNeeded(RequiresSeparator::Yes)
     , StoreCall(std::forward<FunctionType>(func))
@@ -59,7 +59,7 @@ struct cmCommandLineArgument
                         FunctionType&& func)
     : InvalidSyntaxMessage(cmStrCat(" is invalid syntax for ", n))
     , InvalidValueMessage(cmStrCat("Invalid value used with ", n))
-    , Name(std::move(n))
+    , m_name(std::move(n))
     , Type(t)
     , SeparatorNeeded(s)
     , StoreCall(std::forward<FunctionType>(func))
@@ -71,7 +71,7 @@ struct cmCommandLineArgument
                         FunctionType&& func)
     : InvalidSyntaxMessage(cmStrCat(" is invalid syntax for ", n))
     , InvalidValueMessage(std::move(failedMsg))
-    , Name(std::move(n))
+    , m_name(std::move(n))
     , Type(t)
     , SeparatorNeeded(RequiresSeparator::Yes)
     , StoreCall(std::forward<FunctionType>(func))
@@ -83,7 +83,7 @@ struct cmCommandLineArgument
                         RequiresSeparator s, FunctionType&& func)
     : InvalidSyntaxMessage(cmStrCat(" is invalid syntax for ", n))
     , InvalidValueMessage(std::move(failedMsg))
-    , Name(std::move(n))
+    , m_name(std::move(n))
     , Type(t)
     , SeparatorNeeded(s)
     , StoreCall(std::forward<FunctionType>(func))
@@ -94,15 +94,15 @@ struct cmCommandLineArgument
   {
     bool matched = false;
     if (this->Type == Values::Zero) {
-      matched = (input == this->Name);
+      matched = (input == this->m_name);
     } else if (this->SeparatorNeeded == RequiresSeparator::No) {
-      matched = cmHasPrefix(input, this->Name);
-    } else if (cmHasPrefix(input, this->Name)) {
-      if (input.size() == this->Name.size()) {
+      matched = cmHasPrefix(input, this->m_name);
+    } else if (cmHasPrefix(input, this->m_name)) {
+      if (input.size() == this->m_name.size()) {
         matched = true;
       } else {
         matched =
-          (input[this->Name.size()] == '=' || input[this->Name.size()] == ' ');
+          (input[this->m_name.size()] == '=' || input[this->m_name.size()] == ' ');
       }
     }
     return matched;
@@ -116,7 +116,7 @@ struct cmCommandLineArgument
     ParseMode parseState = ParseMode::Valid;
 
     if (this->Type == Values::Zero) {
-      if (input.size() == this->Name.size()) {
+      if (input.size() == this->m_name.size()) {
         parseState =
           this->StoreCall(std::string{}, std::forward<CallState>(state)...)
           ? ParseMode::Valid
@@ -126,7 +126,7 @@ struct cmCommandLineArgument
       }
 
     } else if (this->Type == Values::One || this->Type == Values::ZeroOrOne) {
-      if (input.size() == this->Name.size()) {
+      if (input.size() == this->m_name.size()) {
         auto nextValueIndex = index + 1;
         if (nextValueIndex >= allArgs.size() ||
             IsFlag(allArgs[nextValueIndex])) {
@@ -155,7 +155,7 @@ struct cmCommandLineArgument
         }
       }
     } else if (this->Type == Values::Two) {
-      if (input.size() == this->Name.size()) {
+      if (input.size() == this->m_name.size()) {
         if (index + 2 >= allArgs.size() || IsFlag(allArgs[index + 1]) ||
             IsFlag(allArgs[index + 2])) {
           parseState = ParseMode::ValueError;
@@ -169,7 +169,7 @@ struct cmCommandLineArgument
         }
       }
     } else if (this->Type == Values::OneOrMore) {
-      if (input.size() == this->Name.size()) {
+      if (input.size() == this->m_name.size()) {
         auto nextValueIndex = index + 1;
         if (nextValueIndex >= allArgs.size() ||
             IsFlag(allArgs[nextValueIndex])) {
@@ -270,7 +270,7 @@ private:
                                    ParseMode& parseState) const
   {
     // parse the string to get the value
-    auto possible_value = cm::string_view(input).substr(this->Name.size());
+    auto possible_value = cm::string_view(input).substr(this->m_name.size());
     if (possible_value.empty()) {
       parseState = ParseMode::ValueError;
     } else if (possible_value[0] == '=') {

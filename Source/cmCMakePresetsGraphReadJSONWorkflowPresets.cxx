@@ -69,7 +69,7 @@ auto const WorkflowStepsHelper =
 auto const WorkflowPresetHelper =
   cmJSONHelperBuilder::Object<WorkflowPreset>(
     cmCMakePresetsErrors::INVALID_PRESET_OBJECT, false)
-    .Bind("name"_s, &WorkflowPreset::Name,
+    .Bind("name"_s, &WorkflowPreset::m_name,
           cmCMakePresetsGraphInternal::PresetNameHelper)
     .Bind<std::nullptr_t>("vendor"_s, nullptr,
                           cmCMakePresetsGraphInternal::VendorHelper(

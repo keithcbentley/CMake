@@ -171,7 +171,7 @@ struct UsageRequirementProperty
 
   UsageRequirementProperty(cm::static_string_view name,
                            AppendEmpty appendEmpty = AppendEmpty::No)
-    : Name(name)
+    : m_name(name)
     , AppendBehavior(appendEmpty)
   {
   }
@@ -199,7 +199,7 @@ struct UsageRequirementProperty
   void WriteDirect(BT<std::string> value, m_action action);
   std::pair<bool, cmValue> Read(std::string const& prop) const;
 
-  cm::static_string_view const Name;
+  cm::static_string_view const m_name;
   AppendEmpty const AppendBehavior;
 
   std::vector<BT<std::string>> Entries;
@@ -255,33 +255,33 @@ struct TargetProperty
   };
 
   TargetProperty(cm::static_string_view name)
-    : Name(name)
+    : m_name(name)
   {
   }
 
   TargetProperty(cm::static_string_view name, cm::static_string_view dflt,
                  InitCondition init)
-    : Name(name)
+    : m_name(name)
     , Default(dflt)
     , InitConditional(init)
   {
   }
 
   TargetProperty(cm::static_string_view name, InitCondition init)
-    : Name(name)
+    : m_name(name)
     , InitConditional(init)
   {
   }
 
   TargetProperty(cm::static_string_view name, InitCondition init,
                  Repetition repeat)
-    : Name(name)
+    : m_name(name)
     , InitConditional(init)
     , Repeat(repeat)
   {
   }
 
-  cm::static_string_view const Name;
+  cm::static_string_view const m_name;
   // Explicit initialization is needed for AppleClang in Xcode 8 and below
   // NOLINTNEXTLINE(readability-redundant-member-init)
   cm::optional<cm::static_string_view> const Default = {};
@@ -587,7 +587,7 @@ public:
   cmMakefile* m_pMakefile;
   cmPolicies::PolicyMap PolicyMap;
   cmTarget const* TemplateTarget;
-  std::string Name;
+  std::string m_name;
   std::string InstallPath;
   std::string RuntimeInstallPath;
   cmPropertyMap Properties;
@@ -807,7 +807,7 @@ bool UsageRequirementProperty::Write(
   cmTargetInternals const* impl, cm::optional<cmListFileBacktrace> const& bt,
   std::string const& prop, ValueType value, m_action action)
 {
-  if (prop == this->Name) {
+  if (prop == this->m_name) {
     this->WriteDirect(impl, bt, value, action);
     return true;
   }
@@ -851,7 +851,7 @@ std::pair<bool, cmValue> UsageRequirementProperty::Read(
 {
   bool did_read = false;
   cmValue value = nullptr;
-  if (prop == this->Name) {
+  if (prop == this->m_name) {
     if (!this->Entries.empty()) {
       // Storage to back the returned `cmValue`.
       static std::string output;
@@ -870,7 +870,7 @@ cmTarget::cmTarget(std::string const& name, cmStateEnums::TargetType type,
   assert(mf);
   this->impl->TargetType = type;
   this->impl->m_pMakefile = mf;
-  this->impl->Name = name;
+  this->impl->m_name = name;
   this->impl->TemplateTarget = nullptr;
   this->impl->IsGeneratorProvided = false;
   this->impl->HaveInstallRule = false;
@@ -1044,14 +1044,14 @@ cmTarget::cmTarget(std::string const& name, cmStateEnums::TargetType type,
     }
 
     if (tp.Repeat == TargetProperty::Repetition::Once) {
-      initProperty(std::string(tp.Name), dflt);
+      initProperty(std::string(tp.m_name), dflt);
     } else {
       std::string propertyName;
       for (auto const& configName : configNames) {
         if (tp.Repeat == TargetProperty::Repetition::PerConfig) {
-          propertyName = cmStrCat(tp.Name, configName);
+          propertyName = cmStrCat(tp.m_name, configName);
         } else if (tp.Repeat == TargetProperty::Repetition::PerConfigPrefix) {
-          propertyName = cmStrCat(configName, tp.Name);
+          propertyName = cmStrCat(configName, tp.m_name);
         }
         initProperty(propertyName, dflt);
       }
@@ -1121,7 +1121,7 @@ cmPolicies::PolicyMap const& cmTarget::GetPolicyMap() const
 
 std::string const& cmTarget::GetName() const
 {
-  return this->impl->Name;
+  return this->impl->m_name;
 }
 
 std::string const& cmTarget::GetTemplateName() const
@@ -1129,7 +1129,7 @@ std::string const& cmTarget::GetTemplateName() const
   if (this->impl->TemplateTarget) {
     return this->impl->TemplateTarget->GetTemplateName();
   }
-  return this->impl->Name;
+  return this->impl->m_name;
 }
 
 cmPolicies::PolicyStatus cmTarget::GetPolicyStatus(
@@ -1556,7 +1556,7 @@ void cmTarget::AddLinkLibrary(cmMakefile& mf, std::string const& lib,
       (tgt &&
        (tgt->GetType() == cmStateEnums::INTERFACE_LIBRARY ||
         tgt->GetType() == cmStateEnums::OBJECT_LIBRARY)) ||
-      (this->impl->Name == lib)) {
+      (this->impl->m_name == lib)) {
     return;
   }
 
@@ -1574,7 +1574,7 @@ void cmTarget::AddLinkLibrary(cmMakefile& mf, std::string const& lib,
       this->impl->TargetType <= cmStateEnums::MODULE_LIBRARY &&
       (this->GetPolicyStatusCMP0073() == cmPolicies::OLD ||
        this->GetPolicyStatusCMP0073() == cmPolicies::WARN)) {
-    std::string targetEntry = cmStrCat(this->impl->Name, "_LIB_DEPENDS");
+    std::string targetEntry = cmStrCat(this->impl->m_name, "_LIB_DEPENDS");
     std::string dependencies;
     cmValue old_val = mf.GetDefinition(targetEntry);
     if (old_val) {
@@ -2097,7 +2097,7 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
     if (!value.IsOn()) {
       std::ostringstream e;
       e << "IMPORTED_GLOBAL property can't be set to FALSE on targets (\""
-        << this->impl->Name << "\")\n";
+        << this->impl->m_name << "\")\n";
       this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
       return;
     }
@@ -2123,7 +2123,7 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
     if (this->GetType() != cmStateEnums::OBJECT_LIBRARY) {
       auto e =
         cmStrCat(prop, " property can only be applied to OBJECT targets(",
-                 this->impl->Name, ")\n");
+                 this->impl->m_name, ")\n");
       this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e);
       return;
     }
@@ -2148,7 +2148,7 @@ void cmTarget::SetProperty(std::string const& prop, cmValue value)
     if (this->GetProperty("PRECOMPILE_HEADERS")) {
       std::ostringstream e;
       e << "PRECOMPILE_HEADERS property is already set on target (\""
-        << this->impl->Name << "\")\n";
+        << this->impl->m_name << "\")\n";
       this->impl->m_pMakefile->IssueMessage(MessageType::FATAL_ERROR, e.str());
       return;
     }
@@ -2203,7 +2203,7 @@ void cmTarget::AppendProperty(std::string const& prop,
       MessageType::FATAL_ERROR,
       cmStrCat("IMPORTED_GLOBAL property can't be appended, only set on "
                "imported targets (\"",
-               this->impl->Name, "\")\n"));
+               this->impl->m_name, "\")\n"));
   }
   if (prop == propPRECOMPILE_HEADERS &&
       this->GetProperty("PRECOMPILE_HEADERS_REUSE_FROM")) {
@@ -2211,7 +2211,7 @@ void cmTarget::AppendProperty(std::string const& prop,
       MessageType::FATAL_ERROR,
       cmStrCat(
         "PRECOMPILE_HEADERS_REUSE_FROM property is already set on target (\"",
-        this->impl->Name, "\")\n"));
+        this->impl->m_name, "\")\n"));
     return;
   }
 
@@ -2417,8 +2417,8 @@ bool CheckLinkLibraryPattern(UsageRequirementProperty const& usage,
     context->IssueMessage(
       MessageType::FATAL_ERROR,
       cmStrCat(
-        "Property ", usage.Name, " contains the invalid item \"",
-        linkPattern.match(2), "\". The ", usage.Name,
+        "Property ", usage.m_name, " contains the invalid item \"",
+        linkPattern.match(2), "\". The ", usage.m_name,
         " property may contain the generator-expression \"$<LINK_",
         linkPattern.match(3),
         ":...>\" which may be used to specify how the libraries are linked."),

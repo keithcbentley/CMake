@@ -76,6 +76,6 @@ private:
 
   std::string TargetNameReal;
   GhsMultiGpj::Types TagType;
-  std::string const Name;
+  std::string const m_name;
   std::string ConfigName; /* CMAKE_BUILD_TYPE */
 };

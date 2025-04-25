@@ -739,7 +739,7 @@ bool HandleExtractCommand(std::vector<std::string> const& args,
   }
 
   auto& mf = status.GetMakefile();
-  mf.AddDefinition("CMAKE_PKG_CONFIG_NAME", package.Name());
+  mf.AddDefinition("CMAKE_PKG_CONFIG_NAME", package.m_name());
   mf.AddDefinition("CMAKE_PKG_CONFIG_DESCRIPTION", package.Description());
   mf.AddDefinition("CMAKE_PKG_CONFIG_VERSION", package.Version());
 
@@ -749,7 +749,7 @@ bool HandleExtractCommand(std::vector<std::string> const& args,
     vec.reserve(deps.size());
 
     for (auto const& dep : deps) {
-      vec.emplace_back(dep.Name);
+      vec.emplace_back(dep.m_name);
     }
 
     mf.AddDefinition(def, cmList::to_string(vec));
@@ -824,14 +824,14 @@ cmTarget* CreateCMakeTarget(std::string const& name, std::string const& prefix,
                       cmList::to_string(cflags.CompileOptions));
 
   for (auto& dep : pkg.Requires()) {
-    auto it = providers.find(dep.Name);
+    auto it = providers.find(dep.m_name);
     if (it != providers.end()) {
       tgt->AppendProperty("INTERFACE_LINK_LIBRARIES", it->second);
       continue;
     }
 
     tgt->AppendProperty("INTERFACE_LINK_LIBRARIES",
-                        cmStrCat("@foreign_pkgcfg::", prefix, dep.Name));
+                        cmStrCat("@foreign_pkgcfg::", prefix, dep.m_name));
   }
   return tgt;
 }
@@ -843,18 +843,18 @@ bool CheckPackageDependencies(
   pkgProviders& providers, ImportEnv& imEnv)
 {
   for (auto& dep : pkg.Requires()) {
-    auto prov_it = providers.find(dep.Name);
+    auto prov_it = providers.find(dep.m_name);
     if (prov_it != providers.end()) {
       continue;
     }
 
     auto* tgt = imEnv.status.GetMakefile().FindTargetToUse(
-      cmStrCat("@foreign_pkgcfg::", prefix, dep.Name),
+      cmStrCat("@foreign_pkgcfg::", prefix, dep.m_name),
       cmStateEnums::TargetDomain::FOREIGN);
     if (tgt) {
       auto ver = tgt->GetProperty("VERSION");
       if (!cmPkgConfigResolver::CheckVersion(dep.VerReq, *ver)) {
-        warn_or_error(cmStrCat("Package '", dep.Name, "' version '", *ver,
+        warn_or_error(cmStrCat("Package '", dep.m_name, "' version '", *ver,
                                "' does not meet version requirement '",
                                dep.VerReq.string(), "' ", "of '", name, "'"),
                       imEnv);
@@ -863,11 +863,11 @@ bool CheckPackageDependencies(
       continue;
     }
 
-    auto it = outStack.find(dep.Name);
+    auto it = outStack.find(dep.m_name);
     if (it != outStack.end()) {
       auto ver = it->second.Version();
       if (!cmPkgConfigResolver::CheckVersion(dep.VerReq, ver)) {
-        warn_or_error(cmStrCat("Package '", dep.Name, "' version '", ver,
+        warn_or_error(cmStrCat("Package '", dep.m_name, "' version '", ver,
                                "' does not meet version requirement '",
                                dep.VerReq.string(), "' ", "of '", name, "'"),
                       imEnv);
@@ -876,7 +876,7 @@ bool CheckPackageDependencies(
       continue;
     }
 
-    inStack[dep.Name].emplace_back(
+    inStack[dep.m_name].emplace_back(
       pkgStackEntry{ std::move(dep.VerReq), name });
   }
 
@@ -991,11 +991,11 @@ bool HandlePopulateCommand(std::vector<std::string> const& args,
 
 struct ImportArguments : PopulateArguments
 {
-  cm::optional<std::string> Name;
+  cm::optional<std::string> m_name;
 };
 
 auto const ImportParser =
-  BIND_POPULATE(ImportArguments).Bind("NAME"_s, &ImportArguments::Name);
+  BIND_POPULATE(ImportArguments).Bind("NAME"_s, &ImportArguments::m_name);
 
 bool HandleImportCommand(std::vector<std::string> const& args,
                          cmExecutionStatus& status)
@@ -1009,7 +1009,7 @@ bool HandleImportCommand(std::vector<std::string> const& args,
   auto foreign_name =
     cmStrCat("@foreign_pkgcfg::", prefix, *parsedArgs.Package);
   auto local_name =
-    cmStrCat("PkgConfig::", parsedArgs.Name.value_or(*parsedArgs.Package));
+    cmStrCat("PkgConfig::", parsedArgs.m_name.value_or(*parsedArgs.Package));
   auto found_var = cmStrCat("PKGCONFIG_", *parsedArgs.Package, "_FOUND");
 
   auto& mf = status.GetMakefile();

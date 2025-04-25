@@ -13,12 +13,12 @@ cmFileLock::cmFileLock() = default;
 
 cmFileLockResult cmFileLock::Release()
 {
-  if (this->Filename.empty()) {
+  if (this->m_filename.empty()) {
     return cmFileLockResult::MakeOk();
   }
   int const lockResult = this->LockFile(F_SETLK, F_UNLCK);
 
-  this->Filename = "";
+  this->m_filename = "";
 
   ::close(this->File);
   this->File = -1;
@@ -31,7 +31,7 @@ cmFileLockResult cmFileLock::Release()
 
 cmFileLockResult cmFileLock::OpenFile()
 {
-  this->File = ::open(this->Filename.c_str(), O_RDWR);
+  this->File = ::open(this->m_filename.c_str(), O_RDWR);
   if (this->File == -1) {
     return cmFileLockResult::MakeSystem();
   }

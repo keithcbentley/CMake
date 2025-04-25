@@ -104,7 +104,7 @@ private:
 class cmListFileContext
 {
 public:
-  std::string Name;
+  std::string m_name;
   std::string m_filePath;
   long Line = 0;
   static long const DeferPlaceholderLine = -1;
@@ -130,7 +130,7 @@ public:
 #endif
 
   cmListFileContext(std::string name, std::string filePath, long line)
-    : Name(std::move(name))
+    : m_name(std::move(name))
     , m_filePath(std::move(filePath))
     , Line(line)
   {
@@ -154,7 +154,7 @@ public:
     cmListFileContext lfc;
     lfc.m_filePath = fileName;
     lfc.Line = lff.Line();
-    lfc.Name = lff.OriginalName();
+    lfc.m_name = lff.OriginalName();
     lfc.DeferId = std::move(deferId);
     return lfc;
   }

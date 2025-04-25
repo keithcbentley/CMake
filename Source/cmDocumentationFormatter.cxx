@@ -149,7 +149,7 @@ void cmDocumentationFormatter::PrintSection(
   std::ostream& os, cmDocumentationSection const& section)
 {
   std::size_t const PREFIX_SIZE =
-    sizeof(cmDocumentationEntry::CustomNamePrefix) + 1u;
+    sizeof(cmDocumentationEntry::m_customNamePrefix) + 1u;
   // length of the "= " literal (see below)
   std::size_t const SUFFIX_SIZE = 2u;
   // legacy magic number ;-)
@@ -163,18 +163,18 @@ void cmDocumentationFormatter::PrintSection(
   os << section.GetName() << '\n';
 
   for (cmDocumentationEntry const& entry : section.GetEntries()) {
-    if (!entry.Name.empty()) {
+    if (!entry.m_name.empty()) {
       this->TextIndent = TITLE_SIZE;
-      os << std::setw(PREFIX_SIZE) << std::left << entry.CustomNamePrefix
-         << std::setw(int(std::max(NAME_SIZE, entry.Name.size())))
-         << entry.Name;
-      if (entry.Name.size() > NAME_SIZE) {
+      os << std::setw(PREFIX_SIZE) << std::left << entry.m_customNamePrefix
+         << std::setw(int(std::max(NAME_SIZE, entry.m_name.size())))
+         << entry.m_name;
+      if (entry.m_name.size() > NAME_SIZE) {
         os << '\n' << std::setw(int(this->TextIndent - PREFIX_SIZE)) << ' ';
       }
-      os << "= " << this->Format(entry.Brief).substr(this->TextIndent);
+      os << "= " << this->Format(entry.m_brief).substr(this->TextIndent);
     } else {
       this->TextIndent = 0u;
-      os << '\n' << this->Format(entry.Brief);
+      os << '\n' << this->Format(entry.m_brief);
     }
   }
 

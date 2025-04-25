@@ -122,14 +122,14 @@ public:
   struct Signal
   {
     int Number = 0;
-    std::string Name;
+    std::string m_name;
   };
 
   struct cmCTestTestProperties
   {
     void AppendError(cm::string_view err);
     cm::optional<std::string> Error;
-    std::string Name;
+    std::string m_name;
     std::string Directory;
     std::vector<std::string> Args;
     std::vector<std::string> RequiredFiles;
@@ -179,7 +179,7 @@ public:
 
   struct cmCTestTestResult
   {
-    std::string Name;
+    std::string m_name;
     std::string Path;
     std::string Reason;
     std::string FullCommandLine;

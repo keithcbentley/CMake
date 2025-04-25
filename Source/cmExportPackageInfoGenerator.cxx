@@ -271,7 +271,7 @@ bool cmExportPackageInfoGenerator::NoteLinkedTarget(
     auto pkgName = [linkedTarget]() -> std::string {
       auto const& pkgStack = linkedTarget->Target->GetFindPackageStack();
       if (!pkgStack.Empty()) {
-        return pkgStack.Top().Name;
+        return pkgStack.Top().m_name;
       }
 
       return linkedTarget->Target->GetProperty("EXPORT_FIND_PACKAGE_NAME");

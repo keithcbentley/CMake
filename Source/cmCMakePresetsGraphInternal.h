@@ -102,13 +102,13 @@ public:
   {
     if (macroNamespace.empty()) {
       if (macroName == "presetName") {
-        macroOut += Preset.Name;
+        macroOut += Preset.m_name;
         return ExpandMacroResult::Ok;
       }
       if (macroName == "generator") {
         // Generator only makes sense if preset is not hidden.
         if (!Preset.Hidden) {
-          macroOut += Graph.GetGeneratorForPreset(Preset.Name);
+          macroOut += Graph.GetGeneratorForPreset(Preset.m_name);
         }
         return ExpandMacroResult::Ok;
       }
@@ -117,7 +117,7 @@ public:
           return ExpandMacroResult::Error;
         }
         macroOut +=
-          cmSystemTools::GetParentDirectory(Preset.OriginFile->Filename);
+          cmSystemTools::GetParentDirectory(Preset.OriginFile->m_filename);
         return ExpandMacroResult::Ok;
       }
     }

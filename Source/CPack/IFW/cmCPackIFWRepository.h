@@ -41,7 +41,7 @@ public:
   // Configuration
 
   /// Internal repository name
-  std::string Name;
+  std::string m_name;
 
   /// Optional update action
   m_action Update;

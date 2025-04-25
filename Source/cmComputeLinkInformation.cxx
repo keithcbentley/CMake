@@ -592,7 +592,7 @@ bool cmComputeLinkInformation::Compute()
       continue;
     }
 
-    if (currentFeature && linkEntry.Feature != currentFeature->Name) {
+    if (currentFeature && linkEntry.Feature != currentFeature->m_name) {
       // emit feature suffix, if any
       if (!currentFeature->Suffix.empty()) {
         this->Items.emplace_back(
@@ -604,7 +604,7 @@ bool cmComputeLinkInformation::Compute()
     }
 
     if (linkEntry.Feature != DEFAULT &&
-        (!currentFeature || linkEntry.Feature != currentFeature->Name)) {
+        (!currentFeature || linkEntry.Feature != currentFeature->m_name)) {
       if (!this->AddLibraryFeature(linkEntry.Feature)) {
         continue;
       }
@@ -713,7 +713,7 @@ private:
 
 cmComputeLinkInformation::FeatureDescriptor::FeatureDescriptor(
   std::string name, std::string itemFormat)
-  : Name(std::move(name))
+  : m_name(std::move(name))
   , Supported(true)
   , ItemPathFormat(std::move(itemFormat))
   , ItemNameFormat(this->ItemPathFormat)
@@ -721,7 +721,7 @@ cmComputeLinkInformation::FeatureDescriptor::FeatureDescriptor(
 }
 cmComputeLinkInformation::FeatureDescriptor::FeatureDescriptor(
   std::string name, std::string itemPathFormat, std::string itemNameFormat)
-  : Name(std::move(name))
+  : m_name(std::move(name))
   , Supported(true)
   , ItemPathFormat(std::move(itemPathFormat))
   , ItemNameFormat(std::move(itemNameFormat))
@@ -730,7 +730,7 @@ cmComputeLinkInformation::FeatureDescriptor::FeatureDescriptor(
 cmComputeLinkInformation::FeatureDescriptor::FeatureDescriptor(
   std::string name, std::string prefix, std::string itemPathFormat,
   std::string itemNameFormat, std::string suffix)
-  : Name(std::move(name))
+  : m_name(std::move(name))
   , Supported(true)
   , Prefix(std::move(prefix))
   , Suffix(std::move(suffix))
@@ -740,7 +740,7 @@ cmComputeLinkInformation::FeatureDescriptor::FeatureDescriptor(
 }
 cmComputeLinkInformation::FeatureDescriptor::FeatureDescriptor(
   std::string name, std::string prefix, std::string suffix, bool)
-  : Name(std::move(name))
+  : m_name(std::move(name))
   , Supported(true)
   , Prefix(std::move(prefix))
   , Suffix(std::move(suffix))

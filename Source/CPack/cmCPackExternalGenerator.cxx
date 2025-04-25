@@ -242,13 +242,13 @@ int cmCPackExternalGenerator::cmCPackExternalVersionGenerator::WriteToJSON(
     Json::Value& installationTypes = jsonProject["installationTypes"] =
       Json::Value(Json::arrayValue);
     for (auto& installationType : project.InstallationTypes) {
-      installationTypes.append(installationType->Name);
+      installationTypes.append(installationType->m_name);
     }
 
     Json::Value& components = jsonProject["components"] =
       Json::Value(Json::arrayValue);
     for (auto& component : project.Components) {
-      components.append(component->Name);
+      components.append(component->m_name);
     }
 
     projects.append(jsonProject);
@@ -261,7 +261,7 @@ int cmCPackExternalGenerator::cmCPackExternalVersionGenerator::WriteToJSON(
       installationTypes[installationType.first] =
         Json::Value(Json::objectValue);
 
-    jsonInstallationType["name"] = installationType.second.Name;
+    jsonInstallationType["name"] = installationType.second.m_name;
     jsonInstallationType["displayName"] = installationType.second.DisplayName;
     jsonInstallationType["index"] = installationType.second.Index;
   }
@@ -272,10 +272,10 @@ int cmCPackExternalGenerator::cmCPackExternalVersionGenerator::WriteToJSON(
     Json::Value& jsonComponent = components[component.first] =
       Json::Value(Json::objectValue);
 
-    jsonComponent["name"] = component.second.Name;
+    jsonComponent["name"] = component.second.m_name;
     jsonComponent["displayName"] = component.second.DisplayName;
     if (component.second.Group) {
-      jsonComponent["group"] = component.second.Group->Name;
+      jsonComponent["group"] = component.second.Group->m_name;
     }
     jsonComponent["isRequired"] = component.second.IsRequired;
     jsonComponent["isHidden"] = component.second.IsHidden;
@@ -288,13 +288,13 @@ int cmCPackExternalGenerator::cmCPackExternalVersionGenerator::WriteToJSON(
     Json::Value& cmpInstallationTypes = jsonComponent["installationTypes"] =
       Json::Value(Json::arrayValue);
     for (auto& installationType : component.second.InstallationTypes) {
-      cmpInstallationTypes.append(installationType->Name);
+      cmpInstallationTypes.append(installationType->m_name);
     }
 
     Json::Value& dependencies = jsonComponent["dependencies"] =
       Json::Value(Json::arrayValue);
     for (auto& dep : component.second.Dependencies) {
-      dependencies.append(dep->Name);
+      dependencies.append(dep->m_name);
     }
   }
 
@@ -304,25 +304,25 @@ int cmCPackExternalGenerator::cmCPackExternalVersionGenerator::WriteToJSON(
     Json::Value& jsonGroup = groups[group.first] =
       Json::Value(Json::objectValue);
 
-    jsonGroup["name"] = group.second.Name;
+    jsonGroup["name"] = group.second.m_name;
     jsonGroup["displayName"] = group.second.DisplayName;
     jsonGroup["description"] = group.second.Description;
     jsonGroup["isBold"] = group.second.IsBold;
     jsonGroup["isExpandedByDefault"] = group.second.IsExpandedByDefault;
     if (group.second.ParentGroup) {
-      jsonGroup["parentGroup"] = group.second.ParentGroup->Name;
+      jsonGroup["parentGroup"] = group.second.ParentGroup->m_name;
     }
 
     Json::Value& subgroups = jsonGroup["subgroups"] =
       Json::Value(Json::arrayValue);
     for (auto& subgroup : group.second.Subgroups) {
-      subgroups.append(subgroup->Name);
+      subgroups.append(subgroup->m_name);
     }
 
     Json::Value& groupComponents = jsonGroup["components"] =
       Json::Value(Json::arrayValue);
     for (auto& component : group.second.Components) {
-      groupComponents.append(component->Name);
+      groupComponents.append(component->m_name);
     }
   }
 

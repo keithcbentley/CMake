@@ -37,7 +37,7 @@ auto const VariablesHelper = cmJSONHelperBuilder::Map<std::string>(
 auto const PackagePresetHelper =
   cmJSONHelperBuilder::Object<PackagePreset>(
     cmCMakePresetsErrors::INVALID_PRESET_OBJECT, false)
-    .Bind("name"_s, &PackagePreset::Name,
+    .Bind("name"_s, &PackagePreset::m_name,
           cmCMakePresetsGraphInternal::PresetNameHelper)
     .Bind("inherits"_s, &PackagePreset::Inherits,
           cmCMakePresetsGraphInternal::PresetVectorOneOrMoreStringHelper,

@@ -60,7 +60,7 @@ std::function<bool(BuildPreset&, Json::Value const*, cmJSONState*)> const
 auto const BuildPresetHelper =
   JSONHelperBuilder::Object<BuildPreset>(
     cmCMakePresetsErrors::INVALID_PRESET_OBJECT, false)
-    .Bind("name"_s, &BuildPreset::Name,
+    .Bind("name"_s, &BuildPreset::m_name,
           cmCMakePresetsGraphInternal::PresetNameHelper)
     .Bind("inherits"_s, &BuildPreset::Inherits,
           cmCMakePresetsGraphInternal::PresetVectorOneOrMoreStringHelper,

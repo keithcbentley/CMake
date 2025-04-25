@@ -40,7 +40,7 @@ protected:
   int CompressFile(std::string const& oldname, std::string const& newname);
 
   // The name of the final destination file for the output.
-  std::string Name;
+  std::string m_name;
 
   // The extension of the temporary file.
   std::string TempExt;

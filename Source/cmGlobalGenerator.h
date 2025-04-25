@@ -403,45 +403,45 @@ public:
   {
     FrameworkDescriptor(std::string directory, std::string name)
       : Directory(std::move(directory))
-      , Name(std::move(name))
+      , m_name(std::move(name))
     {
     }
     FrameworkDescriptor(std::string directory, std::string version,
                         std::string name)
       : Directory(std::move(directory))
       , Version(std::move(version))
-      , Name(std::move(name))
+      , m_name(std::move(name))
     {
     }
     FrameworkDescriptor(std::string directory, std::string version,
                         std::string name, std::string suffix)
       : Directory(std::move(directory))
       , Version(std::move(version))
-      , Name(std::move(name))
+      , m_name(std::move(name))
       , Suffix(std::move(suffix))
     {
     }
     std::string GetLinkName() const
     {
-      return this->Suffix.empty() ? this->Name
-                                  : cmStrCat(this->Name, ',', this->Suffix);
+      return this->Suffix.empty() ? this->m_name
+                                  : cmStrCat(this->m_name, ',', this->Suffix);
     }
     std::string GetFullName() const
     {
-      return cmStrCat(this->Name, ".framework/"_s, this->Name, this->Suffix);
+      return cmStrCat(this->m_name, ".framework/"_s, this->m_name, this->Suffix);
     }
     std::string GetVersionedName() const
     {
       return this->Version.empty()
         ? this->GetFullName()
-        : cmStrCat(this->Name, ".framework/Versions/"_s, this->Version, '/',
-                   this->Name, this->Suffix);
+        : cmStrCat(this->m_name, ".framework/Versions/"_s, this->Version, '/',
+                   this->m_name, this->Suffix);
     }
     std::string GetFrameworkPath() const
     {
       return this->Directory.empty()
-        ? cmStrCat(this->Name, ".framework"_s)
-        : cmStrCat(this->Directory, '/', this->Name, ".framework"_s);
+        ? cmStrCat(this->m_name, ".framework"_s)
+        : cmStrCat(this->Directory, '/', this->m_name, ".framework"_s);
     }
     std::string GetFullPath() const
     {
@@ -458,7 +458,7 @@ public:
 
     std::string const Directory;
     std::string const Version;
-    std::string const Name;
+    std::string const m_name;
     std::string const Suffix;
   };
   enum class FrameworkFormat
@@ -733,7 +733,7 @@ protected:
 
   struct GlobalTargetInfo
   {
-    std::string Name;
+    std::string m_name;
     std::string Message;
     cmCustomCommandLines CommandLines;
     std::vector<std::string> Depends;

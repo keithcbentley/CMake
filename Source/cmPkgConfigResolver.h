@@ -49,7 +49,7 @@ struct cmPkgConfigVersionReq
 
 struct cmPkgConfigDependency
 {
-  std::string Name;
+  std::string m_name;
   cmPkgConfigVersionReq VerReq;
 };
 
@@ -76,7 +76,7 @@ public:
   std::unordered_map<std::string, std::string> Keywords;
   std::unordered_map<std::string, std::string> Variables;
 
-  std::string Name();
+  std::string m_name();
   std::string Description();
   std::string Version();
 

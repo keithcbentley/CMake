@@ -32,12 +32,12 @@ public:
   struct TargetExport
   {
     TargetExport(std::string name, std::string xcFrameworkLocation)
-      : Name(std::move(name))
+      : m_name(std::move(name))
       , XcFrameworkLocation(std::move(xcFrameworkLocation))
     {
     }
 
-    std::string Name;
+    std::string m_name;
     std::string XcFrameworkLocation;
   };
 

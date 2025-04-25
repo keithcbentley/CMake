@@ -52,7 +52,7 @@ public:
   class File
   {
   public:
-    std::string Filename;
+    std::string m_filename;
     int Version;
 
     std::unordered_set<File*> ReachableFiles;
@@ -75,7 +75,7 @@ public:
     Preset& operator=(Preset&& /*other*/) = delete;
 #endif
 
-    std::string Name;
+    std::string m_name;
     std::vector<std::string> Inherits;
     bool Hidden = false;
     File* OriginFile;
@@ -233,7 +233,7 @@ public:
         std::string IndexFile;
       };
 
-      std::string Name;
+      std::string m_name;
       std::string Label;
       cm::optional<IndexOptions> Index;
       cm::optional<bool> UseUnion;
@@ -248,7 +248,7 @@ public:
         std::string Cleanup;
       };
 
-      std::string Name;
+      std::string m_name;
       std::string Label;
       cm::optional<FixturesOptions> Fixtures;
     };

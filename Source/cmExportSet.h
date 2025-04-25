@@ -36,7 +36,7 @@ public:
   void SetXcFrameworkLocation(std::string const& name,
                               std::string const& location);
 
-  std::string const& GetName() const { return this->Name; }
+  std::string const& GetName() const { return this->m_name; }
 
   std::vector<std::unique_ptr<cmTargetExport>> const& GetTargetExports() const
   {
@@ -74,7 +74,7 @@ public:
 
 private:
   std::vector<std::unique_ptr<cmTargetExport>> TargetExports;
-  std::string Name;
+  std::string m_name;
   std::vector<cmInstallExportGenerator const*> Installations;
   std::map<std::string, PackageDependency> PackageDependencies;
   unsigned int NextPackageDependencyIndex = 0;

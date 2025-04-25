@@ -32,7 +32,7 @@ private:
   struct User
   {
     std::string UserName;
-    std::string Name;
+    std::string m_name;
     std::string EMail;
     std::string AccessTime;
   };

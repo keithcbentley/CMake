@@ -370,7 +370,7 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
           cmSystemTools::CollapseFullPath(componentName, toplevel);
         outputDir = CustomComponentInstallDirectory(component);
         componentParam =
-          CreateRecursiveComponentPath(component->Group, component->Name);
+          CreateRecursiveComponentPath(component->Group, component->m_name);
 
         if (component->IsHidden && component->IsDisabledByDefault) {
           continue;
@@ -526,10 +526,10 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
         std::string componentName;
         for (auto const& i : Components) {
           if (cmSystemTools::FileExists(cmSystemTools::CollapseFullPath(
-                cmStrCat(i.second.Name, '\\', target), toplevel))) {
+                cmStrCat(i.second.m_name, '\\', target), toplevel))) {
             dir = CustomComponentInstallDirectory(&i.second);
             componentName =
-              CreateRecursiveComponentPath(i.second.Group, i.second.Name);
+              CreateRecursiveComponentPath(i.second.Group, i.second.m_name);
 
             if (i.second.IsHidden && i.second.IsDisabledByDefault) {
               goto continueOuterLoop;
@@ -584,10 +584,10 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
   for (cmCPackInstallationType* i : types) {
     cmCPackInnoSetupKeyValuePairs params;
 
-    params["Name"] = Quote(i->Name);
+    params["Name"] = Quote(i->m_name);
     params["Description"] = Quote(i->DisplayName);
 
-    allTypes.push_back(i->Name);
+    allTypes.push_back(i->m_name);
     typeInstructions.push_back(ISKeyValueLine(params));
   }
 
@@ -615,7 +615,7 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
     CreateRecursiveComponentGroups(component->Group);
 
     params["Name"] =
-      Quote(CreateRecursiveComponentPath(component->Group, component->Name));
+      Quote(CreateRecursiveComponentPath(component->Group, component->m_name));
     params["Description"] = Quote(component->DisplayName);
 
     if (component->IsRequired) {
@@ -626,7 +626,7 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
 
       installationTypes.reserve(component->InstallationTypes.size());
       for (cmCPackInstallationType* j : component->InstallationTypes) {
-        installationTypes.push_back(j->Name);
+        installationTypes.push_back(j->m_name);
       }
 
       params["Types"] = cmJoin(installationTypes, " ");
@@ -647,7 +647,7 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
           cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), ".dummy");
         component->ArchiveFile =
           cmStrCat(cmSystemTools::GetFilenameWithoutLastExtension(packagesDir),
-                   '-', component->Name, ".zip");
+                   '-', component->m_name, ".zip");
       } else if (!cmHasSuffix(component->ArchiveFile, ".zip")) {
         component->ArchiveFile = cmStrCat(component->ArchiveFile, ".zip");
       }
@@ -708,7 +708,7 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
         Quote(cmSystemTools::GetFilenameWithoutLastExtension(i->ArchiveFile)));
       archiveHashes.push_back(Quote(hash));
       archiveComponents.push_back(
-        Quote(CreateRecursiveComponentPath(i->Group, i->Name)));
+        Quote(CreateRecursiveComponentPath(i->Group, i->m_name)));
     }
 
     SetOption("CPACK_INNOSETUP_DOWNLOAD_COUNT_INTERNAL",
@@ -923,7 +923,7 @@ bool cmCPackInnoSetupGenerator::BuildDownloadedComponentArchive(
 
   // The directory where this component's files reside
   std::string const& dirName =
-    cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), '/', component->Name);
+    cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), '/', component->m_name);
 
   // Build the list of files to go into this archive
   std::string const& zipListFileName =
@@ -1009,7 +1009,7 @@ std::string cmCPackInnoSetupGenerator::CustomComponentInstallDirectory(
   cmCPackComponent const* component)
 {
   cmValue outputDir = GetOption(
-    cmStrCat("CPACK_INNOSETUP_", component->Name, "_INSTALL_DIRECTORY"));
+    cmStrCat("CPACK_INNOSETUP_", component->m_name, "_INSTALL_DIRECTORY"));
   if (outputDir) {
     std::string destDir = cmSystemTools::ConvertToWindowsOutputPath(outputDir);
     cmStripSuffixIfExists(destDir, '\\');
@@ -1021,14 +1021,14 @@ std::string cmCPackInnoSetupGenerator::CustomComponentInstallDirectory(
     static std::vector<std::string> customDirectories;
     if (!cmHasSuffix(destDir, '}') &&
         std::find(customDirectories.begin(), customDirectories.end(),
-                  component->Name) == customDirectories.end()) {
+                  component->m_name) == customDirectories.end()) {
       cmCPackInnoSetupKeyValuePairs params;
       params["Name"] = QuotePath(destDir);
       params["Components"] =
-        CreateRecursiveComponentPath(component->Group, component->Name);
+        CreateRecursiveComponentPath(component->Group, component->m_name);
 
       dirInstructions.push_back(ISKeyValueLine(params));
-      customDirectories.push_back(component->Name);
+      customDirectories.push_back(component->m_name);
     }
     return destDir;
   }
@@ -1087,7 +1087,7 @@ std::string cmCPackInnoSetupGenerator::CreateRecursiveComponentPath(
   }
 
   std::string const& newPath =
-    path.empty() ? group->Name : cmStrCat(group->Name, '\\', path);
+    path.empty() ? group->m_name : cmStrCat(group->m_name, '\\', path);
   return CreateRecursiveComponentPath(group->ParentGroup, newPath);
 }
 

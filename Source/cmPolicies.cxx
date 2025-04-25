@@ -281,7 +281,7 @@ bool IsFromLegacyInstallEXPORT(cmMakefile* mf, unsigned int majorVer,
 {
   return majorVer == 2 && minorVer == 6 && patchVer == 0 &&
     mf->GetStateSnapshot().CanPopPolicyScope() &&
-    cmSystemTools::Strucmp(mf->GetBacktrace().Top().Name.c_str(),
+    cmSystemTools::Strucmp(mf->GetBacktrace().Top().m_name.c_str(),
                            "cmake_policy") == 0;
 }
 #define ADVICE_UPDATE_VERSION_ARGUMENT                                        \

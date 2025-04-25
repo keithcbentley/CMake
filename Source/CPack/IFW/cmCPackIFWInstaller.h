@@ -36,7 +36,7 @@ public:
   // Configuration
 
   /// Name of the product being installed
-  std::string Name;
+  std::string m_name;
 
   /// Version number of the product being installed
   std::string Version;

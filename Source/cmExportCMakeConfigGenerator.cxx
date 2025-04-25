@@ -414,7 +414,7 @@ void cmExportCMakeConfigGenerator::GenerateFindDependencyCalls(
     } else {
       if (!pkgStack.Empty()) {
         cmFindPackageCall const& fpc = pkgStack.Top();
-        findPackageName = fpc.Name;
+        findPackageName = fpc.m_name;
       }
     }
     if (!findPackageName.empty()) {

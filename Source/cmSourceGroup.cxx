@@ -16,21 +16,21 @@ public:
 
 cmSourceGroup::cmSourceGroup(std::string name, char const* regex,
                              char const* parentName)
-  : Name(std::move(name))
+  : m_name(std::move(name))
 {
   this->Internal = cm::make_unique<cmSourceGroupInternals>();
   this->SetGroupRegex(regex);
   if (parentName) {
     this->FullName = cmStrCat(parentName, '\\');
   }
-  this->FullName += this->Name;
+  this->FullName += this->m_name;
 }
 
 cmSourceGroup::~cmSourceGroup() = default;
 
 cmSourceGroup::cmSourceGroup(cmSourceGroup const& r)
 {
-  this->Name = r.Name;
+  this->m_name = r.m_name;
   this->FullName = r.FullName;
   this->GroupRegex = r.GroupRegex;
   this->GroupFiles = r.GroupFiles;
@@ -40,7 +40,7 @@ cmSourceGroup::cmSourceGroup(cmSourceGroup const& r)
 
 cmSourceGroup& cmSourceGroup::operator=(cmSourceGroup const& r)
 {
-  this->Name = r.Name;
+  this->m_name = r.m_name;
   this->GroupRegex = r.GroupRegex;
   this->GroupFiles = r.GroupFiles;
   this->m_sourceFiles = r.m_sourceFiles;
@@ -64,7 +64,7 @@ void cmSourceGroup::AddGroupFile(std::string const& name)
 
 std::string const& cmSourceGroup::GetName() const
 {
-  return this->Name;
+  return this->m_name;
 }
 
 std::string const& cmSourceGroup::GetFullName() const

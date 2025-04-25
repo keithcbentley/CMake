@@ -87,8 +87,8 @@ struct cmCTest::Private
   /** Representation of one part.  */
   struct PartInfo
   {
-    void SetName(std::string const& name) { this->Name = name; }
-    std::string const& GetName() const { return this->Name; }
+    void SetName(std::string const& name) { this->m_name = name; }
+    std::string const& GetName() const { return this->m_name; }
 
     void Enable() { this->Enabled = true; }
     explicit operator bool() const { return this->Enabled; }
@@ -97,7 +97,7 @@ struct cmCTest::Private
 
   private:
     bool Enabled = false;
-    std::string Name;
+    std::string m_name;
   };
 
   int RepeatCount = 1; // default to run each test once
@@ -1703,7 +1703,7 @@ bool cmCTest::SetArgsFromPreset(std::string const& presetName,
   if (expandedPreset->Filter) {
     if (expandedPreset->Filter->Include) {
       this->Impl->TestOptions.IncludeRegularExpression =
-        expandedPreset->Filter->Include->Name;
+        expandedPreset->Filter->Include->m_name;
       if (!expandedPreset->Filter->Include->Label.empty()) {
         this->Impl->TestOptions.LabelRegularExpression.push_back(
           expandedPreset->Filter->Include->Label);
@@ -1734,7 +1734,7 @@ bool cmCTest::SetArgsFromPreset(std::string const& presetName,
 
     if (expandedPreset->Filter->Exclude) {
       this->Impl->TestOptions.ExcludeRegularExpression =
-        expandedPreset->Filter->Exclude->Name;
+        expandedPreset->Filter->Exclude->m_name;
       if (!expandedPreset->Filter->Exclude->Label.empty()) {
         this->Impl->TestOptions.ExcludeLabelRegularExpression.push_back(
           expandedPreset->Filter->Exclude->Label);

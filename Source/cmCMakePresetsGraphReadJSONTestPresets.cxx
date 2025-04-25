@@ -167,7 +167,7 @@ bool TestPresetOptionalFilterIncludeIndexHelper(
 auto const TestPresetOptionalFilterIncludeHelper =
   JSONHelperBuilder::Optional<TestPreset::IncludeOptions>(
     JSONHelperBuilder::Object<TestPreset::IncludeOptions>()
-      .Bind("name"_s, &TestPreset::IncludeOptions::Name,
+      .Bind("name"_s, &TestPreset::IncludeOptions::m_name,
             cmCMakePresetsGraphInternal::PresetStringHelper, false)
       .Bind("label"_s, &TestPreset::IncludeOptions::Label,
             cmCMakePresetsGraphInternal::PresetStringHelper, false)
@@ -189,7 +189,7 @@ auto const TestPresetOptionalFilterExcludeFixturesHelper =
 auto const TestPresetOptionalFilterExcludeHelper =
   JSONHelperBuilder::Optional<TestPreset::ExcludeOptions>(
     JSONHelperBuilder::Object<TestPreset::ExcludeOptions>()
-      .Bind("name"_s, &TestPreset::ExcludeOptions::Name,
+      .Bind("name"_s, &TestPreset::ExcludeOptions::m_name,
             cmCMakePresetsGraphInternal::PresetStringHelper, false)
       .Bind("label"_s, &TestPreset::ExcludeOptions::Label,
             cmCMakePresetsGraphInternal::PresetStringHelper, false)
@@ -339,7 +339,7 @@ auto const TestPresetFilterHelper =
 auto const TestPresetHelper =
   JSONHelperBuilder::Object<TestPreset>(
     cmCMakePresetsErrors::INVALID_PRESET_OBJECT, false)
-    .Bind("name"_s, &TestPreset::Name,
+    .Bind("name"_s, &TestPreset::m_name,
           cmCMakePresetsGraphInternal::PresetNameHelper)
     .Bind("inherits"_s, &TestPreset::Inherits,
           cmCMakePresetsGraphInternal::PresetVectorOneOrMoreStringHelper,

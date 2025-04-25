@@ -149,7 +149,7 @@ struct cmJSONHelperBuilder
 
       bool success = true;
       for (auto const& m : this->Members) {
-        std::string name(m.Name.data(), m.Name.size());
+        std::string name(m.m_name.data(), m.m_name.size());
         state->push_stack(name, value);
         if (value && value->isMember(name)) {
           if (!m.Function(out, &(*value)[name], state)) {
@@ -183,12 +183,12 @@ struct cmJSONHelperBuilder
     struct Member
     {
       Member(cm::string_view name, MemberFunction func, bool required)
-        : Name{ name }
+        : m_name{ name }
         , Function{ std::move(func) }
         , Required{ required }
       {
       }
-      cm::string_view Name;
+      cm::string_view m_name;
       MemberFunction Function;
       bool Required;
     };

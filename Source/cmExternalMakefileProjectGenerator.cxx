@@ -35,7 +35,7 @@ bool cmExternalMakefileProjectGenerator::Open(
 
 cmExternalMakefileProjectGeneratorFactory::
   cmExternalMakefileProjectGeneratorFactory(std::string n, std::string doc)
-  : Name(std::move(n))
+  : m_name(std::move(n))
   , Documentation(std::move(doc))
 {
 }
@@ -45,7 +45,7 @@ cmExternalMakefileProjectGeneratorFactory::
 
 std::string cmExternalMakefileProjectGeneratorFactory::GetName() const
 {
-  return this->Name;
+  return this->m_name;
 }
 
 std::string cmExternalMakefileProjectGeneratorFactory::GetDocumentation() const

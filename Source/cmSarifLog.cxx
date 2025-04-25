@@ -24,40 +24,40 @@ cmSarif::ResultsLog::ResultsLog()
 {
   // Add the known CMake rules
   this->KnownRules.emplace(RuleBuilder("CMake.AuthorWarning")
-                             .Name("CMake Warning (dev)")
+                             .m_name("CMake Warning (dev)")
                              .DefaultMessage("CMake Warning (dev): {0}")
                              .Build());
   this->KnownRules.emplace(RuleBuilder("CMake.Warning")
-                             .Name("CMake Warning")
+                             .m_name("CMake Warning")
                              .DefaultMessage("CMake Warning: {0}")
                              .Build());
   this->KnownRules.emplace(RuleBuilder("CMake.DeprecationWarning")
-                             .Name("CMake Deprecation Warning")
+                             .m_name("CMake Deprecation Warning")
                              .DefaultMessage("CMake Deprecation Warning: {0}")
                              .Build());
   this->KnownRules.emplace(RuleBuilder("CMake.AuthorError")
-                             .Name("CMake Error (dev)")
+                             .m_name("CMake Error (dev)")
                              .DefaultMessage("CMake Error (dev): {0}")
                              .Build());
   this->KnownRules.emplace(RuleBuilder("CMake.FatalError")
-                             .Name("CMake Error")
+                             .m_name("CMake Error")
                              .DefaultMessage("CMake Error: {0}")
                              .Build());
   this->KnownRules.emplace(
     RuleBuilder("CMake.InternalError")
-      .Name("CMake Internal Error")
+      .m_name("CMake Internal Error")
       .DefaultMessage("CMake Internal Error (please report a bug): {0}")
       .Build());
   this->KnownRules.emplace(RuleBuilder("CMake.DeprecationError")
-                             .Name("CMake Deprecation Error")
+                             .m_name("CMake Deprecation Error")
                              .DefaultMessage("CMake Deprecation Error: {0}")
                              .Build());
   this->KnownRules.emplace(RuleBuilder("CMake.Message")
-                             .Name("CMake Message")
+                             .m_name("CMake Message")
                              .DefaultMessage("CMake Message: {0}")
                              .Build());
   this->KnownRules.emplace(RuleBuilder("CMake.Log")
-                             .Name("CMake Log")
+                             .m_name("CMake Log")
                              .DefaultMessage("CMake Log: {0}")
                              .Build());
 }
@@ -173,8 +173,8 @@ Json::Value cmSarif::Rule::GetJson() const
   Json::Value rule(Json::objectValue);
   rule["id"] = this->m_id;
 
-  if (this->Name) {
-    rule["name"] = *this->Name;
+  if (this->m_name) {
+    rule["name"] = *this->m_name;
   }
   if (this->FullDescription) {
     rule["fullDescription"]["text"] = *this->FullDescription;

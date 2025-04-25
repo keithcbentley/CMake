@@ -200,7 +200,7 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
     if (this->TestProperties->TimeoutSignal &&
         this->TestProcess->GetTerminationStyle() ==
           cmProcess::Termination::Custom) {
-      outputStream << "(" << this->TestProperties->TimeoutSignal->Name << ") ";
+      outputStream << "(" << this->TestProperties->TimeoutSignal->m_name << ") ";
     }
     this->TestResult.Status = cmCTestTestHandler::TIMEOUT;
     outputTestErrorsToConsole =
@@ -251,7 +251,7 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
     if (!passedOrSkipped) {
       // If the test did not pass, reprint test name and error
       std::string output = this->GetTestPrefix(completed, total);
-      std::string testName = this->TestProperties->Name;
+      std::string testName = this->TestProperties->m_name;
       int const maxTestNameWidth = this->CTest->GetMaxTestNameWidth();
       testName.resize(maxTestNameWidth + 4, '.');
 
@@ -264,7 +264,7 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
     }
     if (completed == total) {
       std::string testName = this->GetTestPrefix(completed, total) +
-        this->TestProperties->Name + "\n";
+        this->TestProperties->m_name + "\n";
       cmCTestLog(this->CTest, HANDLER_TEST_PROGRESS_OUTPUT, testName);
     }
   }
@@ -337,9 +337,9 @@ cmCTestRunTest::EndTestResult cmCTestRunTest::EndTest(size_t completed,
       }
     }
     *this->TestHandler->LogFile
-      << "\"" << this->TestProperties->Name
+      << "\"" << this->TestProperties->m_name
       << "\" end time: " << this->CTest->CurrentTime() << std::endl
-      << "\"" << this->TestProperties->Name << "\" time elapsed: " << buffer
+      << "\"" << this->TestProperties->m_name << "\" time elapsed: " << buffer
       << std::endl
       << "----------------------------------------------------------"
       << std::endl
@@ -452,8 +452,8 @@ void cmCTestRunTest::MemCheckPostProcess()
   }
   cmCTestOptionalLog(this->CTest, HANDLER_VERBOSE_OUTPUT,
                      this->Index << ": process test output now: "
-                                 << this->TestProperties->Name << " "
-                                 << this->TestResult.Name << std::endl,
+                                 << this->TestProperties->m_name << " "
+                                 << this->TestResult.m_name << std::endl,
                      this->TestHandler->GetQuiet());
   cmCTestMemCheckHandler* handler =
     static_cast<cmCTestMemCheckHandler*>(this->TestHandler);
@@ -483,7 +483,7 @@ void cmCTestRunTest::StartFailure(size_t total, std::string const& output,
                  << "Start "
                  << std::setw(getNumWidth(this->TestHandler->GetMaxIndex()))
                  << this->TestProperties->Index << ": "
-                 << this->TestProperties->Name << std::endl);
+                 << this->TestProperties->m_name << std::endl);
   }
 
   this->ProcessOutput.clear();
@@ -499,7 +499,7 @@ void cmCTestRunTest::StartFailure(size_t total, std::string const& output,
   this->TestResult.CompletionStatus = detail;
   this->TestResult.Status = cmCTestTestHandler::NOT_RUN;
   this->TestResult.TestCount = this->TestProperties->Index;
-  this->TestResult.Name = this->TestProperties->Name;
+  this->TestResult.m_name = this->TestProperties->m_name;
   this->TestResult.Path = this->TestProperties->Directory;
   this->TestResult.Output = output;
   this->TestResult.FullCommandLine.clear();
@@ -549,10 +549,10 @@ bool cmCTestRunTest::StartTest(size_t completed, size_t total)
                  << "Start "
                  << std::setw(getNumWidth(this->TestHandler->GetMaxIndex()))
                  << this->TestProperties->Index << ": "
-                 << this->TestProperties->Name << std::endl);
+                 << this->TestProperties->m_name << std::endl);
   } else {
     std::string testName = this->GetTestPrefix(completed, total) +
-      this->TestProperties->Name + "\n";
+      this->TestProperties->m_name + "\n";
     cmCTestLog(this->CTest, HANDLER_TEST_PROGRESS_OUTPUT, testName);
   }
 
@@ -563,7 +563,7 @@ bool cmCTestRunTest::StartTest(size_t completed, size_t total)
   this->TestResult.CompressOutput = false;
   this->TestResult.ReturnValue = -1;
   this->TestResult.TestCount = this->TestProperties->Index;
-  this->TestResult.Name = this->TestProperties->Name;
+  this->TestResult.m_name = this->TestProperties->m_name;
   this->TestResult.Path = this->TestProperties->Directory;
 
   // Reject invalid test properties.
@@ -976,17 +976,17 @@ void cmCTestRunTest::WriteLogOutputTop(size_t completed, size_t total)
   outputStream << " ";
 
   int const maxTestNameWidth = this->CTest->GetMaxTestNameWidth();
-  std::string outname = this->TestProperties->Name + " ";
+  std::string outname = this->TestProperties->m_name + " ";
   outname.resize(maxTestNameWidth + 4, '.');
   outputStream << outname;
 
   *this->TestHandler->LogFile << this->TestProperties->Index << "/"
                               << this->TestHandler->TotalNumberOfTests
-                              << " Testing: " << this->TestProperties->Name
+                              << " Testing: " << this->TestProperties->m_name
                               << std::endl;
   *this->TestHandler->LogFile << this->TestProperties->Index << "/"
                               << this->TestHandler->TotalNumberOfTests
-                              << " Test: " << this->TestProperties->Name
+                              << " Test: " << this->TestProperties->m_name
                               << std::endl;
   *this->TestHandler->LogFile << "Command: \"" << this->ActualCommand << "\"";
 
@@ -996,7 +996,7 @@ void cmCTestRunTest::WriteLogOutputTop(size_t completed, size_t total)
   *this->TestHandler->LogFile
     << std::endl
     << "Directory: " << this->TestProperties->Directory << std::endl
-    << "\"" << this->TestProperties->Name
+    << "\"" << this->TestProperties->m_name
     << "\" start time: " << this->StartTime << std::endl;
 
   *this->TestHandler->LogFile
@@ -1011,14 +1011,14 @@ void cmCTestRunTest::WriteLogOutputTop(size_t completed, size_t total)
   }
 
   cmCTestLog(this->CTest, DEBUG,
-             "Testing " << this->TestProperties->Name << " ... ");
+             "Testing " << this->TestProperties->m_name << " ... ");
 }
 
 void cmCTestRunTest::FinalizeTest(bool started)
 {
   if (this->CTest->GetInstrumentation().HasQuery()) {
     std::string data_file = this->CTest->GetInstrumentation().InstrumentTest(
-      this->TestProperties->Name, this->ActualCommand, this->Arguments,
+      this->TestProperties->m_name, this->ActualCommand, this->Arguments,
       this->TestProcess->GetExitValue(), this->TestProcess->GetStartTime(),
       this->TestProcess->GetSystemStartTime(),
       this->GetCTest()->GetConfigType());

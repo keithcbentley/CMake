@@ -25,7 +25,7 @@ cmListFileBacktrace const& cmTest::GetBacktrace() const
 
 void cmTest::SetName(std::string const& name)
 {
-  this->Name = name;
+  this->m_name = name;
 }
 
 void cmTest::SetCommand(std::vector<std::string> const& command)

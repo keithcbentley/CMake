@@ -71,7 +71,7 @@ public:
   PropertyMapType const& GetProperties() const { return this->Properties; }
 
 private:
-  std::string Name;
+  std::string m_name;
   CompiledGeneratorExpressionPtrType NameExpression;
   PropertyMapType Properties;
 };

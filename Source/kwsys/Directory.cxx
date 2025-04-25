@@ -41,7 +41,7 @@ class DirectoryInternals
 public:
   struct FileData
   {
-    std::string Name;
+    std::string m_name;
 #if defined(_WIN32) && !defined(__CYGWIN__)
     WIN32_FIND_DATAW FindData;
 #endif
@@ -51,7 +51,7 @@ public:
              WIN32_FIND_DATAW data
 #endif
              )
-      : Name(std::move(name))
+      : m_name(std::move(name))
 #if defined(_WIN32) && !defined(__CYGWIN__)
       , FindData(std::move(data))
 #endif
@@ -94,12 +94,12 @@ unsigned long Directory::GetNumberOfFiles() const
 
 char const* Directory::GetFile(unsigned long dindex) const
 {
-  return this->Internal->Files[dindex].Name.c_str();
+  return this->Internal->Files[dindex].m_name.c_str();
 }
 
 std::string const& Directory::GetFileName(std::size_t i) const
 {
-  return this->Internal->Files[i].Name;
+  return this->Internal->Files[i].m_name;
 }
 
 std::string Directory::GetFilePath(std::size_t i) const
@@ -108,7 +108,7 @@ std::string Directory::GetFilePath(std::size_t i) const
   if (!abs.empty() && abs.back() != '/') {
     abs += '/';
   }
-  abs += this->Internal->Files[i].Name;
+  abs += this->Internal->Files[i].m_name;
   return abs;
 }
 

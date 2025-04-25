@@ -619,9 +619,9 @@ bool cmCPackWIXGenerator::CreateWiXSourceFiles()
     for (auto const& i : this->Components) {
       cmCPackComponent const& component = i.second;
 
-      std::string componentPath = cmStrCat(toplevel, '/', component.Name);
+      std::string componentPath = cmStrCat(toplevel, '/', component.m_name);
 
-      std::string const componentFeatureId = cmStrCat("CM_C_", component.Name);
+      std::string const componentFeatureId = cmStrCat("CM_C_", component.m_name);
 
       cmWIXShortcuts featureShortcuts;
       AddComponentsToFeature(componentPath, componentFeatureId,
@@ -630,7 +630,7 @@ bool cmCPackWIXGenerator::CreateWiXSourceFiles()
 
       featureShortcuts.AddShortcutTypes(emittedShortcutTypes);
 
-      if (!CreateShortcuts(component.Name, componentFeatureId,
+      if (!CreateShortcuts(component.m_name, componentFeatureId,
                            featureShortcuts, false, fileDefinitions,
                            featureDefinitions)) {
         return false;

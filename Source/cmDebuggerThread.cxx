@@ -20,7 +20,7 @@ namespace cmDebugger {
 
 cmDebuggerThread::cmDebuggerThread(int64_t id, std::string name)
   : m_id(id)
-  , Name(std::move(name))
+  , m_name(std::move(name))
   , VariablesManager(std::make_shared<cmDebuggerVariablesManager>())
 {
 }

@@ -90,7 +90,7 @@ bool cmFileSetTypeCanBeIncluded(std::string const& type)
 cmFileSet::cmFileSet(CMake& cmakeInstance, std::string name, std::string type,
                      cmFileSetVisibility visibility)
   : CMakeInstance(cmakeInstance)
-  , Name(std::move(name))
+  , m_name(std::move(name))
   , Type(std::move(type))
   , Visibility(visibility)
 {

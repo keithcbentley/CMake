@@ -340,7 +340,7 @@ void cmCTestMemCheckHandler::GenerateCTestXML(cmXMLWriter& xml)
   xml.StartElement("TestList");
   cmCTestMemCheckHandler::TestResultsVector::size_type m_pCustomCommand;
   for (cmCTestTestResult const& result : this->TestResults) {
-    std::string testPath = result.Path + "/" + result.Name;
+    std::string testPath = result.Path + "/" + result.m_name;
     xml.Element("Test", this->CTest->GetShortPathToFile(testPath));
   }
   xml.EndElement(); // TestList
@@ -376,7 +376,7 @@ void cmCTestMemCheckHandler::GenerateCTestXML(cmXMLWriter& xml)
     xml.EndElement(); // Results
     if (memoryErrors > 0) {
       int const maxTestNameWidth = this->CTest->GetMaxTestNameWidth();
-      std::string outname = result.Name + " ";
+      std::string outname = result.m_name + " ";
       outname.resize(maxTestNameWidth + 4, '.');
       cmCTestOptionalLog(this->CTest, HANDLER_OUTPUT,
                          m_pCustomCommand + 1 << "/" << total << " MemCheck: #"
@@ -1252,7 +1252,7 @@ bool cmCTestMemCheckHandler::ProcessMemCheckCudaOutput(
 void cmCTestMemCheckHandler::PostProcessTest(cmCTestTestResult& res, int test)
 {
   cmCTestOptionalLog(this->CTest, HANDLER_VERBOSE_OUTPUT,
-                     "PostProcessTest memcheck results for : " << res.Name
+                     "PostProcessTest memcheck results for : " << res.m_name
                                                                << std::endl,
                      this->Quiet);
   if (this->MemoryTesterStyle == cmCTestMemCheckHandler::BOUNDS_CHECKER) {
@@ -1274,7 +1274,7 @@ void cmCTestMemCheckHandler::PostProcessBoundsCheckerTest(
   cmCTestTestResult& res, int test)
 {
   cmCTestOptionalLog(this->CTest, HANDLER_VERBOSE_OUTPUT,
-                     "PostProcessBoundsCheckerTest for : " << res.Name
+                     "PostProcessBoundsCheckerTest for : " << res.m_name
                                                            << std::endl,
                      this->Quiet);
   std::vector<std::string> files;

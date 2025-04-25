@@ -14,7 +14,7 @@
 #include "cmTargetDepend.h"
 
 cmInstallRuntimeDependencySet::cmInstallRuntimeDependencySet(std::string name)
-  : Name(std::move(name))
+  : m_name(std::move(name))
 {
 }
 

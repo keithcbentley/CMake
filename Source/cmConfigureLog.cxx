@@ -69,7 +69,7 @@ void cmConfigureLog::WriteBacktrace(cmMakefile const& mf)
   auto root = mf.GetCMakeInstance()->GetHomeDirectory();
   for (auto bt = mf.GetBacktrace(); !bt.Empty(); bt = bt.Pop()) {
     auto t = bt.Top();
-    if (!t.Name.empty() || t.Line == cmListFileContext::DeferPlaceholderLine) {
+    if (!t.m_name.empty() || t.Line == cmListFileContext::DeferPlaceholderLine) {
       t.m_filePath = cmSystemTools::RelativeIfUnder(root, t.m_filePath);
       std::ostringstream s;
       s << t;

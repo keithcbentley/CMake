@@ -96,7 +96,7 @@ struct Rule
   std::string m_id;
 
   /// @brief The end-user name of the rule (optional)
-  cm::optional<std::string> Name;
+  cm::optional<std::string> m_name;
 
   /// @brief The extended description of the rule (optional)
   cm::optional<std::string> FullDescription;
@@ -120,9 +120,9 @@ public:
   RuleBuilder(char const* id) { this->NewRule.m_id = id; }
 
   /// @brief Set the name of the rule
-  RuleBuilder& Name(std::string name)
+  RuleBuilder& m_name(std::string name)
   {
-    this->NewRule.Name = std::move(name);
+    this->NewRule.m_name = std::move(name);
     return *this;
   }
 

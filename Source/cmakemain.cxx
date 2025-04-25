@@ -125,6 +125,9 @@ cmDocumentationEntry const cmDocumentationOptions[35] = {
 
 #endif
 
+//  TODO: why is this consoleBuf thing passed around?
+//  TODO: why is the consoleBuf a unique pointer? why not just entire program lifetime?
+//  TODO: why is the arg list being recreated?
 int do_command(
   int ac,
   char const* const* av,
@@ -137,21 +140,24 @@ int do_command(
   return cmcmd::ExecuteCMakeCommand(args, std::move(consoleBuf));
 }
 
-cmMakefile* cmakemainGetMakefile(CMake* cm)
+cmMakefile* cmakemainGetMakefile(CMake* cmake)
 {
-  if (cm && cm->GetDebugOutput()) {
-    cmGlobalGenerator* gg = cm->GetGlobalGenerator();
-    if (gg) {
-      return gg->GetCurrentMakefile();
+  //  TODO: why is a null check needed?
+  //  TODO: why isn't this a method on CMake?
+  //  TODO: why is there a check for debug output?
+  if (cmake && cmake->GetDebugOutput()) {
+    cmGlobalGenerator* globalGenerator = cmake->GetGlobalGenerator();
+    if (globalGenerator) {
+      return globalGenerator->GetCurrentMakefile();
     }
   }
   return nullptr;
 }
 
-std::string cmakemainGetStack(CMake* cm)
+std::string cmakemainGetStack(CMake* cmake)
 {
   std::string msg;
-  cmMakefile* mf = cmakemainGetMakefile(cm);
+  cmMakefile* mf = cmakemainGetMakefile(cmake);
   if (mf) {
     msg = mf->FormatListFileStack();
     if (!msg.empty()) {
@@ -163,9 +169,9 @@ std::string cmakemainGetStack(CMake* cm)
 }
 
 void cmakemainMessageCallback(
-  std::string const& m,
+  std::string const& message,
   cmMessageMetadata const& md,
-  CMake* cm)
+  CMake* cmake)
 {
 #if defined(_WIN32)
   // FIXME: On Windows we replace cerr's streambuf with a custom
@@ -175,7 +181,7 @@ void cmakemainMessageCallback(
   // cannot use it to print messages.  Another implementation will
   // be needed to print colored messages on Windows.
   static_cast<void>(md);
-  std::cerr << m << cmakemainGetStack(cm) << std::endl;
+  std::cerr << message << cmakemainGetStack(cmake) << std::endl;
 #else
   cmsysTerminal_cfprintf(md.desiredColor, stderr, "%s", m.c_str());
   fflush(stderr); // stderr is buffered in some cases.
@@ -184,23 +190,25 @@ void cmakemainMessageCallback(
 }
 
 void cmakemainProgressCallback(
-  std::string const& m,
-  float prog,
-  CMake* cm)
+  std::string const& message,
+  float progress,
+  CMake* cmake)
 {
-  cmMakefile* mf = cmakemainGetMakefile(cm);
+  cmMakefile* makefile = cmakemainGetMakefile(cmake);
   std::string dir;
-  if (mf && cmHasLiteralPrefix(m, "Configuring") && (prog < 0)) {
-    dir = cmStrCat(' ', mf->GetCurrentSourceDirectory());
-  } else if (mf && cmHasLiteralPrefix(m, "Generating")) {
-    dir = cmStrCat(' ', mf->GetCurrentBinaryDirectory());
+  if (makefile && cmHasLiteralPrefix(message, "Configuring") && (progress < 0)) {
+    dir = cmStrCat(' ', makefile->GetCurrentSourceDirectory());
+  } else if (makefile && cmHasLiteralPrefix(message, "Generating")) {
+    dir = cmStrCat(' ', makefile->GetCurrentBinaryDirectory());
   }
 
-  if ((prog < 0) || (!dir.empty())) {
-    std::cout << "-- " << m << dir << cmakemainGetStack(cm) << std::endl;
+  if ((progress < 0) || (!dir.empty())) {
+    std::cout << "-- " << message << dir << cmakemainGetStack(cmake) << std::endl;
   }
 }
 
+
+//  TODO: what the hell is this? Why?
 std::function<bool(std::string const& value)> getShowCachedCallback(
   bool& show_flag,
   bool* help_flag = nullptr,
@@ -218,16 +226,19 @@ std::function<bool(std::string const& value)> getShowCachedCallback(
   };
 }
 
+//  TODO: get rid of this whole return code stuff.  Use exceptions.
 int do_cmake(
   int ac,
   char const* const* av)
 {
+    //  TODO: Why would we get this far if we don't have a working directory?
   if (cmSystemTools::GetLogicalWorkingDirectory().empty()) {
     std::cerr << "Current working directory cannot be established." << std::endl;
     return 1;
   }
 
 #ifndef CMAKE_BOOTSTRAP
+  //    TODO: Why is this in the middle of this code.  Should be pulled into its own function.
   cmDocumentation doc;
   doc.addCMakeStandardDocSections();
   if (doc.CheckOptions(ac, av, "--")) {
@@ -263,7 +274,6 @@ int do_cmake(
   }
 #endif
 
-  bool wizard_mode = false;
   bool sysinfo = false;
   bool list_cached = false;
   bool list_all_cached = false;
@@ -274,19 +284,9 @@ int do_cmake(
   CMake::WorkingMode workingMode = CMake::NORMAL_MODE;
   std::vector<std::string> parsedArgs;
 
+  //    TODO: this is ridiculous.  How complicated is it to parse command line arguments.
   using CommandArgument = cmCommandLineArgument<bool(std::string const& value)>;
   std::vector<CommandArgument> arguments = {
-    CommandArgument{ "-i", CommandArgument::Values::Zero,
-                     [&wizard_mode](std::string const&) -> bool {
-                       /* clang-format off */
-        std::cerr <<
-          "The \"cmake -i\" wizard mode is no longer supported.\n"
-          "Use the -D option to set cache values on the command line.\n"
-          "Use cmake-gui or ccmake for an interactive dialog.\n";
-                       /* clang-format on */
-                       wizard_mode = true;
-                       return true;
-                     } },
     CommandArgument{ "--system-information", CommandArgument::Values::Zero, CommandArgument::setToTrue(sysinfo) },
     CommandArgument{ "-N", CommandArgument::Values::Zero, CommandArgument::setToTrue(view_only) },
     CommandArgument{ "-LAH", CommandArgument::Values::Zero, getShowCachedCallback(list_all_cached, &list_help) },
@@ -352,9 +352,6 @@ int do_cmake(
     }
   }
 
-  if (wizard_mode) {
-    return 1;
-  }
 
   if (sysinfo) {
     CMake cm(CMake::RoleProject, cmState::Project);
@@ -456,6 +453,8 @@ int extract_job_number(
   }
   return jobs;
 }
+
+
 std::function<bool(std::string const&)> extract_job_number_lambda_builder(
   std::string& dir,
   int& jobs,
@@ -1093,6 +1092,7 @@ int main(
   ac = args.argc();
   av = args.argv();
 
+  //    TODO: do we really need an asynchronous i/o polling system for a build system?
   cmSystemTools::InitializeLibUV();
   cmSystemTools::FindCMakeResources(av[0]);
   if (ac > 1) {

@@ -39,7 +39,7 @@ public:
   cmFileSet(CMake& cmakeInstance, std::string name, std::string type,
             cmFileSetVisibility visibility);
 
-  std::string const& GetName() const { return this->Name; }
+  std::string const& GetName() const { return this->m_name; }
   std::string const& GetType() const { return this->Type; }
   cmFileSetVisibility GetVisibility() const { return this->Visibility; }
 
@@ -83,7 +83,7 @@ public:
 
 private:
   CMake& CMakeInstance;
-  std::string Name;
+  std::string m_name;
   std::string Type;
   cmFileSetVisibility Visibility;
   std::vector<BT<std::string>> DirectoryEntries;

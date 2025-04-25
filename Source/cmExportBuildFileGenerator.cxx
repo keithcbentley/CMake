@@ -116,7 +116,7 @@ bool cmExportBuildFileGenerator::CollectExports(
   std::function<void(cmGeneratorTarget const*)> visitor)
 {
   auto pred = [&](cmExportBuildFileGenerator::TargetExport& tei) -> bool {
-    cmGeneratorTarget* te = this->LG->FindGeneratorTargetToUse(tei.Name);
+    cmGeneratorTarget* te = this->LG->FindGeneratorTargetToUse(tei.m_name);
     if (this->ExportedTargets.insert(te).second) {
       this->Exports.emplace_back(te, tei.XcFrameworkLocation);
       visitor(te);
@@ -192,7 +192,7 @@ cmExportFileGenerator::ExportInfo cmExportBuildFileGenerator::FindExportInfo(
     bfg->GetTargets(targets);
     if (std::any_of(
           targets.begin(), targets.end(),
-          [&name](TargetExport const& te) { return te.Name == name; })) {
+          [&name](TargetExport const& te) { return te.m_name == name; })) {
       if (exportSet) {
         exportSets.insert(exportSet->GetName());
       } else {

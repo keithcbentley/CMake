@@ -93,9 +93,9 @@ bool VisitPreset(
   std::map<std::string, cmCMakePresetsGraph::PresetPair<T>>& presets,
   std::map<std::string, CycleStatus> cycleStatus, cmCMakePresetsGraph& graph)
 {
-  switch (cycleStatus[preset.Name]) {
+  switch (cycleStatus[preset.m_name]) {
     case CycleStatus::InProgress:
-      cmCMakePresetsErrors::CYCLIC_PRESET_INHERITANCE(preset.Name,
+      cmCMakePresetsErrors::CYCLIC_PRESET_INHERITANCE(preset.m_name,
                                                       &graph.parseState);
       return false;
     case CycleStatus::Verified:
@@ -104,23 +104,23 @@ bool VisitPreset(
       break;
   }
 
-  cycleStatus[preset.Name] = CycleStatus::InProgress;
+  cycleStatus[preset.m_name] = CycleStatus::InProgress;
 
   if (preset.Environment.count("") != 0) {
-    cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.Name, &graph.parseState);
+    cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.m_name, &graph.parseState);
     return false;
   }
 
   bool result = preset.VisitPresetBeforeInherit();
   if (!result) {
-    cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.Name, &graph.parseState);
+    cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.m_name, &graph.parseState);
     return false;
   }
 
   for (auto const& i : preset.Inherits) {
     auto parent = presets.find(i);
     if (parent == presets.end()) {
-      cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.Name,
+      cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.m_name,
                                                  &graph.parseState);
       return false;
     }
@@ -128,7 +128,7 @@ bool VisitPreset(
     auto& parentPreset = parent->second.Unexpanded;
     if (!preset.OriginFile->ReachableFiles.count(parentPreset.OriginFile)) {
       cmCMakePresetsErrors::INHERITED_PRESET_UNREACHABLE_FROM_FILE(
-        preset.Name, &graph.parseState);
+        preset.m_name, &graph.parseState);
       return false;
     }
 
@@ -138,7 +138,7 @@ bool VisitPreset(
 
     result = preset.VisitPresetInherit(parentPreset);
     if (!result) {
-      cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.Name,
+      cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.m_name,
                                                  &graph.parseState);
       return false;
     }
@@ -159,11 +159,11 @@ bool VisitPreset(
   result = preset.VisitPresetAfterInherit(graph.GetVersion(preset),
                                           &graph.parseState);
   if (!result) {
-    cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.Name, &graph.parseState);
+    cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.m_name, &graph.parseState);
     return false;
   }
 
-  cycleStatus[preset.Name] = CycleStatus::Verified;
+  cycleStatus[preset.m_name] = CycleStatus::Verified;
   return true;
 }
 
@@ -342,7 +342,7 @@ bool ExpandMacros(cmCMakePresetsGraph const& graph, TestPreset const& preset,
 
   if (out->Filter) {
     if (out->Filter->Include) {
-      CHECK_EXPAND(out, out->Filter->Include->Name, macroExpanders,
+      CHECK_EXPAND(out, out->Filter->Include->m_name, macroExpanders,
                    graph.GetVersion(preset));
       CHECK_EXPAND(out, out->Filter->Include->Label, macroExpanders,
                    graph.GetVersion(preset));
@@ -354,7 +354,7 @@ bool ExpandMacros(cmCMakePresetsGraph const& graph, TestPreset const& preset,
     }
 
     if (out->Filter->Exclude) {
-      CHECK_EXPAND(out, out->Filter->Exclude->Name, macroExpanders,
+      CHECK_EXPAND(out, out->Filter->Exclude->m_name, macroExpanders,
                    graph.GetVersion(preset));
       CHECK_EXPAND(out, out->Filter->Exclude->Label, macroExpanders,
                    graph.GetVersion(preset));
@@ -432,7 +432,7 @@ bool ExpandMacros(cmCMakePresetsGraph& graph, T const& preset,
       switch (VisitEnv(*v.second, envCycles[v.first], macroExpanders,
                        graph.GetVersion(preset))) {
         case ExpandMacroResult::Error:
-          cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.Name,
+          cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.m_name,
                                                      &graph.parseState);
           return false;
         case ExpandMacroResult::Ignore:
@@ -448,7 +448,7 @@ bool ExpandMacros(cmCMakePresetsGraph& graph, T const& preset,
     cm::optional<bool> result;
     if (!preset.ConditionEvaluator->Evaluate(
           macroExpanders, graph.GetVersion(preset), result)) {
-      cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.Name,
+      cmCMakePresetsErrors::INVALID_PRESET_NAMED(preset.m_name,
                                                  &graph.parseState);
       return false;
     }
@@ -586,8 +586,8 @@ bool SetupWorkflowConfigurePreset(T const& preset,
                                   ConfigurePreset const*& configurePreset,
                                   cmJSONState* state)
 {
-  if (preset.ConfigurePreset != configurePreset->Name) {
-    cmCMakePresetsErrors::INVALID_WORKFLOW_STEPS(configurePreset->Name, state);
+  if (preset.ConfigurePreset != configurePreset->m_name) {
+    cmCMakePresetsErrors::INVALID_WORKFLOW_STEPS(configurePreset->m_name, state);
     return false;
   }
   return true;
@@ -814,12 +814,12 @@ bool cmCMakePresetsGraph::ConfigurePreset::VisitPresetAfterInherit(
   if (!preset.Hidden) {
     if (version < 3) {
       if (preset.Generator.empty()) {
-        cmCMakePresetsErrors::PRESET_MISSING_FIELD(preset.Name, "generator",
+        cmCMakePresetsErrors::PRESET_MISSING_FIELD(preset.m_name, "generator",
                                                    state);
         return false;
       }
       if (preset.BinaryDir.empty()) {
-        cmCMakePresetsErrors::PRESET_MISSING_FIELD(preset.Name, "binaryDir",
+        cmCMakePresetsErrors::PRESET_MISSING_FIELD(preset.m_name, "binaryDir",
                                                    state);
         return false;
       }
@@ -917,7 +917,7 @@ bool cmCMakePresetsGraph::TestPreset::VisitPresetInherit(
       if (preset.Filter && preset.Filter->Include) {
         auto& include = *preset.Filter->Include;
         auto const& parentInclude = *parent.Filter->Include;
-        InheritString(include.Name, parentInclude.Name);
+        InheritString(include.m_name, parentInclude.m_name);
         InheritString(include.Label, parentInclude.Label);
         InheritOptionalValue(include.Index, parentInclude.Index);
       } else {
@@ -932,7 +932,7 @@ bool cmCMakePresetsGraph::TestPreset::VisitPresetInherit(
       if (preset.Filter && preset.Filter->Exclude) {
         auto& exclude = *preset.Filter->Exclude;
         auto const& parentExclude = *parent.Filter->Exclude;
-        InheritString(exclude.Name, parentExclude.Name);
+        InheritString(exclude.m_name, parentExclude.m_name);
         InheritString(exclude.Label, parentExclude.Label);
         InheritOptionalValue(exclude.Fixtures, parentExclude.Fixtures);
       } else {
@@ -1292,15 +1292,15 @@ void cmCMakePresetsGraph::PrintPresets(
     std::max_element(presets.begin(), presets.end(),
                      [](cmCMakePresetsGraph::Preset const* a,
                         cmCMakePresetsGraph::Preset const* b) {
-                       return a->Name.length() < b->Name.length();
+                       return a->m_name.length() < b->m_name.length();
                      });
-  auto longestLength = (*longestPresetName)->Name.length();
+  auto longestLength = (*longestPresetName)->m_name.length();
 
   for (auto const* preset : presets) {
-    std::cout << "  \"" << preset->Name << '"';
+    std::cout << "  \"" << preset->m_name << '"';
     auto const& description = preset->DisplayName;
     if (!description.empty()) {
-      for (std::size_t i = 0; i < longestLength - preset->Name.length(); ++i) {
+      for (std::size_t i = 0; i < longestLength - preset->m_name.length(); ++i) {
         std::cout << ' ';
       }
       std::cout << " - " << description;

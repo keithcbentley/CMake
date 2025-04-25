@@ -31,7 +31,7 @@ public:
 
   struct m_set
   {
-    std::string Name;
+    std::string m_name;
     std::string FamilyName;
     std::vector<std::string> VisibleSets;
     std::vector<TranslationUnit> TranslationUnits;

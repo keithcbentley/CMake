@@ -500,7 +500,7 @@ bool cmQtAutoGenInitializer::InitCustomTargets()
     }
 
     // Autogen target name
-    this->AutogenTarget.Name =
+    this->AutogenTarget.m_name =
       cmStrCat(this->GenTarget->GetName(), "_autogen");
 
     // Autogen target parallel processing
@@ -1589,7 +1589,7 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
     m_pCustomCommand->SetEscapeOldStyle(false);
     m_pCustomCommand->SetComment(autogenComment.c_str());
     cmTarget* autogenTarget = this->LocalGen->AddUtilityCommand(
-      this->AutogenTarget.Name, true, std::move(m_pCustomCommand));
+      this->AutogenTarget.m_name, true, std::move(m_pCustomCommand));
     // Create autogen generator target
     this->LocalGen->AddGeneratorTarget(
       cm::make_unique<cmGeneratorTarget>(autogenTarget, this->LocalGen));
@@ -1615,13 +1615,13 @@ bool cmQtAutoGenInitializer::InitAutogenTarget()
     }
 
     // Add autogen target to the origin target dependencies
-    this->GenTarget->Target->AddUtility(this->AutogenTarget.Name, false,
+    this->GenTarget->Target->AddUtility(this->AutogenTarget.m_name, false,
                                         this->m_pMakefile);
 
     // Add autogen target to the global autogen target dependencies
     if (this->AutogenTarget.GlobalTarget) {
       this->GlobalInitializer->AddToGlobalAutoGen(this->LocalGen,
-                                                  this->AutogenTarget.Name);
+                                                  this->AutogenTarget.m_name);
     }
   }
 

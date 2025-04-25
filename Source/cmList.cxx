@@ -578,7 +578,7 @@ struct ActionDescriptor
                    std::size_t arity,
                    std::unique_ptr<TransformAction> transform)
     : m_action(action)
-    , Name(std::move(name))
+    , m_name(std::move(name))
     , Arity(arity)
     , Transform(std::move(transform))
   {
@@ -587,7 +587,7 @@ struct ActionDescriptor
   operator cmList::TransformAction() const { return this->m_action; }
 
   cmList::TransformAction m_action;
-  std::string Name;
+  std::string m_name;
   std::size_t Arity = 0;
   std::unique_ptr<TransformAction> Transform;
 };
@@ -632,7 +632,7 @@ ActionDescriptorSet::iterator TransformConfigure(
 
   if (descriptor->Arity != arity) {
     throw transform_error(cmStrCat("sub-command TRANSFORM, action ",
-                                   descriptor->Name, " expects ",
+                                   descriptor->m_name, " expects ",
                                    descriptor->Arity, " argument(s)."));
   }
   if (!selector) {

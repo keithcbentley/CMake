@@ -197,8 +197,8 @@ JBTIndex BacktraceData::Add(cmListFileBacktrace const& bt)
   if (top->Line) {
     entry["line"] = static_cast<int>(top->Line);
   }
-  if (!top->Name.empty()) {
-    entry["command"] = this->AddCommand(top->Name);
+  if (!top->m_name.empty()) {
+    entry["command"] = this->AddCommand(top->m_name);
   }
   if (JBTIndex parent = this->Add(bt.Pop())) {
     entry["parent"] = parent.Index;
@@ -430,7 +430,7 @@ class Target
 
   struct SourceGroup
   {
-    std::string Name;
+    std::string m_name;
     Json::Value SourceIndexes = Json::arrayValue;
   };
   std::unordered_map<cmSourceGroup const*, Json::ArrayIndex> SourceGroupsMap;
@@ -1347,7 +1347,7 @@ Json::ArrayIndex Target::AddSourceGroup(cmSourceGroup* sg, Json::ArrayIndex si)
     auto sgIndex = static_cast<Json::ArrayIndex>(this->m_sourceGroups.size());
     i = this->SourceGroupsMap.emplace(sg, sgIndex).first;
     SourceGroup g;
-    g.Name = sg->GetFullName();
+    g.m_name = sg->GetFullName();
     this->m_sourceGroups.push_back(std::move(g));
   }
   this->m_sourceGroups[i->second].SourceIndexes.append(si);
@@ -1823,7 +1823,7 @@ Json::Value Target::DumpSourceGroups()
 Json::Value Target::DumpSourceGroup(SourceGroup& sg)
 {
   Json::Value group = Json::objectValue;
-  group["name"] = sg.Name;
+  group["name"] = sg.m_name;
   group["sourceIndexes"] = std::move(sg.SourceIndexes);
   return group;
 }

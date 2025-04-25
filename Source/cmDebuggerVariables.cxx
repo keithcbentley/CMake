@@ -31,7 +31,7 @@ cmDebuggerVariables::cmDebuggerVariables(
   std::shared_ptr<cmDebuggerVariablesManager> variablesManager,
   std::string name, bool supportsVariableType)
   : m_id(NextId.fetch_add(1))
-  , Name(std::move(name))
+  , m_name(std::move(name))
   , SupportsVariableType(supportsVariableType)
   , VariablesManager(std::move(variablesManager))
 {
@@ -47,7 +47,7 @@ cmDebuggerVariables::cmDebuggerVariables(
   std::string name, bool supportsVariableType,
   std::function<std::vector<cmDebuggerVariableEntry>()> getKeyValuesFunction)
   : m_id(NextId.fetch_add(1))
-  , Name(std::move(name))
+  , m_name(std::move(name))
   , GetKeyValuesFunction(std::move(getKeyValuesFunction))
   , SupportsVariableType(supportsVariableType)
   , VariablesManager(std::move(variablesManager))
@@ -82,7 +82,7 @@ dap::array<dap::Variable> cmDebuggerVariables::HandleVariablesRequest()
         {},
         {},
         {},
-        entry.Name,
+        entry.m_name,
         {},
         PrivateDataHint,
         SupportsVariableType ? entry.Type : dap::optional<dap::string>(),

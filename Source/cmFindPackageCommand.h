@@ -218,7 +218,7 @@ private:
   static cm::string_view const VERSION_ENDPOINT_INCLUDED;
   static cm::string_view const VERSION_ENDPOINT_EXCLUDED;
 
-  std::string Name;
+  std::string m_name;
   std::string Variable;
   std::string VersionComplete;
   std::string VersionRange;
@@ -272,19 +272,19 @@ private:
   struct ConfigName
   {
     ConfigName(std::string const& name, PackageDescriptionType type)
-      : Name{ name }
+      : m_name{ name }
       , Type{ type }
     {
     }
     ConfigName(std::string&& name, PackageDescriptionType type)
-      : Name{ std::move(name) }
+      : m_name{ std::move(name) }
       , Type{ type }
     {
     }
     ConfigName(ConfigName const&) = default;
     ConfigName(ConfigName&&) = default;
 
-    std::string Name;
+    std::string m_name;
     PackageDescriptionType Type;
   };
   std::vector<ConfigName> Configs;

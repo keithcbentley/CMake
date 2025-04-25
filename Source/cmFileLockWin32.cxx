@@ -17,7 +17,7 @@ cmFileLock::cmFileLock()
 
 cmFileLockResult cmFileLock::Release()
 {
-  if (this->Filename.empty()) {
+  if (this->m_filename.empty()) {
     return cmFileLockResult::MakeOk();
   }
   const DWORD reserved = 0;
@@ -26,7 +26,7 @@ cmFileLockResult cmFileLock::Release()
   const BOOL unlockResult =
     UnlockFileEx(File, reserved, LOCK_LEN, LOCK_LEN, this->Overlapped.get());
 
-  this->Filename = "";
+  this->m_filename = "";
 
   CloseHandle(this->File);
 
@@ -47,7 +47,7 @@ cmFileLockResult cmFileLock::OpenFile()
   const DWORD attr = 0;
   const HANDLE templ = nullptr;
   this->File = CreateFileW(
-    cmSystemTools::ConvertToWindowsExtendedPath(this->Filename).c_str(),
+    cmSystemTools::ConvertToWindowsExtendedPath(this->m_filename).c_str(),
     access, shareMode, security, OPEN_EXISTING, attr, templ);
   if (this->File == INVALID_HANDLE_VALUE) {
     return cmFileLockResult::MakeSystem();

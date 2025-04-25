@@ -17,13 +17,13 @@ public:
   cmSlnProjectEntry(std::string guid, std::string name,
                     std::string relativePath)
     : Guid(std::move(guid))
-    , Name(std::move(name))
+    , m_name(std::move(name))
     , RelativePath(std::move(relativePath))
   {
   }
 
   std::string GetGUID() const { return Guid; }
-  std::string GetName() const { return Name; }
+  std::string GetName() const { return m_name; }
   std::string GetRelativePath() const { return RelativePath; }
 
   void AddProjectConfiguration(std::string const& solutionConfiguration,
@@ -33,7 +33,7 @@ public:
     std::string const& solutionConfiguration);
 
 private:
-  std::string Guid, Name, RelativePath;
+  std::string Guid, m_name, RelativePath;
   std::map<std::string, std::string> projectConfigurationMap;
 };
 

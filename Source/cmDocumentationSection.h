@@ -20,7 +20,7 @@ class cmDocumentationSection
 public:
   /** Create a cmSection, with a special name for man-output mode. */
   explicit cmDocumentationSection(char const* name)
-    : Name(name)
+    : m_name(name)
   {
   }
 
@@ -31,7 +31,7 @@ public:
   void Clear() { this->Entries.clear(); }
 
   /** Return the name of this section. */
-  std::string GetName() const { return this->Name; }
+  std::string GetName() const { return this->m_name; }
 
   /** Return a pointer to the first entry of this section. */
   std::vector<cmDocumentationEntry> const& GetEntries() const
@@ -61,6 +61,6 @@ public:
   }
 
 private:
-  std::string Name;
+  std::string m_name;
   std::vector<cmDocumentationEntry> Entries;
 };

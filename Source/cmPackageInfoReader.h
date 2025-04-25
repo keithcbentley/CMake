@@ -22,7 +22,7 @@ class cmTarget;
 
 struct cmPackageRequirement
 {
-  std::string Name;
+  std::string m_name;
   std::string Version;
   std::vector<std::string> Components;
   std::vector<std::string> Hints;

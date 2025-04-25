@@ -43,7 +43,7 @@ cmGlobalVisualStudio8Generator::cmGlobalVisualStudio8Generator(
   : cmGlobalVisualStudio71Generator(cm)
 {
   this->ProjectConfigurationSectionName = "ProjectConfigurationPlatforms";
-  this->Name = name;
+  this->m_name = name;
   this->ExtraFlagTable =
     cmGlobalVisualStudio8Generator::GetExtraFlagTableVS8();
 }

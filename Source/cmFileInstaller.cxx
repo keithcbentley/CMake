@@ -115,7 +115,7 @@ bool cmFileInstaller::InstallFile(std::string const& fromFile,
                                                match_properties);
       } else {
         // We cannot meet user's expectation (REL_SYMLINK)
-        auto e = cmStrCat(this->Name,
+        auto e = cmStrCat(this->m_name,
                           " cannot determine relative path for symlink to \"",
                           newFromFile, "\" at \"", toFile, "\".");
         this->Status.SetError(e);
@@ -158,7 +158,7 @@ bool cmFileInstaller::InstallFile(std::string const& fromFile,
                                                match_properties);
       }
 
-      auto e = cmStrCat(this->Name, " cannot create symlink to \"",
+      auto e = cmStrCat(this->m_name, " cannot create symlink to \"",
                         newFromFile, "\" at \"", toFile,
                         "\": ", cmSystemTools::GetLastSystemError(), "\".");
       this->Status.SetError(e);

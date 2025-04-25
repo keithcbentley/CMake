@@ -602,7 +602,7 @@ int cmCPackDebGenerator::PackageComponents(bool ignoreGroup)
       cmCPackLogger(
         cmCPackLog::LOG_VERBOSE,
         "Component <"
-          << comp.second.Name
+          << comp.second.m_name
           << "> does not belong to any group, package it separately."
           << std::endl);
       // Begin the archive for this orphan component

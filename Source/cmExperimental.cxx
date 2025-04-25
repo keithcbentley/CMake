@@ -106,7 +106,7 @@ cm::optional<cmExperimental::Feature> cmExperimental::FeatureByName(
 {
   size_t idx = 0;
   for (auto const& feature : LookupTable) {
-    if (feature.Name == name) {
+    if (feature.m_name == name) {
       return static_cast<Feature>(idx);
     }
     ++idx;

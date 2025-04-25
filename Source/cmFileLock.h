@@ -62,5 +62,5 @@ private:
   int LockFile(int cmd, int type) const;
 #endif
 
-  std::string Filename;
+  std::string m_filename;
 };

@@ -24,14 +24,14 @@ public:
   cmInstallRuntimeDependencySet& operator=(
     cmInstallRuntimeDependencySet const&) = delete;
 
-  cm::string_view GetName() const { return this->Name; }
+  cm::string_view GetName() const { return this->m_name; }
 
   cm::string_view GetDisplayName() const
   {
-    if (this->Name.empty()) {
+    if (this->m_name.empty()) {
       return "<anonymous>"_s;
     }
-    return this->Name;
+    return this->m_name;
   }
 
   class Item
@@ -152,7 +152,7 @@ public:
   }
 
 private:
-  std::string Name;
+  std::string m_name;
   std::vector<std::unique_ptr<Item>> Executables;
   std::vector<std::unique_ptr<Item>> Libraries;
   std::vector<std::unique_ptr<Item>> Modules;

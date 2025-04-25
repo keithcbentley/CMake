@@ -722,7 +722,7 @@ std::string cmCPackNSISGenerator::CreateComponentDescription(
   if (component->IsHidden) {
     componentCode += "-";
   }
-  componentCode += component->DisplayName + "\" " + component->Name + "\n";
+  componentCode += component->DisplayName + "\" " + component->m_name + "\n";
   if (component->IsRequired) {
     componentCode += "  SectionIn RO\n";
   } else if (!component->InstallationTypes.empty()) {
@@ -735,7 +735,7 @@ std::string cmCPackNSISGenerator::CreateComponentDescription(
   }
 
   std::string const componentOutputDir =
-    this->CustomComponentInstallDirectory(component->Name);
+    this->CustomComponentInstallDirectory(component->m_name);
   componentCode += cmStrCat("  SetOutPath \"", componentOutputDir, "\"\n");
 
   // Create the actual installation commands
@@ -746,7 +746,7 @@ std::string cmCPackNSISGenerator::CreateComponentDescription(
         cmStrCat(this->GetOption("CPACK_TEMPORARY_DIRECTORY"), ".dummy");
       std::ostringstream out;
       out << cmSystemTools::GetFilenameWithoutLastExtension(packagesDir) << "-"
-          << component->Name << ".zip";
+          << component->m_name << ".zip";
       component->ArchiveFile = out.str();
     }
 
@@ -795,7 +795,7 @@ std::string cmCPackNSISGenerator::CreateComponentDescription(
 
     // The directory where this component's files reside
     std::string dirName = cmStrCat(
-      this->GetOption("CPACK_TEMPORARY_DIRECTORY"), '/', component->Name, '/');
+      this->GetOption("CPACK_TEMPORARY_DIRECTORY"), '/', component->m_name, '/');
 
     // Build the list of files to go into this archive, and determine the
     // size of the installed component.
@@ -864,14 +864,14 @@ std::string cmCPackNSISGenerator::CreateComponentDescription(
     componentCode += out.str();
   } else {
     componentCode += "  File /r \"${INST_DIR}\\" +
-      this->GetSanitizedDirOrFileName(component->Name) + "\\*.*\"\n";
+      this->GetSanitizedDirOrFileName(component->m_name) + "\\*.*\"\n";
   }
   componentCode += "SectionEnd\n";
 
   // Macro used to remove the component
-  macrosOut << "!macro Remove_${" << component->Name << "}\n";
-  macrosOut << "  IntCmp $" << component->Name << "_was_installed 0 noremove_"
-            << component->Name << "\n";
+  macrosOut << "!macro Remove_${" << component->m_name << "}\n";
+  macrosOut << "  IntCmp $" << component->m_name << "_was_installed 0 noremove_"
+            << component->m_name << "\n";
   std::string path;
   for (std::string const& pathIt : component->Files) {
     path = pathIt;
@@ -883,13 +883,13 @@ std::string cmCPackNSISGenerator::CreateComponentDescription(
     std::replace(path.begin(), path.end(), '/', '\\');
     macrosOut << "  RMDir \"" << componentOutputDir << "\\" << path << "\"\n";
   }
-  macrosOut << "  noremove_" << component->Name << ":\n";
+  macrosOut << "  noremove_" << component->m_name << ":\n";
   macrosOut << "!macroend\n";
 
   // Macro used to select each of the components that this component
   // depends on.
   std::set<cmCPackComponent*> visited;
-  macrosOut << "!macro Select_" << component->Name << "_depends\n";
+  macrosOut << "!macro Select_" << component->m_name << "_depends\n";
   macrosOut << this->CreateSelectionDependenciesDescription(component,
                                                             visited);
   macrosOut << "!macroend\n";
@@ -897,7 +897,7 @@ std::string cmCPackNSISGenerator::CreateComponentDescription(
   // Macro used to deselect each of the components that depend on this
   // component.
   visited.clear();
-  macrosOut << "!macro Deselect_required_by_" << component->Name << "\n";
+  macrosOut << "!macro Deselect_required_by_" << component->m_name << "\n";
   macrosOut << this->CreateDeselectionDependenciesDescription(component,
                                                               visited);
   macrosOut << "!macroend\n";
@@ -916,10 +916,10 @@ std::string cmCPackNSISGenerator::CreateSelectionDependenciesDescription(
   std::ostringstream out;
   for (cmCPackComponent* depend : component->Dependencies) {
     // Write NSIS code to select this dependency
-    out << "  SectionGetFlags ${" << depend->Name << "} $0\n";
+    out << "  SectionGetFlags ${" << depend->m_name << "} $0\n";
     out << "  IntOp $0 $0 | ${SF_SELECTED}\n";
-    out << "  SectionSetFlags ${" << depend->Name << "} $0\n";
-    out << "  IntOp $" << depend->Name << "_selected 0 + ${SF_SELECTED}\n";
+    out << "  SectionSetFlags ${" << depend->m_name << "} $0\n";
+    out << "  IntOp $" << depend->m_name << "_selected 0 + ${SF_SELECTED}\n";
     // Recurse
     out
       << this->CreateSelectionDependenciesDescription(depend, visited).c_str();
@@ -940,11 +940,11 @@ std::string cmCPackNSISGenerator::CreateDeselectionDependenciesDescription(
   std::ostringstream out;
   for (cmCPackComponent* depend : component->ReverseDependencies) {
     // Write NSIS code to deselect this dependency
-    out << "  SectionGetFlags ${" << depend->Name << "} $0\n";
+    out << "  SectionGetFlags ${" << depend->m_name << "} $0\n";
     out << "  IntOp $1 ${SF_SELECTED} ~\n";
     out << "  IntOp $0 $0 & $1\n";
-    out << "  SectionSetFlags ${" << depend->Name << "} $0\n";
-    out << "  IntOp $" << depend->Name << "_selected 0 + 0\n";
+    out << "  SectionSetFlags ${" << depend->m_name << "} $0\n";
+    out << "  IntOp $" << depend->m_name << "_selected 0 + 0\n";
 
     // Recurse
     out << this->CreateDeselectionDependenciesDescription(depend, visited)
@@ -967,9 +967,9 @@ std::string cmCPackNSISGenerator::CreateComponentGroupDescription(
     code += "/e ";
   }
   if (group->IsBold) {
-    code += "\"!" + group->DisplayName + "\" " + group->Name + "\n";
+    code += "\"!" + group->DisplayName + "\" " + group->m_name + "\n";
   } else {
-    code += "\"" + group->DisplayName + "\" " + group->Name + "\n";
+    code += "\"" + group->DisplayName + "\" " + group->m_name + "\n";
   }
 
   for (cmCPackComponentGroup* g : group->Subgroups) {
