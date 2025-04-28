@@ -18,8 +18,8 @@ cmGlobalMinGWMakefileGenerator::cmGlobalMinGWMakefileGenerator(CMake* cm)
   cm->GetState()->SetMinGWMake(true);
 }
 
-cmDocumentationEntry cmGlobalMinGWMakefileGenerator::GetDocumentation()
-{
-  return { cmGlobalMinGWMakefileGenerator::GetActualName(),
-           "Generates a make file for use with mingw32-make." };
-}
+//cmDocumentationEntry cmGlobalMinGWMakefileGenerator::GetDocumentation()
+//{
+//  return { cmGlobalMinGWMakefileGenerator::GetActualName(),
+//           "Generates a make file for use with mingw32-make." };
+//}

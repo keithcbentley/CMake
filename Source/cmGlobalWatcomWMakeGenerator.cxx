@@ -56,11 +56,11 @@ bool cmGlobalWatcomWMakeGenerator::SetSystemName(std::string const& s,
   return this->cmGlobalUnixMakefileGenerator3::SetSystemName(s, mf);
 }
 
-cmDocumentationEntry cmGlobalWatcomWMakeGenerator::GetDocumentation()
-{
-  return { cmGlobalWatcomWMakeGenerator::GetActualName(),
-           "Generates Watcom WMake makefiles." };
-}
+//cmDocumentationEntry cmGlobalWatcomWMakeGenerator::GetDocumentation()
+//{
+//  return { cmGlobalWatcomWMakeGenerator::GetActualName(),
+//           "Generates Watcom WMake makefiles." };
+//}
 
 std::vector<cmGlobalGenerator::GeneratedMakeCommand>
 cmGlobalWatcomWMakeGenerator::GenerateBuildCommand(

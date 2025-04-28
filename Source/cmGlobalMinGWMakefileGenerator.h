@@ -34,5 +34,5 @@ public:
   static std::string GetActualName() { return "MinGW Makefiles"; }
 
   /** Get the documentation entry for this generator.  */
-  static cmDocumentationEntry GetDocumentation();
+//  static cmDocumentationEntry GetDocumentation();
 };

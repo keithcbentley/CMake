@@ -54,12 +54,12 @@ public:
     return std::unique_ptr<cmGlobalGenerator>();
   }
 
-  cmDocumentationEntry GetDocumentation() const override
-  {
-    return { cmStrCat(vs14generatorName, " [arch]"),
-             "Generates Visual Studio 2015 project files.  "
-             "Optional [arch] can be \"Win64\" or \"ARM\"." };
-  }
+  //cmDocumentationEntry GetDocumentation() const override
+  //{
+  //  return { cmStrCat(vs14generatorName, " [arch]"),
+  //           "Generates Visual Studio 2015 project files.  "
+  //           "Optional [arch] can be \"Win64\" or \"ARM\"." };
+  //}
 
   std::vector<std::string> GetGeneratorNames() const override
   {

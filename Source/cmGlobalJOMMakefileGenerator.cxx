@@ -36,11 +36,11 @@ void cmGlobalJOMMakefileGenerator::EnableLanguage(
   this->cmGlobalUnixMakefileGenerator3::EnableLanguage(l, mf, optional);
 }
 
-cmDocumentationEntry cmGlobalJOMMakefileGenerator::GetDocumentation()
-{
-  return { cmGlobalJOMMakefileGenerator::GetActualName(),
-           "Generates JOM makefiles." };
-}
+//cmDocumentationEntry cmGlobalJOMMakefileGenerator::GetDocumentation()
+//{
+//  return { cmGlobalJOMMakefileGenerator::GetActualName(),
+//           "Generates JOM makefiles." };
+//}
 
 void cmGlobalJOMMakefileGenerator::PrintCompilerAdvice(std::ostream& os,
                                                        std::string const& lang,

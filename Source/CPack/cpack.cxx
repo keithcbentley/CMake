@@ -39,50 +39,50 @@
 #include "cmake.h"
 
 namespace {
-cmDocumentationEntry const cmDocumentationName = {
-  {},
-  "  cpack - Packaging driver provided by CMake."
-};
+//cmDocumentationEntry const cmDocumentationName = {
+//  {},
+//  "  cpack - Packaging driver provided by CMake."
+//};
 
-cmDocumentationEntry const cmDocumentationUsage = { {}, "  cpack [options]" };
+//cmDocumentationEntry const cmDocumentationUsage = { {}, "  cpack [options]" };
 
-cmDocumentationEntry const cmDocumentationOptions[14] = {
-  { "-G <generators>", "Override/define CPACK_GENERATOR" },
-  { "-C <Configurations>", "Specify the project configuration(s)" },
-  { "-D <var>=<value>", "Set a CPack variable." },
-  { "--config <configFile>", "Specify the config file." },
-  { "-V,--verbose", "Enable verbose output" },
-  { "--trace", "Put underlying cmake scripts in trace mode." },
-  { "--trace-expand", "Put underlying cmake scripts in expanded trace mode." },
-  { "--debug", "Enable debug output (for CPack developers)" },
-  { "-P <packageName>", "Override/define CPACK_PACKAGE_NAME" },
-  { "-R <packageVersion>", "Override/define CPACK_PACKAGE_VERSION" },
-  { "-B <packageDirectory>", "Override/define CPACK_PACKAGE_DIRECTORY" },
-  { "--vendor <vendorName>", "Override/define CPACK_PACKAGE_VENDOR" },
-  { "--preset", "Read arguments from a package preset" },
-  { "--list-presets", "List available package presets" }
-};
+//cmDocumentationEntry const cmDocumentationOptions[14] = {
+//  { "-G <generators>", "Override/define CPACK_GENERATOR" },
+//  { "-C <Configurations>", "Specify the project configuration(s)" },
+//  { "-D <var>=<value>", "Set a CPack variable." },
+//  { "--config <configFile>", "Specify the config file." },
+//  { "-V,--verbose", "Enable verbose output" },
+//  { "--trace", "Put underlying cmake scripts in trace mode." },
+//  { "--trace-expand", "Put underlying cmake scripts in expanded trace mode." },
+//  { "--debug", "Enable debug output (for CPack developers)" },
+//  { "-P <packageName>", "Override/define CPACK_PACKAGE_NAME" },
+//  { "-R <packageVersion>", "Override/define CPACK_PACKAGE_VERSION" },
+//  { "-B <packageDirectory>", "Override/define CPACK_PACKAGE_DIRECTORY" },
+//  { "--vendor <vendorName>", "Override/define CPACK_PACKAGE_VENDOR" },
+//  { "--preset", "Read arguments from a package preset" },
+//  { "--list-presets", "List available package presets" }
+//};
 
 void cpackProgressCallback(std::string const& message, float /*unused*/)
 {
   std::cout << "-- " << message << '\n';
 }
 
-std::vector<cmDocumentationEntry> makeGeneratorDocs(
-  cmCPackGeneratorFactory const& gf)
-{
-  auto const& generators = gf.GetGeneratorsList();
-
-  std::vector<cmDocumentationEntry> docs;
-  docs.reserve(generators.size());
-
-  std::transform(
-    generators.cbegin(), generators.cend(), std::back_inserter(docs),
-    [](std::decay<decltype(generators)>::type::value_type const& gen) {
-      return cmDocumentationEntry{ gen.first, gen.second };
-    });
-  return docs;
-}
+//std::vector<cmDocumentationEntry> makeGeneratorDocs(
+//  cmCPackGeneratorFactory const& gf)
+//{
+//  auto const& generators = gf.GetGeneratorsList();
+//
+//  std::vector<cmDocumentationEntry> docs;
+//  docs.reserve(generators.size());
+//
+//  std::transform(
+//    generators.cbegin(), generators.cend(), std::back_inserter(docs),
+//    [](std::decay<decltype(generators)>::type::value_type const& gen) {
+//      return cmDocumentationEntry{ gen.first, gen.second };
+//    });
+//  return docs;
+//}
 
 } // namespace
 
@@ -414,14 +414,14 @@ int main(int argc, char const* const* argv)
     cpackConfigFileSpecified = false;
   }
 
-  cmDocumentation doc;
-  doc.addCPackStandardDocSections();
-  /* Were we invoked to display doc or to do some work ?
-   * Unlike cmake launching cpack with zero argument
-   * should launch cpack using "cpackConfigFile" if it exists
-   * in the current directory.
-   */
-  help = doc.CheckOptions(argc, argv, "-G") && argc != 1;
+  //cmDocumentation doc;
+  //doc.addCPackStandardDocSections();
+  ///* Were we invoked to display doc or to do some work ?
+  // * Unlike cmake launching cpack with zero argument
+  // * should launch cpack using "cpackConfigFile" if it exists
+  // * in the current directory.
+  // */
+  //help = doc.CheckOptions(argc, argv, "-G") && argc != 1;
 
   // This part is used for cpack documentation lookup as well.
   cminst.AddCMakePaths();
@@ -541,12 +541,12 @@ int main(int argc, char const* const* argv)
             cmCPack_Log(&log, cmCPackLog::LOG_ERROR,
                         "Could not create CPack generator: " << gen << '\n');
             // Print out all the valid generators
-            cmDocumentation generatorDocs;
-            generatorDocs.SetSection("Generators",
-                                     makeGeneratorDocs(generators));
-            std::cerr << '\n';
-            generatorDocs.PrintDocumentation(cmDocumentation::ListGenerators,
-                                             std::cerr);
+            //cmDocumentation generatorDocs;
+            //generatorDocs.SetSection("Generators",
+            //                         makeGeneratorDocs(generators));
+            //std::cerr << '\n';
+            //generatorDocs.PrintDocumentation(cmDocumentation::ListGenerators,
+            //                                 std::cerr);
             parsed = false;
           }
 
@@ -607,15 +607,15 @@ int main(int argc, char const* const* argv)
    * instance in order to create appropriate structure
    * in order to satisfy the appropriate --help-xxx request
    */
-  if (help) {
-    // Construct and print requested documentation.
-    doc.SetName("cpack");
-    doc.SetSection("Name", cmDocumentationName);
-    doc.SetSection("Usage", cmDocumentationUsage);
-    doc.PrependSection("Options", cmDocumentationOptions);
-    doc.SetSection("Generators", makeGeneratorDocs(generators));
-    return !doc.PrintRequestedDocumentation(std::cout);
-  }
+  //if (help) {
+  //  // Construct and print requested documentation.
+  //  doc.SetName("cpack");
+  //  doc.SetSection("Name", cmDocumentationName);
+  //  doc.SetSection("Usage", cmDocumentationUsage);
+  //  doc.PrependSection("Options", cmDocumentationOptions);
+  //  doc.SetSection("Generators", makeGeneratorDocs(generators));
+  //  return !doc.PrintRequestedDocumentation(std::cout);
+  //}
 
   return int(cmSystemTools::GetErrorOccurredFlag());
 }

@@ -582,11 +582,11 @@ codecvt_Encoding cmGlobalNinjaGenerator::GetMakefileEncoding() const
   return this->NinjaExpectedEncoding;
 }
 
-cmDocumentationEntry cmGlobalNinjaGenerator::GetDocumentation()
-{
-  return { cmGlobalNinjaGenerator::GetActualName(),
-           "Generates build.ninja files." };
-}
+//cmDocumentationEntry cmGlobalNinjaGenerator::GetDocumentation()
+//{
+//  return { cmGlobalNinjaGenerator::GetActualName(),
+//           "Generates build.ninja files." };
+//}
 
 std::vector<std::string> const& cmGlobalNinjaGenerator::GetConfigNames() const
 {
@@ -3086,11 +3086,11 @@ cmGlobalNinjaMultiGenerator::cmGlobalNinjaMultiGenerator(CMake* cm)
   cm->GetState()->SetNinjaMulti(true);
 }
 
-cmDocumentationEntry cmGlobalNinjaMultiGenerator::GetDocumentation()
-{
-  return { cmGlobalNinjaMultiGenerator::GetActualName(),
-           "Generates build-<Config>.ninja files." };
-}
+//cmDocumentationEntry cmGlobalNinjaMultiGenerator::GetDocumentation()
+//{
+//  return { cmGlobalNinjaMultiGenerator::GetActualName(),
+//           "Generates build-<Config>.ninja files." };
+//}
 
 std::string cmGlobalNinjaMultiGenerator::ExpandCFGIntDir(
   std::string const& str, std::string const& config) const

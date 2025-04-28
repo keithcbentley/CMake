@@ -57,13 +57,13 @@ cmGlobalGhsMultiGenerator::CreateLocalGenerator(cmMakefile* mf)
     cm::make_unique<cmLocalGhsMultiGenerator>(this, mf));
 }
 
-cmDocumentationEntry cmGlobalGhsMultiGenerator::GetDocumentation()
-{
-  return {
-    GetActualName(),
-    "Generates Green Hills MULTI files (experimental, work-in-progress)."
-  };
-}
+//cmDocumentationEntry cmGlobalGhsMultiGenerator::GetDocumentation()
+//{
+//  return {
+//    GetActualName(),
+//    "Generates Green Hills MULTI files (experimental, work-in-progress)."
+//  };
+//}
 
 void cmGlobalGhsMultiGenerator::ComputeTargetObjectDirectory(
   cmGeneratorTarget* gt) const

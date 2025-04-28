@@ -105,8 +105,8 @@ public:
    */
   bool SupportsLinkerDependencyFile() const override { return true; }
 
-  /** Get the documentation entry for this generator.  */
-  static cmDocumentationEntry GetDocumentation();
+  ///** Get the documentation entry for this generator.  */
+  //static cmDocumentationEntry GetDocumentation();
 
   std::unique_ptr<cmLocalGenerator> CreateLocalGenerator(
     cmMakefile* mf) override;

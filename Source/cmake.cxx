@@ -262,31 +262,31 @@ bool isGenerateStampListUpToDate(std::string const& stampList)
 
 } // namespace
 
-cmDocumentationEntry CMake::CMAKE_STANDARD_OPTIONS_TABLE[19] = {
-  { "-S <path-to-source>", "Explicitly specify a source directory." },
-  { "-B <path-to-build>", "Explicitly specify a build directory." },
-  { "-C <initial-cache>", "Pre-load a script to populate the cache." },
-  { "-D <var>[:<type>]=<value>", "Create or update a cmake cache entry." },
-  { "-U <globbing_expr>", "Remove matching entries from CMake cache." },
-  { "-G <generator-name>", "Specify a build system generator." },
-  { "-T <toolset-name>", "Specify toolset name if supported by generator." },
-  { "-A <platform-name>", "Specify platform name if supported by generator." },
-  { "--toolchain <file>", "Specify toolchain file [CMAKE_TOOLCHAIN_FILE]." },
-  { "--install-prefix <directory>", "Specify install directory [CMAKE_INSTALL_PREFIX]." },
-  { "--project-file <project-file-name>", "Specify an alternate project file name." },
-  { "-Wdev", "Enable developer warnings." },
-  { "-Wno-dev", "Suppress developer warnings." },
-  { "-Werror=dev", "Make developer warnings errors." },
-  { "-Wno-error=dev", "Make developer warnings not errors." },
-  { "-Wdeprecated", "Enable deprecation warnings." },
-  { "-Wno-deprecated", "Suppress deprecation warnings." },
-  { "-Werror=deprecated",
-    "Make deprecated macro and function warnings "
-    "errors." },
-  { "-Wno-error=deprecated",
-    "Make deprecated macro and function warnings "
-    "not errors." }
-};
+//cmDocumentationEntry CMake::CMAKE_STANDARD_OPTIONS_TABLE[19] = {
+//  { "-S <path-to-source>", "Explicitly specify a source directory." },
+//  { "-B <path-to-build>", "Explicitly specify a build directory." },
+//  { "-C <initial-cache>", "Pre-load a script to populate the cache." },
+//  { "-D <var>[:<type>]=<value>", "Create or update a cmake cache entry." },
+//  { "-U <globbing_expr>", "Remove matching entries from CMake cache." },
+//  { "-G <generator-name>", "Specify a build system generator." },
+//  { "-T <toolset-name>", "Specify toolset name if supported by generator." },
+//  { "-A <platform-name>", "Specify platform name if supported by generator." },
+//  { "--toolchain <file>", "Specify toolchain file [CMAKE_TOOLCHAIN_FILE]." },
+//  { "--install-prefix <directory>", "Specify install directory [CMAKE_INSTALL_PREFIX]." },
+//  { "--project-file <project-file-name>", "Specify an alternate project file name." },
+//  { "-Wdev", "Enable developer warnings." },
+//  { "-Wno-dev", "Suppress developer warnings." },
+//  { "-Werror=dev", "Make developer warnings errors." },
+//  { "-Wno-error=dev", "Make developer warnings not errors." },
+//  { "-Wdeprecated", "Enable deprecation warnings." },
+//  { "-Wno-deprecated", "Suppress deprecation warnings." },
+//  { "-Werror=deprecated",
+//    "Make deprecated macro and function warnings "
+//    "errors." },
+//  { "-Wno-error=deprecated",
+//    "Make deprecated macro and function warnings "
+//    "not errors." }
+//};
 
 CMake::CMake(
   Role role,
@@ -1359,7 +1359,7 @@ void CMake::SetArgs(std::vector<std::string> const& args)
     if (generatorCommand.matches(arg)) {
       bool parsed = generatorCommand.parse(arg, i, args, this);
       if (!parsed && !badGeneratorName) {
-        PrintGeneratorList();
+//        PrintGeneratorList();
         return;
       }
       continue;
@@ -1956,7 +1956,7 @@ bool CMake::CreateAndSetGlobalGenerator(std::string const& name)
     }
 
     cmSystemTools::Error(cmStrCat("Could not create named generator ", name, kdevError, vsError));
-    PrintGeneratorList();
+//    PrintGeneratorList();
     return false;
   }
 
@@ -3111,57 +3111,57 @@ bool CMake::GetIsInTryCompile() const
   return m_pState->GetProjectKind() == cmState::ProjectKind::TryCompile;
 }
 
-void CMake::AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
-{
-  auto const defaultGenerator = EvaluateDefaultGlobalGenerator();
-  auto const defaultName = defaultGenerator->GetName();
-  auto foundDefaultOne = false;
+//void CMake::AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
+//{
+//  auto const defaultGenerator = EvaluateDefaultGlobalGenerator();
+//  auto const defaultName = defaultGenerator->GetName();
+//  auto foundDefaultOne = false;
+//
+//  for (auto const& g : m_generators) {
+//    v.emplace_back(g->GetDocumentation());
+//    if (!foundDefaultOne && cmHasPrefix(v.back().m_name, defaultName)) {
+//      v.back().m_customNamePrefix = '*';
+//      foundDefaultOne = true;
+//    }
+//  }
+//}
 
-  for (auto const& g : m_generators) {
-    v.emplace_back(g->GetDocumentation());
-    if (!foundDefaultOne && cmHasPrefix(v.back().m_name, defaultName)) {
-      v.back().m_customNamePrefix = '*';
-      foundDefaultOne = true;
-    }
-  }
-}
+//void CMake::AppendExtraGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
+//{
+//  for (cmExternalMakefileProjectGeneratorFactory* eg : m_extraGenerators) {
+//    std::string const doc = eg->GetDocumentation();
+//    std::string const name = eg->GetName();
+//
+//    // Aliases:
+//    for (std::string const& a : eg->Aliases) {
+//      v.emplace_back(cmDocumentationEntry{ a, doc });
+//    }
+//
+//    // Full names:
+//    for (std::string const& g : eg->GetSupportedGlobalGenerators()) {
+//      v.emplace_back(cmDocumentationEntry{ cmExternalMakefileProjectGenerator::CreateFullGeneratorName(g, name), doc });
+//    }
+//  }
+//}
 
-void CMake::AppendExtraGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
-{
-  for (cmExternalMakefileProjectGeneratorFactory* eg : m_extraGenerators) {
-    std::string const doc = eg->GetDocumentation();
-    std::string const name = eg->GetName();
+//std::vector<cmDocumentationEntry> CMake::GetGeneratorsDocumentation()
+//{
+//  std::vector<cmDocumentationEntry> v;
+//  AppendGlobalGeneratorsDocumentation(v);
+//  AppendExtraGeneratorsDocumentation(v);
+//  return v;
+//}
 
-    // Aliases:
-    for (std::string const& a : eg->Aliases) {
-      v.emplace_back(cmDocumentationEntry{ a, doc });
-    }
-
-    // Full names:
-    for (std::string const& g : eg->GetSupportedGlobalGenerators()) {
-      v.emplace_back(cmDocumentationEntry{ cmExternalMakefileProjectGenerator::CreateFullGeneratorName(g, name), doc });
-    }
-  }
-}
-
-std::vector<cmDocumentationEntry> CMake::GetGeneratorsDocumentation()
-{
-  std::vector<cmDocumentationEntry> v;
-  AppendGlobalGeneratorsDocumentation(v);
-  AppendExtraGeneratorsDocumentation(v);
-  return v;
-}
-
-void CMake::PrintGeneratorList()
-{
-#ifndef CMAKE_BOOTSTRAP
-  cmDocumentation doc;
-  auto generators = GetGeneratorsDocumentation();
-  doc.AppendSection("Generators", generators);
-  std::cerr << '\n';
-  doc.PrintDocumentation(cmDocumentation::ListGenerators, std::cerr);
-#endif
-}
+//void CMake::PrintGeneratorList()
+//{
+//#ifndef CMAKE_BOOTSTRAP
+//  cmDocumentation doc;
+//  auto generators = GetGeneratorsDocumentation();
+//  doc.AppendSection("Generators", generators);
+//  std::cerr << '\n';
+//  doc.PrintDocumentation(cmDocumentation::ListGenerators, std::cerr);
+//#endif
+//}
 
 int CMake::CheckBuildSystem()
 {
@@ -3417,7 +3417,7 @@ int CMake::GetSystemInformation(std::vector<std::string>& args)
         ++i;
         if (i >= args.size()) {
           cmSystemTools::Error("No generator specified for -G");
-          PrintGeneratorList();
+//          PrintGeneratorList();
           return -1;
         }
         value = args[i];
@@ -3425,7 +3425,7 @@ int CMake::GetSystemInformation(std::vector<std::string>& args)
       auto gen = CreateGlobalGenerator(value);
       if (!gen) {
         cmSystemTools::Error("Could not create named generator " + value);
-        PrintGeneratorList();
+//        PrintGeneratorList();
       } else {
         SetGlobalGenerator(std::move(gen));
       }

@@ -61,11 +61,11 @@ cmGlobalBorlandMakefileGenerator::CreateLocalGenerator(cmMakefile* mf)
   return std::unique_ptr<cmLocalGenerator>(std::move(lg));
 }
 
-cmDocumentationEntry cmGlobalBorlandMakefileGenerator::GetDocumentation()
-{
-  return { cmGlobalBorlandMakefileGenerator::GetActualName(),
-           "Generates Borland makefiles." };
-}
+//cmDocumentationEntry cmGlobalBorlandMakefileGenerator::GetDocumentation()
+//{
+//  return { cmGlobalBorlandMakefileGenerator::GetActualName(),
+//           "Generates Borland makefiles." };
+//}
 
 std::vector<cmGlobalGenerator::GeneratedMakeCommand>
 cmGlobalBorlandMakefileGenerator::GenerateBuildCommand(

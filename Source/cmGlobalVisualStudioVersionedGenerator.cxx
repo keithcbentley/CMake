@@ -220,12 +220,12 @@ public:
     return std::unique_ptr<cmGlobalGenerator>();
   }
 
-  cmDocumentationEntry GetDocumentation() const override
-  {
-    return { cmStrCat(vs15generatorName, " [arch]"),
-             "Generates Visual Studio 2017 project files.  "
-             "Optional [arch] can be \"Win64\" or \"ARM\"." };
-  }
+  //cmDocumentationEntry GetDocumentation() const override
+  //{
+  //  return { cmStrCat(vs15generatorName, " [arch]"),
+  //           "Generates Visual Studio 2017 project files.  "
+  //           "Optional [arch] can be \"Win64\" or \"ARM\"." };
+  //}
 
   std::vector<std::string> GetGeneratorNames() const override
   {
@@ -308,12 +308,12 @@ public:
     return std::unique_ptr<cmGlobalGenerator>();
   }
 
-  cmDocumentationEntry GetDocumentation() const override
-  {
-    return { std::string(vs16generatorName),
-             "Generates Visual Studio 2019 project files.  "
-             "Use -A option to specify architecture." };
-  }
+  //cmDocumentationEntry GetDocumentation() const override
+  //{
+  //  return { std::string(vs16generatorName),
+  //           "Generates Visual Studio 2019 project files.  "
+  //           "Use -A option to specify architecture." };
+  //}
 
   std::vector<std::string> GetGeneratorNames() const override
   {
@@ -368,12 +368,12 @@ public:
     return std::unique_ptr<cmGlobalGenerator>();
   }
 
-  cmDocumentationEntry GetDocumentation() const override
-  {
-    return { std::string(vs17generatorName),
-             "Generates Visual Studio 2022 project files.  "
-             "Use -A option to specify architecture." };
-  }
+  //cmDocumentationEntry GetDocumentation() const override
+  //{
+  //  return { std::string(vs17generatorName),
+  //           "Generates Visual Studio 2022 project files.  "
+  //           "Use -A option to specify architecture." };
+  //}
 
   std::vector<std::string> GetGeneratorNames() const override
   {

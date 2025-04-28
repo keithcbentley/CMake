@@ -35,7 +35,7 @@ public:
   static std::string GetActualName() { return "MSYS Makefiles"; }
 
   /** Get the documentation entry for this generator.  */
-  static cmDocumentationEntry GetDocumentation();
+//  static cmDocumentationEntry GetDocumentation();
 
   /**
    * Try to determine system information such as shared library

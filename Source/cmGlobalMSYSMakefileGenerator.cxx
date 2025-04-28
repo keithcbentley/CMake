@@ -54,8 +54,8 @@ void cmGlobalMSYSMakefileGenerator::EnableLanguage(
   }
 }
 
-cmDocumentationEntry cmGlobalMSYSMakefileGenerator::GetDocumentation()
-{
-  return { cmGlobalMSYSMakefileGenerator::GetActualName(),
-           "Generates MSYS makefiles." };
-}
+//cmDocumentationEntry cmGlobalMSYSMakefileGenerator::GetDocumentation()
+//{
+//  return { cmGlobalMSYSMakefileGenerator::GetActualName(),
+//           "Generates MSYS makefiles." };
+//}

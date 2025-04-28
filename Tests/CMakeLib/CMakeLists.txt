@@ -16,7 +16,6 @@ set(CMakeLib_TESTS
   testCTestResourceSpec.cxx
   testCTestResourceGroups.cxx
   testDebug.cxx
-  testDocumentationFormatter.cxx
   testGccDepfileReader.cxx
   testGeneratedFileStream.cxx
   testJSONHelpers.cxx

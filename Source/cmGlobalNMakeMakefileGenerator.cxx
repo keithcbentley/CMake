@@ -80,11 +80,11 @@ void cmGlobalNMakeMakefileGenerator::CheckNMakeFeatures()
     cmSystemTools::OP_LESS, this->NMakeVersion, "9");
 }
 
-cmDocumentationEntry cmGlobalNMakeMakefileGenerator::GetDocumentation()
-{
-  return { cmGlobalNMakeMakefileGenerator::GetActualName(),
-           "Generates NMake makefiles." };
-}
+//cmDocumentationEntry cmGlobalNMakeMakefileGenerator::GetDocumentation()
+//{
+//  return { cmGlobalNMakeMakefileGenerator::GetActualName(),
+//           "Generates NMake makefiles." };
+//}
 
 void cmGlobalNMakeMakefileGenerator::PrintCompilerAdvice(
   std::ostream& os, std::string const& lang, cmValue envVar) const

@@ -62,13 +62,13 @@ int getMessageColor(MessageType t)
   }
 }
 
-void printMessageText(std::ostream& msg, std::string const& text)
-{
-  msg << ":\n";
-  cmDocumentationFormatter formatter;
-  formatter.SetIndent(2u);
-  formatter.PrintFormatted(msg, text);
-}
+//void printMessageText(std::ostream& msg, std::string const& text)
+//{
+//  msg << ":\n";
+//  cmDocumentationFormatter formatter;
+//  formatter.SetIndent(2u);
+//  formatter.PrintFormatted(msg, text);
+//}
 
 void displayMessage(MessageType t, std::ostringstream& msg)
 {
@@ -213,7 +213,7 @@ void cmMessenger::DisplayMessage(MessageType t, std::string const& text,
   // Add the immediate context.
   this->PrintBacktraceTitle(msg, backtrace);
 
-  printMessageText(msg, text);
+//  printMessageText(msg, text);
 
   // Add the rest of the context.
   PrintCallStack(msg, backtrace, this->TopSource);

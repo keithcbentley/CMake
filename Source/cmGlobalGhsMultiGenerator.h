@@ -45,7 +45,7 @@ public:
   std::string GetName() const override { return GetActualName(); }
 
   /// Overloaded methods. @see cmGlobalGenerator::GetDocumentation()
-  static cmDocumentationEntry GetDocumentation();
+//  static cmDocumentationEntry GetDocumentation();
 
   /**
    * Utilized by the generator factory to determine if this generator

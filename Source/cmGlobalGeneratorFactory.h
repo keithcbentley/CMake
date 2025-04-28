@@ -31,7 +31,7 @@ public:
     std::string const& n, CMake* cm) const = 0;
 
   /** Get the documentation entry for this factory */
-  virtual cmDocumentationEntry GetDocumentation() const = 0;
+//  virtual cmDocumentationEntry GetDocumentation() const = 0;
 
   /** Get the names of the current registered generators */
   virtual std::vector<std::string> GetGeneratorNames() const = 0;
@@ -63,11 +63,11 @@ public:
     return std::unique_ptr<cmGlobalGenerator>(cm::make_unique<T>(cm));
   }
 
-  /** Get the documentation entry for this factory */
-  cmDocumentationEntry GetDocumentation() const override
-  {
-    return T::GetDocumentation();
-  }
+  ///** Get the documentation entry for this factory */
+  //cmDocumentationEntry GetDocumentation() const override
+  //{
+  //  return T::GetDocumentation();
+  //}
 
   /** Get the names of the current registered generators */
   std::vector<std::string> GetGeneratorNames() const override

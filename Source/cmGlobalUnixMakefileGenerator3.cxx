@@ -71,11 +71,11 @@ cmGlobalUnixMakefileGenerator3::CreateLocalGenerator(cmMakefile* mf)
     cm::make_unique<cmLocalUnixMakefileGenerator3>(this, mf));
 }
 
-cmDocumentationEntry cmGlobalUnixMakefileGenerator3::GetDocumentation()
-{
-  return { cmGlobalUnixMakefileGenerator3::GetActualName(),
-           "Generates standard UNIX makefiles." };
-}
+//cmDocumentationEntry cmGlobalUnixMakefileGenerator3::GetDocumentation()
+//{
+//  return { cmGlobalUnixMakefileGenerator3::GetActualName(),
+//           "Generates standard UNIX makefiles." };
+//}
 
 void cmGlobalUnixMakefileGenerator3::ComputeTargetObjectDirectory(
   cmGeneratorTarget* gt) const

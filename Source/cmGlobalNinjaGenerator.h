@@ -192,7 +192,7 @@ public:
   /** Get encoding used by generator for ninja files */
   codecvt_Encoding GetMakefileEncoding() const override;
 
-  static cmDocumentationEntry GetDocumentation();
+//  static cmDocumentationEntry GetDocumentation();
 
   void EnableLanguage(std::vector<std::string> const& languages,
                       cmMakefile* mf, bool optional) override;
@@ -670,7 +670,7 @@ public:
       new cmGlobalGeneratorSimpleFactory<cmGlobalNinjaMultiGenerator>());
   }
 
-  static cmDocumentationEntry GetDocumentation();
+//  static cmDocumentationEntry GetDocumentation();
 
   std::string GetName() const override
   {

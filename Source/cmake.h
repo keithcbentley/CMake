@@ -454,7 +454,7 @@ public:
   cmVariableWatch* GetVariableWatch() { return m_pVariableWatch.get(); }
 #endif
 
-  std::vector<cmDocumentationEntry> GetGeneratorsDocumentation();
+//  std::vector<cmDocumentationEntry> GetGeneratorsDocumentation();
 
   //! Set/Get a property of this target file
   void SetProperty(
@@ -797,13 +797,13 @@ protected:
 
 private:
   //! Print a list of valid generators to stderr.
-  void PrintGeneratorList();
+//  void PrintGeneratorList();
 
   std::unique_ptr<cmGlobalGenerator> EvaluateDefaultGlobalGenerator();
   void CreateDefaultGlobalGenerator();
 
-  void AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry>&);
-  void AppendExtraGeneratorsDocumentation(std::vector<cmDocumentationEntry>&);
+  //void AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry>&);
+  //void AppendExtraGeneratorsDocumentation(std::vector<cmDocumentationEntry>&);
 
 #if !defined(CMAKE_BOOTSTRAP)
   template <typename T>
@@ -824,7 +824,7 @@ public:
   void SetScriptModeExitCode(int code) { m_scriptModeExitCode = code; }
   int GetScriptModeExitCode() const { return m_scriptModeExitCode.value_or(-1); }
 
-  static cmDocumentationEntry CMAKE_STANDARD_OPTIONS_TABLE[19];
+//  static cmDocumentationEntry CMAKE_STANDARD_OPTIONS_TABLE[19];
 };
 
 #define FOR_EACH_C90_FEATURE(F) F(c_function_prototypes)
