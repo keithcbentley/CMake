@@ -22,8 +22,6 @@
 #include "cmDuration.h"
 #include "cmFileTimeCache.h"
 #include "cmGeneratedFileStream.h"
-#include "cmInstrumentation.h"
-#include "cmInstrumentationQuery.h"
 #include "cmJSONState.h"
 #include "cmList.h"
 #include "cmMakefile.h"

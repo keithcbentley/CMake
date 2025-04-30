@@ -85,8 +85,6 @@
 #  include "cmConfigureLog.h"
 #  include "cmFileAPI.h"
 #  include "cmGraphVizWriter.h"
-#  include "cmInstrumentation.h"
-#  include "cmInstrumentationQuery.h"
 #  include "cmVariableWatch.h"
 #endif
 

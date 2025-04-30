@@ -16,7 +16,6 @@
 
 #include "cmCTestLaunchReporter.h"
 #include "cmGlobalGenerator.h"
-#include "cmInstrumentation.h"
 #include "cmMakefile.h"
 #include "cmProcessOutput.h"
 #include "cmState.h"

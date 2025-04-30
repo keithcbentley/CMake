@@ -21,7 +21,6 @@
 
 #include "cmCryptoHash.h"
 #include "cmGeneratedFileStream.h"
-#include "cmInstrumentation.h"
 #include "cmJSONState.h"
 #include "cmProcessOutput.h"
 #include "cmStringAlgorithms.h"

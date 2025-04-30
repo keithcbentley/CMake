@@ -52,7 +52,6 @@
 #include "cmInstallCommand.h"
 #include "cmInstallFilesCommand.h"
 #include "cmInstallTargetsCommand.h"
-#include "cmInstrumentationCommand.h"
 #include "cmLinkDirectoriesCommand.h"
 #include "cmListCommand.h"
 #include "cmMacroCommand.h"

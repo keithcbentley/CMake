@@ -21,7 +21,6 @@
 #include "cmCTestMemCheckHandler.h"
 #include "cmCTestMultiProcessHandler.h"
 #include "cmDuration.h"
-#include "cmInstrumentation.h"
 #include "cmProcess.h"
 #include "cmStringAlgorithms.h"
 #include "cmSystemTools.h"

@@ -12,8 +12,6 @@
 #include "cmConsoleBuf.h"
 #include "cmDocumentation.h"
 #include "cmDocumentationEntry.h"
-#include "cmInstrumentation.h"
-#include "cmInstrumentationQuery.h"
 #include "cmSystemTools.h"
 
 #include "CTest/cmCTestLaunch.h"
