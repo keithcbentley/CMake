@@ -354,12 +354,6 @@ add_library(
   cmInstallDirectoryGenerator.cxx
   cmInstallScriptHandler.h
   cmInstallScriptHandler.cxx
-  cmInstrumentation.h
-  cmInstrumentation.cxx
-  cmInstrumentationCommand.h
-  cmInstrumentationCommand.cxx
-  cmInstrumentationQuery.h
-  cmInstrumentationQuery.cxx
   cmJSONHelpers.cxx
   cmJSONHelpers.h
   cmJSONState.cxx
