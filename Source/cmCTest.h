@@ -435,7 +435,7 @@ public:
   cmCTestTestOptions const& GetTestOptions() const;
   std::vector<std::string> GetCommandLineHttpHeaders() const;
 
-  cmInstrumentation& GetInstrumentation();
+//  cmInstrumentation& GetInstrumentation();
   bool GetUseVerboseInstrumentation() const;
 
 private:

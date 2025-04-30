@@ -103,8 +103,7 @@ std::vector<std::vector<std::string>> cmInstallScriptHandler::GetCommands()
   return this->commands;
 }
 
-int cmInstallScriptHandler::Install(unsigned int j,
-                                    cmInstrumentation& instrumentation)
+int cmInstallScriptHandler::Install(unsigned int j)
 {
   cm::uv_loop_ptr loop;
   loop.init();
@@ -112,15 +111,15 @@ int cmInstallScriptHandler::Install(unsigned int j,
   scripts.reserve(this->commands.size());
 
   std::vector<std::string> instrument_arg;
-  if (instrumentation.HasQuery()) {
-    instrument_arg = { cmSystemTools::GetCTestCommand(),
-                       "--instrument",
-                       "--command-type",
-                       "install",
-                       "--build-dir",
-                       this->binaryDir,
-                       "--" };
-  }
+  //if (instrumentation.HasQuery()) {
+  //  instrument_arg = { cmSystemTools::GetCTestCommand(),
+  //                     "--instrument",
+  //                     "--command-type",
+  //                     "install",
+  //                     "--build-dir",
+  //                     this->binaryDir,
+  //                     "--" };
+  //}
 
   for (auto& cmd : this->commands) {
     cmd.insert(cmd.begin(), instrument_arg.begin(), instrument_arg.end());

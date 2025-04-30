@@ -18,43 +18,48 @@
 
 #include "cmInstrumentationQuery.h"
 
-class cmInstrumentation
+class cmInstrumentation1
 {
 public:
-  cmInstrumentation(std::string const& binary_dir);
-  int InstrumentCommand(
-    std::string command_type, std::vector<std::string> const& command,
-    std::function<int()> const& callback,
-    cm::optional<std::map<std::string, std::string>> options = cm::nullopt,
-    cm::optional<std::map<std::string, std::string>> arrayOptions =
-      cm::nullopt,
-    bool reloadQueriesAfterCommand = false);
-  std::string InstrumentTest(std::string const& name,
-                             std::string const& command,
-                             std::vector<std::string> const& args,
-                             int64_t result,
-                             std::chrono::steady_clock::time_point steadyStart,
-                             std::chrono::system_clock::time_point systemStart,
-                             std::string config);
-  void GetPreTestStats();
-  void LoadQueries();
-  bool HasQuery() const;
-  bool HasQuery(cmInstrumentationQuery::Query) const;
-  bool HasHook(cmInstrumentationQuery::Hook) const;
-  bool HasPreOrPostBuildHook() const;
-  bool ReadJSONQueries(std::string const& directory);
-  void ReadJSONQuery(std::string const& file);
-  void WriteJSONQuery(std::set<cmInstrumentationQuery::Query> const& queries,
-                      std::set<cmInstrumentationQuery::Hook> const& hooks,
-                      std::vector<std::vector<std::string>> const& callback);
-  void ClearGeneratedQueries();
-  int CollectTimingData(cmInstrumentationQuery::Hook hook);
-  int SpawnBuildDaemon();
-  int CollectTimingAfterBuild(int ppid);
-  void AddHook(cmInstrumentationQuery::Hook hook);
-  void AddQuery(cmInstrumentationQuery::Query query);
-  bool HasErrors() const;
-  std::string const& GetCDashDir();
+  //cmInstrumentation(std::string const& binary_dir);
+
+  //int InstrumentCommand(
+  //  std::string command_type, std::vector<std::string> const& command,
+  //  std::function<int()> const& callback,
+  //  cm::optional<std::map<std::string, std::string>> options = cm::nullopt,
+  //  cm::optional<std::map<std::string, std::string>> arrayOptions =
+  //    cm::nullopt,
+  //  bool reloadQueriesAfterCommand = false);
+
+  //std::string InstrumentTest(std::string const& name,
+  //                           std::string const& command,
+  //                           std::vector<std::string> const& args,
+  //                           int64_t result,
+  //                           std::chrono::steady_clock::time_point steadyStart,
+  //                           std::chrono::system_clock::time_point systemStart,
+  //                           std::string config);
+
+  //void GetPreTestStats();
+  //void LoadQueries();
+  //bool HasQuery() const;
+  //bool HasQuery(cmInstrumentationQuery::Query) const;
+
+
+  //bool HasHook(cmInstrumentationQuery::Hook) const;
+  //bool HasPreOrPostBuildHook() const;
+  //bool ReadJSONQueries(std::string const& directory);
+  //void ReadJSONQuery(std::string const& file);
+  //void WriteJSONQuery(std::set<cmInstrumentationQuery::Query> const& queries,
+  //                    std::set<cmInstrumentationQuery::Hook> const& hooks,
+  //                    std::vector<std::vector<std::string>> const& callback);
+  //void ClearGeneratedQueries();
+  //int CollectTimingData(cmInstrumentationQuery::Hook hook);
+  //int SpawnBuildDaemon();
+  //int CollectTimingAfterBuild(int ppid);
+  //void AddHook(cmInstrumentationQuery::Hook hook);
+  //void AddQuery(cmInstrumentationQuery::Query query);
+  //bool HasErrors() const;
+  //std::string const& GetCDashDir();
 
 private:
   void WriteInstrumentationJson(Json::Value& index,

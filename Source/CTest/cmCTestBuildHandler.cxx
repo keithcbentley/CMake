@@ -434,8 +434,8 @@ int cmCTestBuildHandler::ProcessHandler()
     this->GenerateXMLLogScraped(xml);
   }
 
-  this->CTest->GetInstrumentation().CollectTimingData(
-    cmInstrumentationQuery::Hook::PrepareForCDash);
+  //this->CTest->GetInstrumentation().CollectTimingData(
+  //  cmInstrumentationQuery::Hook::PrepareForCDash);
   this->GenerateInstrumentationXML(xml);
 
   this->GenerateXMLFooter(xml, elapsed_build_time);
@@ -608,8 +608,7 @@ void cmCTestBuildHandler::GenerateInstrumentationXML(cmXMLWriter& xml)
 {
   // Record instrumentation data on a per-target basis.
   cmsys::Directory targets_dir;
-  std::string targets_snippet_dir = cmStrCat(
-    this->CTest->GetInstrumentation().GetCDashDir(), "/build/targets");
+  std::string targets_snippet_dir = cmStrCat("", "/build/targets");
   if (targets_dir.Load(targets_snippet_dir) &&
       targets_dir.GetNumberOfFiles() > 0) {
     xml.StartElement("Targets");
@@ -672,8 +671,7 @@ void cmCTestBuildHandler::GenerateInstrumentationXML(cmXMLWriter& xml)
       // Write instrumendation data for this target.
       std::string target_subdir = cmStrCat("build/targets/", target_name);
       this->CTest->ConvertInstrumentationSnippetsToXML(xml, target_subdir);
-      std::string target_dir_fullpath = cmStrCat(
-        this->CTest->GetInstrumentation().GetCDashDir(), '/', target_subdir);
+      std::string target_dir_fullpath = cmStrCat("",  target_subdir);
       if (cmSystemTools::FileIsDirectory(target_dir_fullpath)) {
         cmSystemTools::RemoveADirectory(target_dir_fullpath);
       }

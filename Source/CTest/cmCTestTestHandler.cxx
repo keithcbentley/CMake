@@ -1390,8 +1390,8 @@ void cmCTestTestHandler::GenerateCTestXML(cmXMLWriter& xml)
     return;
   }
 
-  this->CTest->GetInstrumentation().CollectTimingData(
-    cmInstrumentationQuery::Hook::PrepareForCDash);
+  //this->CTest->GetInstrumentation().CollectTimingData(
+  //  cmInstrumentationQuery::Hook::PrepareForCDash);
 
   this->CTest->StartXML(xml, this->m_pcmake, this->AppendXML);
   this->CTest->GenerateSubprojectsOutput(xml);
@@ -1486,8 +1486,7 @@ void cmCTestTestHandler::GenerateCTestXML(cmXMLWriter& xml)
     xml.EndElement(); // Measurement
 
     if (!result.InstrumentationFile.empty()) {
-      std::string instrument_file_path =
-        cmStrCat(this->CTest->GetInstrumentation().GetCDashDir(), "/test/",
+      std::string instrument_file_path = cmStrCat("", "/test/",
                  result.InstrumentationFile);
       this->CTest->ConvertInstrumentationJSONFileToXML(instrument_file_path,
                                                        xml);

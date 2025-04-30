@@ -21,7 +21,7 @@ public:
   cmInstallScriptHandler(std::string, std::string, std::string,
                          std::vector<std::string>&);
   bool IsParallel();
-  int Install(unsigned int j, cmInstrumentation& instrumentation);
+  int Install(unsigned int j);
   std::vector<std::vector<std::string>> GetCommands() const;
   class InstallScript
   {

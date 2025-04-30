@@ -49,7 +49,7 @@ class cmDebuggerAdapter;
 
 class cmExternalMakefileProjectGeneratorFactory;
 class cmFileAPI;
-class cmInstrumentation;
+//class cmInstrumentation;
 class cmFileTimeCache;
 class cmGlobalGenerator;
 class cmMakefile;
@@ -165,7 +165,7 @@ private:
 #if !defined(CMAKE_BOOTSTRAP)
   std::unique_ptr<cmVariableWatch> m_pVariableWatch;
   std::unique_ptr<cmFileAPI> m_pFileAPI;
-  std::unique_ptr<cmInstrumentation> m_pInstrumentation;
+//  std::unique_ptr<cmInstrumentation> m_pInstrumentation;
 #endif
 
   std::unique_ptr<cmState> m_pState;
@@ -704,7 +704,7 @@ public:
 
 #if !defined(CMAKE_BOOTSTRAP)
   cmFileAPI* GetFileAPI() const { return m_pFileAPI.get(); }
-  cmInstrumentation* GetInstrumentation() const { return m_pInstrumentation.get(); }
+  //cmInstrumentation* GetInstrumentation() const { return m_pInstrumentation.get(); }
 #endif
 
   cmState* GetState() const { return m_pState.get(); }

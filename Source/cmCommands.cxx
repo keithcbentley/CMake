@@ -293,7 +293,7 @@ void GetProjectCommands(cmState* state)
   state->AddBuiltinCommand("remove_definitions", cmRemoveDefinitionsCommand);
   state->AddBuiltinCommand("source_group", cmSourceGroupCommand);
   state->AddBuiltinCommand("cmake_file_api", cmFileAPICommand);
-  state->AddBuiltinCommand("cmake_instrumentation", cmInstrumentationCommand);
+//  state->AddBuiltinCommand("cmake_instrumentation", cmInstrumentationCommand);
 
   state->AddRemovedCommand(
     "export_library_dependencies",

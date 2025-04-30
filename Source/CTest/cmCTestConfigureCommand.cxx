@@ -206,8 +206,8 @@ bool cmCTestConfigureCommand::ExecuteConfigure(ConfigureArguments const& args,
   xml.Element("EndConfigureTime", endTime);
   xml.Element("ElapsedMinutes", elapsedMinutes.count());
 
-  this->CTest->GetInstrumentation().CollectTimingData(
-    cmInstrumentationQuery::Hook::PrepareForCDash);
+  //this->CTest->GetInstrumentation().CollectTimingData(
+  //  cmInstrumentationQuery::Hook::PrepareForCDash);
   this->CTest->ConvertInstrumentationSnippetsToXML(xml, "configure");
 
   xml.EndElement(); // Configure

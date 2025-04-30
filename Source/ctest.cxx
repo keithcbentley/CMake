@@ -192,20 +192,23 @@ int main(int argc, char const* const* argv)
 
   // Dispatch post-build instrumentation daemon for ninja
   if (argc == 3 && strcmp(argv[1], "--start-instrumentation") == 0) {
-    return cmInstrumentation(argv[2]).SpawnBuildDaemon();
+//    return cmInstrumentation(argv[2]).SpawnBuildDaemon();
+    return 1;
   }
 
   // Dispatch 'ctest --collect-instrumentation' once given PID finishes
   if (argc == 4 &&
       strcmp(argv[1], "--wait-and-collect-instrumentation") == 0) {
-    return cmInstrumentation(argv[2]).CollectTimingAfterBuild(
-      std::stoi(argv[3]));
+    //return cmInstrumentation(argv[2]).CollectTimingAfterBuild(
+    //  std::stoi(argv[3]));
+    return 1;
   }
 
   // Dispatch 'ctest --collect-instrumentation' mode directly.
   if (argc == 3 && strcmp(argv[1], "--collect-instrumentation") == 0) {
-    return cmInstrumentation(argv[2]).CollectTimingData(
-      cmInstrumentationQuery::Hook::Manual);
+    //return cmInstrumentation(argv[2]).CollectTimingData(
+    //  cmInstrumentationQuery::Hook::Manual);
+    return 1;
   }
 
   if (cmSystemTools::GetLogicalWorkingDirectory().empty()) {

@@ -51,79 +51,6 @@
 #include "cmsys/Terminal.h"
 
 namespace {
-#ifndef CMAKE_BOOTSTRAP
-//cmDocumentationEntry const cmDocumentationName = { {}, "  cmake - Cross-Platform Makefile Generator." };
-
-//cmDocumentationEntry const cmDocumentationUsage[2] = {
-//  { {},
-//    "  cmake [options] <path-to-source>\n"
-//    "  cmake [options] <path-to-existing-build>\n"
-//    "  cmake [options] -S <path-to-source> -B <path-to-build>" },
-//  { {},
-//    "Specify a source directory to (re-)generate a build system for "
-//    "it in the current working directory.  Specify an existing build "
-//    "directory to re-generate its build system." }
-//};
-
-//cmDocumentationEntry const cmDocumentationUsageNote = { {}, "Run 'cmake --help' for more information." };
-
-//cmDocumentationEntry const cmDocumentationOptions[35] = {
-//  { "--preset <preset>,--preset=<preset>", "Specify a configure preset." },
-//  { "--list-presets[=<type>]", "List available presets." },
-//  { "--workflow [<options>]", "Run a workflow preset." },
-//  { "-E", "CMake command mode. Run \"cmake -E\" for a summary of commands." },
-//  { "-L[A][H]", "List non-advanced cached variables." },
-//  { "-LR[A][H] <regex>", "Show cached variables that match the regex." },
-//  { "--fresh", "Configure a fresh build tree, removing any existing cache file." },
-//  { "--build <dir>",
-//    "Build a CMake-generated project binary tree. Run \"cmake --build\" to "
-//    "see compatible options and a quick help." },
-//  { "--install <dir>",
-//    "Install a CMake-generated project binary tree. Run \"cmake --install\" "
-//    "to see compatible options and a quick help." },
-//  { "--open <dir>", "Open generated project in the associated application." },
-//  { "-N", "View mode only." },
-//  { "-P <file>", "Process script mode." },
-//  { "--find-package", "Legacy pkg-config like mode.  Do not use." },
-//  { "--graphviz=<file>",
-//    "Generate graphviz of dependencies, see CMakeGraphVizOptions.cmake for "
-//    "more." },
-//  { "--system-information [file]", "Dump information about this system." },
-//  { "--print-config-dir", "Print CMake config directory for user-wide FileAPI queries." },
-//  { "--log-level=<ERROR|WARNING|NOTICE|STATUS|VERBOSE|DEBUG|TRACE>",
-//    "Set the verbosity of messages from CMake files. "
-//    "--loglevel is also accepted for backward compatibility reasons." },
-//  { "--log-context", "Prepend log messages with context, if given" },
-//  { "--debug-trycompile",
-//    "Do not delete the try_compile build tree. Only "
-//    "useful on one try_compile at a time." },
-//  { "--debug-output", "Put cmake in a debug mode." },
-//  { "--debug-find", "Put cmake find in a debug mode." },
-//  { "--debug-find-pkg=<pkg-name>[,...]", "Limit cmake debug-find to the comma-separated list of packages" },
-//  { "--debug-find-var=<var-name>[,...]", "Limit cmake debug-find to the comma-separated list of result variables" },
-//  { "--trace", "Put cmake in trace mode." },
-//  { "--trace-expand", "Put cmake in trace mode with variable expansion." },
-//  { "--trace-format=<human|json-v1>", "Set the output format of the trace." },
-//  { "--trace-source=<file>", "Trace only this CMake file/module. Multiple options allowed." },
-//  { "--trace-redirect=<file>", "Redirect trace output to a file instead of stderr." },
-//  { "--warn-uninitialized", "Warn about uninitialized values." },
-//  { "--no-warn-unused-cli", "Don't warn about command line options." },
-//  { "--check-system-vars", "Find problems with variable usage in system files." },
-//  { "--compile-no-warning-as-error",
-//    "Ignore COMPILE_WARNING_AS_ERROR property and "
-//    "CMAKE_COMPILE_WARNING_AS_ERROR variable." },
-//  { "--link-no-warning-as-error",
-//    "Ignore LINK_WARNING_AS_ERROR property and "
-//    "CMAKE_LINK_WARNING_AS_ERROR variable." },
-//  { "--profiling-format=<fmt>",
-//    "Output data for profiling CMake scripts. Supported formats: "
-//    "google-trace" },
-//  { "--profiling-output=<file>",
-//    "Select an output path for the profiling data enabled through "
-//    "--profiling-format." }
-//};
-
-#endif
 
 //  TODO: why is this consoleBuf thing passed around?
 //  TODO: why is the consoleBuf a unique pointer? why not just entire program lifetime?
@@ -207,7 +134,6 @@ void cmakemainProgressCallback(
   }
 }
 
-
 //  TODO: what the hell is this? Why?
 std::function<bool(std::string const& value)> getShowCachedCallback(
   bool& show_flag,
@@ -231,48 +157,11 @@ int do_cmake(
   int ac,
   char const* const* av)
 {
-    //  TODO: Why would we get this far if we don't have a working directory?
+  //  TODO: Why would we get this far if we don't have a working directory?
   if (cmSystemTools::GetLogicalWorkingDirectory().empty()) {
     std::cerr << "Current working directory cannot be established." << std::endl;
     return 1;
   }
-
-#ifndef CMAKE_BOOTSTRAP
-  //    TODO: Why is this in the middle of this code.  Should be pulled into its own function.
-//  cmDocumentation doc;
-//  doc.addCMakeStandardDocSections();
-//  if (doc.CheckOptions(ac, av, "--")) {
-//    // Construct and print requested documentation.
-//    CMake hcm(CMake::RoleInternal, cmState::Help);
-//    hcm.SetHomeDirectory("");
-//    hcm.SetHomeOutputDirectory("");
-//    hcm.AddCMakePaths();
-//
-//    // the command line args are processed here so that you can do
-//    // -DCMAKE_MODULE_PATH=/some/path and have this value accessible here
-//    std::vector<std::string> args(av, av + ac);
-//    hcm.SetCacheArgs(args);
-//
-//    auto generators = hcm.GetGeneratorsDocumentation();
-//
-//    doc.SetName("cmake");
-//    doc.SetSection("Name", cmDocumentationName);
-//    doc.SetSection("Usage", cmDocumentationUsage);
-//    if (ac == 1) {
-//      doc.AppendSection("Usage", cmDocumentationUsageNote);
-//    }
-//    doc.AppendSection("Generators", generators);
-//    doc.PrependSection("Options", cmDocumentationOptions);
-//    doc.PrependSection("Options", CMake::CMAKE_STANDARD_OPTIONS_TABLE);
-//
-//    return !doc.PrintRequestedDocumentation(std::cout);
-//  }
-//#else
-//  if (ac == 1) {
-//    std::cout << "Bootstrap CMake should not be used outside CMake build process." << std::endl;
-//    return 0;
-//  }
-#endif
 
   bool sysinfo = false;
   bool list_cached = false;
@@ -351,7 +240,6 @@ int do_cmake(
       parsedArgs.emplace_back(av[i]);
     }
   }
-
 
   if (sysinfo) {
     CMake cm(CMake::RoleProject, cmState::Project);
@@ -454,7 +342,6 @@ int extract_job_number(
   return jobs;
 }
 
-
 std::function<bool(std::string const&)> extract_job_number_lambda_builder(
   std::string& dir,
   int& jobs,
@@ -470,6 +357,7 @@ std::function<bool(std::string const&)> extract_job_number_lambda_builder(
 };
 #endif
 
+//  TODO:   Ridiculous.  Lines and lines of set up, and then call the real build in another function.
 int do_build(
   int ac,
   char const* const* av)
@@ -662,6 +550,8 @@ int do_build(
   }
 
   CMake cm(CMake::RoleInternal, cmState::Project);
+
+  //    TODO: this is ridiculous: a lambda that captures the object that it then calls a method on.
   cmSystemTools::SetMessageCallback(
     [&cm](std::string const& msg, cmMessageMetadata const& md) { cmakemainMessageCallback(msg, md, &cm); });
   cm.SetProgressCallback([&cm](std::string const& msg, float prog) { cmakemainProgressCallback(msg, prog, &cm); });
@@ -905,7 +795,7 @@ int do_install(
 
   args.emplace_back("-P");
 
-  cmInstrumentation instrumentation(dir);
+  //cmInstrumentation instrumentation(dir);
   auto handler = cmInstallScriptHandler(dir, component, config, args);
   int ret = 0;
   if (!jobs && handler.IsParallel()) {
@@ -921,10 +811,10 @@ int do_install(
     }
   }
 
-  auto doInstall = [&handler, &verbose, &jobs, &instrumentation]() -> int {
+  auto doInstall = [&handler, &verbose, &jobs]() -> int {
     int ret_ = 0;
     if (handler.IsParallel()) {
-      ret_ = handler.Install(jobs, instrumentation);
+      ret_ = handler.Install(jobs);
     } else {
       for (auto const& cmd : handler.GetCommands()) {
         CMake cm(CMake::RoleScript, cmState::Script);
@@ -944,8 +834,9 @@ int do_install(
 
   std::vector<std::string> cmd;
   cm::append(cmd, av, av + ac);
-  ret = instrumentation.InstrumentCommand("cmakeInstall", cmd, [doInstall]() { return doInstall(); });
-  instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostInstall);
+  ret = doInstall();
+  // ret = instrumentation.InstrumentCommand("cmakeInstall", cmd, [doInstall]() { return doInstall(); });
+  //instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostInstall);
   return ret;
 #endif
 }

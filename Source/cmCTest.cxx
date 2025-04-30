@@ -196,7 +196,7 @@ struct cmCTest::Private
   cmCTestTestOptions TestOptions;
   std::vector<std::string> CommandLineHttpHeaders;
 
-  std::unique_ptr<cmInstrumentation> m_pInstrumentation;
+//  std::unique_ptr<cmInstrumentation> m_pInstrumentation;
 };
 
 struct tm* cmCTest::GetNightlyTime(std::string const& str, bool tomorrowtag)
@@ -2719,12 +2719,13 @@ int cmCTest::ExecuteTests(std::vector<std::string> const& args)
 
   handler.SetVerbose(this->Impl->Verbose);
 
-  cmInstrumentation instrumentation(this->GetBinaryDir());
+  //cmInstrumentation instrumentation(this->GetBinaryDir());
   auto processHandler = [&handler]() -> int {
     return handler.ProcessHandler();
   };
-  int ret = instrumentation.InstrumentCommand("ctest", args, processHandler);
-  instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostTest);
+  int ret = processHandler();
+  //int ret = instrumentation.InstrumentCommand("ctest", args, processHandler);
+  //instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostTest);
   if (ret < 0) {
     cmCTestLog(this, ERROR_MESSAGE, "Errors while running CTest\n");
     if (!this->Impl->OutputTestOutputOnTestFailure) {
@@ -3677,14 +3678,14 @@ bool cmCTest::StartLogFile(char const* name, int submitIndex,
   return true;
 }
 
-cmInstrumentation& cmCTest::GetInstrumentation()
-{
-  if (!this->Impl->m_pInstrumentation) {
-    this->Impl->m_pInstrumentation =
-      cm::make_unique<cmInstrumentation>(this->GetBinaryDir());
-  }
-  return *this->Impl->m_pInstrumentation;
-}
+//cmInstrumentation& cmCTest::GetInstrumentation()
+//{
+//  if (!this->Impl->m_pInstrumentation) {
+//    this->Impl->m_pInstrumentation =
+//      cm::make_unique<cmInstrumentation>(this->GetBinaryDir());
+//  }
+//  return *this->Impl->m_pInstrumentation;
+//}
 
 bool cmCTest::GetUseVerboseInstrumentation() const
 {
@@ -3694,8 +3695,7 @@ bool cmCTest::GetUseVerboseInstrumentation() const
 void cmCTest::ConvertInstrumentationSnippetsToXML(cmXMLWriter& xml,
                                                   std::string const& subdir)
 {
-  std::string data_dir =
-    cmStrCat(this->GetInstrumentation().GetCDashDir(), '/', subdir);
+  std::string data_dir = cmStrCat("", subdir);
 
   cmsys::Directory d;
   if (!d.Load(data_dir) || d.GetNumberOfFiles() == 0) {

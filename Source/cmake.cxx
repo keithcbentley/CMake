@@ -262,31 +262,31 @@ bool isGenerateStampListUpToDate(std::string const& stampList)
 
 } // namespace
 
-//cmDocumentationEntry CMake::CMAKE_STANDARD_OPTIONS_TABLE[19] = {
-//  { "-S <path-to-source>", "Explicitly specify a source directory." },
-//  { "-B <path-to-build>", "Explicitly specify a build directory." },
-//  { "-C <initial-cache>", "Pre-load a script to populate the cache." },
-//  { "-D <var>[:<type>]=<value>", "Create or update a cmake cache entry." },
-//  { "-U <globbing_expr>", "Remove matching entries from CMake cache." },
-//  { "-G <generator-name>", "Specify a build system generator." },
-//  { "-T <toolset-name>", "Specify toolset name if supported by generator." },
-//  { "-A <platform-name>", "Specify platform name if supported by generator." },
-//  { "--toolchain <file>", "Specify toolchain file [CMAKE_TOOLCHAIN_FILE]." },
-//  { "--install-prefix <directory>", "Specify install directory [CMAKE_INSTALL_PREFIX]." },
-//  { "--project-file <project-file-name>", "Specify an alternate project file name." },
-//  { "-Wdev", "Enable developer warnings." },
-//  { "-Wno-dev", "Suppress developer warnings." },
-//  { "-Werror=dev", "Make developer warnings errors." },
-//  { "-Wno-error=dev", "Make developer warnings not errors." },
-//  { "-Wdeprecated", "Enable deprecation warnings." },
-//  { "-Wno-deprecated", "Suppress deprecation warnings." },
-//  { "-Werror=deprecated",
-//    "Make deprecated macro and function warnings "
-//    "errors." },
-//  { "-Wno-error=deprecated",
-//    "Make deprecated macro and function warnings "
-//    "not errors." }
-//};
+// cmDocumentationEntry CMake::CMAKE_STANDARD_OPTIONS_TABLE[19] = {
+//   { "-S <path-to-source>", "Explicitly specify a source directory." },
+//   { "-B <path-to-build>", "Explicitly specify a build directory." },
+//   { "-C <initial-cache>", "Pre-load a script to populate the cache." },
+//   { "-D <var>[:<type>]=<value>", "Create or update a cmake cache entry." },
+//   { "-U <globbing_expr>", "Remove matching entries from CMake cache." },
+//   { "-G <generator-name>", "Specify a build system generator." },
+//   { "-T <toolset-name>", "Specify toolset name if supported by generator." },
+//   { "-A <platform-name>", "Specify platform name if supported by generator." },
+//   { "--toolchain <file>", "Specify toolchain file [CMAKE_TOOLCHAIN_FILE]." },
+//   { "--install-prefix <directory>", "Specify install directory [CMAKE_INSTALL_PREFIX]." },
+//   { "--project-file <project-file-name>", "Specify an alternate project file name." },
+//   { "-Wdev", "Enable developer warnings." },
+//   { "-Wno-dev", "Suppress developer warnings." },
+//   { "-Werror=dev", "Make developer warnings errors." },
+//   { "-Wno-error=dev", "Make developer warnings not errors." },
+//   { "-Wdeprecated", "Enable deprecation warnings." },
+//   { "-Wno-deprecated", "Suppress deprecation warnings." },
+//   { "-Werror=deprecated",
+//     "Make deprecated macro and function warnings "
+//     "errors." },
+//   { "-Wno-error=deprecated",
+//     "Make deprecated macro and function warnings "
+//     "not errors." }
+// };
 
 CMake::CMake(
   Role role,
@@ -1359,7 +1359,7 @@ void CMake::SetArgs(std::vector<std::string> const& args)
     if (generatorCommand.matches(arg)) {
       bool parsed = generatorCommand.parse(arg, i, args, this);
       if (!parsed && !badGeneratorName) {
-//        PrintGeneratorList();
+        //        PrintGeneratorList();
         return;
       }
       continue;
@@ -1956,7 +1956,7 @@ bool CMake::CreateAndSetGlobalGenerator(std::string const& name)
     }
 
     cmSystemTools::Error(cmStrCat("Could not create named generator ", name, kdevError, vsError));
-//    PrintGeneratorList();
+    //    PrintGeneratorList();
     return false;
   }
 
@@ -2454,22 +2454,23 @@ int CMake::ActualConfigure()
       cmStrCat(GetHomeOutputDirectory(), "/CMakeFiles"_s), m_pFileAPI->GetConfigureLogVersions());
   }
 
-  m_pInstrumentation = cm::make_unique<cmInstrumentation>(m_pState->GetBinaryDirectory());
-  m_pInstrumentation->ClearGeneratedQueries();
+  //m_pInstrumentation = cm::make_unique<cmInstrumentation>(m_pState->GetBinaryDirectory());
+  //m_pInstrumentation->ClearGeneratedQueries();
 #endif
 
   // actually do the configure
   auto startTime = std::chrono::steady_clock::now();
 #if !defined(CMAKE_BOOTSTRAP)
-  if (m_pInstrumentation->HasErrors()) {
-    return 1;
-  }
+  //if (m_pInstrumentation->HasErrors()) {
+  //  return 1;
+  //}
   auto doConfigure = [this]() -> int {
     m_pGlobalGenerator->Configure();
     return 0;
   };
-  int ret = m_pInstrumentation->InstrumentCommand(
-    "configure", m_cmdArgs, [doConfigure]() { return doConfigure(); }, cm::nullopt, cm::nullopt, true);
+  int ret = doConfigure();
+  // int ret = m_pInstrumentation->InstrumentCommand(
+  //   "configure", m_cmdArgs, [doConfigure]() { return doConfigure(); }, cm::nullopt, cm::nullopt, true);
   if (ret != 0) {
     return ret;
   }
@@ -2510,32 +2511,32 @@ int CMake::ActualConfigure()
   }
   // Setup launchers for instrumentation
 #if !defined(CMAKE_BOOTSTRAP)
-  m_pInstrumentation->LoadQueries();
-  if (m_pInstrumentation->HasQuery()) {
-    std::string launcher;
-    if (mf->IsOn("CTEST_USE_LAUNCHERS")) {
-      launcher = cmStrCat(
-        "\"", cmSystemTools::GetCTestCommand(), "\" --launch ", "--current-build-dir <CMAKE_CURRENT_BINARY_DIR> ");
-    } else {
-      launcher = cmStrCat("\"", cmSystemTools::GetCTestCommand(), "\" --instrument ");
-    }
-    std::string common_args =
-      cmStrCat(" --target-name <TARGET_NAME> --build-dir \"", m_pState->GetBinaryDirectory(), "\" ");
-    m_pState->SetGlobalProperty(
-      "RULE_LAUNCH_COMPILE",
-      cmStrCat(
-        launcher, "--command-type compile", common_args, "--config <CONFIG> ",
-        "--output <OBJECT> --source <SOURCE> --language <LANGUAGE> -- "));
-    m_pState->SetGlobalProperty(
-      "RULE_LAUNCH_LINK",
-      cmStrCat(
-        launcher, "--command-type link", common_args,
-        "--output <TARGET> --target-type <TARGET_TYPE> --config <CONFIG> ",
-        "--language <LANGUAGE> --target-labels \"<TARGET_LABELS>\" -- "));
-    m_pState->SetGlobalProperty(
-      "RULE_LAUNCH_CUSTOM",
-      cmStrCat(launcher, "--command-type custom", common_args, "--output \"<OUTPUT>\" --role <ROLE> -- "));
-  }
+//  m_pInstrumentation->LoadQueries();
+  //if (m_pInstrumentation->HasQuery()) {
+  //  std::string launcher;
+  //  if (mf->IsOn("CTEST_USE_LAUNCHERS")) {
+  //    launcher = cmStrCat(
+  //      "\"", cmSystemTools::GetCTestCommand(), "\" --launch ", "--current-build-dir <CMAKE_CURRENT_BINARY_DIR> ");
+  //  } else {
+  //    launcher = cmStrCat("\"", cmSystemTools::GetCTestCommand(), "\" --instrument ");
+  //  }
+  //  std::string common_args =
+  //    cmStrCat(" --target-name <TARGET_NAME> --build-dir \"", m_pState->GetBinaryDirectory(), "\" ");
+  //  m_pState->SetGlobalProperty(
+  //    "RULE_LAUNCH_COMPILE",
+  //    cmStrCat(
+  //      launcher, "--command-type compile", common_args, "--config <CONFIG> ",
+  //      "--output <OBJECT> --source <SOURCE> --language <LANGUAGE> -- "));
+  //  m_pState->SetGlobalProperty(
+  //    "RULE_LAUNCH_LINK",
+  //    cmStrCat(
+  //      launcher, "--command-type link", common_args,
+  //      "--output <TARGET> --target-type <TARGET_TYPE> --config <CONFIG> ",
+  //      "--language <LANGUAGE> --target-labels \"<TARGET_LABELS>\" -- "));
+  //  m_pState->SetGlobalProperty(
+  //    "RULE_LAUNCH_CUSTOM",
+  //    cmStrCat(launcher, "--command-type custom", common_args, "--output \"<OUTPUT>\" --role <ROLE> -- "));
+  //}
 #endif
 
   m_pState->SaveVerificationScript(GetHomeOutputDirectory(), m_pMessenger.get());
@@ -2853,8 +2854,9 @@ int CMake::Generate()
     return 0;
   };
 
-  m_pInstrumentation->LoadQueries();
-  int ret = m_pInstrumentation->InstrumentCommand("generate", m_cmdArgs, [doGenerate]() { return doGenerate(); });
+//  m_pInstrumentation->LoadQueries();
+  int ret = doGenerate();
+  //  int ret = m_pInstrumentation->InstrumentCommand("generate", m_cmdArgs, [doGenerate]() { return doGenerate(); });
   if (ret != 0) {
     return ret;
   }
@@ -2872,7 +2874,7 @@ int CMake::Generate()
     UpdateProgress(msg.str(), -1);
   }
 #if !defined(CMAKE_BOOTSTRAP)
-  m_pInstrumentation->CollectTimingData(cmInstrumentationQuery::Hook::PostGenerate);
+//  m_pInstrumentation->CollectTimingData(cmInstrumentationQuery::Hook::PostGenerate);
 #endif
   if (!m_graphVizFile.empty()) {
     std::cout << "Generate graphviz: " << m_graphVizFile << '\n';
@@ -3111,57 +3113,58 @@ bool CMake::GetIsInTryCompile() const
   return m_pState->GetProjectKind() == cmState::ProjectKind::TryCompile;
 }
 
-//void CMake::AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
+// void CMake::AppendGlobalGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
 //{
-//  auto const defaultGenerator = EvaluateDefaultGlobalGenerator();
-//  auto const defaultName = defaultGenerator->GetName();
-//  auto foundDefaultOne = false;
+//   auto const defaultGenerator = EvaluateDefaultGlobalGenerator();
+//   auto const defaultName = defaultGenerator->GetName();
+//   auto foundDefaultOne = false;
 //
-//  for (auto const& g : m_generators) {
-//    v.emplace_back(g->GetDocumentation());
-//    if (!foundDefaultOne && cmHasPrefix(v.back().m_name, defaultName)) {
-//      v.back().m_customNamePrefix = '*';
-//      foundDefaultOne = true;
-//    }
-//  }
-//}
+//   for (auto const& g : m_generators) {
+//     v.emplace_back(g->GetDocumentation());
+//     if (!foundDefaultOne && cmHasPrefix(v.back().m_name, defaultName)) {
+//       v.back().m_customNamePrefix = '*';
+//       foundDefaultOne = true;
+//     }
+//   }
+// }
 
-//void CMake::AppendExtraGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
+// void CMake::AppendExtraGeneratorsDocumentation(std::vector<cmDocumentationEntry>& v)
 //{
-//  for (cmExternalMakefileProjectGeneratorFactory* eg : m_extraGenerators) {
-//    std::string const doc = eg->GetDocumentation();
-//    std::string const name = eg->GetName();
+//   for (cmExternalMakefileProjectGeneratorFactory* eg : m_extraGenerators) {
+//     std::string const doc = eg->GetDocumentation();
+//     std::string const name = eg->GetName();
 //
-//    // Aliases:
-//    for (std::string const& a : eg->Aliases) {
-//      v.emplace_back(cmDocumentationEntry{ a, doc });
-//    }
+//     // Aliases:
+//     for (std::string const& a : eg->Aliases) {
+//       v.emplace_back(cmDocumentationEntry{ a, doc });
+//     }
 //
-//    // Full names:
-//    for (std::string const& g : eg->GetSupportedGlobalGenerators()) {
-//      v.emplace_back(cmDocumentationEntry{ cmExternalMakefileProjectGenerator::CreateFullGeneratorName(g, name), doc });
-//    }
-//  }
-//}
+//     // Full names:
+//     for (std::string const& g : eg->GetSupportedGlobalGenerators()) {
+//       v.emplace_back(cmDocumentationEntry{ cmExternalMakefileProjectGenerator::CreateFullGeneratorName(g, name), doc
+//       });
+//     }
+//   }
+// }
 
-//std::vector<cmDocumentationEntry> CMake::GetGeneratorsDocumentation()
+// std::vector<cmDocumentationEntry> CMake::GetGeneratorsDocumentation()
 //{
-//  std::vector<cmDocumentationEntry> v;
-//  AppendGlobalGeneratorsDocumentation(v);
-//  AppendExtraGeneratorsDocumentation(v);
-//  return v;
-//}
+//   std::vector<cmDocumentationEntry> v;
+//   AppendGlobalGeneratorsDocumentation(v);
+//   AppendExtraGeneratorsDocumentation(v);
+//   return v;
+// }
 
-//void CMake::PrintGeneratorList()
+// void CMake::PrintGeneratorList()
 //{
-//#ifndef CMAKE_BOOTSTRAP
-//  cmDocumentation doc;
-//  auto generators = GetGeneratorsDocumentation();
-//  doc.AppendSection("Generators", generators);
-//  std::cerr << '\n';
-//  doc.PrintDocumentation(cmDocumentation::ListGenerators, std::cerr);
-//#endif
-//}
+// #ifndef CMAKE_BOOTSTRAP
+//   cmDocumentation doc;
+//   auto generators = GetGeneratorsDocumentation();
+//   doc.AppendSection("Generators", generators);
+//   std::cerr << '\n';
+//   doc.PrintDocumentation(cmDocumentation::ListGenerators, std::cerr);
+// #endif
+// }
 
 int CMake::CheckBuildSystem()
 {
@@ -3417,7 +3420,7 @@ int CMake::GetSystemInformation(std::vector<std::string>& args)
         ++i;
         if (i >= args.size()) {
           cmSystemTools::Error("No generator specified for -G");
-//          PrintGeneratorList();
+          //          PrintGeneratorList();
           return -1;
         }
         value = args[i];
@@ -3425,7 +3428,7 @@ int CMake::GetSystemInformation(std::vector<std::string>& args)
       auto gen = CreateGlobalGenerator(value);
       if (!gen) {
         cmSystemTools::Error("Could not create named generator " + value);
-//        PrintGeneratorList();
+        //        PrintGeneratorList();
       } else {
         SetGlobalGenerator(std::move(gen));
       }
@@ -3525,6 +3528,7 @@ std::vector<std::string> CMake::GetDebugConfigs()
   return std::move(configs.data());
 }
 
+//  TODO:   More terrible code.  All setup with the real code at the end.
 int CMake::Build(
   int jobs,
   std::string dir,
@@ -3751,11 +3755,11 @@ int CMake::Build(
   }
 
 #if !defined(CMAKE_BOOTSTRAP)
-  cmInstrumentation instrumentation(dir);
-  if (instrumentation.HasErrors()) {
-    return 1;
-  }
-  instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PreCMakeBuild);
+  //cmInstrumentation instrumentation(dir);
+  //if (instrumentation.HasErrors()) {
+  //  return 1;
+  //}
+  //instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PreCMakeBuild);
 #endif
 
   m_pGlobalGenerator->PrintBuildCommandAdvice(std::cerr, jobs);
@@ -3764,6 +3768,7 @@ int CMake::Build(
   // are being executed to the `output` parameter. If CMake is verbose, print
   // this out.
   std::ostream& verbose_ostr = verbose ? std::cout : ostr;
+  //    TODO: This is just terrible.  The real work is in a lambda and the instrumentation is mainline.
   auto doBuild = [this, jobs, dir, projName, targets, &verbose_ostr, config, buildOptions, verbose,
                   nativeOptions]() -> int {
     return m_pGlobalGenerator->Build(
@@ -3772,8 +3777,9 @@ int CMake::Build(
   };
 
 #if !defined(CMAKE_BOOTSTRAP)
-  int buildresult = instrumentation.InstrumentCommand("cmakeBuild", args, doBuild);
-  instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostCMakeBuild);
+  int buildresult = doBuild();
+  // int buildresult = instrumentation.InstrumentCommand("cmakeBuild", args, doBuild);
+  // instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostCMakeBuild);
 #else
   int buildresult = doBuild();
 #endif

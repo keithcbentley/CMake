@@ -7,7 +7,7 @@ file LICENSE.rst or https://cmake.org/licensing for details.  */
 #include <string>
 #include <vector>
 
-class cmExecutionStatus;
-
-bool cmInstrumentationCommand(std::vector<std::string> const& args,
-                              cmExecutionStatus& status);
+//class cmExecutionStatus;
+//
+//bool cmInstrumentationCommand(std::vector<std::string> const& args,
+//                              cmExecutionStatus& status);

@@ -664,9 +664,9 @@ bool cmCTestRunTest::StartTest(size_t completed, size_t total)
     return false;
   }
   this->StartTime = this->CTest->CurrentTime();
-  if (this->CTest->GetInstrumentation().HasQuery()) {
-    this->CTest->GetInstrumentation().GetPreTestStats();
-  }
+  //if (this->CTest->GetInstrumentation().HasQuery()) {
+  //  this->CTest->GetInstrumentation().GetPreTestStats();
+  //}
 
   return this->ForkProcess();
 }
@@ -1016,14 +1016,14 @@ void cmCTestRunTest::WriteLogOutputTop(size_t completed, size_t total)
 
 void cmCTestRunTest::FinalizeTest(bool started)
 {
-  if (this->CTest->GetInstrumentation().HasQuery()) {
-    std::string data_file = this->CTest->GetInstrumentation().InstrumentTest(
-      this->TestProperties->m_name, this->ActualCommand, this->Arguments,
-      this->TestProcess->GetExitValue(), this->TestProcess->GetStartTime(),
-      this->TestProcess->GetSystemStartTime(),
-      this->GetCTest()->GetConfigType());
-    this->TestResult.InstrumentationFile = data_file;
-  }
+  //if (this->CTest->GetInstrumentation().HasQuery()) {
+  //  std::string data_file = this->CTest->GetInstrumentation().InstrumentTest(
+  //    this->TestProperties->m_name, this->ActualCommand, this->Arguments,
+  //    this->TestProcess->GetExitValue(), this->TestProcess->GetStartTime(),
+  //    this->TestProcess->GetSystemStartTime(),
+  //    this->GetCTest()->GetConfigType());
+  //  this->TestResult.InstrumentationFile = data_file;
+  //}
   this->MultiTestHandler.FinishTestProcess(this->TestProcess->GetRunner(),
                                            started);
 }
