@@ -1964,7 +1964,7 @@ std::string cmSystemTools::ForceToRelativePath(
   std::vector<std::string> remote;
   cmSystemTools::SplitPath(remote_path, remote);
   unsigned int common = 0;
-  while (common < remote.size() && common < local.size() && cmSystemTools::ComparePath(remote[common], local[common])) {
+  while (common < remote.size() && common < local.size() && cmSystemTools::PathsEqual(remote[common], local[common])) {
     ++common;
   }
 

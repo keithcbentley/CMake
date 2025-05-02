@@ -180,7 +180,7 @@ bool cmSourceFileLocation::Matches(cmSourceFileLocation const& loc)
     // of extensions will be tried, the names must match at this point to be
     // the same file.
     if (this->m_name.size() != loc.m_name.size() ||
-        !cmSystemTools::ComparePath(this->m_name, loc.m_name)) {
+        !cmSystemTools::PathsEqual(this->m_name, loc.m_name)) {
       return false;
     }
   } else {

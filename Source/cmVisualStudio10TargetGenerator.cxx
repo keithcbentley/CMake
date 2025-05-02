@@ -4794,7 +4794,7 @@ void cmVisualStudio10TargetGenerator::AddTargetsFileAndConfigPair(
   std::string const& targetsFile, std::string const& config)
 {
   for (TargetsFileAndConfigs& i : this->TargetsFileAndConfigsVec) {
-    if (cmSystemTools::ComparePath(targetsFile, i.File)) {
+    if (cmSystemTools::PathsEqual(targetsFile, i.File)) {
       if (!cm::contains(i.Configs, config)) {
         i.Configs.push_back(config);
       }

@@ -1337,8 +1337,8 @@ std::vector<BT<std::string>> cmLocalGenerator::GetIncludeDirectoriesImplicit(
     for (BT<std::string> const& udr : userDirs) {
       // Emit this directory only if it is a subdirectory of the
       // top-level source or binary tree.
-      if (cmSystemTools::ComparePath(udr.Value, topSourceDir) ||
-          cmSystemTools::ComparePath(udr.Value, topBinaryDir) ||
+      if (cmSystemTools::PathsEqual(udr.Value, topSourceDir) ||
+          cmSystemTools::PathsEqual(udr.Value, topBinaryDir) ||
           cmSystemTools::IsSubDirectory(udr.Value, topSourceDir) ||
           cmSystemTools::IsSubDirectory(udr.Value, topBinaryDir)) {
         if (notExcluded(udr.Value)) {
@@ -3143,7 +3143,7 @@ void cmLocalGenerator::WriteUnitySourceInclude(
   std::string pathToHash;
   std::string relocatableIncludePath;
   auto PathEqOrSubDir = [](std::string const& a, std::string const& b) {
-    return (cmSystemTools::ComparePath(a, b) ||
+    return (cmSystemTools::PathsEqual(a, b) ||
             cmSystemTools::IsSubDirectory(a, b));
   };
   auto const path = cmSystemTools::GetFilenamePath(sf_full_path);

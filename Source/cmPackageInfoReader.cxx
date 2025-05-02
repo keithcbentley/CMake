@@ -126,7 +126,7 @@ bool CheckSchemaVersion(Json::Value const& data)
 bool ComparePathSuffix(std::string const& path, std::string const& suffix)
 {
   std::string const& tail = path.substr(path.size() - suffix.size());
-  return cmSystemTools::ComparePath(tail, suffix);
+  return cmSystemTools::PathsEqual(tail, suffix);
 }
 
 std::string DeterminePrefix(std::string const& filepath,
@@ -170,7 +170,7 @@ std::string DeterminePrefix(std::string const& filepath,
 
   for (auto* const f : { GetRealPath, GetRealDir }) {
     std::string const& tmpPath = (*f)(absPath);
-    if (!cmSystemTools::ComparePath(tmpPath, absPath) &&
+    if (!cmSystemTools::PathsEqual(tmpPath, absPath) &&
         ComparePathSuffix(tmpPath, relPath)) {
       return tmpPath.substr(0, tmpPath.size() - relPath.size());
     }

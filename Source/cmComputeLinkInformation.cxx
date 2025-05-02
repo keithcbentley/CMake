@@ -2254,7 +2254,7 @@ void cmComputeLinkInformation::GetRPath(std::vector<std::string>& runtimeDirs,
         } else if (use_relative_build_rpath) {
           // If expansion of the $ORIGIN token is supported and permitted per
           // policy, use relative paths in the RPATH.
-          if (cmSystemTools::ComparePath(d, topBinaryDir) ||
+          if (cmSystemTools::PathsEqual(d, topBinaryDir) ||
               cmSystemTools::IsSubDirectory(d, topBinaryDir)) {
             d = cmSystemTools::RelativePath(targetOutputDir, d);
             if (!d.empty()) {
@@ -2271,8 +2271,8 @@ void cmComputeLinkInformation::GetRPath(std::vector<std::string>& runtimeDirs,
         // Do not add any path inside the source or build tree.
         std::string const& topSourceDir =
           this->CMakeInstance->GetHomeDirectory();
-        if (!cmSystemTools::ComparePath(ri, topSourceDir) &&
-            !cmSystemTools::ComparePath(ri, topBinaryDir) &&
+        if (!cmSystemTools::PathsEqual(ri, topSourceDir) &&
+            !cmSystemTools::PathsEqual(ri, topBinaryDir) &&
             !cmSystemTools::IsSubDirectory(ri, topSourceDir) &&
             !cmSystemTools::IsSubDirectory(ri, topBinaryDir)) {
           std::string d = ri;

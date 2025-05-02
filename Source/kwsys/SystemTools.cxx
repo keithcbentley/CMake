@@ -2329,7 +2329,7 @@ SystemTools::CopyStatus SystemTools::CopyFileIfDifferent(
   // FilesDiffer does not handle file to directory compare
   if (SystemTools::FileIsDirectory(destination)) {
     std::string const new_destination = FileInDir(source, destination);
-    if (!SystemTools::ComparePath(new_destination, destination)) {
+    if (!SystemTools::PathsEqual(new_destination, destination)) {
       return SystemTools::CopyFileIfDifferent(source, new_destination);
     }
   } else {
@@ -3697,7 +3697,7 @@ std::string SystemTools::JoinPath(
   return result;
 }
 
-bool SystemTools::ComparePath(
+bool SystemTools::PathsEqual(
   std::string const& c1,
   std::string const& c2)
 {
@@ -4345,7 +4345,7 @@ bool SystemTools::IsSubDirectory(
     return false;
   }
   subdir.resize(dir.size());
-  return SystemTools::ComparePath(subdir, dir);
+  return SystemTools::PathsEqual(subdir, dir);
 }
 
 void SystemTools::Delay(unsigned int msec)

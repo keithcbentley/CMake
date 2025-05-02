@@ -455,7 +455,7 @@ public:
   /**
    * Compare a path or components of a path.
    */
-  static bool ComparePath(std::string const& c1, std::string const& c2);
+  static bool PathsEqual(std::string const& c1, std::string const& c2);
 
   /**
    * Return path of a full filename (no trailing slashes)

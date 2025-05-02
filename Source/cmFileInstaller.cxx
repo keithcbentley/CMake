@@ -103,7 +103,7 @@ bool cmFileInstaller::InstallFile(std::string const& fromFile,
     // Double check that we can restore the original path.
     std::string reassembled =
       cmSystemTools::CollapseFullPath(newFromFile, toDir);
-    if (!cmSystemTools::ComparePath(reassembled, fromFile)) {
+    if (!cmSystemTools::PathsEqual(reassembled, fromFile)) {
       if (this->InstallMode == cmInstallMode::SYMLINK ||
           this->InstallMode == cmInstallMode::SYMLINK_OR_COPY) {
         // User does not mind, silently proceed with absolute path.

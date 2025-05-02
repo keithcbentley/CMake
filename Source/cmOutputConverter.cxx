@@ -22,7 +22,7 @@
 namespace {
 bool PathEqOrSubDir(std::string const& a, std::string const& b)
 {
-  return (cmSystemTools::ComparePath(a, b) ||
+  return (cmSystemTools::PathsEqual(a, b) ||
           cmSystemTools::IsSubDirectory(a, b));
 }
 }
@@ -71,7 +71,7 @@ void cmOutputConverter::ComputeRelativePathTopBinary()
 
 void cmOutputConverter::ComputeRelativePathTopRelation()
 {
-  if (cmSystemTools::ComparePath(this->RelativePathTopSource,
+  if (cmSystemTools::PathsEqual(this->RelativePathTopSource,
                                  this->RelativePathTopBinary)) {
     this->RelativePathTopRelation = TopRelation::InSource;
   } else if (cmSystemTools::IsSubDirectory(this->RelativePathTopBinary,

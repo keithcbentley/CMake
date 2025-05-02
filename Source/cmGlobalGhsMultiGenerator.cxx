@@ -100,7 +100,7 @@ bool cmGlobalGhsMultiGenerator::SetGeneratorToolset(std::string const& ts,
   cmValue prevTool = mf->GetDefinition("CMAKE_MAKE_PROGRAM");
 
   /* check if the toolset changed from last generate */
-  if (cmNonempty(prevTool) && !cmSystemTools::ComparePath(gbuild, *prevTool)) {
+  if (cmNonempty(prevTool) && !cmSystemTools::PathsEqual(gbuild, *prevTool)) {
     std::string const& e = cmStrCat(
       "toolset build tool: ", gbuild, '\n',
       "Does not match the previously used build tool: ", *prevTool, '\n',
