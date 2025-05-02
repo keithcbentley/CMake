@@ -37,6 +37,8 @@
 #include "cmSystemTools.h"
 #include "cmValue.h"
 #include "cmake.h"
+#include "cmakeException.h"
+#include "cmakeMessage.h"
 #include "cmcmd.h"
 
 #ifndef CMAKE_BOOTSTRAP
@@ -793,7 +795,7 @@ int do_install(
 
   args.emplace_back("-P");
 
-  //cmInstrumentation instrumentation(dir);
+  // cmInstrumentation instrumentation(dir);
   auto handler = cmInstallScriptHandler(dir, component, config, args);
   int ret = 0;
   if (!jobs && handler.IsParallel()) {
@@ -834,7 +836,7 @@ int do_install(
   cm::append(cmd, av, av + ac);
   ret = doInstall();
   // ret = instrumentation.InstrumentCommand("cmakeInstall", cmd, [doInstall]() { return doInstall(); });
-  //instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostInstall);
+  // instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PostInstall);
   return ret;
 #endif
 }
@@ -971,47 +973,56 @@ int main(
   char const* const* av)
 {
   std::cout << "New CMake\n";
-  cmSystemTools::EnsureStdPipes();
 
-  // Replace streambuf so we can output Unicode to console
-  auto consoleBuf = cm::make_unique<cmConsoleBuf>();
-  consoleBuf->SetUTF8Pipes();
+  try {
+    cmSystemTools::EnsureStdPipes();
 
-  cmsys::Encoding::CommandLineArguments args = cmsys::Encoding::CommandLineArguments::Main(ac, av);
-  ac = args.argc();
-  av = args.argv();
+    // Replace streambuf so we can output Unicode to console
+    auto consoleBuf = cm::make_unique<cmConsoleBuf>();
+    consoleBuf->SetUTF8Pipes();
 
-  //    TODO: do we really need an asynchronous i/o polling system for a build system?
-  cmSystemTools::InitializeLibUV();
-  cmSystemTools::FindCMakeResources(av[0]);
-  if (ac > 1) {
-    if (strcmp(av[1], "--build") == 0) {
-      return do_build(ac, av);
+    cmsys::Encoding::CommandLineArguments args = cmsys::Encoding::CommandLineArguments::Main(ac, av);
+    ac = args.argc();
+    av = args.argv();
+
+    //    TODO: do we really need an asynchronous i/o polling system for a build system?
+    cmSystemTools::InitializeLibUV();
+    cmSystemTools::FindCMakeResources(av[0]);
+    if (ac > 1) {
+      if (strcmp(av[1], "--build") == 0) {
+        return do_build(ac, av);
+      }
+      if (strcmp(av[1], "--install") == 0) {
+        return do_install(ac, av);
+      }
+      if (strcmp(av[1], "--open") == 0) {
+        return do_open(ac, av);
+      }
+      if (strcmp(av[1], "--workflow") == 0) {
+        return do_workflow(ac, av);
+      }
+      if (strcmp(av[1], "-E") == 0) {
+        return do_command(ac, av, std::move(consoleBuf));
+      }
+      if (strcmp(av[1], "--print-config-dir") == 0) {
+        std::cout << cmSystemTools::ConvertToOutputPath(
+                       cmSystemTools::GetCMakeConfigDirectory().value_or(std::string()))
+                  << std::endl;
+        return 0;
+      }
     }
-    if (strcmp(av[1], "--install") == 0) {
-      return do_install(ac, av);
-    }
-    if (strcmp(av[1], "--open") == 0) {
-      return do_open(ac, av);
-    }
-    if (strcmp(av[1], "--workflow") == 0) {
-      return do_workflow(ac, av);
-    }
-    if (strcmp(av[1], "-E") == 0) {
-      return do_command(ac, av, std::move(consoleBuf));
-    }
-    if (strcmp(av[1], "--print-config-dir") == 0) {
-      std::cout << cmSystemTools::ConvertToOutputPath(cmSystemTools::GetCMakeConfigDirectory().value_or(std::string()))
-                << std::endl;
-      return 0;
-    }
-  }
-  int ret = do_cmake(ac, av);
+    int exitCode = do_cmake(ac, av);
 #ifndef CMAKE_BOOTSTRAP
-  cmDynamicLoader::FlushCache();
+    cmDynamicLoader::FlushCache();
 #endif
-  if (uv_loop_t* loop = uv_default_loop()) {
-    uv_loop_close(loop);
+    if (uv_loop_t* loop = uv_default_loop()) {
+      uv_loop_close(loop);
+    }
+    return exitCode;
+  } catch (CMakeException& e) {
+    CMakeMessage::error(e.what());
+  } catch (std::exception& e) {
+    CMakeMessage::error(e.what());
   }
-  return ret;
+  return 1;
 }

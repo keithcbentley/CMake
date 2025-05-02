@@ -9,6 +9,9 @@ project(CMake)
 unset(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX)
 unset(CMAKE_USER_MAKE_RULES_OVERRIDE_C)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
+
 # FIXME: This block should go away after a transition period.
 if(MSVC AND NOT CMAKE_VERSION VERSION_LESS 3.15)
   # Filter out MSVC runtime library flags that may have come from

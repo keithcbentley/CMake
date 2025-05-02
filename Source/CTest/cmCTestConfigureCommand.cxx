@@ -134,10 +134,10 @@ bool cmCTestConfigureCommand::ExecuteConfigure(ConfigureArguments const& args,
     return true;
   }
 
-  if (!cmSystemTools::MakeDirectory(buildDirectory)) {
-    status.SetError(cmStrCat("cannot create directory ", buildDirectory));
-    return false;
-  }
+  cmSystemTools::MakeDirectory(buildDirectory);
+  //  status.SetError(cmStrCat("cannot create directory ", buildDirectory));
+  //  return false;
+  //}
 
   cmCTestOptionalLog(this->CTest, HANDLER_VERBOSE_OUTPUT,
                      "Configure with command: " << configureCommand << '\n',

@@ -2312,18 +2312,19 @@ int CMake::ActualConfigure()
   // errors about inappropriate source/binary directories first.
   auto const redirectsDir = cmStrCat(GetHomeOutputDirectory(), "/CMakeFiles/pkgRedirects");
   cmSystemTools::RemoveADirectory(redirectsDir);
-  if (!cmSystemTools::MakeDirectory(redirectsDir)) {
-    cmSystemTools::Error(cmStrCat(
-      "Unable to (re)create the private pkgRedirects directory:\n  ", redirectsDir,
-      "\n"
-      "This may be caused by not having read/write access to "
-      "the build directory.\n"
-      "Try specifying a location with read/write access like:\n"
-      "  cmake -B build\n"
-      "If using a CMake presets file, ensure that preset parameter\n"
-      "'binaryDir' expands to a writable directory.\n"));
-    return -1;
-  }
+  cmSystemTools::MakeDirectory(redirectsDir);
+  // if (!cmSystemTools::MakeDirectory(redirectsDir)) {
+  //  cmSystemTools::Error(cmStrCat(
+  //    "Unable to (re)create the private pkgRedirects directory:\n  ", redirectsDir,
+  //    "\n"
+  //    "This may be caused by not having read/write access to "
+  //    "the build directory.\n"
+  //    "Try specifying a location with read/write access like:\n"
+  //    "  cmake -B build\n"
+  //    "If using a CMake presets file, ensure that preset parameter\n"
+  //    "'binaryDir' expands to a writable directory.\n"));
+  //  return -1;
+  //}
   AddCacheEntry("CMAKE_FIND_PACKAGE_REDIRECTS_DIR", redirectsDir, "Value Computed by CMake.", cmStateEnums::STATIC);
 
   // no generator specified on the command line
@@ -3402,11 +3403,12 @@ int CMake::GetSystemInformation(std::vector<std::string>& args)
   std::string cwd = cmSystemTools::GetLogicalWorkingDirectory();
   std::string destPath = cwd + "/__cmake_systeminformation";
   cmSystemTools::RemoveADirectory(destPath);
-  if (!cmSystemTools::MakeDirectory(destPath)) {
-    std::cerr << "Error: --system-information must be run from a "
-                 "writable directory!\n";
-    return 1;
-  }
+  cmSystemTools::MakeDirectory(destPath);
+  // if (!cmSystemTools::MakeDirectory(destPath)) {
+  //  std::cerr << "Error: --system-information must be run from a "
+  //               "writable directory!\n";
+  //  return 1;
+  //}
 
   // process the arguments
   bool writeToStdout = true;

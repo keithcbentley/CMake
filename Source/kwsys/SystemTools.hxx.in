@@ -347,7 +347,7 @@ public:
   /**
      Change the modification time or create a file
   */
-  static Status Touch(std::string const& filename, bool create);
+  static void Touch(std::string const& filename, bool create);
 
   /**
    *  Compare file modification times.
@@ -543,8 +543,8 @@ public:
    * can make a full path even if none of the directories existed
    * prior to calling this function.
    */
-  static Status MakeDirectory(char const* path, mode_t const* mode = nullptr);
-  static Status MakeDirectory(std::string const& path,
+  static void MakeDirectory(char const* path, mode_t const* mode = nullptr);
+  static void MakeDirectory(std::string const& path,
                               mode_t const* mode = nullptr);
 
   /**

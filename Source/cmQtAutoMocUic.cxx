@@ -913,12 +913,13 @@ void cmQtAutoMocUicT::JobMocPredefsT::Process()
         this->Log().Info(GenT::MOC,
                          "Touching " + this->MessagePath(predefsFileAbs));
       }
-      if (!cmSystemTools::Touch(predefsFileAbs, false)) {
-        this->LogError(GenT::MOC,
-                       cmStrCat("Touching ", this->MessagePath(predefsFileAbs),
-                                " failed."));
-        return;
-      }
+      cmSystemTools::Touch(predefsFileAbs, false);
+      // if (!cmSystemTools::Touch(predefsFileAbs, false)) {
+      //  this->LogError(GenT::MOC,
+      //                 cmStrCat("Touching ", this->MessagePath(predefsFileAbs),
+      //                          " failed."));
+      //  return;
+      //}
     }
   }
 
@@ -1997,12 +1998,13 @@ void cmQtAutoMocUicT::JobProbeDepsFinishT::Process()
     using StringSet = std::unordered_set<std::string>;
     auto createDirs = [this](GenT genType, StringSet const& dirSet) {
       for (std::string const& dirName : dirSet) {
-        if (!cmSystemTools::MakeDirectory(dirName)) {
-          this->LogError(genType,
-                         cmStrCat("Creating directory ",
-                                  this->MessagePath(dirName), " failed."));
-          return;
-        }
+        cmSystemTools::MakeDirectory(dirName);
+        // if (!cmSystemTools::MakeDirectory(dirName)) {
+        //  this->LogError(genType,
+        //                 cmStrCat("Creating directory ",
+        //                          this->MessagePath(dirName), " failed."));
+        //  return;
+        //}
       }
     };
     if (this->MocConst().Enabled && this->UicConst().Enabled) {
@@ -2216,11 +2218,12 @@ void cmQtAutoMocUicT::JobMocsCompilationT::Process()
       this->Log().Info(
         GenT::MOC, "Touching MOC compilation " + this->MessagePath(compAbs));
     }
-    if (!cmSystemTools::Touch(compAbs, false)) {
-      this->LogError(GenT::MOC,
-                     cmStrCat("Touching MOC compilation ",
-                              this->MessagePath(compAbs), " failed."));
-    }
+    cmSystemTools::Touch(compAbs, false);
+    // if (!cmSystemTools::Touch(compAbs, false)) {
+    //  this->LogError(GenT::MOC,
+    //                 cmStrCat("Touching MOC compilation ",
+    //                          this->MessagePath(compAbs), " failed."));
+    //}
   }
 }
 
@@ -3048,14 +3051,15 @@ bool cmQtAutoMocUicT::ParseCacheWrite()
 bool cmQtAutoMocUicT::CreateDirectories()
 {
   // Create AUTOGEN include directory
-  if (!cmSystemTools::MakeDirectory(this->BaseConst().AutogenIncludeDir)) {
-    this->Log().Error(
-      GenT::GEN,
-      cmStrCat("Creating the AUTOGEN include directory ",
-               this->MessagePath(this->BaseConst().AutogenIncludeDir),
-               " failed."));
-    return false;
-  }
+  cmSystemTools::MakeDirectory(this->BaseConst().AutogenIncludeDir);
+  // if (!cmSystemTools::MakeDirectory(this->BaseConst().AutogenIncludeDir)) {
+  //  this->Log().Error(
+  //    GenT::GEN,
+  //    cmStrCat("Creating the AUTOGEN include directory ",
+  //             this->MessagePath(this->BaseConst().AutogenIncludeDir),
+  //             " failed."));
+  //  return false;
+  //}
   return true;
 }
 

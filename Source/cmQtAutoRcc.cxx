@@ -232,26 +232,28 @@ bool cmQtAutoRccT::SettingsFileRead()
   // Make sure the settings file exists
   if (!cmSystemTools::FileExists(this->SettingsFile_, true)) {
     // Touch the settings file to make sure it exists
-    if (!cmSystemTools::Touch(this->SettingsFile_, true)) {
-      this->Log().Error(GenT::RCC,
-                        cmStrCat("Touching the settings file ",
-                                 this->MessagePath(this->SettingsFile_),
-                                 " failed."));
-      return false;
-    }
+    cmSystemTools::Touch(this->SettingsFile_, true);
+    // if (!cmSystemTools::Touch(this->SettingsFile_, true)) {
+    //  this->Log().Error(GenT::RCC,
+    //                    cmStrCat("Touching the settings file ",
+    //                             this->MessagePath(this->SettingsFile_),
+    //                             " failed."));
+    //  return false;
+    //}
   }
 
   // Lock the lock file
   {
     // Make sure the lock file exists
     if (!cmSystemTools::FileExists(this->LockFile_, true)) {
-      if (!cmSystemTools::Touch(this->LockFile_, true)) {
-        this->Log().Error(GenT::RCC,
-                          cmStrCat("Touching the lock file ",
-                                   this->MessagePath(this->LockFile_),
-                                   " failed."));
-        return false;
-      }
+      cmSystemTools::Touch(this->LockFile_, true);
+      // if (!cmSystemTools::Touch(this->LockFile_, true)) {
+      //  this->Log().Error(GenT::RCC,
+      //                    cmStrCat("Touching the lock file ",
+      //                             this->MessagePath(this->LockFile_),
+      //                             " failed."));
+      //  return false;
+      //}
     }
     // Lock the lock file
     cmFileLockResult lockResult = this->LockFileLock_.Lock(
@@ -438,13 +440,14 @@ bool cmQtAutoRccT::TestInfoFile()
                                 this->MessagePath(this->InfoFile())));
     }
     // Touch build file
-    if (!cmSystemTools::Touch(this->RccFileOutput_, false)) {
-      this->Log().Error(GenT::RCC,
-                        cmStrCat("Touching ",
-                                 this->MessagePath(this->RccFileOutput_),
-                                 " failed."));
-      return false;
-    }
+    cmSystemTools::Touch(this->RccFileOutput_, false);
+    // if (!cmSystemTools::Touch(this->RccFileOutput_, false)) {
+    //  this->Log().Error(GenT::RCC,
+    //                    cmStrCat("Touching ",
+    //                             this->MessagePath(this->RccFileOutput_),
+    //                             " failed."));
+    //  return false;
+    //}
     this->BuildFileChanged_ = true;
   }
 
@@ -545,13 +548,14 @@ bool cmQtAutoRccT::GenerateWrapper()
                          cmStrCat("Touching RCC wrapper file ",
                                   this->MessagePath(this->RccFilePublic_)));
       }
-      if (!cmSystemTools::Touch(this->RccFilePublic_, false)) {
-        this->Log().Error(GenT::RCC,
-                          cmStrCat("Touching RCC wrapper file ",
-                                   this->MessagePath(this->RccFilePublic_),
-                                   " failed."));
-        return false;
-      }
+      cmSystemTools::Touch(this->RccFilePublic_, false);
+      // if (!cmSystemTools::Touch(this->RccFilePublic_, false)) {
+      //  this->Log().Error(GenT::RCC,
+      //                    cmStrCat("Touching RCC wrapper file ",
+      //                             this->MessagePath(this->RccFilePublic_),
+      //                             " failed."));
+      //  return false;
+      //}
     }
   }
   return true;

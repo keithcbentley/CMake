@@ -760,12 +760,13 @@ std::string cmCPackNSISGenerator::CreateComponentDescription(
         cmStrCat(this->GetOption("CPACK_PACKAGE_DIRECTORY"), "/CPackUploads");
     }
     if (!cmSystemTools::FileExists(uploadDirectory)) {
-      if (!cmSystemTools::MakeDirectory(uploadDirectory)) {
-        cmCPackLogger(cmCPackLog::LOG_ERROR,
-                      "Unable to create NSIS upload directory "
-                        << uploadDirectory << std::endl);
-        return "";
-      }
+      cmSystemTools::MakeDirectory(uploadDirectory);
+      // if (!cmSystemTools::MakeDirectory(uploadDirectory)) {
+      //  cmCPackLogger(cmCPackLog::LOG_ERROR,
+      //                "Unable to create NSIS upload directory "
+      //                  << uploadDirectory << std::endl);
+      //  return "";
+      //}
     }
 
     // Remove the old archive, if one exists

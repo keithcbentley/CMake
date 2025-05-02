@@ -27,39 +27,27 @@ cmSarif::ResultsLog::ResultsLog()
                              .m_name("CMake Warning (dev)")
                              .DefaultMessage("CMake Warning (dev): {0}")
                              .Build());
-  this->KnownRules.emplace(RuleBuilder("CMake.Warning")
-                             .m_name("CMake Warning")
-                             .DefaultMessage("CMake Warning: {0}")
-                             .Build());
+  this->KnownRules.emplace(
+    RuleBuilder("CMake.Warning").m_name("CMake Warning").DefaultMessage("CMake Warning: {0}").Build());
   this->KnownRules.emplace(RuleBuilder("CMake.DeprecationWarning")
                              .m_name("CMake Deprecation Warning")
                              .DefaultMessage("CMake Deprecation Warning: {0}")
                              .Build());
-  this->KnownRules.emplace(RuleBuilder("CMake.AuthorError")
-                             .m_name("CMake Error (dev)")
-                             .DefaultMessage("CMake Error (dev): {0}")
-                             .Build());
-  this->KnownRules.emplace(RuleBuilder("CMake.FatalError")
-                             .m_name("CMake Error")
-                             .DefaultMessage("CMake Error: {0}")
-                             .Build());
   this->KnownRules.emplace(
-    RuleBuilder("CMake.InternalError")
-      .m_name("CMake Internal Error")
-      .DefaultMessage("CMake Internal Error (please report a bug): {0}")
-      .Build());
+    RuleBuilder("CMake.AuthorError").m_name("CMake Error (dev)").DefaultMessage("CMake Error (dev): {0}").Build());
+  this->KnownRules.emplace(
+    RuleBuilder("CMake.FatalError").m_name("CMake Error").DefaultMessage("CMake Error: {0}").Build());
+  this->KnownRules.emplace(RuleBuilder("CMake.InternalError")
+                             .m_name("CMake Internal Error")
+                             .DefaultMessage("CMake Internal Error (please report a bug): {0}")
+                             .Build());
   this->KnownRules.emplace(RuleBuilder("CMake.DeprecationError")
                              .m_name("CMake Deprecation Error")
                              .DefaultMessage("CMake Deprecation Error: {0}")
                              .Build());
-  this->KnownRules.emplace(RuleBuilder("CMake.Message")
-                             .m_name("CMake Message")
-                             .DefaultMessage("CMake Message: {0}")
-                             .Build());
-  this->KnownRules.emplace(RuleBuilder("CMake.Log")
-                             .m_name("CMake Log")
-                             .DefaultMessage("CMake Log: {0}")
-                             .Build());
+  this->KnownRules.emplace(
+    RuleBuilder("CMake.Message").m_name("CMake Message").DefaultMessage("CMake Message: {0}").Build());
+  this->KnownRules.emplace(RuleBuilder("CMake.Log").m_name("CMake Log").DefaultMessage("CMake Log: {0}").Build());
 }
 
 void cmSarif::ResultsLog::Log(cmSarif::Result&& result) const
@@ -76,7 +64,8 @@ void cmSarif::ResultsLog::Log(cmSarif::Result&& result) const
 }
 
 void cmSarif::ResultsLog::LogMessage(
-  MessageType t, std::string const& text,
+  MessageType t,
+  std::string const& text,
   cmListFileBacktrace const& backtrace) const
 {
   // Add metadata to the result object
@@ -91,10 +80,9 @@ void cmSarif::ResultsLog::LogMessage(
   // Create and log a result object
   // Rule indices are assigned when writing the final JSON output. Right now,
   // leave it as nullopt. The other optional fields are filled if available
-  this->Log(cmSarif::Result{
-    text, cmSarif::SourceFileLocation::FromBacktrace(backtrace),
-    cmSarif::MessageSeverityLevel(t), cmSarif::MessageRuleId(t), cm::nullopt,
-    additionalProperties });
+  this->Log(
+    cmSarif::Result{ text, cmSarif::SourceFileLocation::FromBacktrace(backtrace), cmSarif::MessageSeverityLevel(t),
+                     cmSarif::MessageRuleId(t), cm::nullopt, additionalProperties });
 }
 
 std::size_t cmSarif::ResultsLog::UseRule(std::string const& id) const
@@ -186,8 +174,7 @@ Json::Value cmSarif::Rule::GetJson() const
   return rule;
 }
 
-cmSarif::SourceFileLocation::SourceFileLocation(
-  cmListFileBacktrace const& backtrace)
+cmSarif::SourceFileLocation::SourceFileLocation(cmListFileBacktrace const& backtrace)
 {
   if (backtrace.Empty()) {
     throw std::runtime_error("Empty source file location");
@@ -198,8 +185,7 @@ cmSarif::SourceFileLocation::SourceFileLocation(
   this->Line = lfc.Line;
 }
 
-cm::optional<cmSarif::SourceFileLocation>
-cmSarif::SourceFileLocation::FromBacktrace(
+cm::optional<cmSarif::SourceFileLocation> cmSarif::SourceFileLocation::FromBacktrace(
   cmListFileBacktrace const& backtrace)
 {
   if (backtrace.Empty()) {
@@ -277,10 +263,8 @@ void cmSarif::ResultsLog::WriteJson(Json::Value& root) const
     }
 
     if (res.Location) {
-      jsonResult["locations"][0]["physicalLocation"]["artifactLocation"]
-                ["uri"] = (res.Location)->Uri;
-      jsonResult["locations"][0]["physicalLocation"]["region"]["startLine"] =
-        Json::Int64((res.Location)->Line);
+      jsonResult["locations"][0]["physicalLocation"]["artifactLocation"]["uri"] = (res.Location)->Uri;
+      jsonResult["locations"][0]["physicalLocation"]["region"]["startLine"] = Json::Int64((res.Location)->Line);
     }
 
     jsonResults.append(jsonResult);
@@ -299,8 +283,7 @@ cmSarif::LogFileWriter::~LogFileWriter()
     if (this->TryWrite() == WriteResult::FAILURE) {
       // If the result is `FAILURE`, it means the write condition is true but
       // the file still wasn't written. This is an error.
-      cmSystemTools::Error("Failed to write SARIF log to " +
-                           this->m_filePath.generic_string());
+      cmSystemTools::Error("Failed to write SARIF log to " + this->m_filePath.generic_string());
     }
   }
 }
@@ -310,10 +293,10 @@ bool cmSarif::LogFileWriter::EnsureFileValid()
   // First, ensure directory exists
   cm::filesystem::path dir = this->m_filePath.parent_path();
   if (!cmSystemTools::FileIsDirectory(dir.generic_string())) {
-    if (!this->CreateDirectories ||
-        !cmSystemTools::MakeDirectory(dir.generic_string()).IsSuccess()) {
+    if (!this->CreateDirectories) {
       return false;
     }
+    cmSystemTools::MakeDirectory(dir.generic_string());
   }
 
   // Open the file for writing
@@ -361,8 +344,7 @@ bool cmSarif::LogFileWriter::ConfigureForCMakeRun(CMake& cm)
   if (sarifFilePath) {
     this->SetPath(cm::filesystem::path(*sarifFilePath));
     if (!this->EnsureFileValid()) {
-      cmSystemTools::Error(
-        cmStrCat("Invalid SARIF output file path: ", *sarifFilePath));
+      cmSystemTools::Error(cmStrCat("Invalid SARIF output file path: ", *sarifFilePath));
       return false;
     }
   }
@@ -375,8 +357,7 @@ bool cmSarif::LogFileWriter::ConfigureForCMakeRun(CMake& cm)
     // normal mode, the project variable `CMAKE_EXPORT_SARIF` can also enable
     // SARIF logging.
     return cm.GetSarifFilePath().has_value() ||
-      (cm.GetWorkingMode() == CMake::NORMAL_MODE &&
-       cm.GetCacheDefinition(cmSarif::PROJECT_SARIF_FILE_VARIABLE).IsOn());
+      (cm.GetWorkingMode() == CMake::NORMAL_MODE && cm.GetCacheDefinition(cmSarif::PROJECT_SARIF_FILE_VARIABLE).IsOn());
   });
 
   return true;

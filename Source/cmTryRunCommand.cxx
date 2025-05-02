@@ -134,11 +134,11 @@ bool TryRunCommandImpl::TryRunCode(std::vector<std::string> const& argv)
   }
 
   if (arguments.RunWorkingDirectory) {
-    if (!cmSystemTools::MakeDirectory(*arguments.RunWorkingDirectory)) {
-      cmSystemTools::Error(cmStrCat("Error creating working directory \"",
-                                    *arguments.RunWorkingDirectory, "\"."));
-      return false;
-    }
+    cmSystemTools::MakeDirectory(*arguments.RunWorkingDirectory);
+    //   cmSystemTools::Error(cmStrCat("Error creating working directory \"",
+    //                                *arguments.RunWorkingDirectory, "\"."));
+    //  return false;
+    //}
   }
 
   bool captureRunOutput = false;

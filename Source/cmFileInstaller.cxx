@@ -445,12 +445,14 @@ bool cmFileInstaller::HandleInstallDestination()
 
   if (this->InstallType != cmInstallType_DIRECTORY) {
     if (!cmSystemTools::FileExists(destination)) {
-      if (!cmSystemTools::MakeDirectory(destination, default_dir_mode)) {
-        std::string errstring = "cannot create directory: " + destination +
-          ". Maybe need administrative privileges.";
-        this->Status.SetError(errstring);
-        return false;
-      }
+      cmSystemTools::MakeDirectory(destination, default_dir_mode);
+
+      //if (!cmSystemTools::MakeDirectory(destination, default_dir_mode)) {
+      //  std::string errstring = "cannot create directory: " + destination +
+      //    ". Maybe need administrative privileges.";
+      //  this->Status.SetError(errstring);
+      //  return false;
+      //}
     }
     if (!cmSystemTools::FileIsDirectory(destination)) {
       std::string errstring =

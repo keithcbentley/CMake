@@ -39,41 +39,33 @@ static int doLongPathTest()
 
   testdirpath = testpathstrm.str();
 #ifdef _WIN32
-  extendedtestdirpath =
-    Encoding::ToNarrow(SystemTools::ConvertToWindowsExtendedPath(testdirpath));
+  extendedtestdirpath = Encoding::ToNarrow(SystemTools::ConvertToWindowsExtendedPath(testdirpath));
 #else
   extendedtestdirpath = testdirpath;
 #endif
 
-  if (SystemTools::MakeDirectory(extendedtestdirpath)) {
-    std::ofstream testfile1(
-      (extendedtestdirpath + "longfilepathtest1.txt").c_str());
-    std::ofstream testfile2(
-      (extendedtestdirpath + "longfilepathtest2.txt").c_str());
-    testfile1 << "foo";
-    testfile2 << "bar";
-    testfile1.close();
-    testfile2.close();
+  SystemTools::MakeDirectory(extendedtestdirpath);
+  std::ofstream testfile1((extendedtestdirpath + "longfilepathtest1.txt").c_str());
+  std::ofstream testfile2((extendedtestdirpath + "longfilepathtest2.txt").c_str());
+  testfile1 << "foo";
+  testfile2 << "bar";
+  testfile1.close();
+  testfile2.close();
 
-    Directory testdir;
-    // Set res to failure if the directory doesn't load
-    std::string errorMessage = "";
-    res += !testdir.Load(testdirpath, &errorMessage);
-    if (errorMessage != "") {
-      std::cerr << "Failed to list directory: " << errorMessage << std::endl;
-    }
-    // Increment res failure if the directory appears empty
-    res += testdir.GetNumberOfFiles() == 0;
-    // Increment res failures if the path has changed from
-    // what was provided.
-    res += testdirpath != testdir.GetPath();
-
-    SystemTools::RemoveADirectory(topdir);
-  } else {
-    std::cerr << "Failed to create directory with long path: "
-              << extendedtestdirpath << std::endl;
-    res += 1;
+  Directory testdir;
+  // Set res to failure if the directory doesn't load
+  std::string errorMessage = "";
+  res += !testdir.Load(testdirpath, &errorMessage);
+  if (errorMessage != "") {
+    std::cerr << "Failed to list directory: " << errorMessage << std::endl;
   }
+  // Increment res failure if the directory appears empty
+  res += testdir.GetNumberOfFiles() == 0;
+  // Increment res failures if the path has changed from
+  // what was provided.
+  res += testdirpath != testdir.GetPath();
+
+  SystemTools::RemoveADirectory(topdir);
   return res;
 }
 
@@ -81,8 +73,7 @@ static int nonExistentDirectoryTest()
 {
   using namespace kwsys;
   int res = 0;
-  std::string testdirpath(TEST_SYSTEMTOOLS_BINARY_DIR
-                          "/directory_testing/doesnt_exist/");
+  std::string testdirpath(TEST_SYSTEMTOOLS_BINARY_DIR "/directory_testing/doesnt_exist/");
   std::string errorMessage;
   Directory testdir;
 
@@ -108,14 +99,12 @@ static int nonExistentDirectoryTest()
 static int copyDirectoryTest()
 {
   using namespace kwsys;
-  std::string const source(TEST_SYSTEMTOOLS_BINARY_DIR
-                           "/directory_testing/copyDirectoryTestSrc");
+  std::string const source(TEST_SYSTEMTOOLS_BINARY_DIR "/directory_testing/copyDirectoryTestSrc");
   if (SystemTools::PathExists(source)) {
     std::cerr << source << " shouldn't exist before test" << std::endl;
     return 1;
   }
-  std::string const destination(TEST_SYSTEMTOOLS_BINARY_DIR
-                                "/directory_testing/copyDirectoryTestDst");
+  std::string const destination(TEST_SYSTEMTOOLS_BINARY_DIR "/directory_testing/copyDirectoryTestDst");
   if (SystemTools::PathExists(destination)) {
     std::cerr << destination << " shouldn't exist before test" << std::endl;
     return 2;
@@ -136,7 +125,9 @@ static int copyDirectoryTest()
   return 0;
 }
 
-int testDirectory(int, char*[])
+int testDirectory(
+  int,
+  char*[])
 {
   return doLongPathTest() + nonExistentDirectoryTest() + copyDirectoryTest();
 }

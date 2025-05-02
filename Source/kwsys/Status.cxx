@@ -47,10 +47,8 @@ std::string Status::GetString() const
     case Kind::Windows: {
       LPWSTR message = NULL;
       DWORD size = FormatMessageW(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-          FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, this->Windows_, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPWSTR)&message, 0, NULL);
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
+        this->Windows_, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&message, 0, NULL);
       err = kwsys::Encoding::ToNarrow(message);
       LocalFree(message);
     } break;
@@ -62,3 +60,19 @@ std::string Status::GetString() const
 }
 
 } // namespace KWSYS_NAMESPACE
+
+CMakeStatusException::CMakeStatusException(ErrorKind errorKind)
+  : m_errorKind(errorKind)
+  , m_posixErrorCode(0)
+  , m_windowsErrorCode(0)
+
+{
+  if (errorKind == ErrorKind::POSIX) {
+    m_posixErrorCode = (*_errno());
+  }
+#ifdef _WIN32
+  if (errorKind == ErrorKind::Windows) {
+    m_windowsErrorCode = GetLastError();
+  }
+#endif
+}

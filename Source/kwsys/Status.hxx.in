@@ -111,4 +111,27 @@ private:
 
 } // namespace @KWSYS_NAMESPACE@
 
+
+
+enum class ErrorKind
+{
+  POSIX,
+#ifdef _WIN32
+  Windows,
+#endif
+};
+
+class CMakeStatusException : public std::exception
+{
+
+  ErrorKind m_errorKind;
+  int m_posixErrorCode;
+  unsigned int m_windowsErrorCode;
+
+public:
+
+    CMakeStatusException::CMakeStatusException(ErrorKind errorKind);
+
+};
+
 #endif

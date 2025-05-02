@@ -100,10 +100,11 @@ static int doWrite(int argc, char const* const* argv)
       return 1;
     }
 
-    if (!cmSystemTools::Touch(logFile + ".lock", true)) {
-      std::cout << "Could not create lock file" << std::endl;
-      return 1;
-    }
+    cmSystemTools::Touch(logFile + ".lock", true);
+    // if (!cmSystemTools::Touch(logFile + ".lock", true)) {
+    //  std::cout << "Could not create lock file" << std::endl;
+    //  return 1;
+    //}
     cmFileLock lock;
     auto lockResult =
       lock.Lock(logFile + ".lock", static_cast<unsigned long>(-1));
@@ -238,10 +239,11 @@ static int doWrite(int argc, char const* const* argv)
   std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
 
   if (argc == 6) {
-    if (!cmSystemTools::Touch(logFile + ".lock", true)) {
-      std::cout << "Could not create lock file" << std::endl;
-      return 1;
-    }
+    cmSystemTools::Touch(logFile + ".lock", true);
+    // if (!cmSystemTools::Touch(logFile + ".lock", true)) {
+    //  std::cout << "Could not create lock file" << std::endl;
+    //  return 1;
+    //}
     cmFileLock lock;
     auto lockResult =
       lock.Lock(logFile + ".lock", static_cast<unsigned long>(-1));

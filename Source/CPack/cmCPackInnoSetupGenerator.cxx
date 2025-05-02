@@ -671,12 +671,13 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
     }
 
     if (!cmSystemTools::FileExists(uploadDirectory)) {
-      if (!cmSystemTools::MakeDirectory(uploadDirectory)) {
-        cmCPackLogger(cmCPackLog::LOG_ERROR,
-                      "Unable to create Inno Setup upload directory "
-                        << uploadDirectory << std::endl);
-        return false;
-      }
+      cmSystemTools::MakeDirectory(uploadDirectory);
+      // if (!cmSystemTools::MakeDirectory(uploadDirectory)) {
+      //  cmCPackLogger(cmCPackLog::LOG_ERROR,
+      //                "Unable to create Inno Setup upload directory "
+      //                  << uploadDirectory << std::endl);
+      //  return false;
+      //}
     }
 
     if (!RequireOption("CPACK_DOWNLOAD_SITE")) {

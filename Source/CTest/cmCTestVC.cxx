@@ -47,11 +47,12 @@ bool cmCTestVC::InitialCheckout(std::string const& command)
   std::string parent = cmSystemTools::GetFilenamePath(this->m_sourceDirectory);
   cmCTestLog(this->CTest, HANDLER_OUTPUT,
              "   Perform checkout in directory: " << parent << "\n");
-  if (!cmSystemTools::MakeDirectory(parent)) {
-    cmCTestLog(this->CTest, ERROR_MESSAGE,
-               "Cannot create directory: " << parent << std::endl);
-    return false;
-  }
+  cmSystemTools::MakeDirectory(parent);
+  // if (!cmSystemTools::MakeDirectory(parent)) {
+  //  cmCTestLog(this->CTest, ERROR_MESSAGE,
+  //             "Cannot create directory: " << parent << std::endl);
+  //  return false;
+  //}
 
   // Construct the initial checkout command line.
   std::vector<std::string> args = cmSystemTools::ParseArguments(command);

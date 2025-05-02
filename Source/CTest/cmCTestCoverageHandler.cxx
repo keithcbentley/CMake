@@ -903,12 +903,13 @@ int cmCTestCoverageHandler::HandleGCovCoverage(
 
   std::string testingDir = this->CTest->GetBinaryDir() + "/Testing";
   std::string tempDir = testingDir + "/CoverageInfo";
-  if (!cmSystemTools::MakeDirectory(tempDir)) {
-    cmCTestLog(this->CTest, ERROR_MESSAGE,
-               "Unable to make directory: " << tempDir << std::endl);
-    cont->Error++;
-    return 0;
-  }
+  cmSystemTools::MakeDirectory(tempDir);
+  // if (!cmSystemTools::MakeDirectory(tempDir)) {
+  //  cmCTestLog(this->CTest, ERROR_MESSAGE,
+  //             "Unable to make directory: " << tempDir << std::endl);
+  //  cont->Error++;
+  //  return 0;
+  //}
   cmWorkingDirectory workdir(tempDir);
 
   int gcovStyle = 0;

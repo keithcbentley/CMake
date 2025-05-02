@@ -897,12 +897,13 @@ bool cmGlobalVisualStudio10Generator::FindVCTargetsPath(cmMakefile* mf)
   }
 
   // Prepare the work directory.
-  if (!cmSystemTools::MakeDirectory(wd)) {
-    mf->IssueMessage(MessageType::FATAL_ERROR,
-                     cmStrCat("Failed to make directory:\n  ", wd));
-    cmSystemTools::SetFatalErrorOccurred();
-    return false;
-  }
+  cmSystemTools::MakeDirectory(wd);
+  // if (!cmSystemTools::MakeDirectory(wd)) {
+  //  mf->IssueMessage(MessageType::FATAL_ERROR,
+  //                   cmStrCat("Failed to make directory:\n  ", wd));
+  //  cmSystemTools::SetFatalErrorOccurred();
+  //  return false;
+  //}
 
   // Generate a project file for MSBuild to tell us the VCTargetsPath value.
   std::string const vcxproj = "VCTargetsPath.vcxproj";

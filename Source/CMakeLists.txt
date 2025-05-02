@@ -509,6 +509,9 @@ add_library(
   cmXMLWriter.h
   cmake.cxx
   cmake.h
+  cmakeException.h
+  cmakeMessage.cpp
+  cmakeMessage.h
 
   cmCommands.cxx
   cmCommands.h

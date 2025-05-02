@@ -966,12 +966,15 @@ int cmcmd::ExecuteCMakeCommand(
 
     if (args[1] == "make_directory" && args.size() > 2) {
       // If an error occurs, we want to continue making directories.
+        //  TODO: no we don't
+        //  TODO: This is ridiculous. Is the return value an int or a bool?
       bool return_value = false;
       for (auto const& arg : cmMakeRange(args).advance(2)) {
-        if (!cmSystemTools::MakeDirectory(arg)) {
-          std::cerr << "Error creating directory \"" << arg << "\".\n";
-          return_value = true;
-        }
+        cmSystemTools::MakeDirectory(arg);
+        // if (!cmSystemTools::MakeDirectory(arg)) {
+        //  std::cerr << "Error creating directory \"" << arg << "\".\n";
+        //  return_value = true;
+        //}
       }
       return return_value;
     }
@@ -1064,10 +1067,11 @@ int cmcmd::ExecuteCMakeCommand(
     // Touch file
     if (args[1] == "touch" && args.size() > 2) {
       for (auto const& arg : cmMakeRange(args).advance(2)) {
-        if (!cmSystemTools::Touch(arg, true)) {
-          std::cerr << "cmake -E touch: failed to update \"" << arg << "\".\n";
-          return 1;
-        }
+        cmSystemTools::Touch(arg, true);
+        // if (!cmSystemTools::Touch(arg, true)) {
+        //  std::cerr << "cmake -E touch: failed to update \"" << arg << "\".\n";
+        //  return 1;
+        //}
       }
       return 0;
     }
@@ -1075,10 +1079,11 @@ int cmcmd::ExecuteCMakeCommand(
     // Touch file
     if (args[1] == "touch_nocreate" && args.size() > 2) {
       for (auto const& arg : cmMakeRange(args).advance(2)) {
-        if (!cmSystemTools::Touch(arg, false)) {
-          std::cerr << "cmake -E touch_nocreate: failed to update \"" << arg << "\".\n";
-          return 1;
-        }
+        cmSystemTools::Touch(arg, false);
+        // if (!cmSystemTools::Touch(arg, false)) {
+        //  std::cerr << "cmake -E touch_nocreate: failed to update \"" << arg << "\".\n";
+        //  return 1;
+        //}
       }
       return 0;
     }

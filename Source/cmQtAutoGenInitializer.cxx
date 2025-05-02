@@ -1765,11 +1765,12 @@ bool cmQtAutoGenInitializer::InitRccTargets()
 bool cmQtAutoGenInitializer::SetupCustomTargets()
 {
   // Create info directory on demand
-  if (!cmSystemTools::MakeDirectory(this->Dir.Info)) {
-    cmSystemTools::Error(cmStrCat("AutoGen: Could not create directory: ",
-                                  Quoted(this->Dir.Info)));
-    return false;
-  }
+  cmSystemTools::MakeDirectory(this->Dir.Info);
+  // if (!cmSystemTools::MakeDirectory(this->Dir.Info)) {
+  //  cmSystemTools::Error(cmStrCat("AutoGen: Could not create directory: ",
+  //                                Quoted(this->Dir.Info)));
+  //  return false;
+  //}
 
   // Generate autogen target info file
   if (this->MocOrUicEnabled()) {
