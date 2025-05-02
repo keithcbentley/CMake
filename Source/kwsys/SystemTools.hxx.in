@@ -355,7 +355,7 @@ public:
    *  When true is returned, result has -1, 0, +1 for
    *  f1 older, same, or newer than f2.
    */
-  static Status FileTimeCompare(std::string const& f1, std::string const& f2,
+  static void FileTimeCompare(std::string const& f1, std::string const& f2,
                                 int* result);
 
   /**
@@ -497,6 +497,7 @@ public:
    * For windows return the short path for the given path,
    * Unix just a pass through
    */
+   //   TODO: This is kind of weird.  Some places check the return code and do things other than report an error.
   static Status GetShortPath(std::string const& path, std::string& result);
 
   /**

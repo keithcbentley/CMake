@@ -64,18 +64,19 @@ auto const keyVERSION_LESS = "VERSION_LESS"_s;
 auto const keyVERSION_LESS_EQUAL = "VERSION_LESS_EQUAL"_s;
 auto const keyPATH_EQUAL = "PATH_EQUAL"_s;
 
-cmSystemTools::CompareOp const MATCH2CMPOP[5] = {
-  cmSystemTools::OP_LESS, cmSystemTools::OP_LESS_EQUAL,
-  cmSystemTools::OP_GREATER, cmSystemTools::OP_GREATER_EQUAL,
-  cmSystemTools::OP_EQUAL
-};
+cmSystemTools::CompareOp const MATCH2CMPOP[5] = { cmSystemTools::OP_LESS, cmSystemTools::OP_LESS_EQUAL,
+                                                  cmSystemTools::OP_GREATER, cmSystemTools::OP_GREATER_EQUAL,
+                                                  cmSystemTools::OP_EQUAL };
 
 // Run-Time to Compile-Time template selector
 template <template <typename> class Comp, template <typename> class... Ops>
 struct cmRt2CtSelector
 {
   template <typename T>
-  static bool eval(int r, T lhs, T rhs)
+  static bool eval(
+    int r,
+    T lhs,
+    T rhs)
   {
     switch (r) {
       case 0:
@@ -92,7 +93,10 @@ template <template <typename> class Comp>
 struct cmRt2CtSelector<Comp>
 {
   template <typename T>
-  static bool eval(int r, T lhs, T rhs)
+  static bool eval(
+    int r,
+    T lhs,
+    T rhs)
   {
     return r == 1 && Comp<T>()(lhs, rhs);
   }
@@ -100,40 +104,41 @@ struct cmRt2CtSelector<Comp>
 
 std::string bool2string(bool const value)
 {
-  return std::string(static_cast<std::size_t>(1),
-                     static_cast<char>('0' + static_cast<int>(value)));
+  return std::string(static_cast<std::size_t>(1), static_cast<char>('0' + static_cast<int>(value)));
 }
 
-bool looksLikeSpecialVariable(std::string const& var,
-                              cm::static_string_view prefix,
-                              std::size_t const varNameLen)
+bool looksLikeSpecialVariable(
+  std::string const& var,
+  cm::static_string_view prefix,
+  std::size_t const varNameLen)
 {
   // NOTE Expecting a variable name at least 1 char length:
   // <prefix> + `{` + <varname> + `}`
-  return ((prefix.size() + 3) <= varNameLen) &&
-    cmHasPrefix(var, cmStrCat(prefix, '{')) && var[varNameLen - 1] == '}';
+  return ((prefix.size() + 3) <= varNameLen) && cmHasPrefix(var, cmStrCat(prefix, '{')) && var[varNameLen - 1] == '}';
 }
 } // anonymous namespace
 
 #if defined(__SUNPRO_CC)
-#  define CM_INHERIT_CTOR(Class, Base, Tpl)                                   \
-    template <typename... Args>                                               \
-    Class(Args&&... args)                                                     \
-      : Base Tpl(std::forward<Args>(args)...)                                 \
-    {                                                                         \
+#  define CM_INHERIT_CTOR(Class, Base, Tpl)                                                                            \
+    template <typename... Args>                                                                                        \
+    Class(Args&&... args)                                                                                              \
+      : Base Tpl(std::forward<Args>(args)...)                                                                          \
+    {                                                                                                                  \
     }
 #else
 #  define CM_INHERIT_CTOR(Class, Base, Tpl) using Base Tpl ::Base
 #endif
 
 // BEGIN cmConditionEvaluator::cmArgumentList
-class cmConditionEvaluator::cmArgumentList
-  : public std::list<cmExpandedCommandArgument>
+class cmConditionEvaluator::cmArgumentList : public std::list<cmExpandedCommandArgument>
 {
   using base_t = std::list<cmExpandedCommandArgument>;
 
 public:
-  CM_INHERIT_CTOR(cmArgumentList, list, <cmExpandedCommandArgument>);
+  CM_INHERIT_CTOR(
+    cmArgumentList,
+    list,
+    <cmExpandedCommandArgument>);
 
   class CurrentAndNextIter
   {
@@ -146,9 +151,7 @@ public:
     CurrentAndNextIter advance(base_t& args)
     {
       this->current = std::next(this->current);
-      this->next =
-        std::next(this->current,
-                  static_cast<difference_type>(this->current != args.end()));
+      this->next = std::next(this->current, static_cast<difference_type>(this->current != args.end()));
       return *this;
     }
 
@@ -156,8 +159,9 @@ public:
     CurrentAndNextIter(base_t& args)
       : current(args.begin())
       , next(
-          std::next(this->current,
-                    static_cast<difference_type>(this->current != args.end())))
+          std::next(
+            this->current,
+            static_cast<difference_type>(this->current != args.end())))
     {
     }
   };
@@ -174,11 +178,8 @@ public:
     CurrentAndTwoMoreIter advance(base_t& args)
     {
       this->current = std::next(this->current);
-      this->next =
-        std::next(this->current,
-                  static_cast<difference_type>(this->current != args.end()));
-      this->nextnext = std::next(
-        this->next, static_cast<difference_type>(this->next != args.end()));
+      this->next = std::next(this->current, static_cast<difference_type>(this->current != args.end()));
+      this->nextnext = std::next(this->next, static_cast<difference_type>(this->next != args.end()));
       return *this;
     }
 
@@ -186,10 +187,13 @@ public:
     CurrentAndTwoMoreIter(base_t& args)
       : current(args.begin())
       , next(
-          std::next(this->current,
-                    static_cast<difference_type>(this->current != args.end())))
-      , nextnext(std::next(
-          this->next, static_cast<difference_type>(this->next != args.end())))
+          std::next(
+            this->current,
+            static_cast<difference_type>(this->current != args.end())))
+      , nextnext(
+          std::next(
+            this->next,
+            static_cast<difference_type>(this->next != args.end())))
     {
     }
   };
@@ -198,13 +202,17 @@ public:
   CurrentAndTwoMoreIter make3ArgsIterator() { return *this; }
 
   template <typename Iter>
-  void ReduceOneArg(bool const value, Iter args)
+  void ReduceOneArg(
+    bool const value,
+    Iter args)
   {
     *args.current = cmExpandedCommandArgument(bool2string(value), true);
     this->erase(args.next);
   }
 
-  void ReduceTwoArgs(bool const value, CurrentAndTwoMoreIter args)
+  void ReduceTwoArgs(
+    bool const value,
+    CurrentAndTwoMoreIter args)
   {
     *args.current = cmExpandedCommandArgument(bool2string(value), true);
     this->erase(args.nextnext);
@@ -214,8 +222,9 @@ public:
 
 // END cmConditionEvaluator::cmArgumentList
 
-cmConditionEvaluator::cmConditionEvaluator(cmMakefile& makefile,
-                                           cmListFileBacktrace bt)
+cmConditionEvaluator::cmConditionEvaluator(
+  cmMakefile& makefile,
+  cmListFileBacktrace bt)
   : m_pMakefile(makefile)
   , m_backtrace(std::move(bt))
   , Policy139Status(makefile.GetPolicyStatus(cmPolicies::CMP0139))
@@ -239,7 +248,8 @@ cmConditionEvaluator::cmConditionEvaluator(cmMakefile& makefile,
 // directly. AND OR take variables or the values 0 or 1.
 
 bool cmConditionEvaluator::IsTrue(
-  std::vector<cmExpandedCommandArgument> const& args, std::string& errorString,
+  std::vector<cmExpandedCommandArgument> const& args,
+  std::string& errorString,
   MessageType& status)
 {
   errorString.clear();
@@ -255,8 +265,7 @@ bool cmConditionEvaluator::IsTrue(
   // now loop through the arguments and see if we can reduce any of them
   // we do this multiple times. Once for each level of precedence
   // parens
-  using handlerFn_t = bool (cmConditionEvaluator::*)(
-    cmArgumentList&, std::string&, MessageType&);
+  using handlerFn_t = bool (cmConditionEvaluator::*)(cmArgumentList&, std::string&, MessageType&);
   std::array<handlerFn_t, 5> const handlers = { {
     &cmConditionEvaluator::HandleLevel0, // parenthesis
     &cmConditionEvaluator::HandleLevel1, // predicates
@@ -269,8 +278,7 @@ bool cmConditionEvaluator::IsTrue(
     // (i.e., if after an iteration the size becomes smaller)
     auto levelResult = true;
     for (auto beginSize = newArgs.size();
-         (levelResult = (this->*fn)(newArgs, errorString, status)) &&
-         newArgs.size() < beginSize;
+         (levelResult = (this->*fn)(newArgs, errorString, status)) && newArgs.size() < beginSize;
          beginSize = newArgs.size()) {
     }
 
@@ -291,8 +299,7 @@ bool cmConditionEvaluator::IsTrue(
 }
 
 //=========================================================================
-cmValue cmConditionEvaluator::GetDefinitionIfUnquoted(
-  cmExpandedCommandArgument const& argument) const
+cmValue cmConditionEvaluator::GetDefinitionIfUnquoted(cmExpandedCommandArgument const& argument) const
 {
   if (argument.WasQuoted()) {
     return nullptr;
@@ -302,8 +309,7 @@ cmValue cmConditionEvaluator::GetDefinitionIfUnquoted(
 }
 
 //=========================================================================
-cmValue cmConditionEvaluator::GetVariableOrString(
-  cmExpandedCommandArgument const& argument) const
+cmValue cmConditionEvaluator::GetVariableOrString(cmExpandedCommandArgument const& argument) const
 {
   cmValue def = this->GetDefinitionIfUnquoted(argument);
 
@@ -327,8 +333,7 @@ bool cmConditionEvaluator::IsKeyword(
 }
 
 //=========================================================================
-bool cmConditionEvaluator::GetBooleanValue(
-  cmExpandedCommandArgument& arg) const
+bool cmConditionEvaluator::GetBooleanValue(cmExpandedCommandArgument& arg) const
 {
   // Check basic and named constants.
   if (cmIsOn(arg.GetValue())) {
@@ -354,16 +359,20 @@ bool cmConditionEvaluator::GetBooleanValue(
 }
 
 template <int N>
-inline int cmConditionEvaluator::matchKeysImpl(
-  cmExpandedCommandArgument const&)
+inline int cmConditionEvaluator::matchKeysImpl(cmExpandedCommandArgument const&)
 {
   // Zero means "not found"
   return 0;
 }
 
-template <int N, typename T, typename... Keys>
+template <
+  int N,
+  typename T,
+  typename... Keys>
 inline int cmConditionEvaluator::matchKeysImpl(
-  cmExpandedCommandArgument const& arg, T current, Keys... key)
+  cmExpandedCommandArgument const& arg,
+  T current,
+  Keys... key)
 {
   if (this->IsKeyword(current, arg)) {
     // Stop searching as soon as smth has found
@@ -374,7 +383,8 @@ inline int cmConditionEvaluator::matchKeysImpl(
 
 template <typename... Keys>
 inline int cmConditionEvaluator::matchKeys(
-  cmExpandedCommandArgument const& arg, Keys... key)
+  cmExpandedCommandArgument const& arg,
+  Keys... key)
 {
   // Get index of the matched key (1-based)
   return matchKeysImpl<1>(arg, key...);
@@ -382,9 +392,10 @@ inline int cmConditionEvaluator::matchKeys(
 
 //=========================================================================
 // level 0 processes parenthetical expressions
-bool cmConditionEvaluator::HandleLevel0(cmArgumentList& newArgs,
-                                        std::string& errorString,
-                                        MessageType& status)
+bool cmConditionEvaluator::HandleLevel0(
+  cmArgumentList& newArgs,
+  std::string& errorString,
+  MessageType& status)
 {
   for (auto arg = newArgs.begin(); arg != newArgs.end(); ++arg) {
     if (this->IsKeyword(keyParenL, *arg)) {
@@ -392,8 +403,7 @@ bool cmConditionEvaluator::HandleLevel0(cmArgumentList& newArgs,
       auto depth = 1;
       auto argClose = std::next(arg);
       for (; argClose != newArgs.end() && depth; ++argClose) {
-        depth += int(this->IsKeyword(keyParenL, *argClose)) -
-          int(this->IsKeyword(keyParenR, *argClose));
+        depth += int(this->IsKeyword(keyParenL, *argClose)) - int(this->IsKeyword(keyParenR, *argClose));
       }
       if (depth) {
         errorString = "mismatched parenthesis in condition";
@@ -403,8 +413,7 @@ bool cmConditionEvaluator::HandleLevel0(cmArgumentList& newArgs,
 
       // store the reduced args in this vector
       auto argOpen = std::next(arg);
-      std::vector<cmExpandedCommandArgument> const subExpr(
-        argOpen, std::prev(argClose));
+      std::vector<cmExpandedCommandArgument> const subExpr(argOpen, std::prev(argClose));
 
       // now recursively invoke IsTrue to handle the values inside the
       // parenthetical expression
@@ -420,11 +429,12 @@ bool cmConditionEvaluator::HandleLevel0(cmArgumentList& newArgs,
 
 //=========================================================================
 // level one handles most predicates except for NOT
-bool cmConditionEvaluator::HandleLevel1(cmArgumentList& newArgs, std::string&,
-                                        MessageType&)
+bool cmConditionEvaluator::HandleLevel1(
+  cmArgumentList& newArgs,
+  std::string&,
+  MessageType&)
 {
-  for (auto args = newArgs.make2ArgsIterator(); args.current != newArgs.end();
-       args.advance(newArgs)) {
+  for (auto args = newArgs.make2ArgsIterator(); args.current != newArgs.end(); args.advance(newArgs)) {
     // NOTE Fail fast: All the predicates below require the next arg to be
     // valid
     if (args.next == newArgs.end()) {
@@ -433,60 +443,44 @@ bool cmConditionEvaluator::HandleLevel1(cmArgumentList& newArgs, std::string&,
 
     // does a file exist
     if (this->IsKeyword(keyEXISTS, *args.current)) {
-      newArgs.ReduceOneArg(cmSystemTools::FileExists(args.next->GetValue()),
-                           args);
+      newArgs.ReduceOneArg(cmSystemTools::FileExists(args.next->GetValue()), args);
     }
     // check if a file is readable
     else if (this->IsKeyword(keyIS_READABLE, *args.current)) {
-      newArgs.ReduceOneArg(cmSystemTools::TestFileAccess(
-                             args.next->GetValue(), cmsys::TEST_FILE_READ),
-                           args);
+      newArgs.ReduceOneArg(cmSystemTools::TestFileAccess(args.next->GetValue(), cmsys::TEST_FILE_READ), args);
     }
     // check if a file is writable
     else if (this->IsKeyword(keyIS_WRITABLE, *args.current)) {
-      newArgs.ReduceOneArg(cmSystemTools::TestFileAccess(
-                             args.next->GetValue(), cmsys::TEST_FILE_WRITE),
-                           args);
+      newArgs.ReduceOneArg(cmSystemTools::TestFileAccess(args.next->GetValue(), cmsys::TEST_FILE_WRITE), args);
     }
     // check if a file is executable
     else if (this->IsKeyword(keyIS_EXECUTABLE, *args.current)) {
-      newArgs.ReduceOneArg(cmSystemTools::TestFileAccess(
-                             args.next->GetValue(), cmsys::TEST_FILE_EXECUTE),
-                           args);
+      newArgs.ReduceOneArg(cmSystemTools::TestFileAccess(args.next->GetValue(), cmsys::TEST_FILE_EXECUTE), args);
     }
     // does a directory with this name exist
     else if (this->IsKeyword(keyIS_DIRECTORY, *args.current)) {
-      newArgs.ReduceOneArg(
-        cmSystemTools::FileIsDirectory(args.next->GetValue()), args);
+      newArgs.ReduceOneArg(cmSystemTools::FileIsDirectory(args.next->GetValue()), args);
     }
     // does a symlink with this name exist
     else if (this->IsKeyword(keyIS_SYMLINK, *args.current)) {
-      newArgs.ReduceOneArg(cmSystemTools::FileIsSymlink(args.next->GetValue()),
-                           args);
+      newArgs.ReduceOneArg(cmSystemTools::FileIsSymlink(args.next->GetValue()), args);
     }
     // is the given path an absolute path ?
     else if (this->IsKeyword(keyIS_ABSOLUTE, *args.current)) {
-      newArgs.ReduceOneArg(
-        cmSystemTools::FileIsFullPath(args.next->GetValue()), args);
+      newArgs.ReduceOneArg(cmSystemTools::FileIsFullPath(args.next->GetValue()), args);
     }
     // does a command exist
     else if (this->IsKeyword(keyCOMMAND, *args.current)) {
-      newArgs.ReduceOneArg(
-        static_cast<bool>(
-          this->m_pMakefile.GetState()->GetCommand(args.next->GetValue())),
-        args);
+      newArgs.ReduceOneArg(static_cast<bool>(this->m_pMakefile.GetState()->GetCommand(args.next->GetValue())), args);
     }
     // does a policy exist
     else if (this->IsKeyword(keyPOLICY, *args.current)) {
       cmPolicies::PolicyID pid;
-      newArgs.ReduceOneArg(
-        cmPolicies::GetPolicyID(args.next->GetValue().c_str(), pid), args);
+      newArgs.ReduceOneArg(cmPolicies::GetPolicyID(args.next->GetValue().c_str(), pid), args);
     }
     // does a target exist
     else if (this->IsKeyword(keyTARGET, *args.current)) {
-      newArgs.ReduceOneArg(static_cast<bool>(this->m_pMakefile.FindTargetToUse(
-                             args.next->GetValue())),
-                           args);
+      newArgs.ReduceOneArg(static_cast<bool>(this->m_pMakefile.FindTargetToUse(args.next->GetValue())), args);
     }
     // is a variable defined
     else if (this->IsKeyword(keyDEFINED, *args.current)) {
@@ -501,8 +495,7 @@ bool cmConditionEvaluator::HandleLevel1(cmArgumentList& newArgs, std::string&,
 
       else if (looksLikeSpecialVariable(var, "CACHE"_s, varNameLen)) {
         auto const cache = args.next->GetValue().substr(6, varNameLen - 7);
-        result = static_cast<bool>(
-          this->m_pMakefile.GetState()->GetCacheEntryValue(cache));
+        result = static_cast<bool>(this->m_pMakefile.GetState()->GetCacheEntryValue(cache));
       }
 
       else {
@@ -512,9 +505,7 @@ bool cmConditionEvaluator::HandleLevel1(cmArgumentList& newArgs, std::string&,
     }
     // does a test exist
     else if (this->IsKeyword(keyTEST, *args.current)) {
-      newArgs.ReduceOneArg(
-        static_cast<bool>(this->m_pMakefile.GetTest(args.next->GetValue())),
-        args);
+      newArgs.ReduceOneArg(static_cast<bool>(this->m_pMakefile.GetTest(args.next->GetValue())), args);
     }
   }
   return true;
@@ -522,20 +513,19 @@ bool cmConditionEvaluator::HandleLevel1(cmArgumentList& newArgs, std::string&,
 
 //=========================================================================
 // level two handles most binary operations except for AND  OR
-bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
-                                        std::string& errorString,
-                                        MessageType& status)
+bool cmConditionEvaluator::HandleLevel2(
+  cmArgumentList& newArgs,
+  std::string& errorString,
+  MessageType& status)
 {
-  for (auto args = newArgs.make3ArgsIterator(); args.current != newArgs.end();
-       args.advance(newArgs)) {
+  for (auto args = newArgs.make3ArgsIterator(); args.current != newArgs.end(); args.advance(newArgs)) {
 
     int matchNo;
 
     // NOTE Handle special case `if(... BLAH_BLAH MATCHES)`
     // (i.e., w/o regex to match which is possibly result of
     // variable expansion to an empty string)
-    if (args.next != newArgs.end() &&
-        this->IsKeyword(keyMATCHES, *args.current)) {
+    if (args.next != newArgs.end() && this->IsKeyword(keyMATCHES, *args.current)) {
       newArgs.ReduceOneArg(false, args);
     }
 
@@ -550,8 +540,7 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
       std::string def_buf;
       if (!def) {
         def = cmValue(args.current->GetValue());
-      } else if (cmHasLiteralPrefix(args.current->GetValue(),
-                                    "CMAKE_MATCH_")) {
+      } else if (cmHasLiteralPrefix(args.current->GetValue(), "CMAKE_MATCH_")) {
         // The string to match is owned by our match result variables.
         // Move it to our own buffer before clearing them.
         def_buf = *def;
@@ -577,9 +566,7 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
       newArgs.ReduceTwoArgs(match, args);
     }
 
-    else if ((matchNo =
-                this->matchKeys(*args.next, keyLESS, keyLESS_EQUAL, keyGREATER,
-                                keyGREATER_EQUAL, keyEQUAL))) {
+    else if ((matchNo = this->matchKeys(*args.next, keyLESS, keyLESS_EQUAL, keyGREATER, keyGREATER_EQUAL, keyEQUAL))) {
 
       cmValue ldef = this->GetVariableOrString(*args.current);
       cmValue rdef = this->GetVariableOrString(*args.nextnext);
@@ -587,8 +574,7 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
       double lhs;
       double rhs;
       auto parseDoubles = [&]() {
-        return std::sscanf(ldef->c_str(), "%lg", &lhs) == 1 &&
-          std::sscanf(rdef->c_str(), "%lg", &rhs) == 1;
+        return std::sscanf(ldef->c_str(), "%lg", &lhs) == 1 && std::sscanf(rdef->c_str(), "%lg", &rhs) == 1;
       };
       // clang-format off
       const auto result = parseDoubles() &&
@@ -601,9 +587,8 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
       newArgs.ReduceTwoArgs(result, args);
     }
 
-    else if ((matchNo = this->matchKeys(*args.next, keySTRLESS,
-                                        keySTRLESS_EQUAL, keySTRGREATER,
-                                        keySTRGREATER_EQUAL, keySTREQUAL))) {
+    else if ((matchNo = this->matchKeys(
+                *args.next, keySTRLESS, keySTRLESS_EQUAL, keySTRGREATER, keySTRGREATER_EQUAL, keySTREQUAL))) {
 
       cmValue const lhs = this->GetVariableOrString(*args.current);
       cmValue const rhs = this->GetVariableOrString(*args.nextnext);
@@ -618,10 +603,9 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
       newArgs.ReduceTwoArgs(result, args);
     }
 
-    else if ((matchNo =
-                this->matchKeys(*args.next, keyVERSION_LESS,
-                                keyVERSION_LESS_EQUAL, keyVERSION_GREATER,
-                                keyVERSION_GREATER_EQUAL, keyVERSION_EQUAL))) {
+    else if ((matchNo = this->matchKeys(
+                *args.next, keyVERSION_LESS, keyVERSION_LESS_EQUAL, keyVERSION_GREATER, keyVERSION_GREATER_EQUAL,
+                keyVERSION_EQUAL))) {
       auto const op = MATCH2CMPOP[matchNo - 1];
       cmValue const lhs = this->GetVariableOrString(*args.current);
       cmValue const rhs = this->GetVariableOrString(*args.nextnext);
@@ -632,25 +616,20 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
     // is file A newer than file B
     else if (this->IsKeyword(keyIS_NEWER_THAN, *args.next)) {
       auto fileIsNewer = 0;
-      cmsys::Status ftcStatus = cmSystemTools::FileTimeCompare(
-        args.current->GetValue(), args.nextnext->GetValue(), &fileIsNewer);
-      newArgs.ReduceTwoArgs(
-        (!ftcStatus || fileIsNewer == 1 || fileIsNewer == 0), args);
+      cmSystemTools::FileTimeCompare(args.current->GetValue(), args.nextnext->GetValue(), &fileIsNewer);
+      newArgs.ReduceTwoArgs((fileIsNewer == 1 || fileIsNewer == 0), args);
     }
 
     else if (this->IsKeyword(keyIN_LIST, *args.next)) {
       cmValue lhs = this->GetVariableOrString(*args.current);
       cmValue rhs = this->m_pMakefile.GetDefinition(args.nextnext->GetValue());
 
-      newArgs.ReduceTwoArgs(
-        rhs && cm::contains(cmList{ *rhs, cmList::EmptyElements::Yes }, *lhs),
-        args);
+      newArgs.ReduceTwoArgs(rhs && cm::contains(cmList{ *rhs, cmList::EmptyElements::Yes }, *lhs), args);
     }
 
     else if (this->IsKeyword(keyPATH_EQUAL, *args.next)) {
 
-      if (this->Policy139Status != cmPolicies::OLD &&
-          this->Policy139Status != cmPolicies::WARN) {
+      if (this->Policy139Status != cmPolicies::OLD && this->Policy139Status != cmPolicies::WARN) {
 
         cmValue lhs = this->GetVariableOrString(*args.current);
         cmValue rhs = this->GetVariableOrString(*args.nextnext);
@@ -675,11 +654,12 @@ bool cmConditionEvaluator::HandleLevel2(cmArgumentList& newArgs,
 
 //=========================================================================
 // level 3 handles NOT
-bool cmConditionEvaluator::HandleLevel3(cmArgumentList& newArgs, std::string&,
-                                        MessageType&)
+bool cmConditionEvaluator::HandleLevel3(
+  cmArgumentList& newArgs,
+  std::string&,
+  MessageType&)
 {
-  for (auto args = newArgs.make2ArgsIterator(); args.next != newArgs.end();
-       args.advance(newArgs)) {
+  for (auto args = newArgs.make2ArgsIterator(); args.next != newArgs.end(); args.advance(newArgs)) {
     if (this->IsKeyword(keyNOT, *args.current)) {
       auto const rhs = this->GetBooleanValue(*args.next);
       newArgs.ReduceOneArg(!rhs, args);
@@ -690,11 +670,12 @@ bool cmConditionEvaluator::HandleLevel3(cmArgumentList& newArgs, std::string&,
 
 //=========================================================================
 // level 4 handles AND OR
-bool cmConditionEvaluator::HandleLevel4(cmArgumentList& newArgs, std::string&,
-                                        MessageType&)
+bool cmConditionEvaluator::HandleLevel4(
+  cmArgumentList& newArgs,
+  std::string&,
+  MessageType&)
 {
-  for (auto args = newArgs.make3ArgsIterator(); args.nextnext != newArgs.end();
-       args.advance(newArgs)) {
+  for (auto args = newArgs.make3ArgsIterator(); args.nextnext != newArgs.end(); args.advance(newArgs)) {
 
     int matchNo;
 

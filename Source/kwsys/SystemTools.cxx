@@ -1648,7 +1648,7 @@ void SystemTools::Touch(
   return;
 }
 
-Status SystemTools::FileTimeCompare(
+void SystemTools::FileTimeCompare(
   std::string const& f1,
   std::string const& f2,
   int* result)
@@ -1700,16 +1700,16 @@ Status SystemTools::FileTimeCompare(
   WIN32_FILE_ATTRIBUTE_DATA f1d;
   WIN32_FILE_ATTRIBUTE_DATA f2d;
   if (!GetFileAttributesExW(Encoding::ToWindowsExtendedPath(f1).c_str(), GetFileExInfoStandard, &f1d)) {
-    return Status::Windows_GetLastError();
+    throw CMakeStatusException(ErrorKind::Windows);
   }
   if (!GetFileAttributesExW(Encoding::ToWindowsExtendedPath(f2).c_str(), GetFileExInfoStandard, &f2d)) {
-    return Status::Windows_GetLastError();
+    throw CMakeStatusException(ErrorKind::Windows);
   }
 
   // Compare the file times using resolution provided by system call.
   *result = (int)CompareFileTime(&f1d.ftLastWriteTime, &f2d.ftLastWriteTime);
 #endif
-  return Status::Success();
+  return;
 }
 
 // Return a capitalized string (i.e the first letter is uppercased, all other
