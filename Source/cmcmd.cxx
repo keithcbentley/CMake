@@ -208,10 +208,10 @@ bool cmRemoveDirectory(
   bool recursive = true)
 {
   if (cmSystemTools::FileIsSymlink(dir)) {
-    if (!cmSystemTools::RemoveFile(dir)) {
-      std::cerr << "Error removing directory symlink \"" << dir << "\".\n";
-      return false;
-    }
+    cmSystemTools::RemoveFile(dir);
+    //  std::cerr << "Error removing directory symlink \"" << dir << "\".\n";
+    //  return false;
+    //}
   } else if (!recursive) {
     std::cerr << "Error removing directory \"" << dir << "\" without recursive option.\n";
     return false;
@@ -966,8 +966,8 @@ int cmcmd::ExecuteCMakeCommand(
 
     if (args[1] == "make_directory" && args.size() > 2) {
       // If an error occurs, we want to continue making directories.
-        //  TODO: no we don't
-        //  TODO: This is ridiculous. Is the return value an int or a bool?
+      //  TODO: no we don't
+      //  TODO: This is ridiculous. Is the return value an int or a bool?
       bool return_value = false;
       for (auto const& arg : cmMakeRange(args).advance(2)) {
         cmSystemTools::MakeDirectory(arg);
@@ -999,11 +999,13 @@ int cmcmd::ExecuteCMakeCommand(
         if (arg == "\\-f" || arg == "-f") {
           force = true;
         } else {
+          //  TODO:   What is going on here?
           // Complain if the file could not be removed, still exists,
           // and the -f option was not given.
-          if (!cmSystemTools::RemoveFile(arg) && !force && cmSystemTools::FileExists(arg)) {
-            return 1;
-          }
+          // if (!cmSystemTools::RemoveFile(arg) && !force && cmSystemTools::FileExists(arg)) {
+          //  return 1;
+          //}
+          cmSystemTools::RemoveFile(arg);
         }
       }
       return 0;
@@ -1046,15 +1048,20 @@ int cmcmd::ExecuteCMakeCommand(
             if (!cmRemoveDirectory(arg, recursive)) {
               return_value = 1;
             }
-          } else if (
-            (!file_exists_or_forced_remove) || (!cmSystemTools::RemoveFile(arg) && cmSystemTools::FileExists(arg))) {
-            if (!file_exists_or_forced_remove) {
-              cmSystemTools::Error("File to remove does not exist and force is not set: " + arg);
-            } else {
-              cmSystemTools::Error("File can't be removed and still exist: " + arg);
-            }
-            return_value = 1;
+            //  TODO: What a mess.
+          } else {
+            cmSystemTools::RemoveFile(arg);
           }
+
+          //    if (
+          //  (!file_exists_or_forced_remove) || (!cmSystemTools::RemoveFile(arg) && cmSystemTools::FileExists(arg))) {
+          //  if (!file_exists_or_forced_remove) {
+          //    cmSystemTools::Error("File to remove does not exist and force is not set: " + arg);
+          //  } else {
+          //    cmSystemTools::Error("File can't be removed and still exist: " + arg);
+          //  }
+          //  return_value = 1;
+          //}
         }
       }
       if (!at_least_one_file) {
@@ -1260,11 +1267,12 @@ int cmcmd::ExecuteCMakeCommand(
     // supporting them.
     if (args[1] == "create_symlink" && args.size() == 4) {
       std::string const& destinationFileName = args[3];
-      if (cmSystemTools::PathExists(destinationFileName) && !cmSystemTools::RemoveFile(destinationFileName)) {
-        std::string emsg = cmSystemTools::GetLastSystemError();
-        std::cerr << "failed to create symbolic link '" << destinationFileName
-                  << "' because existing path cannot be removed: " << emsg << '\n';
-        return 1;
+      if (cmSystemTools::PathExists(destinationFileName)) {
+        cmSystemTools::RemoveFile(destinationFileName);
+        // std::string emsg = cmSystemTools::GetLastSystemError();
+        // std::cerr << "failed to create symbolic link '" << destinationFileName
+        //           << "' because existing path cannot be removed: " << emsg << '\n';
+        // return 1;
       }
       if (!cmSystemTools::CreateSymlink(args[2], destinationFileName)) {
         return 1;
@@ -1283,11 +1291,8 @@ int cmcmd::ExecuteCMakeCommand(
         return 1;
       }
 
-      if (cmSystemTools::PathExists(destinationFileName) && !cmSystemTools::RemoveFile(destinationFileName)) {
-        std::string emsg = cmSystemTools::GetLastSystemError();
-        std::cerr << "failed to create hard link '" << destinationFileName
-                  << "' because existing path cannot be removed: " << emsg << '\n';
-        return 1;
+      if (cmSystemTools::PathExists(destinationFileName)) {
+        cmSystemTools::RemoveFile(destinationFileName);
       }
 
       if (!cmSystemTools::CreateLink(sourceFileName, destinationFileName)) {

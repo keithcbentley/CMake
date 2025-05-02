@@ -29,14 +29,14 @@ cmsys::Status TryToRemoveBinaryDirectoryOnce(std::string const& directoryPath)
 
     std::string fullPath = cmStrCat(directoryPath, "/", path);
 
-    bool isDirectory = cmSystemTools::FileIsDirectory(fullPath) &&
-      !cmSystemTools::FileIsSymlink(fullPath);
+    bool isDirectory = cmSystemTools::FileIsDirectory(fullPath) && !cmSystemTools::FileIsSymlink(fullPath);
 
     cmsys::Status status;
     if (isDirectory) {
       status = cmSystemTools::RemoveADirectory(fullPath);
     } else {
-      status = cmSystemTools::RemoveFile(fullPath);
+      cmSystemTools::RemoveFile(fullPath);
+      status = cmsys::Status::Success();
     }
     if (!status) {
       return status;
@@ -49,7 +49,9 @@ cmsys::Status TryToRemoveBinaryDirectoryOnce(std::string const& directoryPath)
 /*
  * Empty Binary Directory
  */
-bool EmptyBinaryDirectory(std::string const& sname, std::string& err)
+bool EmptyBinaryDirectory(
+  std::string const& sname,
+  std::string& err)
 {
   // try to avoid deleting root
   if (sname.size() < 2) {
@@ -85,8 +87,9 @@ bool EmptyBinaryDirectory(std::string const& sname, std::string& err)
 
 } // namespace
 
-bool cmCTestEmptyBinaryDirectoryCommand(std::vector<std::string> const& args,
-                                        cmExecutionStatus& status)
+bool cmCTestEmptyBinaryDirectoryCommand(
+  std::vector<std::string> const& args,
+  cmExecutionStatus& status)
 {
   if (args.size() != 1) {
     status.SetError("called with incorrect number of arguments");
@@ -97,9 +100,7 @@ bool cmCTestEmptyBinaryDirectoryCommand(std::vector<std::string> const& args,
   if (!EmptyBinaryDirectory(args[0], err)) {
     cmMakefile& mf = status.GetMakefile();
     mf.GetMessenger()->DisplayMessage(
-      MessageType::FATAL_ERROR,
-      cmStrCat("Did not remove the binary directory:\n ", args[0],
-               "\nbecause:\n ", err),
+      MessageType::FATAL_ERROR, cmStrCat("Did not remove the binary directory:\n ", args[0], "\nbecause:\n ", err),
       mf.GetBacktrace());
     return true;
   }

@@ -3050,6 +3050,7 @@ bool HandleReadSymlinkCommand(
   return true;
 }
 
+//  TODO:   This is ridiculous. All this stuff is done with arg parsing right in the middle of trying to do something.
 bool HandleCreateLinkCommand(
   std::vector<std::string> const& args,
   cmExecutionStatus& status)
@@ -3110,17 +3111,19 @@ bool HandleCreateLinkCommand(
   }
 
   // Check if the new file already exists and remove it.
-  if (cmSystemTools::PathExists(newFileName) && !cmSystemTools::RemoveFile(newFileName)) {
-    auto err = cmStrCat(
-      "Failed to create link '", newFileName,
-      "' because existing path cannot be removed: ", cmSystemTools::GetLastSystemError(), '\n');
+  //    TODO: What the hell is the logic here?
+  if (cmSystemTools::PathExists(newFileName)){
+    cmSystemTools::RemoveFile(newFileName);
+    //auto err = cmStrCat(
+    //  "Failed to create link '", newFileName,
+    //  "' because existing path cannot be removed: ", cmSystemTools::GetLastSystemError(), '\n');
 
-    if (!arguments.Result.empty()) {
-      status.GetMakefile().AddDefinition(arguments.Result, err);
-      return true;
-    }
-    status.SetError(err);
-    return false;
+    //if (!arguments.Result.empty()) {
+    //  status.GetMakefile().AddDefinition(arguments.Result, err);
+    //  return true;
+    //}
+    //status.SetError(err);
+    //return false;
   }
 
   // Whether the operation completed successfully.

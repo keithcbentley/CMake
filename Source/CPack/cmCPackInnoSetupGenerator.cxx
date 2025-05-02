@@ -30,11 +30,12 @@ bool cmCPackInnoSetupGenerator::CanGenerate()
 int cmCPackInnoSetupGenerator::InitializeInternal()
 {
   if (GetOption("CPACK_INCLUDE_TOPLEVEL_DIRECTORY").IsOn()) {
-    cmCPackLogger(cmCPackLog::LOG_WARNING,
-                  "Inno Setup Generator cannot work with "
-                  "CPACK_INCLUDE_TOPLEVEL_DIRECTORY set. "
-                  "This option will be reset to 0 (for this generator only)."
-                    << std::endl);
+    cmCPackLogger(
+      cmCPackLog::LOG_WARNING,
+      "Inno Setup Generator cannot work with "
+      "CPACK_INCLUDE_TOPLEVEL_DIRECTORY set. "
+      "This option will be reset to 0 (for this generator only)."
+        << std::endl);
     SetOption("CPACK_INCLUDE_TOPLEVEL_DIRECTORY", nullptr);
   }
 
@@ -46,46 +47,44 @@ int cmCPackInnoSetupGenerator::InitializeInternal()
 #endif
 
   SetOptionIfNotSet("CPACK_INNOSETUP_EXECUTABLE", "ISCC");
-  std::string const& isccPath =
-    cmSystemTools::FindProgram(GetOption("CPACK_INNOSETUP_EXECUTABLE"), path);
+  std::string const& isccPath = cmSystemTools::FindProgram(GetOption("CPACK_INNOSETUP_EXECUTABLE"), path);
 
   if (isccPath.empty()) {
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "Cannot find Inno Setup compiler ISCC: "
-                  "likely it is not installed, or not in your PATH"
-                    << std::endl);
+    cmCPackLogger(
+      cmCPackLog::LOG_ERROR,
+      "Cannot find Inno Setup compiler ISCC: "
+      "likely it is not installed, or not in your PATH"
+        << std::endl);
 
     return 0;
   }
 
-  std::string const isccCmd =
-    cmStrCat(QuotePath(isccPath, PathType::Native), "/?");
-  cmCPackLogger(cmCPackLog::LOG_VERBOSE,
-                "Test Inno Setup version: " << isccCmd << std::endl);
+  std::string const isccCmd = cmStrCat(QuotePath(isccPath, PathType::Native), "/?");
+  cmCPackLogger(cmCPackLog::LOG_VERBOSE, "Test Inno Setup version: " << isccCmd << std::endl);
   std::string output;
-  cmSystemTools::RunSingleCommand(isccCmd, &output, &output, nullptr, nullptr,
-                                  this->GeneratorVerbose, cmDuration::zero());
+  cmSystemTools::RunSingleCommand(
+    isccCmd, &output, &output, nullptr, nullptr, this->GeneratorVerbose, cmDuration::zero());
   cmsys::RegularExpression vRex("Inno Setup ([0-9]+)");
   if (!vRex.find(output)) {
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "Problem checking Inno Setup version with command: "
-                    << isccCmd << std::endl
-                    << "Have you downloaded Inno Setup from "
-                       "https://jrsoftware.org/isinfo.php?"
-                    << std::endl);
+    cmCPackLogger(
+      cmCPackLog::LOG_ERROR,
+      "Problem checking Inno Setup version with command: " << isccCmd << std::endl
+                                                           << "Have you downloaded Inno Setup from "
+                                                              "https://jrsoftware.org/isinfo.php?"
+                                                           << std::endl);
     return 0;
   }
 
   int const isccVersion = atoi(vRex.match(1).c_str());
   int const minIsccVersion = 6;
-  cmCPackLogger(cmCPackLog::LOG_DEBUG,
-                "Inno Setup Version: " << isccVersion << std::endl);
+  cmCPackLogger(cmCPackLog::LOG_DEBUG, "Inno Setup Version: " << isccVersion << std::endl);
 
   if (isccVersion < minIsccVersion) {
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "CPack requires Inno Setup Version 6 or greater. "
-                  "Inno Setup found on the system was: "
-                    << isccVersion << std::endl);
+    cmCPackLogger(
+      cmCPackLog::LOG_ERROR,
+      "CPack requires Inno Setup Version 6 or greater. "
+      "Inno Setup found on the system was: "
+        << isccVersion << std::endl);
     return 0;
   }
 
@@ -100,8 +99,7 @@ int cmCPackInnoSetupGenerator::PackageFiles()
   if (cmValue v = GetOptionIfSet("CPACK_INNOSETUP_EXTRA_SCRIPTS")) {
     cmList const extraScripts(*v);
     for (std::string const& i : extraScripts) {
-      includeDirectives.emplace_back(cmStrCat(
-        "#include ", QuotePath(cmSystemTools::CollapseFullPath(i, toplevel))));
+      includeDirectives.emplace_back(cmStrCat("#include ", QuotePath(cmSystemTools::CollapseFullPath(i, toplevel))));
     }
   }
 
@@ -135,8 +133,7 @@ int cmCPackInnoSetupGenerator::PackageFiles()
   if (cmValue v = GetOptionIfSet("CPACK_INNOSETUP_CODE_FILES")) {
     cmList const codeFiles(*v);
     for (std::string const& i : codeFiles) {
-      codeIncludes.emplace_back(cmStrCat(
-        "#include ", QuotePath(cmSystemTools::CollapseFullPath(i, toplevel))));
+      codeIncludes.emplace_back(cmStrCat("#include ", QuotePath(cmSystemTools::CollapseFullPath(i, toplevel))));
     }
   }
 
@@ -175,16 +172,14 @@ bool cmCPackInnoSetupGenerator::ProcessSetupSection()
   SetOptionIfNotSet("CPACK_INNOSETUP_IGNORE_LICENSE_PAGE", "OFF");
   if (!GetOption("CPACK_INNOSETUP_IGNORE_LICENSE_PAGE").IsOn()) {
     if (cmValue v = GetOptionIfSet("CPACK_RESOURCE_FILE_LICENSE")) {
-      setupDirectives["LicenseFile"] =
-        cmSystemTools::ConvertToWindowsOutputPath(*v);
+      setupDirectives["LicenseFile"] = cmSystemTools::ConvertToWindowsOutputPath(*v);
     }
   }
 
   SetOptionIfNotSet("CPACK_INNOSETUP_IGNORE_README_PAGE", "ON");
   if (!GetOption("CPACK_INNOSETUP_IGNORE_README_PAGE").IsOn()) {
     if (cmValue v = GetOptionIfSet("CPACK_RESOURCE_FILE_README")) {
-      setupDirectives["InfoBeforeFile"] =
-        cmSystemTools::ConvertToWindowsOutputPath(*v);
+      setupDirectives["InfoBeforeFile"] = cmSystemTools::ConvertToWindowsOutputPath(*v);
     }
   }
 
@@ -193,44 +188,37 @@ bool cmCPackInnoSetupGenerator::ProcessSetupSection()
     setupDirectives["WizardStyle"] = "modern";
   } else {
     setupDirectives["WizardStyle"] = "classic";
-    setupDirectives["WizardSmallImageFile"] =
-      "compiler:WizClassicSmallImage.bmp";
+    setupDirectives["WizardSmallImageFile"] = "compiler:WizClassicSmallImage.bmp";
     setupDirectives["WizardImageFile"] = "compiler:WizClassicImage.bmp";
     setupDirectives["SetupIconFile"] = "compiler:SetupClassicIcon.ico";
   }
 
   if (cmValue v = GetOptionIfSet("CPACK_INNOSETUP_ICON_FILE")) {
-    setupDirectives["SetupIconFile"] =
-      cmSystemTools::ConvertToWindowsOutputPath(*v);
+    setupDirectives["SetupIconFile"] = cmSystemTools::ConvertToWindowsOutputPath(*v);
   }
 
   if (cmValue v = GetOptionIfSet("CPACK_PACKAGE_ICON")) {
-    setupDirectives["WizardSmallImageFile"] =
-      cmSystemTools::ConvertToWindowsOutputPath(*v);
+    setupDirectives["WizardSmallImageFile"] = cmSystemTools::ConvertToWindowsOutputPath(*v);
   }
 
   if (!RequireOption("CPACK_PACKAGE_INSTALL_DIRECTORY")) {
     return false;
   }
   SetOptionIfNotSet("CPACK_INNOSETUP_INSTALL_ROOT", "{autopf}");
-  setupDirectives["DefaultDirName"] =
-    cmSystemTools::ConvertToWindowsOutputPath(
-      cmStrCat(GetOption("CPACK_INNOSETUP_INSTALL_ROOT"), '\\',
-               GetOption("CPACK_PACKAGE_INSTALL_DIRECTORY")));
+  setupDirectives["DefaultDirName"] = cmSystemTools::ConvertToWindowsOutputPath(
+    cmStrCat(GetOption("CPACK_INNOSETUP_INSTALL_ROOT"), '\\', GetOption("CPACK_PACKAGE_INSTALL_DIRECTORY")));
 
   SetOptionIfNotSet("CPACK_INNOSETUP_ALLOW_CUSTOM_DIRECTORY", "ON");
   if (GetOption("CPACK_INNOSETUP_ALLOW_CUSTOM_DIRECTORY").IsOff()) {
     setupDirectives["DisableDirPage"] = "yes";
   }
 
-  SetOptionIfNotSet("CPACK_INNOSETUP_PROGRAM_MENU_FOLDER",
-                    GetOption("CPACK_PACKAGE_NAME"));
+  SetOptionIfNotSet("CPACK_INNOSETUP_PROGRAM_MENU_FOLDER", GetOption("CPACK_PACKAGE_NAME"));
   if (GetOption("CPACK_INNOSETUP_PROGRAM_MENU_FOLDER") == ".") {
     setupDirectives["DisableProgramGroupPage"] = "yes";
     toplevelProgramFolder = true;
   } else {
-    setupDirectives["DefaultGroupName"] =
-      GetOption("CPACK_INNOSETUP_PROGRAM_MENU_FOLDER");
+    setupDirectives["DefaultGroupName"] = GetOption("CPACK_INNOSETUP_PROGRAM_MENU_FOLDER");
     toplevelProgramFolder = false;
   }
 
@@ -257,11 +245,9 @@ bool cmCPackInnoSetupGenerator::ProcessSetupSection()
   if (!RequireOption("CPACK_TOPLEVEL_DIRECTORY")) {
     return false;
   }
-  setupDirectives["OutputDir"] = cmSystemTools::ConvertToWindowsOutputPath(
-    GetOption("CPACK_TOPLEVEL_DIRECTORY"));
+  setupDirectives["OutputDir"] = cmSystemTools::ConvertToWindowsOutputPath(GetOption("CPACK_TOPLEVEL_DIRECTORY"));
 
-  setupDirectives["SourceDir"] =
-    cmSystemTools::ConvertToWindowsOutputPath(toplevel);
+  setupDirectives["SourceDir"] = cmSystemTools::ConvertToWindowsOutputPath(toplevel);
 
   // Target architecture
   if (!RequireOption("CPACK_INNOSETUP_ARCHITECTURE")) {
@@ -269,12 +255,12 @@ bool cmCPackInnoSetupGenerator::ProcessSetupSection()
   }
 
   cmValue const architecture = GetOption("CPACK_INNOSETUP_ARCHITECTURE");
-  if (architecture != "x86" && architecture != "x64" &&
-      architecture != "arm64" && architecture != "ia64") {
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "CPACK_INNOSETUP_ARCHITECTURE must be either x86, x64, "
-                  "arm64 or ia64"
-                    << std::endl);
+  if (architecture != "x86" && architecture != "x64" && architecture != "arm64" && architecture != "ia64") {
+    cmCPackLogger(
+      cmCPackLog::LOG_ERROR,
+      "CPACK_INNOSETUP_ARCHITECTURE must be either x86, x64, "
+      "arm64 or ia64"
+        << std::endl);
     return false;
   }
 
@@ -290,8 +276,7 @@ bool cmCPackInnoSetupGenerator::ProcessSetupSection()
    */
   for (std::string const& i : GetOptions()) {
     if (cmHasPrefix(i, "CPACK_INNOSETUP_SETUP_")) {
-      std::string const& directive =
-        i.substr(cmStrLen("CPACK_INNOSETUP_SETUP_"));
+      std::string const& directive = i.substr(cmStrLen("CPACK_INNOSETUP_SETUP_"));
       setupDirectives[directive] = GetOption(i);
     }
   }
@@ -302,35 +287,34 @@ bool cmCPackInnoSetupGenerator::ProcessSetupSection()
 bool cmCPackInnoSetupGenerator::ProcessFiles()
 {
   std::map<std::string, std::string> customFileInstructions;
-  if (cmValue v =
-        GetOptionIfSet("CPACK_INNOSETUP_CUSTOM_INSTALL_INSTRUCTIONS")) {
+  if (cmValue v = GetOptionIfSet("CPACK_INNOSETUP_CUSTOM_INSTALL_INSTRUCTIONS")) {
     cmList const instructions(*v);
     if (instructions.size() % 2 != 0) {
-      cmCPackLogger(cmCPackLog::LOG_ERROR,
-                    "CPACK_INNOSETUP_CUSTOM_INSTALL_INSTRUCTIONS should "
-                    "contain pairs of <path> and <instruction>"
-                      << std::endl);
+      cmCPackLogger(
+        cmCPackLog::LOG_ERROR,
+        "CPACK_INNOSETUP_CUSTOM_INSTALL_INSTRUCTIONS should "
+        "contain pairs of <path> and <instruction>"
+          << std::endl);
       return false;
     }
 
     for (auto it = instructions.begin(); it != instructions.end(); ++it) {
-      std::string const& key =
-        QuotePath(cmSystemTools::CollapseFullPath(*it, toplevel));
+      std::string const& key = QuotePath(cmSystemTools::CollapseFullPath(*it, toplevel));
       customFileInstructions[key] = *(++it);
     }
   }
 
-  std::string const& iconsPrefix =
-    toplevelProgramFolder ? "{autoprograms}\\" : "{group}\\";
+  std::string const& iconsPrefix = toplevelProgramFolder ? "{autoprograms}\\" : "{group}\\";
 
   std::map<std::string, std::string> icons;
   if (cmValue v = GetOptionIfSet("CPACK_PACKAGE_EXECUTABLES")) {
     cmList const executables(*v);
     if (executables.size() % 2 != 0) {
-      cmCPackLogger(cmCPackLog::LOG_ERROR,
-                    "CPACK_PACKAGE_EXECUTABLES should should contain pairs of "
-                    "<executable> and <text label>"
-                      << std::endl);
+      cmCPackLogger(
+        cmCPackLog::LOG_ERROR,
+        "CPACK_PACKAGE_EXECUTABLES should should contain pairs of "
+        "<executable> and <text label>"
+          << std::endl);
       return false;
     }
 
@@ -366,11 +350,9 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
         std::string const& componentName = fileName.substr(0, pos);
         component = &Components[componentName];
 
-        toplevelDirectory =
-          cmSystemTools::CollapseFullPath(componentName, toplevel);
+        toplevelDirectory = cmSystemTools::CollapseFullPath(componentName, toplevel);
         outputDir = CustomComponentInstallDirectory(component);
-        componentParam =
-          CreateRecursiveComponentPath(component->Group, component->m_name);
+        componentParam = CreateRecursiveComponentPath(component->Group, component->m_name);
 
         if (component->IsHidden && component->IsDisabledByDefault) {
           continue;
@@ -398,8 +380,7 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
         dirInstructions.push_back(customFileInstructions[QuotePath(i)]);
       } else {
         std::string destDir = cmSystemTools::ConvertToWindowsOutputPath(
-          cmStrCat(outputDir, '\\',
-                   cmSystemTools::RelativePath(toplevelDirectory, i)));
+          cmStrCat(outputDir, '\\', cmSystemTools::RelativePath(toplevelDirectory, i)));
         cmStripSuffixIfExists(destDir, '\\');
 
         params["Name"] = QuotePath(destDir);
@@ -411,31 +392,22 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
       if (customFileInstructions.count(QuotePath(i))) {
         fileInstructions.push_back(customFileInstructions[QuotePath(i)]);
       } else {
-        std::string destDir = cmSystemTools::ConvertToWindowsOutputPath(
-          cmStrCat(outputDir, '\\',
-                   cmSystemTools::GetParentDirectory(
-                     cmSystemTools::RelativePath(toplevelDirectory, i))));
+        std::string destDir = cmSystemTools::ConvertToWindowsOutputPath(cmStrCat(
+          outputDir, '\\', cmSystemTools::GetParentDirectory(cmSystemTools::RelativePath(toplevelDirectory, i))));
         cmStripSuffixIfExists(destDir, '\\');
 
         params["DestDir"] = QuotePath(destDir);
 
         if (component && component->IsDownloaded) {
-          std::string const& archiveName =
-            cmSystemTools::GetFilenameWithoutLastExtension(
-              component->ArchiveFile);
-          std::string const& relativePath =
-            cmSystemTools::RelativePath(toplevelDirectory, i);
+          std::string const& archiveName = cmSystemTools::GetFilenameWithoutLastExtension(component->ArchiveFile);
+          std::string const& relativePath = cmSystemTools::RelativePath(toplevelDirectory, i);
 
-          params["Source"] =
-            QuotePath(cmStrCat("{tmp}\\", archiveName, '\\', relativePath));
-          params["ExternalSize"] =
-            std::to_string(cmSystemTools::FileLength(i));
+          params["Source"] = QuotePath(cmStrCat("{tmp}\\", archiveName, '\\', relativePath));
+          params["ExternalSize"] = std::to_string(cmSystemTools::FileLength(i));
           params["Flags"] = "external ignoreversion";
-          params["BeforeInstall"] =
-            cmStrCat("CPackExtractFile('", archiveName, "', '",
-                     cmRemoveQuotes(cmSystemTools::ConvertToWindowsOutputPath(
-                       relativePath)),
-                     "')");
+          params["BeforeInstall"] = cmStrCat(
+            "CPackExtractFile('", archiveName, "', '",
+            cmRemoveQuotes(cmSystemTools::ConvertToWindowsOutputPath(relativePath)), "')");
         } else {
           params["Source"] = QuotePath(i);
           params["Flags"] = "ignoreversion";
@@ -444,17 +416,15 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
         fileInstructions.push_back(ISKeyValueLine(params));
 
         // Icon
-        std::string const& name =
-          cmSystemTools::GetFilenameWithoutLastExtension(i);
-        std::string const& extension =
-          cmSystemTools::GetFilenameLastExtension(i);
-        if ((extension == ".exe" || extension == ".com") && // only .exe, .com
-            icons.count(name)) {
+        std::string const& name = cmSystemTools::GetFilenameWithoutLastExtension(i);
+        std::string const& extension = cmSystemTools::GetFilenameLastExtension(i);
+        if (
+          (extension == ".exe" || extension == ".com") && // only .exe, .com
+          icons.count(name)) {
           cmCPackInnoSetupKeyValuePairs iconParams;
 
           iconParams["Name"] = QuotePath(cmStrCat(iconsPrefix, icons[name]));
-          iconParams["Filename"] =
-            QuotePath(cmStrCat(destDir, '\\', name, extension));
+          iconParams["Filename"] = QuotePath(cmStrCat(destDir, '\\', name, extension));
 
           if (!componentParam.empty()) {
             iconParams["Components"] = componentParam;
@@ -463,29 +433,25 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
           iconInstructions.push_back(ISKeyValueLine(iconParams));
 
           // Desktop icon
-          if (std::find(desktopIcons.begin(), desktopIcons.end(), name) !=
-              desktopIcons.end()) {
-            iconParams["Name"] =
-              QuotePath(cmStrCat("{autodesktop}\\", icons[name]));
+          if (std::find(desktopIcons.begin(), desktopIcons.end(), name) != desktopIcons.end()) {
+            iconParams["Name"] = QuotePath(cmStrCat("{autodesktop}\\", icons[name]));
             iconParams["Tasks"] = "desktopicon";
 
-            if (!componentParam.empty() &&
-                std::find(desktopIconComponents.begin(),
-                          desktopIconComponents.end(),
-                          componentParam) == desktopIconComponents.end()) {
+            if (
+              !componentParam.empty() &&
+              std::find(desktopIconComponents.begin(), desktopIconComponents.end(), componentParam) ==
+                desktopIconComponents.end()) {
               desktopIconComponents.push_back(componentParam);
             }
             iconInstructions.push_back(ISKeyValueLine(iconParams));
           }
 
           // [Run] section
-          if (std::find(runExecutables.begin(), runExecutables.end(), name) !=
-              runExecutables.end()) {
+          if (std::find(runExecutables.begin(), runExecutables.end(), name) != runExecutables.end()) {
             cmCPackInnoSetupKeyValuePairs runParams;
 
             runParams["Filename"] = iconParams["Filename"];
-            runParams["Description"] = cmStrCat(
-              "\"{cm:LaunchProgram,", PrepareForConstant(icons[name]), "}\"");
+            runParams["Description"] = cmStrCat("\"{cm:LaunchProgram,", PrepareForConstant(icons[name]), "}\"");
             runParams["Flags"] = "nowait postinstall skipifsilent";
 
             if (!componentParam.empty()) {
@@ -500,16 +466,16 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
   }
 
   // Additional icons
-  static cmsys::RegularExpression urlRegex(
-    "^(mailto:|(ftps?|https?|news)://).*$");
+  static cmsys::RegularExpression urlRegex("^(mailto:|(ftps?|https?|news)://).*$");
 
   if (cmValue v = GetOptionIfSet("CPACK_INNOSETUP_MENU_LINKS")) {
     cmList const menuIcons(*v);
     if (menuIcons.size() % 2 != 0) {
-      cmCPackLogger(cmCPackLog::LOG_ERROR,
-                    "CPACK_INNOSETUP_MENU_LINKS should "
-                    "contain pairs of <shortcut target> and <shortcut label>"
-                      << std::endl);
+      cmCPackLogger(
+        cmCPackLog::LOG_ERROR,
+        "CPACK_INNOSETUP_MENU_LINKS should "
+        "contain pairs of <shortcut target> and <shortcut label>"
+          << std::endl);
       return false;
     }
 
@@ -525,11 +491,10 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
         std::string dir = "{app}";
         std::string componentName;
         for (auto const& i : Components) {
-          if (cmSystemTools::FileExists(cmSystemTools::CollapseFullPath(
-                cmStrCat(i.second.m_name, '\\', target), toplevel))) {
+          if (cmSystemTools::FileExists(
+                cmSystemTools::CollapseFullPath(cmStrCat(i.second.m_name, '\\', target), toplevel))) {
             dir = CustomComponentInstallDirectory(&i.second);
-            componentName =
-              CreateRecursiveComponentPath(i.second.Group, i.second.m_name);
+            componentName = CreateRecursiveComponentPath(i.second.Group, i.second.m_name);
 
             if (i.second.IsHidden && i.second.IsDisabledByDefault) {
               goto continueOuterLoop;
@@ -558,8 +523,7 @@ bool cmCPackInnoSetupGenerator::ProcessFiles()
     cmCPackInnoSetupKeyValuePairs params;
 
     params["Name"] = QuotePath(
-      cmStrCat(iconsPrefix, "{cm:UninstallProgram,",
-               PrepareForConstant(GetOption("CPACK_PACKAGE_NAME")), '}'));
+      cmStrCat(iconsPrefix, "{cm:UninstallProgram,", PrepareForConstant(GetOption("CPACK_PACKAGE_NAME")), '}'));
     params["Filename"] = "\"{uninstallexe}\"";
 
     iconInstructions.push_back(ISKeyValueLine(params));
@@ -595,8 +559,7 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
   cmCPackInnoSetupKeyValuePairs customTypeParams;
 
   customTypeParams["Name"] = "\"custom\"";
-  customTypeParams["Description"] =
-    "\"{code:CPackGetCustomInstallationMessage}\"";
+  customTypeParams["Description"] = "\"{code:CPackGetCustomInstallationMessage}\"";
   customTypeParams["Flags"] = "iscustom";
 
   allTypes.emplace_back("custom");
@@ -614,8 +577,7 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
 
     CreateRecursiveComponentGroups(component->Group);
 
-    params["Name"] =
-      Quote(CreateRecursiveComponentPath(component->Group, component->m_name));
+    params["Name"] = Quote(CreateRecursiveComponentPath(component->Group, component->m_name));
     params["Description"] = Quote(component->DisplayName);
 
     if (component->IsRequired) {
@@ -643,11 +605,9 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
           return false;
         }
 
-        std::string packagesDir =
-          cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), ".dummy");
+        std::string packagesDir = cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), ".dummy");
         component->ArchiveFile =
-          cmStrCat(cmSystemTools::GetFilenameWithoutLastExtension(packagesDir),
-                   '-', component->m_name, ".zip");
+          cmStrCat(cmSystemTools::GetFilenameWithoutLastExtension(packagesDir), '-', component->m_name, ".zip");
       } else if (!cmHasSuffix(component->ArchiveFile, ".zip")) {
         component->ArchiveFile = cmStrCat(component->ArchiveFile, ".zip");
       }
@@ -666,8 +626,7 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
         return false;
       }
 
-      uploadDirectory =
-        cmStrCat(GetOption("CPACK_PACKAGE_DIRECTORY"), "/CPackUploads");
+      uploadDirectory = cmStrCat(GetOption("CPACK_PACKAGE_DIRECTORY"), "/CPackUploads");
     }
 
     if (!cmSystemTools::FileExists(uploadDirectory)) {
@@ -685,11 +644,9 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
     }
 
     SetOptionIfNotSet("CPACK_INNOSETUP_VERIFY_DOWNLOADS", "ON");
-    bool const verifyDownloads =
-      GetOption("CPACK_INNOSETUP_VERIFY_DOWNLOADS").IsOn();
+    bool const verifyDownloads = GetOption("CPACK_INNOSETUP_VERIFY_DOWNLOADS").IsOn();
 
-    std::string const& urlPrefix =
-      cmHasSuffix(GetOption("CPACK_DOWNLOAD_SITE").GetCStr(), '/')
+    std::string const& urlPrefix = cmHasSuffix(GetOption("CPACK_DOWNLOAD_SITE").GetCStr(), '/')
       ? GetOption("CPACK_DOWNLOAD_SITE")
       : cmStrCat(GetOption("CPACK_DOWNLOAD_SITE"), '/');
 
@@ -699,41 +656,32 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
     std::vector<std::string> archiveComponents;
     for (cmCPackComponent* i : downloadedComponents) {
       std::string hash;
-      if (!BuildDownloadedComponentArchive(
-            i, uploadDirectory, (verifyDownloads ? &hash : nullptr))) {
+      if (!BuildDownloadedComponentArchive(i, uploadDirectory, (verifyDownloads ? &hash : nullptr))) {
         return false;
       }
 
       archiveUrls.push_back(Quote(cmStrCat(urlPrefix, i->ArchiveFile)));
-      archiveFiles.push_back(
-        Quote(cmSystemTools::GetFilenameWithoutLastExtension(i->ArchiveFile)));
+      archiveFiles.push_back(Quote(cmSystemTools::GetFilenameWithoutLastExtension(i->ArchiveFile)));
       archiveHashes.push_back(Quote(hash));
-      archiveComponents.push_back(
-        Quote(CreateRecursiveComponentPath(i->Group, i->m_name)));
+      archiveComponents.push_back(Quote(CreateRecursiveComponentPath(i->Group, i->m_name)));
     }
 
-    SetOption("CPACK_INNOSETUP_DOWNLOAD_COUNT_INTERNAL",
-              std::to_string(archiveFiles.size()));
-    SetOption("CPACK_INNOSETUP_DOWNLOAD_URLS_INTERNAL",
-              cmJoin(archiveUrls, ", "));
-    SetOption("CPACK_INNOSETUP_DOWNLOAD_ARCHIVES_INTERNAL",
-              cmJoin(archiveFiles, ", "));
-    SetOption("CPACK_INNOSETUP_DOWNLOAD_HASHES_INTERNAL",
-              cmJoin(archiveHashes, ", "));
-    SetOption("CPACK_INNOSETUP_DOWNLOAD_COMPONENTS_INTERNAL",
-              cmJoin(archiveComponents, ", "));
+    SetOption("CPACK_INNOSETUP_DOWNLOAD_COUNT_INTERNAL", std::to_string(archiveFiles.size()));
+    SetOption("CPACK_INNOSETUP_DOWNLOAD_URLS_INTERNAL", cmJoin(archiveUrls, ", "));
+    SetOption("CPACK_INNOSETUP_DOWNLOAD_ARCHIVES_INTERNAL", cmJoin(archiveFiles, ", "));
+    SetOption("CPACK_INNOSETUP_DOWNLOAD_HASHES_INTERNAL", cmJoin(archiveHashes, ", "));
+    SetOption("CPACK_INNOSETUP_DOWNLOAD_COMPONENTS_INTERNAL", cmJoin(archiveComponents, ", "));
 
-    static std::string const& downloadLines =
-      "#define protected CPackDownloadCount "
-      "@CPACK_INNOSETUP_DOWNLOAD_COUNT_INTERNAL@\n"
-      "#dim protected CPackDownloadUrls[CPackDownloadCount] "
-      "{@CPACK_INNOSETUP_DOWNLOAD_URLS_INTERNAL@}\n"
-      "#dim protected CPackDownloadArchives[CPackDownloadCount] "
-      "{@CPACK_INNOSETUP_DOWNLOAD_ARCHIVES_INTERNAL@}\n"
-      "#dim protected CPackDownloadHashes[CPackDownloadCount] "
-      "{@CPACK_INNOSETUP_DOWNLOAD_HASHES_INTERNAL@}\n"
-      "#dim protected CPackDownloadComponents[CPackDownloadCount] "
-      "{@CPACK_INNOSETUP_DOWNLOAD_COMPONENTS_INTERNAL@}";
+    static std::string const& downloadLines = "#define protected CPackDownloadCount "
+                                              "@CPACK_INNOSETUP_DOWNLOAD_COUNT_INTERNAL@\n"
+                                              "#dim protected CPackDownloadUrls[CPackDownloadCount] "
+                                              "{@CPACK_INNOSETUP_DOWNLOAD_URLS_INTERNAL@}\n"
+                                              "#dim protected CPackDownloadArchives[CPackDownloadCount] "
+                                              "{@CPACK_INNOSETUP_DOWNLOAD_ARCHIVES_INTERNAL@}\n"
+                                              "#dim protected CPackDownloadHashes[CPackDownloadCount] "
+                                              "{@CPACK_INNOSETUP_DOWNLOAD_HASHES_INTERNAL@}\n"
+                                              "#dim protected CPackDownloadComponents[CPackDownloadCount] "
+                                              "{@CPACK_INNOSETUP_DOWNLOAD_COMPONENTS_INTERNAL@}";
 
     std::string output;
     if (!ConfigureString(downloadLines, output)) {
@@ -743,17 +691,13 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
   }
 
   // Add the required script
-  std::string const& componentsScriptTemplate =
-    FindTemplate("ISComponents.pas");
+  std::string const& componentsScriptTemplate = FindTemplate("ISComponents.pas");
   if (componentsScriptTemplate.empty()) {
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "Could not find additional Inno Setup script file."
-                    << std::endl);
+    cmCPackLogger(cmCPackLog::LOG_ERROR, "Could not find additional Inno Setup script file." << std::endl);
     return false;
   }
 
-  codeIncludes.push_back("#include " + QuotePath(componentsScriptTemplate) +
-                         "\n");
+  codeIncludes.push_back("#include " + QuotePath(componentsScriptTemplate) + "\n");
 
   return true;
 }
@@ -761,13 +705,10 @@ bool cmCPackInnoSetupGenerator::ProcessComponents()
 bool cmCPackInnoSetupGenerator::ConfigureISScript()
 {
   std::string const& isScriptTemplate = FindTemplate("ISScript.template.in");
-  std::string const& isScriptFile =
-    cmStrCat(GetOption("CPACK_TOPLEVEL_DIRECTORY"), "/ISScript.iss");
+  std::string const& isScriptFile = cmStrCat(GetOption("CPACK_TOPLEVEL_DIRECTORY"), "/ISScript.iss");
 
   if (isScriptTemplate.empty()) {
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "Could not find Inno Setup installer template file."
-                    << std::endl);
+    cmCPackLogger(cmCPackLog::LOG_ERROR, "Could not find Inno Setup installer template file." << std::endl);
     return false;
   }
 
@@ -778,8 +719,7 @@ bool cmCPackInnoSetupGenerator::ConfigureISScript()
   }
 
   // Also create comments if the sections are empty
-  std::string const& defaultMessage =
-    "; CPack didn't find any entries for this section";
+  std::string const& defaultMessage = "; CPack didn't find any entries for this section";
 
   if (!IsSetToEmpty("CPACK_CREATE_DESKTOP_LINKS")) {
     cmCPackInnoSetupKeyValuePairs tasks;
@@ -797,51 +737,37 @@ bool cmCPackInnoSetupGenerator::ConfigureISScript()
     SetOption("CPACK_INNOSETUP_TASKS_INTERNAL", defaultMessage);
   }
 
-  SetOption("CPACK_INNOSETUP_INCLUDES_INTERNAL",
-            includeDirectives.empty() ? "; No extra script files specified"
-                                      : cmJoin(includeDirectives, "\n"));
-  SetOption("CPACK_INNOSETUP_SETUP_INTERNAL",
-            setupSection.empty() ? defaultMessage
-                                 : cmJoin(setupSection, "\n"));
-  SetOption("CPACK_INNOSETUP_LANGUAGES_INTERNAL",
-            languageInstructions.empty() ? defaultMessage
-                                         : cmJoin(languageInstructions, "\n"));
-  SetOption("CPACK_INNOSETUP_DIRS_INTERNAL",
-            dirInstructions.empty() ? defaultMessage
-                                    : cmJoin(dirInstructions, "\n"));
-  SetOption("CPACK_INNOSETUP_FILES_INTERNAL",
-            fileInstructions.empty() ? defaultMessage
-                                     : cmJoin(fileInstructions, "\n"));
-  SetOption("CPACK_INNOSETUP_TYPES_INTERNAL",
-            typeInstructions.empty() ? defaultMessage
-                                     : cmJoin(typeInstructions, "\n"));
-  SetOption("CPACK_INNOSETUP_COMPONENTS_INTERNAL",
-            componentInstructions.empty()
-              ? defaultMessage
-              : cmJoin(componentInstructions, "\n"));
-  SetOption("CPACK_INNOSETUP_ICONS_INTERNAL",
-            iconInstructions.empty() ? defaultMessage
-                                     : cmJoin(iconInstructions, "\n"));
-  SetOption("CPACK_INNOSETUP_RUN_INTERNAL",
-            runInstructions.empty() ? defaultMessage
-                                    : cmJoin(runInstructions, "\n"));
-  SetOption("CPACK_INNOSETUP_CODE_INTERNAL",
-            codeIncludes.empty() ? "{ No extra code files specified }"
-                                 : cmJoin(codeIncludes, "\n"));
+  SetOption(
+    "CPACK_INNOSETUP_INCLUDES_INTERNAL",
+    includeDirectives.empty() ? "; No extra script files specified" : cmJoin(includeDirectives, "\n"));
+  SetOption("CPACK_INNOSETUP_SETUP_INTERNAL", setupSection.empty() ? defaultMessage : cmJoin(setupSection, "\n"));
+  SetOption(
+    "CPACK_INNOSETUP_LANGUAGES_INTERNAL",
+    languageInstructions.empty() ? defaultMessage : cmJoin(languageInstructions, "\n"));
+  SetOption("CPACK_INNOSETUP_DIRS_INTERNAL", dirInstructions.empty() ? defaultMessage : cmJoin(dirInstructions, "\n"));
+  SetOption(
+    "CPACK_INNOSETUP_FILES_INTERNAL", fileInstructions.empty() ? defaultMessage : cmJoin(fileInstructions, "\n"));
+  SetOption(
+    "CPACK_INNOSETUP_TYPES_INTERNAL", typeInstructions.empty() ? defaultMessage : cmJoin(typeInstructions, "\n"));
+  SetOption(
+    "CPACK_INNOSETUP_COMPONENTS_INTERNAL",
+    componentInstructions.empty() ? defaultMessage : cmJoin(componentInstructions, "\n"));
+  SetOption(
+    "CPACK_INNOSETUP_ICONS_INTERNAL", iconInstructions.empty() ? defaultMessage : cmJoin(iconInstructions, "\n"));
+  SetOption("CPACK_INNOSETUP_RUN_INTERNAL", runInstructions.empty() ? defaultMessage : cmJoin(runInstructions, "\n"));
+  SetOption(
+    "CPACK_INNOSETUP_CODE_INTERNAL",
+    codeIncludes.empty() ? "{ No extra code files specified }" : cmJoin(codeIncludes, "\n"));
 
-  cmCPackLogger(cmCPackLog::LOG_VERBOSE,
-                "Configure file: " << isScriptTemplate << " to "
-                                   << isScriptFile << std::endl);
+  cmCPackLogger(cmCPackLog::LOG_VERBOSE, "Configure file: " << isScriptTemplate << " to " << isScriptFile << std::endl);
 
   return ConfigureFile(isScriptTemplate, isScriptFile);
 }
 
 bool cmCPackInnoSetupGenerator::Compile()
 {
-  std::string const& isScriptFile =
-    cmStrCat(GetOption("CPACK_TOPLEVEL_DIRECTORY"), "/ISScript.iss");
-  std::string const& isccLogFile =
-    cmStrCat(GetOption("CPACK_TOPLEVEL_DIRECTORY"), "/ISCCOutput.log");
+  std::string const& isScriptFile = cmStrCat(GetOption("CPACK_TOPLEVEL_DIRECTORY"), "/ISScript.iss");
+  std::string const& isccLogFile = cmStrCat(GetOption("CPACK_TOPLEVEL_DIRECTORY"), "/ISCCOutput.log");
 
   std::vector<std::string> isccArgs;
 
@@ -849,8 +775,7 @@ bool cmCPackInnoSetupGenerator::Compile()
   for (std::string const& i : GetOptions()) {
     if (cmHasPrefix(i, "CPACK_INNOSETUP_DEFINE_")) {
       std::string const& name = i.substr(cmStrLen("CPACK_INNOSETUP_DEFINE_"));
-      isccArgs.push_back(
-        cmStrCat("\"/D", name, '=', TranslateBool(GetOption(i)), '"'));
+      isccArgs.push_back(cmStrCat("\"/D", name, '=', TranslateBool(GetOption(i)), '"'));
     }
   }
 
@@ -859,26 +784,22 @@ bool cmCPackInnoSetupGenerator::Compile()
     isccArgs.insert(isccArgs.end(), args.begin(), args.end());
   }
 
-  std::string const& isccCmd =
-    cmStrCat(QuotePath(GetOption("CPACK_INSTALLER_PROGRAM"), PathType::Native),
-             ' ', cmJoin(isccArgs, " "), ' ', QuotePath(isScriptFile));
+  std::string const& isccCmd = cmStrCat(
+    QuotePath(GetOption("CPACK_INSTALLER_PROGRAM"), PathType::Native), ' ', cmJoin(isccArgs, " "), ' ',
+    QuotePath(isScriptFile));
 
   cmCPackLogger(cmCPackLog::LOG_VERBOSE, "Execute: " << isccCmd << std::endl);
 
   std::string output;
   int retVal = 1;
   bool const res = cmSystemTools::RunSingleCommand(
-    isccCmd, &output, &output, &retVal, nullptr, this->GeneratorVerbose,
-    cmDuration::zero());
+    isccCmd, &output, &output, &retVal, nullptr, this->GeneratorVerbose, cmDuration::zero());
 
   if (!res || retVal) {
     cmGeneratedFileStream ofs(isccLogFile);
-    ofs << "# Run command: " << isccCmd << std::endl
-        << "# Output:" << std::endl
-        << output << std::endl;
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "Problem running ISCC. Please check "
-                    << isccLogFile << " for errors." << std::endl);
+    ofs << "# Run command: " << isccCmd << std::endl << "# Output:" << std::endl << output << std::endl;
+    cmCPackLogger(
+      cmCPackLog::LOG_ERROR, "Problem running ISCC. Please check " << isccLogFile << " for errors." << std::endl);
     return false;
   }
 
@@ -886,22 +807,20 @@ bool cmCPackInnoSetupGenerator::Compile()
 }
 
 bool cmCPackInnoSetupGenerator::BuildDownloadedComponentArchive(
-  cmCPackComponent* component, std::string const& uploadDirectory,
+  cmCPackComponent* component,
+  std::string const& uploadDirectory,
   std::string* hash)
 {
   // Remove the old archive, if one exists
-  std::string const& archiveFile =
-    uploadDirectory + '/' + component->ArchiveFile;
-  cmCPackLogger(cmCPackLog::LOG_OUTPUT,
-                "-   Building downloaded component archive: " << archiveFile
-                                                              << std::endl);
+  std::string const& archiveFile = uploadDirectory + '/' + component->ArchiveFile;
+  cmCPackLogger(cmCPackLog::LOG_OUTPUT, "-   Building downloaded component archive: " << archiveFile << std::endl);
   if (cmSystemTools::FileExists(archiveFile, true)) {
-    if (!cmSystemTools::RemoveFile(archiveFile)) {
-      cmCPackLogger(cmCPackLog::LOG_ERROR,
-                    "Unable to remove archive file " << archiveFile
-                                                     << std::endl);
-      return false;
-    }
+    cmSystemTools::RemoveFile(archiveFile);
+    //  cmCPackLogger(cmCPackLog::LOG_ERROR,
+    //                "Unable to remove archive file " << archiveFile
+    //                                                 << std::endl);
+    //  return false;
+    //}
   }
 
   // Find a ZIP program
@@ -909,26 +828,22 @@ bool cmCPackInnoSetupGenerator::BuildDownloadedComponentArchive(
     ReadListFile("Internal/CPack/CPackZIP.cmake");
 
     if (!IsSet("ZIP_EXECUTABLE")) {
-      cmCPackLogger(cmCPackLog::LOG_ERROR,
-                    "Unable to find ZIP program" << std::endl);
+      cmCPackLogger(cmCPackLog::LOG_ERROR, "Unable to find ZIP program" << std::endl);
       return false;
     }
   }
 
-  if (!RequireOption("CPACK_TOPLEVEL_DIRECTORY") ||
-      !RequireOption("CPACK_TEMPORARY_DIRECTORY") ||
-      !RequireOption("CPACK_ZIP_NEED_QUOTES") ||
-      !RequireOption("CPACK_ZIP_COMMAND")) {
+  if (
+    !RequireOption("CPACK_TOPLEVEL_DIRECTORY") || !RequireOption("CPACK_TEMPORARY_DIRECTORY") ||
+    !RequireOption("CPACK_ZIP_NEED_QUOTES") || !RequireOption("CPACK_ZIP_COMMAND")) {
     return false;
   }
 
   // The directory where this component's files reside
-  std::string const& dirName =
-    cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), '/', component->m_name);
+  std::string const& dirName = cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), '/', component->m_name);
 
   // Build the list of files to go into this archive
-  std::string const& zipListFileName =
-    cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), "/winZip.filelist");
+  std::string const& zipListFileName = cmStrCat(GetOption("CPACK_TEMPORARY_DIRECTORY"), "/winZip.filelist");
   bool const needQuotesInFile = GetOption("CPACK_ZIP_NEED_QUOTES").IsOn();
   { // the scope is needed for cmGeneratedFileStream
     cmGeneratedFileStream out(zipListFileName);
@@ -940,25 +855,19 @@ bool cmCPackInnoSetupGenerator::BuildDownloadedComponentArchive(
   // Build the archive in the upload area
   std::string cmd = GetOption("CPACK_ZIP_COMMAND");
   cmsys::SystemTools::ReplaceString(cmd, "<ARCHIVE>", archiveFile.c_str());
-  cmsys::SystemTools::ReplaceString(cmd, "<FILELIST>",
-                                    zipListFileName.c_str());
+  cmsys::SystemTools::ReplaceString(cmd, "<FILELIST>", zipListFileName.c_str());
   std::string output;
   int retVal = -1;
   bool const res = cmSystemTools::RunSingleCommand(
-    cmd, &output, &output, &retVal, dirName.c_str(), this->GeneratorVerbose,
-    cmDuration::zero());
+    cmd, &output, &output, &retVal, dirName.c_str(), this->GeneratorVerbose, cmDuration::zero());
   if (!res || retVal) {
-    std::string tmpFile =
-      cmStrCat(GetOption("CPACK_TOPLEVEL_DIRECTORY"), "/CompressZip.log");
+    std::string tmpFile = cmStrCat(GetOption("CPACK_TOPLEVEL_DIRECTORY"), "/CompressZip.log");
     cmGeneratedFileStream ofs(tmpFile);
-    ofs << "# Run command: " << cmd << std::endl
-        << "# Output:" << std::endl
-        << output << std::endl;
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "Problem running zip command: " << cmd << std::endl
-                                                  << "Please check " << tmpFile
-                                                  << " for errors"
-                                                  << std::endl);
+    ofs << "# Run command: " << cmd << std::endl << "# Output:" << std::endl << output << std::endl;
+    cmCPackLogger(
+      cmCPackLog::LOG_ERROR,
+      "Problem running zip command: " << cmd << std::endl
+                                      << "Please check " << tmpFile << " for errors" << std::endl);
     return false;
   }
 
@@ -968,25 +877,19 @@ bool cmCPackInnoSetupGenerator::BuildDownloadedComponentArchive(
   }
 
 #ifdef _WIN32
-  std::string const& hashCmd =
-    cmStrCat("certutil -hashfile ", QuotePath(archiveFile), " SHA256");
+  std::string const& hashCmd = cmStrCat("certutil -hashfile ", QuotePath(archiveFile), " SHA256");
 
   std::string hashOutput;
   int hashRetVal = -1;
   bool const hashRes = cmSystemTools::RunSingleCommand(
-    hashCmd, &hashOutput, &hashOutput, &hashRetVal, nullptr,
-    this->GeneratorVerbose, cmDuration::zero());
+    hashCmd, &hashOutput, &hashOutput, &hashRetVal, nullptr, this->GeneratorVerbose, cmDuration::zero());
   if (!hashRes || hashRetVal) {
-    cmCPackLogger(cmCPackLog::LOG_WARNING,
-                  "Problem running certutil command: " << hashCmd
-                                                       << std::endl);
+    cmCPackLogger(cmCPackLog::LOG_WARNING, "Problem running certutil command: " << hashCmd << std::endl);
   }
   *hash = cmTrimWhitespace(cmTokenizedView(hashOutput, '\n').at(1));
 
   if (hash->length() != 64) {
-    cmCPackLogger(cmCPackLog::LOG_WARNING,
-                  "Problem parsing certutil output of command: " << hashCmd
-                                                                 << std::endl);
+    cmCPackLogger(cmCPackLog::LOG_WARNING, "Problem parsing certutil output of command: " << hashCmd << std::endl);
     hash->clear();
   }
 #endif
@@ -999,18 +902,15 @@ cmValue cmCPackInnoSetupGenerator::RequireOption(std::string const& key)
   cmValue value = GetOption(key);
 
   if (!value) {
-    cmCPackLogger(cmCPackLog::LOG_ERROR,
-                  "Required variable " << key << " not set" << std::endl);
+    cmCPackLogger(cmCPackLog::LOG_ERROR, "Required variable " << key << " not set" << std::endl);
   }
 
   return value;
 }
 
-std::string cmCPackInnoSetupGenerator::CustomComponentInstallDirectory(
-  cmCPackComponent const* component)
+std::string cmCPackInnoSetupGenerator::CustomComponentInstallDirectory(cmCPackComponent const* component)
 {
-  cmValue outputDir = GetOption(
-    cmStrCat("CPACK_INNOSETUP_", component->m_name, "_INSTALL_DIRECTORY"));
+  cmValue outputDir = GetOption(cmStrCat("CPACK_INNOSETUP_", component->m_name, "_INSTALL_DIRECTORY"));
   if (outputDir) {
     std::string destDir = cmSystemTools::ConvertToWindowsOutputPath(outputDir);
     cmStripSuffixIfExists(destDir, '\\');
@@ -1020,13 +920,12 @@ std::string cmCPackInnoSetupGenerator::CustomComponentInstallDirectory(
      * (only once and not for Inno Setup constants ending with '}')
      */
     static std::vector<std::string> customDirectories;
-    if (!cmHasSuffix(destDir, '}') &&
-        std::find(customDirectories.begin(), customDirectories.end(),
-                  component->m_name) == customDirectories.end()) {
+    if (
+      !cmHasSuffix(destDir, '}') &&
+      std::find(customDirectories.begin(), customDirectories.end(), component->m_name) == customDirectories.end()) {
       cmCPackInnoSetupKeyValuePairs params;
       params["Name"] = QuotePath(destDir);
-      params["Components"] =
-        CreateRecursiveComponentPath(component->Group, component->m_name);
+      params["Components"] = CreateRecursiveComponentPath(component->Group, component->m_name);
 
       dirInstructions.push_back(ISKeyValueLine(params));
       customDirectories.push_back(component->m_name);
@@ -1056,19 +955,16 @@ std::string cmCPackInnoSetupGenerator::TranslateBool(std::string const& value)
   return value;
 }
 
-std::string cmCPackInnoSetupGenerator::ISKeyValueLine(
-  cmCPackInnoSetupKeyValuePairs const& params)
+std::string cmCPackInnoSetupGenerator::ISKeyValueLine(cmCPackInnoSetupKeyValuePairs const& params)
 {
   /*
    * To simplify readability of the generated code, the keys are sorted.
    * Unknown keys are ignored to avoid errors during compilation.
    */
-  static char const* const availableKeys[] = {
-    "Source",       "DestDir",          "Name",         "Filename",
-    "Description",  "GroupDescription", "MessagesFile", "Types",
-    "ExternalSize", "BeforeInstall",    "Flags",        "Components",
-    "Tasks"
-  };
+  static char const* const availableKeys[] = { "Source",       "DestDir",          "Name",         "Filename",
+                                               "Description",  "GroupDescription", "MessagesFile", "Types",
+                                               "ExternalSize", "BeforeInstall",    "Flags",        "Components",
+                                               "Tasks" };
 
   std::vector<std::string> keys;
   for (char const* i : availableKeys) {
@@ -1081,19 +977,18 @@ std::string cmCPackInnoSetupGenerator::ISKeyValueLine(
 }
 
 std::string cmCPackInnoSetupGenerator::CreateRecursiveComponentPath(
-  cmCPackComponentGroup* group, std::string const& path)
+  cmCPackComponentGroup* group,
+  std::string const& path)
 {
   if (!group) {
     return path;
   }
 
-  std::string const& newPath =
-    path.empty() ? group->m_name : cmStrCat(group->m_name, '\\', path);
+  std::string const& newPath = path.empty() ? group->m_name : cmStrCat(group->m_name, '\\', path);
   return CreateRecursiveComponentPath(group->ParentGroup, newPath);
 }
 
-void cmCPackInnoSetupGenerator::CreateRecursiveComponentGroups(
-  cmCPackComponentGroup* group)
+void cmCPackInnoSetupGenerator::CreateRecursiveComponentGroups(cmCPackComponentGroup* group)
 {
   if (!group) {
     return;
@@ -1102,8 +997,7 @@ void cmCPackInnoSetupGenerator::CreateRecursiveComponentGroups(
   CreateRecursiveComponentGroups(group->ParentGroup);
 
   static std::vector<cmCPackComponentGroup*> processedGroups;
-  if (std::find(processedGroups.begin(), processedGroups.end(), group) ==
-      processedGroups.end()) {
+  if (std::find(processedGroups.begin(), processedGroups.end(), group) == processedGroups.end()) {
     processedGroups.push_back(group);
 
     cmCPackInnoSetupKeyValuePairs params;
@@ -1127,8 +1021,9 @@ std::string cmCPackInnoSetupGenerator::Quote(std::string const& string)
   return cmStrCat('"', nString, '"');
 }
 
-std::string cmCPackInnoSetupGenerator::QuotePath(std::string const& path,
-                                                 PathType type)
+std::string cmCPackInnoSetupGenerator::QuotePath(
+  std::string const& path,
+  PathType type)
 {
 #ifdef _WIN32
   static_cast<void>(type);
@@ -1140,8 +1035,7 @@ std::string cmCPackInnoSetupGenerator::QuotePath(std::string const& path,
   return Quote(cmSystemTools::ConvertToWindowsOutputPath(path));
 }
 
-std::string cmCPackInnoSetupGenerator::PrepareForConstant(
-  std::string const& string)
+std::string cmCPackInnoSetupGenerator::PrepareForConstant(std::string const& string)
 {
   std::string nString = string;
 

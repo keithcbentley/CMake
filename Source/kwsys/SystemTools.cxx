@@ -2816,25 +2816,27 @@ std::string SystemTools::GetLastSystemError()
   return strerror(e);
 }
 
-Status SystemTools::RemoveFile(std::string const& source)
+void SystemTools::RemoveFile(std::string const& source)
 {
 #ifdef _WIN32
   std::wstring const& ws = Encoding::ToWindowsExtendedPath(source);
   if (DeleteFileW(ws.c_str())) {
-    return Status::Success();
+    return;
   }
   DWORD err = GetLastError();
   if (err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND) {
-    return Status::Success();
+    return;
   }
   if (err != ERROR_ACCESS_DENIED) {
-    return Status::Windows(err);
+    throw CMakeStatusException(ErrorKind::Windows);
+    //    return Status::Windows(err);
   }
   /* The file may be read-only.  Try adding write permission.  */
   mode_t mode;
   if (!SystemTools::GetPermissions(source, mode) || !SystemTools::SetPermissions(source, S_IWRITE)) {
     SetLastError(err);
-    return Status::Windows(err);
+    throw CMakeStatusException(ErrorKind::Windows);
+    //    return Status::Windows(err);
   }
 
   const DWORD DIRECTORY_SOFT_LINK_ATTRS = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT;
@@ -2842,15 +2844,16 @@ Status SystemTools::RemoveFile(std::string const& source)
   if (
     attrs != INVALID_FILE_ATTRIBUTES && (attrs & DIRECTORY_SOFT_LINK_ATTRS) == DIRECTORY_SOFT_LINK_ATTRS &&
     RemoveDirectoryW(ws.c_str())) {
-    return Status::Success();
+    return;
   }
   if (DeleteFileW(ws.c_str()) || GetLastError() == ERROR_FILE_NOT_FOUND || GetLastError() == ERROR_PATH_NOT_FOUND) {
-    return Status::Success();
+    return;
   }
   /* Try to restore the original permissions.  */
   SystemTools::SetPermissions(source, mode);
   SetLastError(err);
-  return Status::Windows(err);
+  throw CMakeStatusException(ErrorKind::Windows);
+//  return Status::Windows(err);
 #else
   if (unlink(source.c_str()) != 0 && errno != ENOENT) {
     return Status::POSIX_errno();
@@ -2894,10 +2897,7 @@ Status SystemTools::RemoveADirectory(std::string const& source)
           return status;
         }
       } else {
-        status = SystemTools::RemoveFile(fullPath);
-        if (!status.IsSuccess()) {
-          return status;
-        }
+        SystemTools::RemoveFile(fullPath);
       }
     }
   }

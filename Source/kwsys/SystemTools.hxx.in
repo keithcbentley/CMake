@@ -554,6 +554,7 @@ public:
    * an indication of whether the error occurred on the source
    * or destination path.
    */
+   //   TODO: What use is this really?
   struct CopyStatus : public Status
   {
     enum WhichPath
@@ -681,7 +682,7 @@ public:
   /**
    * Remove a file
    */
-  static Status RemoveFile(std::string const& source);
+  static void RemoveFile(std::string const& source);
 
   /**
    * Remove a directory
