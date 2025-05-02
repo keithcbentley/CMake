@@ -617,13 +617,14 @@ bool cmFileCopier::InstallFile(
     if (cmSystemTools::GetPermissions(toFile, perm)) {
       cmSystemTools::SetPermissions(toFile, perm | mode_owner_write);
     }
-    auto copy_status = cmFileTimes::Copy(fromFile, toFile);
-    if (!copy_status) {
-      std::ostringstream e;
-      e << this->m_name << " cannot set modification time on \"" << toFile << "\": " << copy_status.GetString() << ".";
-      this->Status.SetError(e.str());
-      return false;
-    }
+    cmFileTimes::CopyFileTimes(fromFile, toFile);
+    // auto copy_status = cmFileTimes::CopyFileTimes(fromFile, toFile);
+    //if (!copy_status) {
+    //  std::ostringstream e;
+    //  e << this->m_name << " cannot set modification time on \"" << toFile << "\": " << copy_status.GetString() << ".";
+    //  this->Status.SetError(e.str());
+    //  return false;
+    //}
   }
 
   // Set permissions of the destination file.

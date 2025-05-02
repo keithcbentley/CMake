@@ -376,10 +376,11 @@ int cmCPackGenerator::InstallProjectViaInstalledDirectories(
           symlinkedFiles.emplace_back(std::move(targetFile), std::move(inFileRelative));
         }
         /* If it is not a symlink then do a plain copy */
-        else if (!(cmSystemTools::CopyFileIfDifferent(inFile, filePath) && cmFileTimes::Copy(inFile, filePath))) {
+        else if (!cmSystemTools::CopyFileIfDifferent(inFile, filePath)) {
           cmCPackLogger(cmCPackLog::LOG_ERROR, "Problem copying file: " << inFile << " -> " << filePath << std::endl);
           return 0;
         }
+        cmFileTimes::CopyFileTimes(inFile, filePath);
       }
       /* rebuild symlinks in the installed tree */
       if (!symlinkedFiles.empty()) {
