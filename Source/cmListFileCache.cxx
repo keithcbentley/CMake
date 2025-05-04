@@ -8,6 +8,8 @@
 #include <ostream>
 #include <utility>
 
+#include "cmakeMessage.h"
+
 #ifdef _WIN32
 #  include <cmsys/Encoding.hxx>
 #endif
@@ -123,6 +125,8 @@ void cmListFileParser::IssueError(std::string const& text) const
 
 bool cmListFileParser::ParseFile(char const* filename)
 {
+  FunctionTrace f(__func__, filename);
+
   this->FileName = filename;
 
 #ifdef _WIN32
@@ -172,6 +176,7 @@ bool cmListFileParser::ParseString(
 
 bool cmListFileParser::Parse()
 {
+  FunctionTrace f(__func__);
   // Use a simple recursive-descent parser to process the token
   // stream.
   bool haveNewline = true;
@@ -223,6 +228,8 @@ bool cmListFileParser::ParseFunction(
   char const* name,
   long line)
 {
+  FunctionTrace f(__func__, name);
+
   // Ininitialize a new function call.
   this->FunctionName = name;
   this->FunctionLine = line;
@@ -443,6 +450,8 @@ bool cmListFile::ParseFile(
   cmMessenger* messenger,
   cmListFileBacktrace const& lfbt)
 {
+  FunctionTrace f(__func__);
+
   if (!cmSystemTools::FileExists(filename) || cmSystemTools::FileIsDirectory(filename)) {
     return false;
   }
@@ -463,6 +472,7 @@ bool cmListFile::ParseString(
   cmMessenger* messenger,
   cmListFileBacktrace const& lfbt)
 {
+  FunctionTrace f(__func__);
   bool parseError = false;
 
   {

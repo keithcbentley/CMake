@@ -3,6 +3,7 @@
 #include "cmConfigure.h" // IWYU pragma: keep
 
 #include "cmMakefile.h"
+#include "cmakeMessage.h"
 
 #include <algorithm>
 #include <cassert>
@@ -793,7 +794,10 @@ private:
 
 bool cmMakefile::ReadListFile(std::string const& filename)
 {
+  FunctionTrace f(__func__);
+
   std::string filenametoread = cmSystemTools::CollapseFullPath(filename, GetCurrentSourceDirectory());
+  f.more("filenametoread: ", filenametoread);
 
   ListFileScope scope(this, filenametoread);
 

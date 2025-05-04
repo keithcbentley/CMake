@@ -72,6 +72,7 @@ cmMakefile* cmakemainGetMakefile(CMake* cmake)
   //  TODO: why is a null check needed?
   //  TODO: why isn't this a method on CMake?
   //  TODO: why is there a check for debug output?
+  //  TODO: is this a fatal error if we can't get the makefile?
   if (cmake && cmake->GetDebugOutput()) {
     cmGlobalGenerator* globalGenerator = cmake->GetGlobalGenerator();
     if (globalGenerator) {
@@ -157,6 +158,8 @@ int do_cmake(
   int ac,
   char const* const* av)
 {
+  FunctionTrace f(__func__);
+
   //  TODO: Why would we get this far if we don't have a working directory?
   if (cmSystemTools::GetLogicalWorkingDirectory().empty()) {
     std::cerr << "Current working directory cannot be established." << std::endl;
@@ -973,6 +976,8 @@ int main(
   char const* const* av)
 {
   std::cout << "New CMake\n";
+
+  FunctionTrace f(__func__);
 
   try {
     cmSystemTools::EnsureStdPipes();

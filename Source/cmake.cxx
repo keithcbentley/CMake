@@ -18,6 +18,8 @@
 #include <cm/memory>
 #include <cm/optional>
 #include <cm/string_view>
+
+#include "cmakeMessage.h"
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(CMAKE_BOOT_MINGW)
 #  include <cm/iterator>
 #endif
@@ -476,6 +478,8 @@ void CMake::SetWarningFromPreset(
 
 void CMake::ProcessPresetVariables()
 {
+  FunctionTrace f(__func__);
+
   for (auto const& var : m_unprocessedPresetVariables) {
     if (!var.second) {
       continue;
@@ -517,6 +521,8 @@ void CMake::PrintPresetVariables()
 
 void CMake::ProcessPresetEnvironment()
 {
+  FunctionTrace f(__func__);
+
   for (auto const& var : m_unprocessedPresetEnvironment) {
     if (var.second) {
       cmSystemTools::PutEnv(cmStrCat(var.first, '=', *var.second));
@@ -547,6 +553,9 @@ void CMake::PrintPresetEnvironment()
 // Parse the args
 bool CMake::SetCacheArgs(std::vector<std::string> const& args)
 {
+  FunctionTrace f(__func__);
+
+  //  TODO: Should errors throw?
   static std::string const kCMAKE_POLICY_VERSION_MINIMUM = "CMAKE_POLICY_VERSION_MINIMUM";
   if (!m_pState->GetInitializedCacheValue(kCMAKE_POLICY_VERSION_MINIMUM)) {
     cm::optional<std::string> policyVersion = cmSystemTools::GetEnvVar(kCMAKE_POLICY_VERSION_MINIMUM);
@@ -772,6 +781,8 @@ void CMake::ReadListFile(
   std::vector<std::string> const& args,
   std::string const& path)
 {
+  FunctionTrace f(__func__);
+
   // if a generator was not yet created, temporarily create one
   cmGlobalGenerator* gg = GetGlobalGenerator();
 
@@ -805,6 +816,8 @@ void CMake::ReadListFile(
 
 bool CMake::FindPackage(std::vector<std::string> const& args)
 {
+  FunctionTrace f(__func__);
+
   SetHomeDirectory(cmSystemTools::GetLogicalWorkingDirectory());
   SetHomeOutputDirectory(cmSystemTools::GetLogicalWorkingDirectory());
 
@@ -892,6 +905,8 @@ bool CMake::FindPackage(std::vector<std::string> const& args)
 
 void CMake::LoadEnvironmentPresets()
 {
+  FunctionTrace f(__func__);
+
   std::string envGenVar;
   bool hasEnvironmentGenerator = false;
   if (cmSystemTools::GetEnv("CMAKE_GENERATOR", envGenVar)) {
@@ -1815,6 +1830,8 @@ bool CMake::SetDirectoriesFromFile(std::string const& arg)
 // cache
 int CMake::AddCMakePaths()
 {
+  FunctionTrace f(__func__);
+
   // Save the value in the cache
   AddCacheEntry("CMAKE_COMMAND", cmSystemTools::GetCMakeCommand(), "Path to CMake executable.", cmStateEnums::INTERNAL);
 #ifndef CMAKE_BOOTSTRAP
@@ -2184,6 +2201,8 @@ int CMake::HandleDeleteCacheVariables(std::string const& var)
 
 int CMake::Configure()
 {
+  FunctionTrace f(__func__);
+
 #if !defined(CMAKE_BOOTSTRAP)
   auto profilingRAII = CreateProfilingEntry("project", "configure");
 #endif
@@ -2453,16 +2472,16 @@ int CMake::ActualConfigure()
       cmStrCat(GetHomeOutputDirectory(), "/CMakeFiles"_s), m_pFileAPI->GetConfigureLogVersions());
   }
 
-  //m_pInstrumentation = cm::make_unique<cmInstrumentation>(m_pState->GetBinaryDirectory());
-  //m_pInstrumentation->ClearGeneratedQueries();
+  // m_pInstrumentation = cm::make_unique<cmInstrumentation>(m_pState->GetBinaryDirectory());
+  // m_pInstrumentation->ClearGeneratedQueries();
 #endif
 
   // actually do the configure
   auto startTime = std::chrono::steady_clock::now();
 #if !defined(CMAKE_BOOTSTRAP)
-  //if (m_pInstrumentation->HasErrors()) {
-  //  return 1;
-  //}
+  // if (m_pInstrumentation->HasErrors()) {
+  //   return 1;
+  // }
   auto doConfigure = [this]() -> int {
     m_pGlobalGenerator->Configure();
     return 0;
@@ -2511,31 +2530,31 @@ int CMake::ActualConfigure()
   // Setup launchers for instrumentation
 #if !defined(CMAKE_BOOTSTRAP)
 //  m_pInstrumentation->LoadQueries();
-  //if (m_pInstrumentation->HasQuery()) {
-  //  std::string launcher;
-  //  if (mf->IsOn("CTEST_USE_LAUNCHERS")) {
-  //    launcher = cmStrCat(
-  //      "\"", cmSystemTools::GetCTestCommand(), "\" --launch ", "--current-build-dir <CMAKE_CURRENT_BINARY_DIR> ");
-  //  } else {
-  //    launcher = cmStrCat("\"", cmSystemTools::GetCTestCommand(), "\" --instrument ");
-  //  }
-  //  std::string common_args =
-  //    cmStrCat(" --target-name <TARGET_NAME> --build-dir \"", m_pState->GetBinaryDirectory(), "\" ");
-  //  m_pState->SetGlobalProperty(
-  //    "RULE_LAUNCH_COMPILE",
-  //    cmStrCat(
-  //      launcher, "--command-type compile", common_args, "--config <CONFIG> ",
-  //      "--output <OBJECT> --source <SOURCE> --language <LANGUAGE> -- "));
-  //  m_pState->SetGlobalProperty(
-  //    "RULE_LAUNCH_LINK",
-  //    cmStrCat(
-  //      launcher, "--command-type link", common_args,
-  //      "--output <TARGET> --target-type <TARGET_TYPE> --config <CONFIG> ",
-  //      "--language <LANGUAGE> --target-labels \"<TARGET_LABELS>\" -- "));
-  //  m_pState->SetGlobalProperty(
-  //    "RULE_LAUNCH_CUSTOM",
-  //    cmStrCat(launcher, "--command-type custom", common_args, "--output \"<OUTPUT>\" --role <ROLE> -- "));
-  //}
+// if (m_pInstrumentation->HasQuery()) {
+//  std::string launcher;
+//  if (mf->IsOn("CTEST_USE_LAUNCHERS")) {
+//    launcher = cmStrCat(
+//      "\"", cmSystemTools::GetCTestCommand(), "\" --launch ", "--current-build-dir <CMAKE_CURRENT_BINARY_DIR> ");
+//  } else {
+//    launcher = cmStrCat("\"", cmSystemTools::GetCTestCommand(), "\" --instrument ");
+//  }
+//  std::string common_args =
+//    cmStrCat(" --target-name <TARGET_NAME> --build-dir \"", m_pState->GetBinaryDirectory(), "\" ");
+//  m_pState->SetGlobalProperty(
+//    "RULE_LAUNCH_COMPILE",
+//    cmStrCat(
+//      launcher, "--command-type compile", common_args, "--config <CONFIG> ",
+//      "--output <OBJECT> --source <SOURCE> --language <LANGUAGE> -- "));
+//  m_pState->SetGlobalProperty(
+//    "RULE_LAUNCH_LINK",
+//    cmStrCat(
+//      launcher, "--command-type link", common_args,
+//      "--output <TARGET> --target-type <TARGET_TYPE> --config <CONFIG> ",
+//      "--language <LANGUAGE> --target-labels \"<TARGET_LABELS>\" -- "));
+//  m_pState->SetGlobalProperty(
+//    "RULE_LAUNCH_CUSTOM",
+//    cmStrCat(launcher, "--command-type custom", common_args, "--output \"<OUTPUT>\" --role <ROLE> -- "));
+//}
 #endif
 
   m_pState->SaveVerificationScript(GetHomeOutputDirectory(), m_pMessenger.get());
@@ -2625,6 +2644,8 @@ void CMake::CreateDefaultGlobalGenerator()
 
 void CMake::PreLoadCMakeFiles()
 {
+  FunctionTrace f(__func__);
+
   std::vector<std::string> args;
   std::string pre_load = GetHomeDirectory();
   if (!pre_load.empty()) {
@@ -2690,6 +2711,8 @@ int CMake::Run(
   std::vector<std::string> const& args,
   bool noconfigure)
 {
+  FunctionTrace f(__func__);
+
   // Process the arguments
   SetArgs(args);
   if (cmSystemTools::GetErrorOccurredFlag()) {
@@ -2745,6 +2768,7 @@ int CMake::Run(
       cmSystemTools::Error("--fresh allowed only when configuring a project");
       return -1;
     }
+
     AddCMakePaths();
   }
 
@@ -2765,6 +2789,8 @@ int CMake::Run(
     PrintPresetEnvironment();
   }
 #endif
+  PrintPresetVariables();
+  PrintPresetEnvironment();
 
   // In script mode we terminate after running the script.
   if (GetWorkingMode() != NORMAL_MODE) {
@@ -2837,13 +2863,18 @@ int CMake::Run(
 
 int CMake::Generate()
 {
+  FunctionTrace f(__func__);
+
   if (!m_pGlobalGenerator) {
+    //    TODO:   so is this fatal? Should it throw?
     return -1;
   }
 
   auto startTime = std::chrono::steady_clock::now();
 #if !defined(CMAKE_BOOTSTRAP)
   auto profilingRAII = CreateProfilingEntry("project", "generate");
+
+  //    TODO: more f'ing lambdas.
   auto doGenerate = [this]() -> int {
     if (!m_pGlobalGenerator->Compute()) {
       m_pFileAPI->WriteReplies(cmFileAPI::IndexFor::FailedCompute);
@@ -2853,7 +2884,7 @@ int CMake::Generate()
     return 0;
   };
 
-//  m_pInstrumentation->LoadQueries();
+  //  m_pInstrumentation->LoadQueries();
   int ret = doGenerate();
   //  int ret = m_pInstrumentation->InstrumentCommand("generate", m_cmdArgs, [doGenerate]() { return doGenerate(); });
   if (ret != 0) {
@@ -3038,6 +3069,7 @@ bool CMake::ParseCacheEntry(
 int CMake::LoadCache()
 {
   // could we not read the cache
+  //  TODO: cache filename is hardcoded here and in the lower level function.
   if (!LoadCache(GetHomeOutputDirectory())) {
     // if it does exist, but isn't readable then warn the user
     std::string cacheFile = cmStrCat(GetHomeOutputDirectory(), "/CMakeCache.txt");
@@ -3167,6 +3199,10 @@ bool CMake::GetIsInTryCompile() const
 
 int CMake::CheckBuildSystem()
 {
+  FunctionTrace f(__func__);
+
+  //    TODO: what the hell? We are running cmake inside of cmake?
+
   // We do not need to rerun CMake.  Check dependency integrity.
   bool const verbose = isCMakeVerbose();
 
@@ -3755,11 +3791,11 @@ int CMake::Build(
   }
 
 #if !defined(CMAKE_BOOTSTRAP)
-  //cmInstrumentation instrumentation(dir);
-  //if (instrumentation.HasErrors()) {
-  //  return 1;
-  //}
-  //instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PreCMakeBuild);
+  // cmInstrumentation instrumentation(dir);
+  // if (instrumentation.HasErrors()) {
+  //   return 1;
+  // }
+  // instrumentation.CollectTimingData(cmInstrumentationQuery::Hook::PreCMakeBuild);
 #endif
 
   m_pGlobalGenerator->PrintBuildCommandAdvice(std::cerr, jobs);
