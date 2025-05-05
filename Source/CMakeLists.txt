@@ -513,30 +513,10 @@ add_library(
   cmakeMessage.cpp
   cmakeMessage.h
 
+  AddCommands.h
+  AddCommands.cxx
   cmCommands.cxx
   cmCommands.h
-  cmAddCompileDefinitionsCommand.cxx
-  cmAddCompileDefinitionsCommand.h
-  cmAddCompileOptionsCommand.cxx
-  cmAddCompileOptionsCommand.h
-  cmAddLinkOptionsCommand.cxx
-  cmAddLinkOptionsCommand.h
-  cmAddCustomCommandCommand.cxx
-  cmAddCustomCommandCommand.h
-  cmAddCustomTargetCommand.cxx
-  cmAddCustomTargetCommand.h
-  cmAddDefinitionsCommand.cxx
-  cmAddDefinitionsCommand.h
-  cmAddDependenciesCommand.cxx
-  cmAddDependenciesCommand.h
-  cmAddExecutableCommand.cxx
-  cmAddExecutableCommand.h
-  cmAddLibraryCommand.cxx
-  cmAddLibraryCommand.h
-  cmAddSubDirectoryCommand.cxx
-  cmAddSubDirectoryCommand.h
-  cmAddTestCommand.cxx
-  cmAddTestCommand.h
   cmAuxSourceDirectoryCommand.cxx
   cmAuxSourceDirectoryCommand.h
   cmBreakCommand.cxx

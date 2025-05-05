@@ -130,7 +130,7 @@ class CMakeStatusException : public std::exception
 
 public:
 
-    CMakeStatusException::CMakeStatusException(ErrorKind errorKind);
+    CMakeStatusException(ErrorKind errorKind);
 
 };
 

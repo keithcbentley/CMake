@@ -5,15 +5,8 @@
 
 #include <cm/memory>
 
-#include "cmAddCompileDefinitionsCommand.h"
-#include "cmAddCustomCommandCommand.h"
-#include "cmAddCustomTargetCommand.h"
-#include "cmAddDefinitionsCommand.h"
-#include "cmAddDependenciesCommand.h"
-#include "cmAddExecutableCommand.h"
-#include "cmAddLibraryCommand.h"
-#include "cmAddSubDirectoryCommand.h"
-#include "cmAddTestCommand.h"
+#include "AddCommands.h"
+
 #include "cmBlockCommand.h"
 #include "cmBreakCommand.h"
 #include "cmBuildCommand.h"
@@ -89,8 +82,6 @@
 #include "cmWhileCommand.h"
 
 #if !defined(CMAKE_BOOTSTRAP)
-#  include "cmAddCompileOptionsCommand.h"
-#  include "cmAddLinkOptionsCommand.h"
 #  include "cmAuxSourceDirectoryCommand.h"
 #  include "cmCMakeHostSystemInformationCommand.h"
 #  include "cmCMakePkgConfigCommand.h"

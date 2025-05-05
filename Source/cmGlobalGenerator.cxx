@@ -2533,6 +2533,8 @@ cmTarget* cmGlobalGenerator::FindTarget(
   std::string const& name,
   cmStateEnums::TargetDomainSet domains) const
 {
+  FunctionTrace(__func__, name);
+
   if (domains.contains(cmStateEnums::TargetDomain::ALIAS)) {
     auto const ai = this->m_aliasTargets.find(name);
     if (ai != this->m_aliasTargets.end()) {
@@ -2641,6 +2643,7 @@ bool cmGlobalGenerator::CheckReservedTargetNamePrefix(
   std::string const& targetPrefix,
   std::string const& reason) const
 {
+  FunctionTrace f(__func__, targetPrefix);
   bool ret = true;
   for (auto const& tgtPair : this->TargetSearchIndex) {
     if (cmHasPrefix(tgtPair.first, targetPrefix)) {
@@ -3091,6 +3094,8 @@ void cmGlobalGenerator::AddBuildDatabaseFile(
 
 bool cmGlobalGenerator::AddBuildDatabaseTargets()
 {
+  FunctionTrace f(__func__);
+
   auto& mf = this->Makefiles[0];
   if (!mf->IsOn("CMAKE_EXPORT_BUILD_DATABASE")) {
     return true;

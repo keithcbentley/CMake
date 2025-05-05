@@ -3026,6 +3026,8 @@ cmSourceFile* cmMakefile::GetSource(
   std::string const& sourceName,
   cmSourceFileLocationKind kind) const
 {
+  FunctionTrace f(__func__, sourceName);
+
   // First check "Known" paths (avoids the creation of cmSourceFileLocation)
   if (kind == cmSourceFileLocationKind::Known) {
     auto sfsi = m_knownFileSearchIndex.find(sourceName);
@@ -3055,6 +3057,7 @@ cmSourceFile* cmMakefile::CreateSource(
   bool generated,
   cmSourceFileLocationKind kind)
 {
+  FunctionTrace f(__func__, sourceName);
   auto sf = cm::make_unique<cmSourceFile>(this, sourceName, generated, kind);
   auto name = GetCMakeInstance()->StripExtension(sf->GetLocation().GetName());
 #if defined(_WIN32) || defined(__APPLE__)
@@ -3076,6 +3079,8 @@ cmSourceFile* cmMakefile::GetOrCreateSource(
   bool generated,
   cmSourceFileLocationKind kind)
 {
+  FunctionTrace f(__func__, sourceName);
+
   if (cmSourceFile* esf = GetSource(sourceName, kind)) {
     return esf;
   }
@@ -3084,6 +3089,8 @@ cmSourceFile* cmMakefile::GetOrCreateSource(
 
 cmSourceFile* cmMakefile::GetOrCreateGeneratedSource(std::string const& sourceName)
 {
+  FunctionTrace f(__func__, sourceName);
+
   cmSourceFile* sf = GetOrCreateSource(sourceName, true, cmSourceFileLocationKind::Known);
   sf->MarkAsGenerated(); // In case we did not create the source file.
   return sf;
@@ -3091,6 +3098,8 @@ cmSourceFile* cmMakefile::GetOrCreateGeneratedSource(std::string const& sourceNa
 
 void cmMakefile::CreateGeneratedOutputs(std::vector<std::string> const& outputs)
 {
+  FunctionTrace f(__func__);
+
   for (std::string const& o : outputs) {
     if (cmGeneratorExpression::Find(o) == std::string::npos) {
       GetOrCreateGeneratedSource(o);
