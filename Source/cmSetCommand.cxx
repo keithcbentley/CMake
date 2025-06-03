@@ -2,6 +2,9 @@
    file LICENSE.rst or https://cmake.org/licensing for details.  */
 #include "cmSetCommand.h"
 
+#include <iostream>
+
+#include "CmakeBetter.h"
 #include "cmExecutionStatus.h"
 #include "cmList.h"
 #include "cmMakefile.h"
@@ -17,55 +20,52 @@
 bool cmSetCommand(std::vector<std::string> const& args,
                   cmExecutionStatus& status)
 {
-  if (args.empty()) {
-    status.SetError("called with incorrect number of arguments");
+  SafeArgs safeArgs(args);
+
+  if (safeArgs.isEmpty()) {
+    status.SetError("called with incorrect number of arguments.");
     return false;
   }
 
   // watch for ENV signatures
-  auto const& variable = args[0]; // VAR is always first
-  if (cmHasLiteralPrefix(variable, "ENV{") && variable.size() > 5) {
-    // what is the variable name
-    auto const& varName = variable.substr(4, variable.size() - 5);
-    std::string putEnvArg = varName + "=";
+  if (safeArgs[0].starts_with("ENV{")) {
+    if (!safeArgs[0].ends_with("}")) {
+      status.SetError("ENV{ is missing closing } character.");
+      return false;
+    }
+    std::string const envVarName =
+      StringUtil::substrStartEnd(safeArgs[0], 4, -1);
+    if (envVarName.empty()) {
+      status.SetError("ENV{} is missing environment variable name.");
+      return false;
+    }
 
-    // what is the current value if any
-    std::string currValue;
-    bool const currValueSet = cmSystemTools::GetEnv(varName, currValue);
+    if (safeArgs.argCount() > 2) {
+      status.SetError("ENV{} has too many args.");
+      return false;
+    }
 
-    // will it be set to something, then set it
-    if (args.size() > 1 && !args[1].empty()) {
-      // but only if it is different from current value
-      if (!currValueSet || currValue != args[1]) {
-        putEnvArg += args[1];
-        cmSystemTools::PutEnv(putEnvArg);
-      }
-      // if there's extra arguments, warn user
-      // that they are ignored by this command.
-      if (args.size() > 2) {
-        std::string m = "Only the first value argument is used when setting "
-                        "an environment variable.  Argument '" +
-          args[2] + "' and later are unused.";
-        status.GetMakefile().IssueMessage(MessageType::AUTHOR_WARNING, m);
-      }
+    //      auto currentValue = SysEnv::getEnv(envVarName);
+
+    if (safeArgs.argCount() == 1 || safeArgs[1].empty()) {
+      SysEnv::unsetEnv(envVarName);
       return true;
     }
 
-    // if it will be cleared, then clear it if it isn't already clear
-    if (currValueSet) {
-      cmSystemTools::PutEnv(putEnvArg);
-    }
+    SysEnv::setEnv(envVarName, safeArgs[1]);
     return true;
   }
 
+  auto const& variable = safeArgs[0]; // VAR is always first
+
   // SET (VAR) // Removes the definition of VAR.
-  if (args.size() == 1) {
+  if (safeArgs.argCount() == 1) {
     status.GetMakefile().RemoveDefinition(variable);
     return true;
   }
   // SET (VAR PARENT_SCOPE) // Removes the definition of VAR
   // in the parent scope.
-  if (args.size() == 2 && args.back() == "PARENT_SCOPE") {
+  if (safeArgs.argCount() == 2 && safeArgs[1] == "PARENT_SCOPE") {
     status.GetMakefile().RaiseScope(variable, nullptr);
     return true;
   }

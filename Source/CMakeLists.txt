@@ -86,6 +86,7 @@ add_library(
   LexerParser/cmListFileLexer.c
   LexerParser/cmListFileLexer.in.l
 
+  CMakeBetter.h
   cmAffinity.cxx
   cmAffinity.h
   cmAlgorithms.h
