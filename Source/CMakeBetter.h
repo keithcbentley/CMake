@@ -36,6 +36,31 @@ public:
   bool isEmpty() const { return m_args.empty(); }
 
   int argCount() const { return m_args.size(); }
+
+  std::optional<std::string> collectArgs(int startIndex, int endIndexInclusive)
+  {
+    if (endIndexInclusive < 0) {
+      endIndexInclusive += m_args.size();
+    }
+    if (endIndexInclusive < 0) {
+      return {};
+    }
+    if (endIndexInclusive < startIndex) {
+      return {};
+    }
+
+    std::string mergedArgs;
+    bool isFirst = true;
+    for (int index = startIndex; index <= endIndexInclusive; index++) {
+      if (!isFirst) {
+        mergedArgs += ';';
+      }
+      isFirst = false;
+      mergedArgs += m_args[index];
+    }
+
+    return mergedArgs;
+  }
 };
 
 class StringUtil

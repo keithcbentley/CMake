@@ -45,8 +45,6 @@ bool cmSetCommand(std::vector<std::string> const& args,
       return false;
     }
 
-    //      auto currentValue = SysEnv::getEnv(envVarName);
-
     if (safeArgs.argCount() == 1 || safeArgs[1].empty()) {
       SysEnv::unsetEnv(envVarName);
       return true;
@@ -56,7 +54,7 @@ bool cmSetCommand(std::vector<std::string> const& args,
     return true;
   }
 
-  auto const& variable = safeArgs[0]; // VAR is always first
+  std::string const& variable = safeArgs[0]; // VAR is always first
 
   // SET (VAR) // Removes the definition of VAR.
   if (safeArgs.argCount() == 1) {
@@ -75,73 +73,79 @@ bool cmSetCommand(std::vector<std::string> const& args,
   //  SET (VAR value PARENT_SCOPE)
   //  SET (VAR CACHE TYPE "doc String" [FORCE])
   //  SET (VAR value CACHE TYPE "doc string" [FORCE])
-  std::string value;  // optional
-  bool cache = false; // optional
-  bool force = false; // optional
-  bool parentScope = false;
-  cmStateEnums::CacheEntryType type =
-    cmStateEnums::STRING; // required if cache
-  cmValue docstring;      // required if cache
-
-  unsigned int ignoreLastArgs = 0;
-  // look for PARENT_SCOPE argument
-  if (args.size() > 1 && args.back() == "PARENT_SCOPE") {
-    parentScope = true;
-    ignoreLastArgs++;
+  bool isParentScope = false;
+  bool isForce = false;
+  bool isCacheCmd = false;
+  std::string docstring;
+  std::string typeArg;
+  std::string cacheArg;
+  int valueStartIndex = 1;         //  default for regular set variable command
+  int valueEndIndexInclusive = -1; //  default for regular set variable command
+  if (safeArgs[-1] == "PARENT_SCOPE") {
+    isParentScope = true;
+    valueEndIndexInclusive = -2;
+  } else if (safeArgs[-1] == "FORCE") {
+    isCacheCmd = true;
+    isForce = true;
+    docstring = safeArgs[-2];
+    typeArg = safeArgs[-3];
+    cacheArg = safeArgs[-4];
+    valueEndIndexInclusive = -5;
+  } else if (safeArgs[-3] == "CACHE") {
+    isCacheCmd = true;
+    docstring = safeArgs[-1];
+    typeArg = safeArgs[-2];
+    cacheArg = safeArgs[-3];
+    valueEndIndexInclusive = -4;
   } else {
-    // look for FORCE argument
-    if (args.size() > 4 && args.back() == "FORCE") {
-      force = true;
-      ignoreLastArgs++;
-    }
+    //    regular var
+  }
 
-    // check for cache signature
-    if (args.size() > 3 &&
-        args[args.size() - 3 - (force ? 1 : 0)] == "CACHE") {
-      cache = true;
-      ignoreLastArgs += 3;
+  if (isForce) {
+    if (cacheArg != "CACHE") {
+      status.SetError("FORCE argument given but no CACHE argument found.");
+      return false;
+    }
+  }
+  if (isCacheCmd) {
+    //    TODO: do some error checking here?
+  }
+
+  std::optional<std::string> value =
+    safeArgs.collectArgs(valueStartIndex, valueEndIndexInclusive);
+  if (!value) {
+    if (!isCacheCmd) {
+      //    Missing values and not a set cache command
+      status.SetError("Missing value(s) for set command.");
+      return false;
+    } else {
+      //  TODO: clunky.  Need to give some value so that we don't
+      //  barf when actually using it for the cache command.
+      value = "";
     }
   }
 
-  // collect any values into a single semi-colon separated value list
-  value =
-    cmList::to_string(cmMakeRange(args).advance(1).retreat(ignoreLastArgs));
-
-  if (parentScope) {
-    status.GetMakefile().RaiseScope(variable, value.c_str());
+  if (isParentScope) {
+    status.GetMakefile().RaiseScope(variable, value.value().c_str());
     return true;
   }
 
-  // we should be nice and try to catch some simple screwups if the last or
-  // next to last args are CACHE then they screwed up.  If they used FORCE
-  // without CACHE they screwed up
-  if (args.back() == "CACHE") {
-    status.SetError(
-      "given invalid arguments for CACHE mode: missing type and docstring");
-    return false;
-  }
-  if (args.size() > 1 && args[args.size() - 2] == "CACHE") {
-    status.SetError(
-      "given invalid arguments for CACHE mode: missing type or docstring");
-    return false;
-  }
-  if (force && !cache) {
-    status.SetError("given invalid arguments: FORCE specified without CACHE");
-    return false;
-  }
+  cmStateEnums::CacheEntryType type =
+    cmStateEnums::STRING; // required if cache
+  cmValue docstringValue; // required if cache
 
-  if (cache) {
-    std::string::size_type cacheStart = args.size() - 3 - (force ? 1 : 0);
-    if (!cmState::StringToCacheEntryType(args[cacheStart + 1], type)) {
-      std::string m = "implicitly converting '" + args[cacheStart + 1] +
-        "' to 'STRING' type.";
+  if (isCacheCmd) {
+    //    TODO: what is this?
+    if (!cmState::StringToCacheEntryType(typeArg, type)) {
+      std::string m =
+        "implicitly converting '" + typeArg + "' to 'STRING' type.";
       status.GetMakefile().IssueMessage(MessageType::AUTHOR_WARNING, m);
       // Setting this may not be required, since it's
       // initialized as a string. Keeping this here to
       // ensure that the type is actually converting to a string.
       type = cmStateEnums::STRING;
     }
-    docstring = cmValue{ args[cacheStart + 2] };
+    docstringValue = cmValue{ docstring };
   }
 
   // see if this is already in the cache
@@ -153,18 +157,19 @@ bool cmSetCommand(std::vector<std::string> const& args,
     // is already in the cache and the type is not internal
     // then leave now without setting any definitions in the cache
     // or the makefile
-    if (cache && type != cmStateEnums::INTERNAL && !force) {
+    //    TODO: what does this even mean?
+    if (isCacheCmd && type != cmStateEnums::INTERNAL && !isForce) {
       return true;
     }
   }
 
   // if it is meant to be in the cache then define it in the cache
-  if (cache) {
-    status.GetMakefile().AddCacheDefinition(variable, cmValue{ value },
-                                            docstring, type, force);
-  } else {
-    // add the definition
-    status.GetMakefile().AddDefinition(variable, value);
+  if (isCacheCmd) {
+    status.GetMakefile().AddCacheDefinition(
+      variable, cmValue{ value.value() }, docstringValue, type, isForce);
+    return true;
   }
+
+  status.GetMakefile().AddDefinition(variable, value.value());
   return true;
 }
